@@ -3,7 +3,7 @@
 
 /// ported: vcpkg_installed\x64-windows\commonlibsse_ng\include\SKSE\Trampoline.h
 ///
-use crate::bindings::root::{RE, REL, SKSE};
+use crate::bindings::root::SKSE;
 
 impl Default for SKSE::PluginVersionData {
     fn default() -> Self {
