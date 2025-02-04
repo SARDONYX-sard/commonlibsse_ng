@@ -22,9 +22,16 @@ jobs:
         uses: lukka/run-vcpkg@v11.5
         with:
           vcpkgGitCommitId: 7f9f0e44db287e8e67c0e888141bfa200ab45121
-          runVcpkgInstall: true
-          vcpkgJsonGlob: "**/vcpkg.json"
-          doNotCache: false
+      - name: Cache
+        uses: actions/cache@v4.2.0
+        with:
+          path: |
+            vcpkg_installed
+            build
+          key: |
+            vcpkg-windows-x64-${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}
+      - name: Install
+        run: vcpkg install
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.6.0
