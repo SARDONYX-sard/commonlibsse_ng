@@ -4,6 +4,8 @@
     "bindgen",
     "Bitfield",
     "ctypes",
+    "declspec",
+    "MSVC",
     "reqwest",
     "SKSE",
     "vcpkg"

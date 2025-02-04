@@ -5,28 +5,8 @@
 ///
 use crate::bindings::root::{RE, REL, SKSE};
 
-pub fn REL_Relocate<T>(se_and_vr: T, ae: T) -> T {
-    if unsafe { REL::Module::IsAE() } {
-        ae
-    } else {
-        se_and_vr
-    }
-}
-
-const K_EDITOR_TOTAL: usize = RE::BIPED_OBJECTS_BIPED_OBJECT::kEditorTotal as usize;
-impl RE::TESObjectARMO {
-    pub fn assign_using_mask(&self, dest: &mut [*const RE::TESObjectARMO; K_EDITOR_TOTAL]) {
-        let mask = unsafe { self._base_10.GetSlotMask() } as u32;
-        for slot in 0..K_EDITOR_TOTAL {
-            if mask & (1 << slot) != 0 {
-                dest[slot] = self as *const RE::TESObjectARMO as *const RE::TESObjectARMO;
-            }
-        }
-    }
-}
-
-impl SKSE::PluginVersionData {
-    pub const fn default() -> Self {
+impl Default for SKSE::PluginVersionData {
+    fn default() -> Self {
         use crate::bindings::root::__BindgenBitfieldUnit;
 
         Self {

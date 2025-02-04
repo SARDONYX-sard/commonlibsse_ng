@@ -1,10 +1,15 @@
 [CmdletBinding()]
-Param([switch]$Build, [switch]$Test)
+Param([switch]$Build, [switch]$Test, [switch]$Gen)
 
 $env:LIBCLANG_PATH = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib"
 
 if ($Build) {
   build
+}
+elseif ($Gen) {
+  $env:RUST_BACKTRACE = 1
+  Write-Host "Generate bindings..." -ForegroundColor Green
+  cargo build --features "generate,vcpkg" --no-default-features *> ./target/gen_results.txt
 }
 elseif ($Test) {
   Write-Host "Testing..." -ForegroundColor Green

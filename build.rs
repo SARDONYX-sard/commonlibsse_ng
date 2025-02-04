@@ -23,78 +23,66 @@ fn main() {
     }
 
     #[cfg(feature = "generate")]
-    {
-        let include_dir = crate_root.join("vcpkg_installed/x64-windows/include");
-        bindgen(&include_dir);
-    }
+    bindgen(&crate_root);
+
     println!("cargo:rustc-link-search=native={}", lib_path.display());
 }
 
 #[cfg(feature = "generate")]
-fn bindgen<P>(include_dir: P)
+fn bindgen<P>(crate_root: P)
 where
     P: AsRef<std::path::Path>,
 {
-    let includes = include_dir.as_ref();
+    let crate_root = crate_root.as_ref();
+    let header = crate_root.join("wrapper.hpp");
+    let include_dir = {
+        let include_dir = crate_root.join("vcpkg_installed/x64-windows/include");
+        include_dir.display().to_string()
+    };
 
     let mut bindings = bindgen::Builder::default()
         // Fail calculation values
         // - vcpkg_installed\x64-windows\include\SKSE\Impl\Stubs.h:kInvalidPluginHandle = u32::MAX,
         // - vcpkg_installed\x64-windows\include\RE\G\GString.h:kFullFlag = 2147483648, (1 << 31)
-        .allowlist_function("SKSE::AllocTrampoline")
-        .allowlist_function("SKSE::GetMessagingInterface")
-        .allowlist_function("SKSE::GetModCallbackEventSource")
-        .allowlist_function("SKSE::GetPapyrusInterface")
-        .allowlist_function("SKSE::GetSerializationInterface")
-        .allowlist_function("SKSE::GetTrampoline")
-        .allowlist_function("SKSE::Init")
         .allowlist_item("RE::.*")
         .allowlist_item("REL::.*")
         .allowlist_item("SKSE::.*")
-        .allowlist_type("RE::AlchemyItem")
-        .allowlist_type("RE::Calendar")
-        .allowlist_type("RE::PlayerCharacter")
-        .allowlist_type("RE::TESDataHandler")
-        .allowlist_type("RE::TESObjectARMO")
-        .allowlist_type("REL::Module")
-        .allowlist_type("REL::Version")
-        .allowlist_type("SKSE::LoadInterface")
-        .allowlist_type("SKSE::PluginInfo")
-        .allowlist_type("SKSE::PluginVersionData")
-        .allowlist_type("SKSE::QueryInterface")
-        .allowlist_type("SKSE::SerializationInterface")
-        .allowlist_type("SKSE::Trampoline")
-        .array_pointers_in_arguments(true)
-        .array_pointers_in_arguments(true)
-        .blocklist_function("RE::BSTSmallArrayHeapAllocator.*")
-        .blocklist_function("RE::FxResponseArgsEx.*") // same link name -> crash
-        .opaque_type("const_pointer")
-        .opaque_type("difference_type")
-        .opaque_type("pointer")
-        .opaque_type("RE::BSTArray.*")
-        .opaque_type("RE::BSTPointerAndFlags.*")
-        .opaque_type("RE::BSTSingleton.*")
-        .opaque_type("RE::BSTSmartPointer.*")
-        .opaque_type("RE::NiT.*")
-        .opaque_type("size_type")
-        .opaque_type("SKSE::stl.*")
-        .opaque_type("std::.*")
+        .blocklist_function("RE::BSTSmallArrayHeapAllocator.*") // rust-bindgen does not support generics.
+        .blocklist_function("RE::FxResponseArgsEx.*") // The same `#[link_name = "<name>"]` is generated (e.g. `front`) and crashes, so stop generating it.
+        .opaque_type("const_pointer") // It had to be an opaque type or it would have generated the wrong type.
+        .opaque_type("difference_type") // It had to be an opaque type or it would have generated the wrong type.
+        .opaque_type("pointer") // It had to be an opaque type or it would have generated the wrong type.
+        .opaque_type("RE::BSTArray.*") // rust-bindgen does not support generics.
+        .opaque_type("RE::BSTPointerAndFlags.*") // rust-bindgen does not support generics.
+        .opaque_type("RE::BSTSingleton.*") //  rust-bindgen does not support generics.
+        .opaque_type("RE::BSTSmartPointer.*") //  rust-bindgen does not support generics.
+        .opaque_type("RE::NiT.*") //  rust-bindgen does not support generics.
+        .opaque_type("size_type") // To avoid wrong type generation
+        .opaque_type("SKSE::stl.*") // rust-bindgen does not support generics.
+        .opaque_type("std::.*") // Cannot parse all C++ std
         //
-        // Generator args
-        .clang_arg("-D_CRT_USE_BUILTIN_OFFSETOF")
+        // Generator args(Somehow it errors if not in this order.)
+        // MSCV compatibility: https://clang.llvm.org/docs/MSVCCompatibility.html
+        .array_pointers_in_arguments(true)
+        .header(header.display().to_string())
+        .clang_arg("-D_CRT_USE_BUILTIN_OFFSETOF") // Ensure Clang uses its built-in offsetof for better compatibility with Windows code.
         .clang_arg("-DENABLE_COMMONLIBSSE_TESTING")
-        .clang_arg("-DRUST_DEFINES")
-        .clang_arg("-fdelayed-template-parsing")
-        .clang_arg("-fms-compatibility")
-        .clang_arg("-fms-extensions")
-        .clang_arg("-std=c++20")
-        .clang_arg(format!("-I{includes}"))
+        .clang_arg("-std=c++20") // This is necessary because CommonLibSSE-NG depends on C++20.
+        .clang_arg("-fms-compatibility") // Enable MSVC compatibility for MS-specific features (e.g., inline assembly).
+        .clang_arg("-fms-extensions") // Allow MSVC-specific extensions like #pragma once and __declspec.
+        .clang_arg("-fdelayed-template-parsing") // Delay template parsing to match MSVC's behavior.
+        .clang_arg(format!("-I{include_dir}"))
         .default_enum_style(bindgen::EnumVariation::Rust {
+            // By default, C enum is a single number, but since it is difficult to use and induces the type difference bug,
+            // we will have it transformed into a Rust enum.
             non_exhaustive: false,
         })
-        .enable_cxx_namespaces()
+        // .derive_default(true) // OFF: Because there is a bug that default is mistakenly impl if there is a single value in the enum.
+        .derive_eq(true)
+        .derive_ord(true)
+        .enable_cxx_namespaces() // Have the C++ namespace reproduced in Rust for ease of use.
         .generate_inline_functions(true)
-        .layout_tests(false)
+        // .layout_tests(false)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()));
 
     for (key, value) in DEFINES {
@@ -110,16 +98,23 @@ where
     {
         let out_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let output = out_path.join("src/bindings.rs");
-        let string = String::from_utf8_lossy(&writer).replace("\r\n", "\n");
+        let string = String::from_utf8_lossy(&writer)
+            .replace("\r\n", "\n")
+            // Fix incorrect `kInvalidPluginHandle` and `kFullFlag`(1 << 31) values.
+            .replace(
+                "kInvalidPluginHandle = -1",
+                "kInvalidPluginHandle = u32::MAX",
+            )
+            .replace("kFullFlag = -9223372036854775808", "kFullFlag = 2147483648");
         std::fs::write(output, string.as_bytes()).unwrap();
     }
 }
 
 #[cfg(feature = "generate")]
 const DEFINES: &[(&str, &str)] = &[
-    ("ENABLE_SKYRIM_SE", "ENABLE_SKYRIM_SE"),
-    // ("ENABLE_SKYRIM_AE", "ENABLE_SKYRIM_AE"),
-    // ("ENABLE_SKYRIM_VR", "ENABLE_SKYRIM_VR"),
+    ("ENABLE_SKYRIM_SE", "ON"),
+    // ("ENABLE_SKYRIM_AE", "ON"),
+    // ("ENABLE_SKYRIM_VR", "ON"),
 ];
 
 #[cfg(feature = "prebuilt")]
