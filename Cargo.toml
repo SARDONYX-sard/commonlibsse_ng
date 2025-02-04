@@ -17,6 +17,7 @@ zip-extract = { version = "0.2.1", optional = true }
 default = ["prebuilt"]
 
 # Get the pre-built header files and libs from the URL.(zip: 160MB, Extracted: 600MB)
+# NOTE: Timeout is 30mins
 prebuilt = ["dep:reqwest", "dep:zip-extract"]
 # Use vcpkg to build C++ and get headers and libs
 vcpkg = []

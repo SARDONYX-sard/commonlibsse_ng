@@ -40,7 +40,7 @@ jobs:
         with:
           prefix-key: cargo-debug-x86_64-pc-windows-msvc--vcpkg
       - name: Build
-        run: cargo build --features vcpkg
+        run: cargo build --features vcpkg --no-default-features
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.6.0

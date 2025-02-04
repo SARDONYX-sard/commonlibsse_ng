@@ -132,8 +132,12 @@ where
     let url = "https://github.com/SARDONYX-sard/commonlibsse_ng/releases/download/push/CommonLibSSE-NG-prebuilt.zip";
     let out_dir = out_dir.as_ref();
 
-    // Download zip
-    let response = reqwest::blocking::get(url).expect("Failed to download ZIP");
+    // Download zip(Wait up to 30 minutes to download 160 MB considering the slow network.)
+    let client = reqwest::blocking::Client::builder()
+        .timeout(std::time::Duration::from_secs(60 * 30))
+        .build()
+        .unwrap();
+    let response = client.get(url).send().expect("Failed to download ZIP");
     let bytes = response.bytes().expect("Failed to read response bytes");
 
     zip_extract::extract(Cursor::new(bytes), &out_dir, false).unwrap_or_else(|err| panic!("{err}"));

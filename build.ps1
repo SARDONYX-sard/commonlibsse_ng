@@ -4,16 +4,19 @@ Param([switch]$Build, [switch]$Test)
 $env:LIBCLANG_PATH = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib"
 
 if ($Build) {
-  Write-Host "Building..." -ForegroundColor Green
-  cargo build *> ./target/result_build.txt
+  build
 }
 elseif ($Test) {
   Write-Host "Testing..." -ForegroundColor Green
-  cargo test *> ./target/result_test.txt
+  cargo test *> ./test_results.txt
 }
 else {
-  Write-Host "Building..." -ForegroundColor Green
-  cargo build *> ./target/result_build.txt
+  build
 }
 
 Write-Host "Done." -ForegroundColor Green
+
+function build() {
+  Write-Host "Building..." -ForegroundColor Green
+  cargo build *> ./target/build_results.txt
+}
