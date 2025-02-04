@@ -24,6 +24,7 @@ jobs:
           vcpkgGitCommitId: 7f9f0e44db287e8e67c0e888141bfa200ab45121
           runVcpkgInstall: true
           vcpkgJsonGlob: "**/vcpkg.json"
+          doNotCache: false
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.6.0
