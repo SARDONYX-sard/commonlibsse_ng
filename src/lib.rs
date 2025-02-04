@@ -6,5 +6,4 @@
 pub mod bindings;
 mod manual;
 
-pub use self::manual::REL_Relocate;
 pub use crate::bindings::root::*;
