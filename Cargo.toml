@@ -10,7 +10,16 @@ cxx = "1.0"
 
 [build-dependencies]
 bindgen = { version = "0.69.5", optional = true }
-vcpkg = "0.2.15"
+reqwest = { version = "0.12.12", features = ["blocking"], optional = true }
+zip-extract = { version = "0.2.1", optional = true }
 
 [features]
+default = ["prebuilt"]
+
+# Get the pre-built header files and libs from the URL.(zip: 160MB, Extracted: 600MB)
+prebuilt = ["dep:reqwest", "dep:zip-extract"]
+# Use vcpkg to build C++ and get headers and libs
+vcpkg = []
+
+# Generate binding
 generate = ["dep:bindgen"]

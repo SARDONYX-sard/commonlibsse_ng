@@ -1,10 +1,12 @@
+name: Release(prebuilt)
+
 on:
   push:
     tags:
       - "*"
 
 jobs:
-  build_and_test:
+  build:
     runs-on: windows-latest
 
     steps:
@@ -42,4 +44,4 @@ jobs:
         uses: ncipollo/release-action@v1.15.0
         with:
           allowUpdates: true
-          artifacts: CommonLibSSE-NG-prebuilt.zip
+          artifacts: ./CommonLibSSE-NG-prebuilt.zip

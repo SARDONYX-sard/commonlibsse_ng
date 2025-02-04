@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build_vcpkg:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1.13.0
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11.5
+        with:
+          vcpkgGitCommitId: 7f9f0e44db287e8e67c0e888141bfa200ab45121
+      - name: Cache
+        uses: actions/cache@v4.2.0
+        with:
+          path: |
+            vcpkg_installed
+            build
+          key: |
+            vcpkg-windows-x64-${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}
+
+      - name: Install
+        run: vcpkg install
+      - name: Build
+        run: cargo build --feature vcpkg
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: CommonLibSSE-NG
+          path: |
+            ./vcpkg_installed/x64-windows/include
+            ./vcpkg_installed/x64-windows/lib
+            !./vcpkg_installed/x64-windows/lib/CommonLibSSE-NG/
+            ./vcpkg_installed/x64-windows/share
+
+  prebuilt:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+
+      - name: Build
+        run: cargo build

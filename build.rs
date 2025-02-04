@@ -2,14 +2,40 @@
 // SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 fn main() {
+    let crate_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let lib_path = crate_root.join("vcpkg_installed/x64-windows/lib");
+
+    if cfg!(all(feature = "vcpkg", feature = "prebuilt")) {
+        panic!("Features `vcpkg` and `prebuilt` cannot be enabled at the same time.");
+    }
+
+    // Download C++ libraries
+    let libs_existed = std::fs::exists(&lib_path).unwrap_or_default();
+    if !libs_existed {
+        #[cfg(feature = "prebuilt")]
+        fetch_libs(&crate_root);
+
+        #[cfg(feature = "vcpkg")]
+        std::process::Command::new("vcpkg")
+            .arg("install")
+            .output()
+            .expect("install by vcpkg");
+    }
+
     #[cfg(feature = "generate")]
-    bindgen();
-    println!("cargo:rustc-link-search=native=./vcpkg_installed/x64-windows/lib/");
+    {
+        let include_dir = crate_root.join("vcpkg_installed/x64-windows/include");
+        bindgen(&include_dir);
+    }
+    println!("cargo:rustc-link-search=native={}", lib_path.display());
 }
 
 #[cfg(feature = "generate")]
-fn bindgen() {
-    let includes = "./vcpkg_installed/x64-windows/include";
+fn bindgen<P>(include_dir: P)
+where
+    P: AsRef<std::path::Path>,
+{
+    let includes = include_dir.as_ref();
 
     let mut bindings = bindgen::Builder::default()
         // Fail calculation values
@@ -95,3 +121,20 @@ const DEFINES: &[(&str, &str)] = &[
     // ("ENABLE_SKYRIM_AE", "ENABLE_SKYRIM_AE"),
     // ("ENABLE_SKYRIM_VR", "ENABLE_SKYRIM_VR"),
 ];
+
+#[cfg(feature = "prebuilt")]
+fn fetch_libs<P>(out_dir: P)
+where
+    P: AsRef<std::path::Path>,
+{
+    use std::io::Cursor;
+
+    let url = "https://github.com/SARDONYX-sard/commonlibsse_ng/releases/download/push/CommonLibSSE-NG-prebuilt.zip";
+    let out_dir = out_dir.as_ref();
+
+    // Download zip
+    let response = reqwest::blocking::get(url).expect("Failed to download ZIP");
+    let bytes = response.bytes().expect("Failed to read response bytes");
+
+    zip_extract::extract(Cursor::new(bytes), &out_dir, false).unwrap_or_else(|err| panic!("{err}"));
+}

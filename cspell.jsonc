@@ -1,3 +1,11 @@
 {
-  "words": ["ARMO", "Bitfield", "ctypes", "SKSE", "vcpkg"]
+  "words": [
+    "ARMO",
+    "bindgen",
+    "Bitfield",
+    "ctypes",
+    "reqwest",
+    "SKSE",
+    "vcpkg"
+  ]
 }
