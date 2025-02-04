@@ -1,11 +1,7 @@
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
+    tags:
+      - "*"
 
 jobs:
   build_and_test:
@@ -33,22 +29,17 @@ jobs:
       - name: Install
         run: vcpkg install
 
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.6.0
-        with:
-          name: CommonLibSSE-NG
-          path: |
-            ./vcpkg_installed/x64-windows/include
-            ./vcpkg_installed/x64-windows/lib
-            !./vcpkg_installed/x64-windows/lib/CommonLibSSE-NG/
-            ./vcpkg_installed/x64-windows/share
+      - name: Zip
+        shell: pwsh
+        run: |
+          mkdir -p ./build/vcpkg_installed/x64-windows/;
+          Move-Item -Path ./vcpkg_installed/x64-windows/include -Destination './build/vcpkg_installed/x64-windows'
+          Move-Item -Path ./vcpkg_installed/x64-windows/lib     -Destination './build/vcpkg_installed/x64-windows'
+          Move-Item -Path ./vcpkg_installed/x64-windows/share   -Destination './build/vcpkg_installed/x64-windows'
+          Compress-Archive -Path './build/*' -DestinationPath './CommonLibSSE-NG-prebuilt.zip'
 
-      # - name: Release
-      #   uses: ncipollo/release-action@v1.15.0
-      #   with:
-      #     allowUpdates: true
-      #     artifacts: |
-      #       ./vcpkg_installed/x64-windows/include
-      #       ./vcpkg_installed/x64-windows/lib
-      #       !./vcpkg_installed/x64-windows/lib/CommonLibSSE-NG/
-      #       ./vcpkg_installed/x64-windows/share
+      - name: Release
+        uses: ncipollo/release-action@v1.15.0
+        with:
+          allowUpdates: true
+          artifacts: CommonLibSSE-NG-prebuilt.zip
