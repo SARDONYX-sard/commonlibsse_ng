@@ -21,10 +21,9 @@ jobs:
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11.5
         with:
-          vcpkgGitCommitId: 1b279b20c7e0db1c9d549ff3b64e024c01317b55
-
-      - name: Build CommonLibSSE-NG
-        run: vcpkg install
+          vcpkgGitCommitId: 7f9f0e44db287e8e67c0e888141bfa200ab45121
+          runVcpkgInstall: true
+          vcpkgJsonGlob: "**/vcpkg.json"
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4.6.0
