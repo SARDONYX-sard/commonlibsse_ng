@@ -23,7 +23,7 @@ jobs:
         uses: lukka/run-vcpkg@v11.5
         with:
           vcpkgGitCommitId: 7f9f0e44db287e8e67c0e888141bfa200ab45121
-      - name: Cache
+      - name: Cache vcpkg
         uses: actions/cache@v4.2.0
         with:
           path: |
@@ -42,21 +42,30 @@ jobs:
       - name: Build
         run: cargo build --features vcpkg --no-default-features
 
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.6.0
-        with:
-          name: CommonLibSSE-NG
-          path: |
-            ./vcpkg_installed/x64-windows/include
-            ./vcpkg_installed/x64-windows/lib
-            !./vcpkg_installed/x64-windows/lib/CommonLibSSE-NG/
-            ./vcpkg_installed/x64-windows/share
+      # - name: Upload a Build Artifact
+      #   uses: actions/upload-artifact@v4.6.0
+      #   with:
+      #     name: CommonLibSSE-NG
+      #     path: |
+      #       ./vcpkg_installed/x64-windows/include
+      #       ./vcpkg_installed/x64-windows/lib
+      #       !./vcpkg_installed/x64-windows/lib/CommonLibSSE-NG/
+      #       ./vcpkg_installed/x64-windows/share
 
   prebuilt:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4.2.0
+        with:
+          path: |
+            vcpkg_installed
+            build
+          key: |
+            vcpkg-windows-x64-${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v2.7.7
