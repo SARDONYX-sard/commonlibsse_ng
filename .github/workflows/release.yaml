@@ -1,0 +1,45 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1.10.0
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v10.0
+
+      - name: Build CommonLibSSE-NG
+        run: vcpkg install
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: CommonLibSSE-NG
+          path: |
+            ./vcpkg_installed/x64-windows/include
+            ./vcpkg_installed/x64-windows/lib
+            !./vcpkg_installed/x64-windows/lib/CommonLibSSE-NG/
+            ./vcpkg_installed/x64-windows/share
+
+      # - name: Release
+      #   uses: ncipollo/release-action@v1.14.0
+      #   with:
+      #     allowUpdates: true
+      #     artifacts: |
+      #       ./vcpkg_installed/x64-windows/include
+      #       ./vcpkg_installed/x64-windows/lib
+      #       !./vcpkg_installed/x64-windows/lib/CommonLibSSE-NG/
+      #       ./vcpkg_installed/x64-windows/share
