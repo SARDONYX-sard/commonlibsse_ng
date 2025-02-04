@@ -2,7 +2,7 @@
 
 I just tried the C++ binding method obtained from SkyrimOutfitSystemSE.
 
-It probably will crash if used properly as it does not pass the layout test.
+It probably will crash if used it does not pass the layout test.
 
 See [test results](./test_results.txt)
 
