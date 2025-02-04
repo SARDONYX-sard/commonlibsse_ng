@@ -1,31 +1,22 @@
-   Compiling bindgen v0.69.5
-   Compiling commonlibsse-ng-sys v0.1.0 (D:\Programming\rust\commonlibsse-ng)
-warning: function `bindgen` is never used
- --> build.rs:6:4
-  |
-6 | fn bindgen() {
-  |    ^^^^^^^
-  |
-  = note: `#[warn(dead_code)]` on by default
-
-warning: `commonlibsse-ng-sys` (build script) generated 1 warning
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 50.97s
-     Running unittests src\lib.rs (target\debug\deps\commonlibsse_ng_sys-0d1f6c0f94532d1b.exe)
+    Blocking waiting for file lock on build directory
+   Compiling commonlibsse_ng_sys v0.1.0 (D:\Programming\rust\commonlibsse_ng)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 17s
+     Running unittests src\lib.rs (target\debug\deps\commonlibsse_ng_sys-b219bf498a0211d9.exe)
 
 running 3581 tests
 test bindings::root::RE::BGSBodyPartDefs::bindgen_test_layout_LIMB_ENUMS ... ok
 test bindings::root::RE::BSAttachTechniques::bindgen_test_layout_AttachTechniqueInput ... ok
-test bindings::root::RE::BSGraphics::bindgen_test_layout_ConstantGroup ... ok
 test bindings::root::RE::BSGraphics::bindgen_test_layout_TriShape ... ok
-test bindings::root::RE::BSGraphics::bindgen_test_layout_Vertex ... ok
+test bindings::root::RE::BSGraphics::bindgen_test_layout_ConstantGroup ... ok
 test bindings::root::RE::BSGraphics::bindgen_test_layout_State ... ok
-test bindings::root::RE::BSGraphics::bindgen_test_layout_PixelShader ... ok
 test bindings::root::RE::BSCurrent::bindgen_test_layout_ActionArray ... ok
+test bindings::root::RE::BSGraphics::bindgen_test_layout_PixelShader ... ok
+test bindings::root::RE::BSResource::bindgen_test_layout_BSSystemFile ... ok
 test bindings::root::RE::BSGraphics::bindgen_test_layout_VertexDesc ... ok
 test bindings::root::RE::BSGraphics::bindgen_test_layout_VertexShader ... ok
-test bindings::root::RE::BSResource::bindgen_test_layout_AsyncStream ... ok
 test bindings::root::RE::BSResource::bindgen_test_layout_BSSystemDir ... ok
-test bindings::root::RE::BSResource::bindgen_test_layout_BSSystemFile ... ok
+test bindings::root::RE::BSResource::bindgen_test_layout_AsyncStream ... ok
+test bindings::root::RE::BSGraphics::bindgen_test_layout_Vertex ... ok
 test bindings::root::RE::BSResource::bindgen_test_layout_BSSystemFile_Info ... ok
 test bindings::root::RE::BSResource::bindgen_test_layout_DevNull ... ok
 test bindings::root::RE::BSResource::bindgen_test_layout_DevNull_NullStream ... ok
@@ -40,42 +31,42 @@ test bindings::root::RE::BSResource::bindgen_test_layout_LocationTraverser ... o
 test bindings::root::RE::BSResource::bindgen_test_layout_LocationTree ... ok
 test bindings::root::RE::BSResource::bindgen_test_layout_LooseFileLocation ... ok
 test bindings::root::RE::BSResource::bindgen_test_layout_LooseFileStream ... ok
+test bindings::root::RE::BSResource::bindgen_test_layout_StreamBase ... ok
 test bindings::root::RE::BSResource::bindgen_test_layout_LooseFileStreamBase ... ok
 test bindings::root::RE::BSResource::bindgen_test_layout_Stream ... ok
-test bindings::root::RE::BSResource::bindgen_test_layout_StreamBase ... ok
 test bindings::root::RE::BSResource::bindgen_test_layout_Traverser ... ok
-test bindings::root::RE::BSScript::ByteCode::bindgen_test_layout_PackedInstructionStream ... ok
-test bindings::root::RE::BSScript::Internal::bindgen_test_layout_AttachedScript ... ok
 test bindings::root::RE::BSScript::Internal::bindgen_test_layout_CodeTasklet ... ok
+test bindings::root::RE::BSScript::ByteCode::bindgen_test_layout_PackedInstructionStream ... ok
 test bindings::root::RE::BSScript::Internal::bindgen_test_layout_FunctionMessage ... ok
 test bindings::root::RE::BSScript::Internal::bindgen_test_layout_IFuncCallQuery ... ok
-test bindings::root::RE::BSScript::Internal::bindgen_test_layout_RawFuncCallQuery ... ok
+test bindings::root::RE::BSScript::Internal::bindgen_test_layout_AttachedScript ... ok
 test bindings::root::RE::BSScript::Internal::bindgen_test_layout_ScriptFunction ... ok
+test bindings::root::RE::BSScript::Internal::bindgen_test_layout_RawFuncCallQuery ... ok
 test bindings::root::RE::BSScript::Internal::bindgen_test_layout_SuspendedStack ... ok
-test bindings::root::RE::BSScript::Internal::bindgen_test_layout_VDescTable ... ok
 test bindings::root::RE::BSScript::Internal::bindgen_test_layout_VirtualMachine_QueuedUnbindRefs ... ok
+test bindings::root::RE::BSScript::Internal::bindgen_test_layout_VDescTable ... ok
 test bindings::root::RE::BSScript::NF_util::bindgen_test_layout_NativeFunctionBase ... ok
 test bindings::root::RE::BSScript::__bindgen_test_layout__is_array_open0__bindgen_ty_id_569309_open1_bool__allocator_open2_bool__close2_close1_close0_instantiation ... ok
-test bindings::root::RE::BSScript::Internal::bindgen_test_layout_VirtualMachine ... FAILED
 test bindings::root::RE::BSScript::__bindgen_test_layout__is_integer_open0_bool__close0_instantiation ... ok
+test bindings::root::RE::BSScript::bindgen_test_layout_CompiledScriptLoader ... ok
 test bindings::root::RE::BSScript::__bindgen_test_layout__vm_type_open0_void_void_close0_instantiation ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_Array ... ok
-test bindings::root::RE::BSScript::bindgen_test_layout_CompiledScriptLoader ... ok
-test bindings::root::RE::BSScript::bindgen_test_layout_ErrorLogger ... FAILED
+test bindings::root::RE::BSScript::Internal::bindgen_test_layout_VirtualMachine ... FAILED
 test bindings::root::RE::BSScript::bindgen_test_layout_ErrorLogger_PerThreadErrorCounts ... ok
+test bindings::root::RE::BSScript::bindgen_test_layout_ErrorLogger ... FAILED
+test bindings::root::RE::BSScript::bindgen_test_layout_IHandleReaderWriter ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IFreezeQuery ... ok
+test bindings::root::RE::BSScript::bindgen_test_layout_ILoader ... ok
+test bindings::root::RE::BSScript::bindgen_test_layout_IObjectHandlePolicy ... ok
+test bindings::root::RE::BSScript::bindgen_test_layout_IMemoryPagePolicy ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IFunction ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IFunctionArguments ... ok
-test bindings::root::RE::BSScript::bindgen_test_layout_IHandleReaderWriter ... ok
-test bindings::root::RE::BSScript::bindgen_test_layout_ILoader ... ok
-test bindings::root::RE::BSScript::bindgen_test_layout_IMemoryPagePolicy ... ok
-test bindings::root::RE::BSScript::bindgen_test_layout_IObjectHandlePolicy ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IObjectProcessor ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IProfilePolicy ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_ISavePatcherInterface ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IStackCallbackFunctor ... ok
-test bindings::root::RE::BSScript::bindgen_test_layout_IStore ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IStackCallbackSaveInterface ... ok
+test bindings::root::RE::BSScript::bindgen_test_layout_IStore ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IVMDebugInterface ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IVMObjectBindInterface ... ok
 test bindings::root::RE::BSScript::bindgen_test_layout_IVMSaveLoadInterface ... ok
@@ -115,15 +106,15 @@ test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_AlchemyMenu_Potio
 test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_AlchemyMenu_QuitMenuCallback ... ok
 test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_AlchemyMenu_UsableEffectMap ... ok
 test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_ConstructibleObjectMenu ... FAILED
-test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_ConstructibleObjectMenu_CreationConfirmCallback ... ok
 test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_CraftingSubMenu ... FAILED
+test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_ConstructibleObjectMenu_CreationConfirmCallback ... ok
 test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_EnchantConstructMenu ... FAILED
 test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_EnchantConstructMenu_EnchantMenuCallback ... ok
 test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_EnchantConstructMenu_EnchantMenuCraftCallback ... ok
-test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_EnchantConstructMenu_EnchantMenuExitCallback ... ok
 test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_EnchantConstructMenu_EnchantMenuDisenchantCallback ... ok
-test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_SmithingMenu_SmithingConfirmCallback ... ok
+test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_EnchantConstructMenu_EnchantMenuExitCallback ... ok
 test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_SmithingMenu ... FAILED
+test bindings::root::RE::CraftingSubMenus::bindgen_test_layout_SmithingMenu_SmithingConfirmCallback ... ok
 test bindings::root::RE::DirectX::bindgen_test_layout_XMFLOAT4X4 ... ok
 test bindings::root::RE::GFxValueImpl::__bindgen_test_layout__is_integer_open0_char_close0_instantiation ... ok
 test bindings::root::RE::GFxValueImpl::__bindgen_test_layout__is_integer_open0_int_close0_instantiation ... ok
@@ -135,11 +126,11 @@ test bindings::root::RE::GFxValueImpl::__bindgen_test_layout__is_integer_open0_u
 test bindings::root::RE::GFxValueImpl::__bindgen_test_layout__is_integer_open0_unsigned_int_close0_instantiation ... ok
 test bindings::root::RE::GFxValueImpl::__bindgen_test_layout__is_integer_open0_unsigned_long_close0_instantiation ... ok
 test bindings::root::RE::GFxValueImpl::__bindgen_test_layout__is_integer_open0_unsigned_long_long_close0_instantiation ... ok
-test bindings::root::RE::GFxValueImpl::__bindgen_test_layout__is_integer_open0_unsigned_short_close0_instantiation ... ok
-test bindings::root::RE::MapCameraStates::bindgen_test_layout_Exit ... ok
-test bindings::root::RE::MapCameraStates::bindgen_test_layout_Transition ... ok
 test bindings::root::RE::MapCameraStates::bindgen_test_layout_World ... ok
+test bindings::root::RE::GFxValueImpl::__bindgen_test_layout__is_integer_open0_unsigned_short_close0_instantiation ... ok
 test bindings::root::RE::MapCameraStates::bindgen_test_layout_World_MapData ... ok
+test bindings::root::RE::MapCameraStates::bindgen_test_layout_Transition ... ok
+test bindings::root::RE::MapCameraStates::bindgen_test_layout_Exit ... ok
 test bindings::root::RE::Movement::bindgen_test_layout_MaxSpeeds ... ok
 test bindings::root::RE::Movement::bindgen_test_layout_SPEED_DIRECTIONS ... ok
 test bindings::root::RE::Movement::bindgen_test_layout_TypeData ... ok
@@ -147,46 +138,46 @@ test bindings::root::RE::PackageNS::bindgen_test_layout_CRIME_TYPES ... ok
 test bindings::root::RE::RTTI::bindgen_test_layout_BaseClassDescriptor ... ok
 test bindings::root::RE::RTTI::bindgen_test_layout_ClassHierarchyDescriptor ... ok
 test bindings::root::RE::RTTI::bindgen_test_layout_CompleteObjectLocator ... ok
-test bindings::root::RE::RTTI::bindgen_test_layout_PMD ... ok
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_AttachAshPileFunctor ... ok
+test bindings::root::RE::RTTI::bindgen_test_layout_PMD ... ok
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_BaseHandleReaderWriter ... ok
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_DelayFunctor ... ok
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_DropObjectFunctor ... ok
-test bindings::root::RE::SkyrimScript::bindgen_test_layout_Logger ... FAILED
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_FragmentSystem ... FAILED
-test bindings::root::RE::SkyrimScript::bindgen_test_layout_HandlePolicy ... FAILED
+test bindings::root::RE::SkyrimScript::bindgen_test_layout_Logger ... FAILED
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_MoveToFunctor ... ok
+test bindings::root::RE::SkyrimScript::bindgen_test_layout_HandlePolicy ... FAILED
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_ObjectBindPolicy ... FAILED
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_Profiler ... FAILED
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_RemoveItemFunctor ... ok
-test bindings::root::RE::SkyrimScript::bindgen_test_layout_SaveFileHandleReaderWriter ... ok
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_SavePatcher ... ok
+test bindings::root::RE::SkyrimScript::bindgen_test_layout_SaveFileHandleReaderWriter ... ok
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_SendPlayerToJailFunctor ... ok
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_SetMotionTypeFunctor ... ok
 test bindings::root::RE::SkyrimScript::bindgen_test_layout_SetPositionFunctor ... ok
-test bindings::root::RE::SkyrimScript::bindgen_test_layout_Store ... ok
-test bindings::root::RE::__bindgen_test_layout_BSCRC32__open0_CellID_close0_instantiation ... ok
-test bindings::root::RE::__bindgen_test_layout_BSCRC32__open0_nullptr_t_close0_instantiation ... ok
-test bindings::root::RE::__bindgen_test_layout_BSPointerHandleManagerInterface_open0_Actor_HandleManager_close0_instantiation ... ok
 test bindings::root::RE::__bindgen_test_layout_BSPointerHandleManagerInterface_open0_Projectile_HandleManager_close0_instantiation ... ok
+test bindings::root::RE::__bindgen_test_layout_BSCRC32__open0_nullptr_t_close0_instantiation ... ok
+test bindings::root::RE::SkyrimScript::bindgen_test_layout_Store ... ok
+test bindings::root::RE::__bindgen_test_layout_BSPointerHandleManagerInterface_open0_Actor_HandleManager_close0_instantiation ... ok
+test bindings::root::RE::__bindgen_test_layout_BSCRC32__open0_CellID_close0_instantiation ... ok
 test bindings::root::RE::__bindgen_test_layout_BSPointerHandleManagerInterface_open0_TESObjectREFR_HandleManager_close0_instantiation ... ok
+test bindings::root::RE::__bindgen_test_layout_BSPointerHandle_open0_TESObjectREFR_BSUntypedPointerHandle_open1_close1_close0_instantiation ... ok
 test bindings::root::RE::__bindgen_test_layout_BSPointerHandle_open0_Actor_BSUntypedPointerHandle_open1_close1_close0_instantiation ... ok
 test bindings::root::RE::__bindgen_test_layout_BSPointerHandle_open0_Projectile_BSUntypedPointerHandle_open1_close1_close0_instantiation ... ok
-test bindings::root::RE::__bindgen_test_layout_BSPointerHandle_open0_TESObjectREFR_BSUntypedPointerHandle_open1_close1_close0_instantiation ... ok
-test bindings::root::RE::_bindgen_mod_id_326137::bindgen_test_layout_AttachLightHitEffectVisitor ... ok
 test bindings::root::RE::bgs::saveload::bindgen_test_layout_Request ... ok
-test bindings::root::RE::bindgen_test_layout_ACTION_OBJECT ... ok
 test bindings::root::RE::bindgen_test_layout_ACTOR_AGGRO_RADIUS ... ok
-test bindings::root::RE::bindgen_test_layout_ACTOR_BASE_DATA ... ok
+test bindings::root::RE::_bindgen_mod_id_326137::bindgen_test_layout_AttachLightHitEffectVisitor ... ok
+test bindings::root::RE::bindgen_test_layout_ACTION_OBJECT ... ok
 test bindings::root::RE::bindgen_test_layout_ACTOR_MOVEMENT_TYPES ... ok
+test bindings::root::RE::bindgen_test_layout_ACTOR_BASE_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_ACTOR_VALUE_MODIFIERS ... ok
 test bindings::root::RE::bindgen_test_layout_ADDON_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_AIDATA_GAME ... ok
 test bindings::root::RE::bindgen_test_layout_AIPerkData ... ok
-test bindings::root::RE::bindgen_test_layout_AIProcess ... ok
-test bindings::root::RE::bindgen_test_layout_AIProcess_Data0B8 ... ok
-test bindings::root::RE::bindgen_test_layout_AIProcess_Hands ... ok
 test bindings::root::RE::bindgen_test_layout_AITimeStamp ... ok
+test bindings::root::RE::bindgen_test_layout_AIProcess_Data0B8 ... ok
+test bindings::root::RE::bindgen_test_layout_AIProcess ... ok
+test bindings::root::RE::bindgen_test_layout_AIProcess_Hands ... ok
 test bindings::root::RE::bindgen_test_layout_AITimer ... ok
 test bindings::root::RE::bindgen_test_layout_AMMO_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_AbsorbEffect ... ok
@@ -197,23 +188,23 @@ test bindings::root::RE::bindgen_test_layout_ActivateParentID ... ok
 test bindings::root::RE::bindgen_test_layout_ActiveEffect ... ok
 test bindings::root::RE::bindgen_test_layout_ActiveEffectReferenceEffectController ... ok
 test bindings::root::RE::bindgen_test_layout_ActiveEffect_ForEachHitEffectVisitor ... ok
-test bindings::root::RE::bindgen_test_layout_ActorCause ... ok
 test bindings::root::RE::bindgen_test_layout_Actor ... ok
+test bindings::root::RE::bindgen_test_layout_ActorCause ... ok
 test bindings::root::RE::bindgen_test_layout_ActorEquipManager ... ok
-test bindings::root::RE::bindgen_test_layout_ActorKill ... ok
-test bindings::root::RE::bindgen_test_layout_ActorKill_Event ... ok
 test bindings::root::RE::bindgen_test_layout_ActorKnowledge ... ok
 test bindings::root::RE::bindgen_test_layout_ActorMagicCaster ... ok
+test bindings::root::RE::bindgen_test_layout_ActorKill_Event ... ok
+test bindings::root::RE::bindgen_test_layout_ActorKill ... ok
 test bindings::root::RE::bindgen_test_layout_ActorMover ... ok
 test bindings::root::RE::bindgen_test_layout_ActorPackage ... ok
 test bindings::root::RE::bindgen_test_layout_ActorState ... ok
 test bindings::root::RE::bindgen_test_layout_ActorState_ActorState1 ... ok
-test bindings::root::RE::bindgen_test_layout_ActorTargetCheck ... ok
 test bindings::root::RE::bindgen_test_layout_ActorState_ActorState2 ... ok
+test bindings::root::RE::bindgen_test_layout_ActorTargetCheck ... ok
 test bindings::root::RE::bindgen_test_layout_ActorValueInfo ... ok
 test bindings::root::RE::bindgen_test_layout_ActorValueInfo_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_ActorValueList ... ok
 test bindings::root::RE::bindgen_test_layout_ActorValueInfo_Skill ... ok
+test bindings::root::RE::bindgen_test_layout_ActorValueList ... ok
 test bindings::root::RE::bindgen_test_layout_ActorValueMeter ... ok
 test bindings::root::RE::bindgen_test_layout_ActorValueOwner ... ok
 test bindings::root::RE::bindgen_test_layout_ActorValueStorage ... ok
@@ -234,24 +225,24 @@ test bindings::root::RE::bindgen_test_layout_ArmorRatingVisitorBase ... ok
 test bindings::root::RE::bindgen_test_layout_ArrowProjectile ... ok
 test bindings::root::RE::bindgen_test_layout_ArrowProjectile_ARROW_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_ArrowProjectile_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_Atmosphere ... ok
-test bindings::root::RE::bindgen_test_layout_AttackAnimationArrayMap ... FAILED
-test bindings::root::RE::bindgen_test_layout_AttackBlockHandler ... ok
-test bindings::root::RE::bindgen_test_layout_AttackData ... ok
 test bindings::root::RE::bindgen_test_layout_AutoMoveHandler ... ok
+test bindings::root::RE::bindgen_test_layout_AttackBlockHandler ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAbilityPerkEntry ... ok
-test bindings::root::RE::bindgen_test_layout_BGSAcousticSpace ... ok
-test bindings::root::RE::bindgen_test_layout_BGSAcousticSpace_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_AttackData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAction ... ok
 test bindings::root::RE::bindgen_test_layout_BGSActionData ... ok
+test bindings::root::RE::bindgen_test_layout_Atmosphere ... ok
+test bindings::root::RE::bindgen_test_layout_BGSAcousticSpace ... ok
+test bindings::root::RE::bindgen_test_layout_BGSAcousticSpace_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_AttackAnimationArrayMap ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSAction_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSActorCellEvent ... ok
 test bindings::root::RE::bindgen_test_layout_BGSActorEvent ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAddToPlayerInventoryEvent ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAddonNode ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAddonNode_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSAnimationSequencer ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSApparatus ... ok
+test bindings::root::RE::bindgen_test_layout_BGSAnimationSequencer ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSApparatus_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSArtObject ... ok
 test bindings::root::RE::bindgen_test_layout_BGSArtObject_Data ... ok
@@ -259,8 +250,8 @@ test bindings::root::RE::bindgen_test_layout_BGSArtObject_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAssociationType ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAssociationType_Members ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAssociationType_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSAssociationType_Sexes ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAttackData ... ok
+test bindings::root::RE::bindgen_test_layout_BGSAssociationType_Sexes ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAttackDataForm ... ok
 test bindings::root::RE::bindgen_test_layout_BGSAttackDataMap ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSBaseAlias ... ok
@@ -275,31 +266,31 @@ test bindings::root::RE::bindgen_test_layout_BGSCameraPath_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSCameraPath_Relatives ... ok
 test bindings::root::RE::bindgen_test_layout_BGSCameraShot ... ok
 test bindings::root::RE::bindgen_test_layout_BGSCameraShot_CAMERA_SHOT_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_BGSCameraShot_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSCollisionLayer ... ok
+test bindings::root::RE::bindgen_test_layout_BGSCameraShot_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSCollisionLayer_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSColorForm ... ok
 test bindings::root::RE::bindgen_test_layout_BGSColorForm_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSConstructibleObject ... ok
-test bindings::root::RE::bindgen_test_layout_BGSConstructibleObject_ConstructibleObjectData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSConstructibleObject_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDebris ... ok
-test bindings::root::RE::bindgen_test_layout_BGSDebrisData ... ok
-test bindings::root::RE::bindgen_test_layout_BGSDebris_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSConstructibleObject ... ok
+test bindings::root::RE::bindgen_test_layout_BGSConstructibleObject_ConstructibleObjectData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDecalEmitter ... ok
+test bindings::root::RE::bindgen_test_layout_BGSDebrisData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDecalGroup ... ok
-test bindings::root::RE::bindgen_test_layout_BGSDecalManager ... ok
+test bindings::root::RE::bindgen_test_layout_BGSDebris_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDecalNode ... ok
+test bindings::root::RE::bindgen_test_layout_BGSDecalManager ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDecalNode_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDefaultObjectManager ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSDefaultObjectManager_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSDialogueBranch ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDestructibleObjectForm ... ok
+test bindings::root::RE::bindgen_test_layout_BGSDialogueBranch ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDialogueBranch_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDirectionalAmbientLightingColors ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDirectionalAmbientLightingColors_Directional ... ok
-test bindings::root::RE::bindgen_test_layout_BGSDistantTreeBlock ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSDistantTreeBlock_InstanceData ... ok
+test bindings::root::RE::bindgen_test_layout_BGSDistantTreeBlock ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSDistantTreeBlock_TreeGroup ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDualCastData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSDualCastDataDEF ... ok
@@ -314,37 +305,37 @@ test bindings::root::RE::bindgen_test_layout_BGSEntryPointFunctionDataOneValue .
 test bindings::root::RE::bindgen_test_layout_BGSEntryPointFunctionDataText ... ok
 test bindings::root::RE::bindgen_test_layout_BGSEntryPointPerkEntry ... ok
 test bindings::root::RE::bindgen_test_layout_BGSEntryPointPerkEntry_EntryData ... ok
-test bindings::root::RE::bindgen_test_layout_BGSExplosion ... ok
-test bindings::root::RE::bindgen_test_layout_BGSEquipType ... ok
-test bindings::root::RE::bindgen_test_layout_BGSEquipSlot_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSExplosionData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSEntryPoint_ENTRY_POINTS ... ok
-test bindings::root::RE::bindgen_test_layout_BGSExplosion_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSEquipSlot ... ok
+test bindings::root::RE::bindgen_test_layout_BGSEquipSlot_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSEquipType ... ok
+test bindings::root::RE::bindgen_test_layout_BGSExplosion ... ok
+test bindings::root::RE::bindgen_test_layout_BGSExplosionData ... ok
+test bindings::root::RE::bindgen_test_layout_BGSExplosion_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSFootstep ... ok
-test bindings::root::RE::bindgen_test_layout_BGSFootstepSet ... ok
-test bindings::root::RE::bindgen_test_layout_BGSFootstep_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSFootstepEvent ... ok
-test bindings::root::RE::bindgen_test_layout_BGSFootstepSet_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSHazard ... ok
+test bindings::root::RE::bindgen_test_layout_BGSFootstepSet ... ok
 test bindings::root::RE::bindgen_test_layout_BGSFootstepManager ... FAILED
+test bindings::root::RE::bindgen_test_layout_BGSFootstepSet_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSFootstep_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSGrassManager ... ok
+test bindings::root::RE::bindgen_test_layout_BGSHazard ... ok
+test bindings::root::RE::bindgen_test_layout_BGSHazardData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSHazard_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSHeadPart ... ok
-test bindings::root::RE::bindgen_test_layout_BGSHazardData ... ok
+test bindings::root::RE::bindgen_test_layout_BGSHeadPart_MorphIndices ... ok
+test bindings::root::RE::bindgen_test_layout_BGSHeadPart_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSIdleCollection ... ok
+test bindings::root::RE::bindgen_test_layout_BGSIdleMarker ... ok
 test bindings::root::RE::bindgen_test_layout_BGSIdleMarker_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSImpactData ... ok
-test bindings::root::RE::bindgen_test_layout_BGSIdleCollection ... ok
-test bindings::root::RE::bindgen_test_layout_BGSHeadPart_MorphIndices ... ok
-test bindings::root::RE::bindgen_test_layout_BGSIdleMarker ... ok
-test bindings::root::RE::bindgen_test_layout_BGSHeadPart_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSImpactDataSet_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSImpactDataSet ... FAILED
-test bindings::root::RE::bindgen_test_layout_BGSInstancedQuestObjective ... ok
+test bindings::root::RE::bindgen_test_layout_BGSImpactData_IMPACT_DATA_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_BGSImpactData_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSImpactManager ... ok
 test bindings::root::RE::bindgen_test_layout_BGSImpactManager_ImpactSoundData ... ok
-test bindings::root::RE::bindgen_test_layout_BGSImpactData_IMPACT_DATA_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_BGSInstancedQuestObjective ... ok
 test bindings::root::RE::bindgen_test_layout_BGSKeyword ... ok
 test bindings::root::RE::bindgen_test_layout_BGSKeywordForm ... ok
 test bindings::root::RE::bindgen_test_layout_BGSKeyword_RecordFlags ... ok
@@ -359,8 +350,8 @@ test bindings::root::RE::bindgen_test_layout_BGSListForm_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSLoadGameSubBuffer ... ok
 test bindings::root::RE::bindgen_test_layout_BGSLocAlias ... ok
 test bindings::root::RE::bindgen_test_layout_BGSLocalizedStringDL ... ok
-test bindings::root::RE::bindgen_test_layout_BGSLocationRefType ... ok
 test bindings::root::RE::bindgen_test_layout_BGSLocation ... ok
+test bindings::root::RE::bindgen_test_layout_BGSLocationRefType ... ok
 test bindings::root::RE::bindgen_test_layout_BGSLocationRefType_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSLocation_ChangeFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSLocation_KEYWORD_DATA ... ok
@@ -374,107 +365,107 @@ test bindings::root::RE::bindgen_test_layout_BGSMenuDisplayObject ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMenuIcon ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMenuIcon_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMessage ... ok
-test bindings::root::RE::bindgen_test_layout_BGSMessageIcon ... ok
-test bindings::root::RE::bindgen_test_layout_BGSMessage_MESSAGEBOX_BUTTON ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMessage_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSMovableStatic_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSMovementType ... ok
+test bindings::root::RE::bindgen_test_layout_BGSMessageIcon ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMovableStatic ... ok
+test bindings::root::RE::bindgen_test_layout_BGSMessage_MESSAGEBOX_BUTTON ... ok
+test bindings::root::RE::bindgen_test_layout_BGSMovementType ... ok
+test bindings::root::RE::bindgen_test_layout_BGSMovableStatic_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMovementType_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSMusicPaletteTrack ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMoviePlayer ... FAILED
+test bindings::root::RE::bindgen_test_layout_BGSMusicSilenceTrack ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMusicSingleTrack ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMusicSingleTrack_LoopData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMusicTrack ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMusicTrackFormWrapper ... ok
-test bindings::root::RE::bindgen_test_layout_BGSNote_ChangeFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSNote_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSMusicPaletteTrack ... ok
+test bindings::root::RE::bindgen_test_layout_BGSMusicTrackFormWrapper_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSMusicType ... ok
 test bindings::root::RE::bindgen_test_layout_BGSMusicType_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSNote ... ok
-test bindings::root::RE::bindgen_test_layout_BGSMusicTrackFormWrapper_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSNote_ChangeFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSNote_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSOpenCloseForm ... ok
+test bindings::root::RE::bindgen_test_layout_BGSOutfit ... ok
 test bindings::root::RE::bindgen_test_layout_BGSOutfit_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSOverridePackCollection ... ok
-test bindings::root::RE::bindgen_test_layout_BGSOutfit ... ok
-test bindings::root::RE::bindgen_test_layout_BGSMusicType ... ok
-test bindings::root::RE::bindgen_test_layout_BGSMusicSilenceTrack ... ok
 test bindings::root::RE::bindgen_test_layout_BGSPackageDataBool ... FAILED
-test bindings::root::RE::bindgen_test_layout_BGSOpenCloseForm ... ok
 test bindings::root::RE::bindgen_test_layout_BGSPackageDataList ... ok
-test bindings::root::RE::bindgen_test_layout_BGSPackageDataNameMap_NameMapData ... ok
-test bindings::root::RE::bindgen_test_layout_BGSPerkEntry ... ok
-test bindings::root::RE::bindgen_test_layout_BGSPerk ... ok
-test bindings::root::RE::bindgen_test_layout_BGSPerkEntry_Header ... ok
-test bindings::root::RE::bindgen_test_layout_BGSPerk_ApplyPerksVisitor ... ok
-test bindings::root::RE::bindgen_test_layout_BGSPerkRankArray ... ok
-test bindings::root::RE::bindgen_test_layout_BGSPackageDataNameMap ... ok
-test bindings::root::RE::bindgen_test_layout_BGSPerk_AddPerkVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_BGSPackageDataLocation ... FAILED
+test bindings::root::RE::bindgen_test_layout_BGSPackageDataNameMap ... ok
+test bindings::root::RE::bindgen_test_layout_BGSPackageDataNameMap_NameMapData ... ok
+test bindings::root::RE::bindgen_test_layout_BGSPerk ... ok
+test bindings::root::RE::bindgen_test_layout_BGSPerkEntry ... ok
+test bindings::root::RE::bindgen_test_layout_BGSPerkEntry_Header ... ok
+test bindings::root::RE::bindgen_test_layout_BGSPerkRankArray ... ok
+test bindings::root::RE::bindgen_test_layout_BGSPerk_AddPerkVisitor ... ok
+test bindings::root::RE::bindgen_test_layout_BGSPerk_ApplyPerksVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_BGSPerk_FindPerkInRanksVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_BGSPerk_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSPickupPutdownSounds ... ok
 test bindings::root::RE::bindgen_test_layout_BGSPreloadable ... ok
 test bindings::root::RE::bindgen_test_layout_BGSProcedureTreeBranch ... ok
-test bindings::root::RE::bindgen_test_layout_BGSPickupPutdownSounds ... ok
 test bindings::root::RE::bindgen_test_layout_BGSProcedureTreeConditionalItem ... ok
-test bindings::root::RE::bindgen_test_layout_BGSQuestInstanceText ... ok
 test bindings::root::RE::bindgen_test_layout_BGSProcedureTreeProcedure ... FAILED
-test bindings::root::RE::bindgen_test_layout_BGSProjectile_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSProjectileData ... ok
-test bindings::root::RE::bindgen_test_layout_BGSQuestInstanceText_GlobalValueData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSProcedureTreeSequence ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSProjectile ... ok
-test bindings::root::RE::bindgen_test_layout_BGSQuestObjective ... ok
+test bindings::root::RE::bindgen_test_layout_BGSProjectileData ... ok
+test bindings::root::RE::bindgen_test_layout_BGSProjectile_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSQuestInstanceText ... ok
+test bindings::root::RE::bindgen_test_layout_BGSQuestInstanceText_GlobalValueData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSQuestInstanceText_StringData ... ok
-test bindings::root::RE::bindgen_test_layout_BGSRefAlias ... ok
-test bindings::root::RE::bindgen_test_layout_BGSRefAliasInstanceData ... ok
+test bindings::root::RE::bindgen_test_layout_BGSQuestObjective ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRagdoll ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRagdoll_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSRefAlias ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRefAlias_CreatedFillData ... ok
+test bindings::root::RE::bindgen_test_layout_BGSRefAliasInstanceData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRefAlias_CreatedFillData_Alias ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRefAlias_ForcedFillData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRefAlias_FromAliasFillData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRefAlias_FromEventFillData ... ok
+test bindings::root::RE::bindgen_test_layout_BGSRefAlias_FromExternalFillData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRefAlias_GenericFillData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRefAlias_GenericFillData_Padding ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRefAlias_NearAliasFillData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRefAlias_UniqueActorFillData ... ok
-test bindings::root::RE::bindgen_test_layout_BGSRefAlias_FromExternalFillData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSReferenceEffect ... ok
 test bindings::root::RE::bindgen_test_layout_BGSReferenceEffect_Data ... ok
+test bindings::root::RE::bindgen_test_layout_BGSReferenceEffect_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSRegisteredStoryEvent ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRelationship ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRelationship_ChangeFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSRelationship_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSReverbParameters ... ok
-test bindings::root::RE::bindgen_test_layout_BGSReferenceEffect_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSRegisteredStoryEvent ... ok
 test bindings::root::RE::bindgen_test_layout_BGSReverbParameters_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSReverbParameters_ReverbParams ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSaveLoadBuffer ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSaveLoadFileEntry ... ok
-test bindings::root::RE::bindgen_test_layout_BGSSaveLoadManager_Thread ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSaveLoadManager ... FAILED
+test bindings::root::RE::bindgen_test_layout_BGSSaveLoadManager_Thread ... ok
 test bindings::root::RE::bindgen_test_layout_BGSScene ... ok
-test bindings::root::RE::bindgen_test_layout_BGSSceneAction ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSceneActionDialogue ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSceneActionPackage ... ok
-test bindings::root::RE::bindgen_test_layout_BGSSceneActionTimer ... ok
-test bindings::root::RE::bindgen_test_layout_BGSScenePhase ... ok
+test bindings::root::RE::bindgen_test_layout_BGSSceneAction ... ok
 test bindings::root::RE::bindgen_test_layout_BGSScene_ChangeFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSScene_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSSkillPerkTreeNode ... ok
-test bindings::root::RE::bindgen_test_layout_BGSSkinForm ... ok
 test bindings::root::RE::bindgen_test_layout_BGSShaderParticleGeometryData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSShaderParticleGeometryData_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BGSSoundCategory ... ok
-test bindings::root::RE::bindgen_test_layout_BGSSoundCategory_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSSceneActionTimer ... ok
+test bindings::root::RE::bindgen_test_layout_BGSScenePhase ... ok
+test bindings::root::RE::bindgen_test_layout_BGSSkillPerkTreeNode ... ok
+test bindings::root::RE::bindgen_test_layout_BGSSkinForm ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSoundDescriptor ... ok
+test bindings::root::RE::bindgen_test_layout_BGSSoundCategory_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSSoundCategory ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSoundDescriptorForm ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSoundDescriptorForm_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSoundOutput ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSoundOutput_Data ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSoundOutput_DynamicAttenuationCharacteristics ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSoundOutput_DynamicAttenuationCharacteristics_DataType ... ok
-test bindings::root::RE::bindgen_test_layout_BGSSoundOutput_SpeakerArrays ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSoundOutput_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSSoundOutput_SpeakerArrays ... ok
 test bindings::root::RE::bindgen_test_layout_BGSSoundOutput_SpeakerArrays_Channel ... ok
 test bindings::root::RE::bindgen_test_layout_BGSStandardSoundDef ... ok
 test bindings::root::RE::bindgen_test_layout_BGSStandardSoundDef_LengthCharacteristics ... ok
@@ -482,8 +473,8 @@ test bindings::root::RE::bindgen_test_layout_BGSStandardSoundDef_SoundPlaybackCh
 test bindings::root::RE::bindgen_test_layout_BGSStaticCollection ... ok
 test bindings::root::RE::bindgen_test_layout_BGSStaticCollection_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSStoryEvent ... ok
-test bindings::root::RE::bindgen_test_layout_BGSStoryEventManager ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSStoryEventMember ... ok
+test bindings::root::RE::bindgen_test_layout_BGSStoryEventManager ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSStoryManagerBranchNode ... ok
 test bindings::root::RE::bindgen_test_layout_BGSStoryManagerBranchNode_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSStoryManagerEventNode ... ok
@@ -495,9 +486,9 @@ test bindings::root::RE::bindgen_test_layout_BGSStoryManagerQuestNode_ChangeFlag
 test bindings::root::RE::bindgen_test_layout_BGSStoryManagerQuestNode_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSStoryManagerTreeForm ... ok
 test bindings::root::RE::bindgen_test_layout_BGSStoryManagerTreeVisitor ... ok
-test bindings::root::RE::bindgen_test_layout_BGSStoryTeller ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSTalkingActivator ... ok
 test bindings::root::RE::bindgen_test_layout_BGSTalkingActivator_ChangeFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BGSStoryTeller ... FAILED
 test bindings::root::RE::bindgen_test_layout_BGSTalkingActivator_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BGSTerrainVisibilityData ... ok
 test bindings::root::RE::bindgen_test_layout_BGSTextureModel ... ok
@@ -524,8 +515,8 @@ test bindings::root::RE::bindgen_test_layout_BSAnimationGraphVariableCache ... o
 test bindings::root::RE::bindgen_test_layout_BSArchive ... ok
 test bindings::root::RE::bindgen_test_layout_BSArchiveHeader ... ok
 test bindings::root::RE::bindgen_test_layout_BSArchiveHeader_ArchiveFlag ... ok
-test bindings::root::RE::bindgen_test_layout_BSAudioManagerThread ... ok
 test bindings::root::RE::bindgen_test_layout_BSAudioManager ... FAILED
+test bindings::root::RE::bindgen_test_layout_BSAudioManagerThread ... ok
 test bindings::root::RE::bindgen_test_layout_BSBatchRenderer ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSBitFieldHeapAllocator ... ok
 test bindings::root::RE::bindgen_test_layout_BSBloodSplatterShaderProperty ... ok
@@ -544,19 +535,19 @@ test bindings::root::RE::bindgen_test_layout_BSEffectShaderMaterial ... ok
 test bindings::root::RE::bindgen_test_layout_BSEffectShaderProperty ... ok
 test bindings::root::RE::bindgen_test_layout_BSEventFlag ... ok
 test bindings::root::RE::bindgen_test_layout_BSExtraData ... ok
+test bindings::root::RE::bindgen_test_layout_BSFaceGenKeyframeMultiple ... ok
 test bindings::root::RE::bindgen_test_layout_BSFaceGenAnimationData ... ok
 test bindings::root::RE::bindgen_test_layout_BSFaceGenKeyframe ... ok
-test bindings::root::RE::bindgen_test_layout_BSFaceGenKeyframeMultiple ... ok
 test bindings::root::RE::bindgen_test_layout_BSFaceGenManager ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSFaceGenModelExtraData ... ok
 test bindings::root::RE::bindgen_test_layout_BSFaceGenModelMap ... FAILED
-test bindings::root::RE::bindgen_test_layout_BSFaceGenModelMap_Entry ... ok
 test bindings::root::RE::bindgen_test_layout_BSFaceGenNiNode ... ok
+test bindings::root::RE::bindgen_test_layout_BSFaceGenModelMap_Entry ... ok
 test bindings::root::RE::bindgen_test_layout_BSFaceGenNiNode_RUNTIME_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_BSFadeNode ... ok
 test bindings::root::RE::bindgen_test_layout_BSFadeNode_RUNTIME_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_BSFile ... ok
+test bindings::root::RE::bindgen_test_layout_BSFadeNode ... ok
 test bindings::root::RE::bindgen_test_layout_BSFurnitureMarker ... ok
+test bindings::root::RE::bindgen_test_layout_BSFile ... ok
 test bindings::root::RE::bindgen_test_layout_BSFurnitureMarkerNode ... ok
 test bindings::root::RE::bindgen_test_layout_BSGameSound ... ok
 test bindings::root::RE::bindgen_test_layout_BSGamepadDevice ... FAILED
@@ -578,23 +569,23 @@ test bindings::root::RE::bindgen_test_layout_BSISoundOutputModel_BSIAttenuationC
 test bindings::root::RE::bindgen_test_layout_BSImagespaceShader ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSImagespaceShaderBlur3 ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSInputDevice ... FAILED
+test bindings::root::RE::bindgen_test_layout_BSInputDeviceManager ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSInputDeviceManager_RUNTIME_DATA ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSInputDevice_InputButton ... ok
-test bindings::root::RE::bindgen_test_layout_BSInputDeviceManager ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSInstanceTriShape ... ok
 test bindings::root::RE::bindgen_test_layout_BSIntrusiveRefCounted ... ok
 test bindings::root::RE::bindgen_test_layout_BSKeyboardDevice ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSKeyboardDevice_Keys ... ok
 test bindings::root::RE::bindgen_test_layout_BSLensFlareRenderData ... ok
-test bindings::root::RE::bindgen_test_layout_BSLight_Data ... ok
 test bindings::root::RE::bindgen_test_layout_BSLight ... ok
+test bindings::root::RE::bindgen_test_layout_BSLight_Data ... ok
 test bindings::root::RE::bindgen_test_layout_BSLight_ShapeData ... ok
 test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterial ... ok
 test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialBase ... ok
 test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialEnvmap ... ok
-test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialEye ... ok
-test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialFacegen ... ok
 test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialFacegenTint ... ok
+test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialFacegen ... ok
+test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialEye ... ok
 test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialGlowmap ... ok
 test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialHairTint ... ok
 test bindings::root::RE::bindgen_test_layout_BSLightingShaderMaterialLODLandscape ... ok
@@ -608,10 +599,10 @@ test bindings::root::RE::bindgen_test_layout_BSLightingShaderProperty_Data ... o
 test bindings::root::RE::bindgen_test_layout_BSMaterialObject ... ok
 test bindings::root::RE::bindgen_test_layout_BSMaterialObject_DIRECTIONAL_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_BSMemStorage ... ok
-test bindings::root::RE::bindgen_test_layout_BSMouseDevice ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSMultiBound ... ok
 test bindings::root::RE::bindgen_test_layout_BSMultiBoundAABB ... ok
 test bindings::root::RE::bindgen_test_layout_BSMultiBoundNode ... ok
+test bindings::root::RE::bindgen_test_layout_BSMouseDevice ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSMultiBoundNode_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_BSMultiBoundOBB ... ok
 test bindings::root::RE::bindgen_test_layout_BSMultiBoundShape ... ok
@@ -626,11 +617,11 @@ test bindings::root::RE::bindgen_test_layout_BSNavmeshClosedDoorInfo ... ok
 test bindings::root::RE::bindgen_test_layout_BSNavmeshCoverEdge ... ok
 test bindings::root::RE::bindgen_test_layout_BSNavmeshEdgeExtraInfo ... ok
 test bindings::root::RE::bindgen_test_layout_BSNavmeshGrid ... ok
-test bindings::root::RE::bindgen_test_layout_BSNavmeshInfoMap_IVisitor ... ok
+test bindings::root::RE::bindgen_test_layout_BSNavmeshInfoMap ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSNavmeshTriangle ... ok
+test bindings::root::RE::bindgen_test_layout_BSNavmeshInfoMap_IVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_BSNavmeshTriangleDoorPortal ... ok
 test bindings::root::RE::bindgen_test_layout_BSNavmeshTriangleEdgePortal ... ok
-test bindings::root::RE::bindgen_test_layout_BSNavmeshInfoMap ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSNavmeshVertex ... ok
 test bindings::root::RE::bindgen_test_layout_BSNiAllocator ... ok
 test bindings::root::RE::bindgen_test_layout_BSNiNode ... ok
@@ -644,9 +635,9 @@ test bindings::root::RE::bindgen_test_layout_BSPCGamepadDeviceHandler ... ok
 test bindings::root::RE::bindgen_test_layout_BSPackedTaskQueue ... ok
 test bindings::root::RE::bindgen_test_layout_BSPackedTaskQueue_Semaphore ... ok
 test bindings::root::RE::bindgen_test_layout_BSParticleShaderEmitter ... ok
+test bindings::root::RE::bindgen_test_layout_BSParticleShaderObjectEmitter ... ok
 test bindings::root::RE::bindgen_test_layout_BSParticleShaderEmitter_ParticleData ... ok
 test bindings::root::RE::bindgen_test_layout_BSParticleShaderEmitter_TextureAnimInfo ... ok
-test bindings::root::RE::bindgen_test_layout_BSParticleShaderObjectEmitter ... ok
 test bindings::root::RE::bindgen_test_layout_BSParticleShaderProperty ... ok
 test bindings::root::RE::bindgen_test_layout_BSPathingCell ... ok
 test bindings::root::RE::bindgen_test_layout_BSPortalGraph ... ok
@@ -656,23 +647,23 @@ test bindings::root::RE::bindgen_test_layout_BSReadWriteLock ... ok
 test bindings::root::RE::bindgen_test_layout_BSReloadShaderI ... ok
 test bindings::root::RE::bindgen_test_layout_BSRenderManager ... ok
 test bindings::root::RE::bindgen_test_layout_BSRenderManager_RUNTIME_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_BSRenderPass ... ok
-test bindings::root::RE::bindgen_test_layout_BSRenderPass_LODMode ... ok
 test bindings::root::RE::bindgen_test_layout_BSResourceNiBinaryStream_BufferType ... ok
 test bindings::root::RE::bindgen_test_layout_BSResourceNiBinaryStream ... ok
-test bindings::root::RE::bindgen_test_layout_BSSaveDataSystemUtilityImage ... ok
+test bindings::root::RE::bindgen_test_layout_BSRenderPass ... ok
+test bindings::root::RE::bindgen_test_layout_BSRenderPass_LODMode ... ok
 test bindings::root::RE::bindgen_test_layout_BSSaveDataSystemUtility ... FAILED
+test bindings::root::RE::bindgen_test_layout_BSSaveDataSystemUtilityImage ... ok
 test bindings::root::RE::bindgen_test_layout_BSSaveDataSystemUtility_Entry ... ok
+test bindings::root::RE::bindgen_test_layout_BSScaleformManager ... ok
 test bindings::root::RE::bindgen_test_layout_BSScaleformRenderer ... ok
 test bindings::root::RE::bindgen_test_layout_BSScaleformTranslator ... FAILED
-test bindings::root::RE::bindgen_test_layout_BSScaleformManager ... ok
 test bindings::root::RE::bindgen_test_layout_BSScrapArrayAllocator ... ok
 test bindings::root::RE::bindgen_test_layout_BSSemaphore ... ok
 test bindings::root::RE::bindgen_test_layout_BSSemaphoreBase ... ok
 test bindings::root::RE::bindgen_test_layout_BSShaderMaterial ... ok
-test bindings::root::RE::bindgen_test_layout_BSShader ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSShaderProperty ... ok
 test bindings::root::RE::bindgen_test_layout_BSShaderPropertyLightData ... ok
+test bindings::root::RE::bindgen_test_layout_BSShader ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSShaderProperty_ForEachVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_BSShaderProperty_RenderPassArray ... ok
 test bindings::root::RE::bindgen_test_layout_BSShaderTextureSet ... ok
@@ -699,43 +690,43 @@ test bindings::root::RE::bindgen_test_layout_BSTArrayBase_IAllocatorFunctor ... 
 test bindings::root::RE::bindgen_test_layout_BSTArrayHeapAllocator ... ok
 test bindings::root::RE::bindgen_test_layout_BSTLocklessQueue ... ok
 test bindings::root::RE::bindgen_test_layout_BSTSmallArrayHeapAllocator_Data ... ok
-test bindings::root::RE::bindgen_test_layout_BSTempEffect ... ok
 test bindings::root::RE::bindgen_test_layout_BSTempEffectDebris ... ok
+test bindings::root::RE::bindgen_test_layout_BSTempEffect ... ok
 test bindings::root::RE::bindgen_test_layout_BSTempEffectGeometryDecal ... ok
 test bindings::root::RE::bindgen_test_layout_BSTempEffectParticle ... ok
 test bindings::root::RE::bindgen_test_layout_BSTempEffectSPG ... ok
 test bindings::root::RE::bindgen_test_layout_BSTempEffectSimpleDecal ... ok
+test bindings::root::RE::bindgen_test_layout_BSTextureSet_Textures ... ok
 test bindings::root::RE::bindgen_test_layout_BSTempEffectWeaponBlood ... ok
+test bindings::root::RE::bindgen_test_layout_BSThread ... ok
 test bindings::root::RE::bindgen_test_layout_BSTerrainEffect ... ok
 test bindings::root::RE::bindgen_test_layout_BSTextureSet ... ok
-test bindings::root::RE::bindgen_test_layout_BSTextureSet_Textures ... ok
-test bindings::root::RE::bindgen_test_layout_BSThread ... ok
+test bindings::root::RE::bindgen_test_layout_BSTriShape ... ok
 test bindings::root::RE::bindgen_test_layout_BSThreadEvent ... ok
-test bindings::root::RE::bindgen_test_layout_BSTimer ... ok
+test bindings::root::RE::bindgen_test_layout_BSTriShape_TRISHAPE_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_BSTrackedControllerDevice ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSTranslator ... FAILED
-test bindings::root::RE::bindgen_test_layout_BSTriShape ... ok
-test bindings::root::RE::bindgen_test_layout_BSTriShape_TRISHAPE_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_BSTimer ... ok
 test bindings::root::RE::bindgen_test_layout_BSUIMessageData ... ok
 test bindings::root::RE::bindgen_test_layout_BSUIMessageData_Data ... ok
 test bindings::root::RE::bindgen_test_layout_BSUIScaleformData ... ok
 test bindings::root::RE::bindgen_test_layout_BSVRInterface ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSVirtualKeyboardDevice ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSVolumetricLightingRenderData ... ok
+test bindings::root::RE::bindgen_test_layout_BSVolumetricLightingRenderData_PhaseFunction ... ok
 test bindings::root::RE::bindgen_test_layout_BSVolumetricLightingRenderData_CustomColor ... ok
 test bindings::root::RE::bindgen_test_layout_BSVolumetricLightingRenderData_Density ... ok
-test bindings::root::RE::bindgen_test_layout_BSVolumetricLightingRenderData_PhaseFunction ... ok
 test bindings::root::RE::bindgen_test_layout_BSVolumetricLightingRenderData_SamplingRepartition ... ok
-test bindings::root::RE::bindgen_test_layout_BSWaterShaderProperty ... ok
 test bindings::root::RE::bindgen_test_layout_BSWaterShaderMaterial ... ok
+test bindings::root::RE::bindgen_test_layout_BSWaterShaderProperty ... ok
 test bindings::root::RE::bindgen_test_layout_BSWin32GamepadDevice ... FAILED
-test bindings::root::RE::bindgen_test_layout_BSWin32KeyboardDevice ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSWin32GamepadDevice_Keys ... ok
-test bindings::root::RE::bindgen_test_layout_BSWin32MouseDevice_Keys ... ok
+test bindings::root::RE::bindgen_test_layout_BSWin32KeyboardDevice ... FAILED
 test bindings::root::RE::bindgen_test_layout_BSWin32MouseDevice ... FAILED
+test bindings::root::RE::bindgen_test_layout_BSWin32MouseDevice_Keys ... ok
 test bindings::root::RE::bindgen_test_layout_BSWin32SaveDataSystemUtility ... FAILED
-test bindings::root::RE::bindgen_test_layout_BSWriteLockGuard ... ok
 test bindings::root::RE::bindgen_test_layout_BSWin32VirtualKeyboardDevice ... FAILED
+test bindings::root::RE::bindgen_test_layout_BSWriteLockGuard ... ok
 test bindings::root::RE::bindgen_test_layout_BSXAudio2GameSound ... ok
 test bindings::root::RE::bindgen_test_layout_BSXFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BShkbAnimationGraph ... FAILED
@@ -744,34 +735,34 @@ test bindings::root::RE::bindgen_test_layout_BarrierProjectile ... ok
 test bindings::root::RE::bindgen_test_layout_BarrierProjectile_BARRIER_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_BarrierProjectile_CollisionData ... ok
 test bindings::root::RE::bindgen_test_layout_BarrierProjectile_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_BarterMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_BarterMenu ... FAILED
+test bindings::root::RE::bindgen_test_layout_BarterMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_BaseExtraList ... ok
 test bindings::root::RE::bindgen_test_layout_BaseExtraList_PresenceBitfield ... ok
 test bindings::root::RE::bindgen_test_layout_BaseFormComponent ... ok
 test bindings::root::RE::bindgen_test_layout_BaseTreeData ... ok
-test bindings::root::RE::bindgen_test_layout_BeamProjectile ... FAILED
 test bindings::root::RE::bindgen_test_layout_BeamProjectile_BEAM_RUNTIME_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_BeamProjectile_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_BeamProjectile ... FAILED
 test bindings::root::RE::bindgen_test_layout_BipedAnim ... ok
 test bindings::root::RE::bindgen_test_layout_BleedoutCameraState ... ok
 test bindings::root::RE::bindgen_test_layout_BlockPageInternal ... ok
+test bindings::root::RE::bindgen_test_layout_BeamProjectile_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_BoneData ... ok
-test bindings::root::RE::bindgen_test_layout_BookMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_BookMenu_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_BookMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_BooksRead ... ok
 test bindings::root::RE::bindgen_test_layout_BooksRead_Event ... ok
 test bindings::root::RE::bindgen_test_layout_BottomBar ... ok
 test bindings::root::RE::bindgen_test_layout_BucketTable ... ok
 test bindings::root::RE::bindgen_test_layout_ButtonEvent ... ok
 test bindings::root::RE::bindgen_test_layout_CALCED_OBJECT ... ok
-test bindings::root::RE::bindgen_test_layout_CFilter ... ok
 test bindings::root::RE::bindgen_test_layout_CHAR_NORM ... ok
-test bindings::root::RE::bindgen_test_layout_CLASS_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_CFilter ... ok
 test bindings::root::RE::bindgen_test_layout_CLASS_DATA_AttributeWeights ... ok
+test bindings::root::RE::bindgen_test_layout_CLASS_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_CLASS_DATA_SkillWeights ... ok
-test bindings::root::RE::bindgen_test_layout_CONDITION_ITEM_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_CONDITION_ITEM_DATA_Flags ... ok
+test bindings::root::RE::bindgen_test_layout_CONDITION_ITEM_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_CONDITION_ITEM_DATA_GlobalOrFloat ... ok
 test bindings::root::RE::bindgen_test_layout_CONT_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_CachedValueData ... ok
@@ -801,11 +792,11 @@ test bindings::root::RE::bindgen_test_layout_CombatInventoryItemMagic ... ok
 test bindings::root::RE::bindgen_test_layout_CombatInventoryItemPotion ... ok
 test bindings::root::RE::bindgen_test_layout_CombatInventoryItemResource ... ok
 test bindings::root::RE::bindgen_test_layout_CombatInventoryItemScroll ... ok
+test bindings::root::RE::bindgen_test_layout_CombatMagicCaster ... ok
+test bindings::root::RE::bindgen_test_layout_CombatMagicCasterOffensive ... ok
 test bindings::root::RE::bindgen_test_layout_CombatInventoryItemShout ... ok
 test bindings::root::RE::bindgen_test_layout_CombatInventoryItemSlot ... ok
 test bindings::root::RE::bindgen_test_layout_CombatInventoryItemStaff ... ok
-test bindings::root::RE::bindgen_test_layout_CombatMagicCaster ... ok
-test bindings::root::RE::bindgen_test_layout_CombatMagicCasterOffensive ... ok
 test bindings::root::RE::bindgen_test_layout_CombatMagicCasterRestore ... ok
 test bindings::root::RE::bindgen_test_layout_CombatMagicCasterTargetEffect ... ok
 test bindings::root::RE::bindgen_test_layout_CombatManager ... ok
@@ -820,8 +811,8 @@ test bindings::root::RE::bindgen_test_layout_CombatStyleGeneralData ... ok
 test bindings::root::RE::bindgen_test_layout_CombatStyleLongRangeData ... ok
 test bindings::root::RE::bindgen_test_layout_CombatStyleMeleeData ... ok
 test bindings::root::RE::bindgen_test_layout_CombatTarget ... ok
-test bindings::root::RE::bindgen_test_layout_CombatThreatMap ... FAILED
 test bindings::root::RE::bindgen_test_layout_CommandEffect ... ok
+test bindings::root::RE::bindgen_test_layout_CombatThreatMap ... FAILED
 test bindings::root::RE::bindgen_test_layout_CommandedActorData ... ok
 test bindings::root::RE::bindgen_test_layout_ConditionCheckParams ... ok
 test bindings::root::RE::bindgen_test_layout_ConeProjectile ... ok
@@ -836,11 +827,11 @@ test bindings::root::RE::bindgen_test_layout_Console_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_ContainerItemExtra ... ok
 test bindings::root::RE::bindgen_test_layout_ContainerItemExtra_Conditional ... ok
 test bindings::root::RE::bindgen_test_layout_ContainerMenu ... FAILED
-test bindings::root::RE::bindgen_test_layout_ContainerMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_ContainerObject ... ok
+test bindings::root::RE::bindgen_test_layout_ContainerMenu_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_ControlMap ... FAILED
 test bindings::root::RE::bindgen_test_layout_ControlMap_InputContext ... ok
 test bindings::root::RE::bindgen_test_layout_ControlMap_LinkedMapping ... ok
-test bindings::root::RE::bindgen_test_layout_ControlMap ... FAILED
 test bindings::root::RE::bindgen_test_layout_ControlMap_UserEventMapping ... ok
 test bindings::root::RE::bindgen_test_layout_CraftingMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_CreationClubMenu ... FAILED
@@ -848,15 +839,15 @@ test bindings::root::RE::bindgen_test_layout_CreationClubMenu_RUNTIME_DATA ... o
 test bindings::root::RE::bindgen_test_layout_CreatureSounds ... ok
 test bindings::root::RE::bindgen_test_layout_CreditsMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_Crime ... ok
+test bindings::root::RE::bindgen_test_layout_CrimeGoldStruct ... ok
 test bindings::root::RE::bindgen_test_layout_CriticalHit ... ok
 test bindings::root::RE::bindgen_test_layout_CriticalHit_Event ... ok
 test bindings::root::RE::bindgen_test_layout_CrosshairPickData ... ok
-test bindings::root::RE::bindgen_test_layout_CrimeGoldStruct ... ok
 test bindings::root::RE::bindgen_test_layout_CursorMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_DECAL_CREATION_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_DECAL_DATA_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_DEFAULT_OBJECT_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_DEFAULT_OBJECTS ... ok
+test bindings::root::RE::bindgen_test_layout_DEFAULT_OBJECT_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_DIALOGUE_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_DIALOGUE_TYPES ... ok
 test bindings::root::RE::bindgen_test_layout_DecalData ... ok
@@ -871,8 +862,8 @@ test bindings::root::RE::bindgen_test_layout_DetectionListener ... ok
 test bindings::root::RE::bindgen_test_layout_DetectionState ... ok
 test bindings::root::RE::bindgen_test_layout_DeviceConnectEvent ... ok
 test bindings::root::RE::bindgen_test_layout_DialogueItem ... ok
-test bindings::root::RE::bindgen_test_layout_DialogueMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_DialogueMenu_Data ... ok
+test bindings::root::RE::bindgen_test_layout_DialogueMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_DialogueMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_DialoguePackage ... ok
 test bindings::root::RE::bindgen_test_layout_DialogueResponse ... ok
@@ -891,8 +882,8 @@ test bindings::root::RE::bindgen_test_layout_EffectSetting ... ok
 test bindings::root::RE::bindgen_test_layout_EffectSetting_EffectSettingData ... ok
 test bindings::root::RE::bindgen_test_layout_EffectSetting_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_EffectSetting_SoundPair ... ok
-test bindings::root::RE::bindgen_test_layout_EffectShaderData ... ok
 test bindings::root::RE::bindgen_test_layout_Effect_EffectItem ... ok
+test bindings::root::RE::bindgen_test_layout_EffectShaderData ... ok
 test bindings::root::RE::bindgen_test_layout_EnchantmentItem ... ok
 test bindings::root::RE::bindgen_test_layout_EnchantmentItem_Data ... ok
 test bindings::root::RE::bindgen_test_layout_EnchantmentItem_RecordFlags ... ok
@@ -944,21 +935,21 @@ test bindings::root::RE::bindgen_test_layout_ExtraDroppedItemList ... FAILED
 test bindings::root::RE::bindgen_test_layout_ExtraEditorRef3DData ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraEditorRefMoveData ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraEmittanceSource ... ok
-test bindings::root::RE::bindgen_test_layout_ExtraEnableStateChildren ... FAILED
 test bindings::root::RE::bindgen_test_layout_ExtraEnableStateParent ... ok
+test bindings::root::RE::bindgen_test_layout_ExtraEnableStateChildren ... FAILED
 test bindings::root::RE::bindgen_test_layout_ExtraEnchantment ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraEncounterZone ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraFactionChanges ... ok
-test bindings::root::RE::bindgen_test_layout_ExtraFavorCost ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraFlags ... ok
+test bindings::root::RE::bindgen_test_layout_ExtraFavorCost ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraFollower ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraFollowerSwimBreadcrumb ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraFollowerSwimBreadcrumbs ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraFollower_FollowerInfo ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraForcedLandingMarker ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraForcedTarget ... ok
-test bindings::root::RE::bindgen_test_layout_ExtraFriendHits ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraFromAlias ... ok
+test bindings::root::RE::bindgen_test_layout_ExtraFriendHits ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraGIDBuffer ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraGhost ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraGlobal ... ok
@@ -985,13 +976,13 @@ test bindings::root::RE::bindgen_test_layout_ExtraLeveledCreature ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraLeveledItem ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraLeveledItemBase ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraLight ... ok
-test bindings::root::RE::bindgen_test_layout_ExtraLightData ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraLightDataStruct ... ok
+test bindings::root::RE::bindgen_test_layout_ExtraLightData ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraLinkedRef ... ok
-test bindings::root::RE::bindgen_test_layout_ExtraLinkedRefChildren_LinkedRefChild ... ok
-test bindings::root::RE::bindgen_test_layout_ExtraLitWaterRefs ... ok
-test bindings::root::RE::bindgen_test_layout_ExtraLinkedRef_LinkedRef ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraLinkedRefChildren ... ok
+test bindings::root::RE::bindgen_test_layout_ExtraLinkedRefChildren_LinkedRefChild ... ok
+test bindings::root::RE::bindgen_test_layout_ExtraLinkedRef_LinkedRef ... ok
+test bindings::root::RE::bindgen_test_layout_ExtraLitWaterRefs ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraLocation ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraLocationRefType ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraLock ... ok
@@ -1067,8 +1058,8 @@ test bindings::root::RE::bindgen_test_layout_ExtraTimeLeft ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraTresPassPackage ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraUniqueID ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraUsedMarkers ... ok
-test bindings::root::RE::bindgen_test_layout_ExtraWaterCurrentZoneData ... FAILED
 test bindings::root::RE::bindgen_test_layout_ExtraWaterData ... ok
+test bindings::root::RE::bindgen_test_layout_ExtraWaterCurrentZoneData ... FAILED
 test bindings::root::RE::bindgen_test_layout_ExtraWaterLightRefs ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraWeaponAttackSound ... ok
 test bindings::root::RE::bindgen_test_layout_ExtraWeaponIdleSound ... ok
@@ -1094,13 +1085,13 @@ test bindings::root::RE::bindgen_test_layout_FavoritesMenu_Entry ... ok
 test bindings::root::RE::bindgen_test_layout_FavoritesMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_FirstPersonState ... ok
 test bindings::root::RE::bindgen_test_layout_FlameProjectile ... ok
-test bindings::root::RE::bindgen_test_layout_FlameProjectile_FLAME_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_FixedStrings ... ok
+test bindings::root::RE::bindgen_test_layout_FlameProjectile_FLAME_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_FlameProjectile_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_FrenzyEffect ... ok
 test bindings::root::RE::bindgen_test_layout_FriendshipFactionsStruct ... ok
-test bindings::root::RE::bindgen_test_layout_FxDelegate ... FAILED
 test bindings::root::RE::bindgen_test_layout_FxDelegateArgs ... ok
+test bindings::root::RE::bindgen_test_layout_FxDelegate ... FAILED
 test bindings::root::RE::bindgen_test_layout_FxDelegateHandler ... FAILED
 test bindings::root::RE::bindgen_test_layout_FxDelegateHandler_CallbackProcessor ... ok
 test bindings::root::RE::bindgen_test_layout_FxDelegate_CallbackDefn ... ok
@@ -1127,8 +1118,8 @@ test bindings::root::RE::bindgen_test_layout_GFxLog ... FAILED
 test bindings::root::RE::bindgen_test_layout_GFxLogConstants ... ok
 test bindings::root::RE::bindgen_test_layout_GFxMouseEvent ... FAILED
 test bindings::root::RE::bindgen_test_layout_GFxMovie ... FAILED
-test bindings::root::RE::bindgen_test_layout_GFxMovieDef_ImportVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_GFxMovieDef ... FAILED
+test bindings::root::RE::bindgen_test_layout_GFxMovieDef_ImportVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_GFxMovieDef_MemoryContext ... FAILED
 test bindings::root::RE::bindgen_test_layout_GFxMovieDef_MemoryParams ... ok
 test bindings::root::RE::bindgen_test_layout_GFxMovieDef_ResourceVisitor ... ok
@@ -1137,14 +1128,14 @@ test bindings::root::RE::bindgen_test_layout_GFxMovieView ... FAILED
 test bindings::root::RE::bindgen_test_layout_GFxRenderConfig ... FAILED
 test bindings::root::RE::bindgen_test_layout_GFxResource ... FAILED
 test bindings::root::RE::bindgen_test_layout_GFxResourceID ... ok
+test bindings::root::RE::bindgen_test_layout_GFxResourceID_HashOp ... ok
 test bindings::root::RE::bindgen_test_layout_GFxResourceID_IDTypeConstants ... ok
 test bindings::root::RE::bindgen_test_layout_GFxResourceID_IDTypes ... ok
-test bindings::root::RE::bindgen_test_layout_GFxResourceID_HashOp ... ok
 test bindings::root::RE::bindgen_test_layout_GFxResourceKey ... ok
 test bindings::root::RE::bindgen_test_layout_GFxResourceKey_HashOp ... ok
 test bindings::root::RE::bindgen_test_layout_GFxResourceKey_KeyInterface ... ok
-test bindings::root::RE::bindgen_test_layout_GFxSpecialKeysState ... ok
 test bindings::root::RE::bindgen_test_layout_GFxResourceLibBase ... FAILED
+test bindings::root::RE::bindgen_test_layout_GFxSpecialKeysState ... ok
 test bindings::root::RE::bindgen_test_layout_GFxStatFontCaches ... ok
 test bindings::root::RE::bindgen_test_layout_GFxStatIMEs ... ok
 test bindings::root::RE::bindgen_test_layout_GFxStatMovieData ... ok
@@ -1198,10 +1189,10 @@ test bindings::root::RE::bindgen_test_layout_GRenderer_Stats ... ok
 test bindings::root::RE::bindgen_test_layout_GRenderer_StereoParams ... ok
 test bindings::root::RE::bindgen_test_layout_GRenderer_UserData ... ok
 test bindings::root::RE::bindgen_test_layout_GRenderer_VertexXY16i ... ok
-test bindings::root::RE::bindgen_test_layout_GStatRenderers ... ok
-test bindings::root::RE::bindgen_test_layout_GStatGroups ... ok
 test bindings::root::RE::bindgen_test_layout_GRenderer_VertexXY16iC32 ... ok
 test bindings::root::RE::bindgen_test_layout_GRenderer_VertexXY16iCF32 ... ok
+test bindings::root::RE::bindgen_test_layout_GStatGroups ... ok
+test bindings::root::RE::bindgen_test_layout_GStatRenderers ... ok
 test bindings::root::RE::bindgen_test_layout_GString ... ok
 test bindings::root::RE::bindgen_test_layout_GString_DataDesc ... ok
 test bindings::root::RE::bindgen_test_layout_GString_DataDescUnion ... ok
@@ -1271,8 +1262,8 @@ test bindings::root::RE::bindgen_test_layout_IMovementDirectControl ... ok
 test bindings::root::RE::bindgen_test_layout_IMovementInterface ... ok
 test bindings::root::RE::bindgen_test_layout_IMovementMessageInterface ... ok
 test bindings::root::RE::bindgen_test_layout_IMovementMotionDrivenControl ... ok
-test bindings::root::RE::bindgen_test_layout_IMovementPlannerDirectControl ... ok
 test bindings::root::RE::bindgen_test_layout_IMovementSelectIdle ... ok
+test bindings::root::RE::bindgen_test_layout_IMovementPlannerDirectControl ... ok
 test bindings::root::RE::bindgen_test_layout_IMovementState ... ok
 test bindings::root::RE::bindgen_test_layout_INIPrefSettingCollection ... FAILED
 test bindings::root::RE::bindgen_test_layout_INISettingCollection ... FAILED
@@ -1346,13 +1337,13 @@ test bindings::root::RE::bindgen_test_layout_LevelUpMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_LevelUpMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_LightEffect ... ok
 test bindings::root::RE::bindgen_test_layout_LoadStorageWrapper ... ok
-test bindings::root::RE::bindgen_test_layout_LoadWaitSpinner_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_LoadWaitSpinner ... FAILED
+test bindings::root::RE::bindgen_test_layout_LoadWaitSpinner_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_LoadedInventoryModel ... ok
-test bindings::root::RE::bindgen_test_layout_LoadingMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_LoadingMenu_RUNTIME_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_LocalMapCamera ... FAILED
+test bindings::root::RE::bindgen_test_layout_LoadingMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_LocalMapCamera_DefaultState ... ok
+test bindings::root::RE::bindgen_test_layout_LocalMapCamera ... FAILED
 test bindings::root::RE::bindgen_test_layout_LocalMapMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_LocalMapMenu_InputHandler ... ok
 test bindings::root::RE::bindgen_test_layout_LocalMapMenu_LocalMapCullingProcess ... FAILED
@@ -1371,15 +1362,15 @@ test bindings::root::RE::bindgen_test_layout_MagicItem ... ok
 test bindings::root::RE::bindgen_test_layout_MagicItem_Data ... ok
 test bindings::root::RE::bindgen_test_layout_MagicItem_PreloadableVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_MagicItem_SkillUsageData ... ok
-test bindings::root::RE::bindgen_test_layout_MagicMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_MagicMenu_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_MagicMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_MagicTarget ... ok
 test bindings::root::RE::bindgen_test_layout_MagicTarget_AddTargetData ... ok
 test bindings::root::RE::bindgen_test_layout_MagicTarget_ForEachActiveEffectVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_MagicTarget_SpellDispelData ... ok
 test bindings::root::RE::bindgen_test_layout_Main ... ok
-test bindings::root::RE::bindgen_test_layout_MainMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_MainMenu ... FAILED
+test bindings::root::RE::bindgen_test_layout_MainMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_MapCamera ... FAILED
 test bindings::root::RE::bindgen_test_layout_MapInputHandler ... ok
 test bindings::root::RE::bindgen_test_layout_MapLookHandler ... ok
@@ -1407,8 +1398,8 @@ test bindings::root::RE::bindgen_test_layout_MessageBoxData ... ok
 test bindings::root::RE::bindgen_test_layout_MessageBoxMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_MessageBoxMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_MessageDataFactoryManager ... ok
-test bindings::root::RE::bindgen_test_layout_MiddleLowProcessData ... ok
 test bindings::root::RE::bindgen_test_layout_MiddleHighProcessData ... FAILED
+test bindings::root::RE::bindgen_test_layout_MiddleLowProcessData ... ok
 test bindings::root::RE::bindgen_test_layout_MissileProjectile ... ok
 test bindings::root::RE::bindgen_test_layout_MissileProjectile_MISSILE_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_MissileProjectile_RecordFlags ... ok
@@ -1424,22 +1415,22 @@ test bindings::root::RE::bindgen_test_layout_Moon ... ok
 test bindings::root::RE::bindgen_test_layout_Moon_Phases ... ok
 test bindings::root::RE::bindgen_test_layout_MouseMoveEvent ... ok
 test bindings::root::RE::bindgen_test_layout_MovementControllerAI ... FAILED
-test bindings::root::RE::bindgen_test_layout_MovementControllerNPC ... FAILED
 test bindings::root::RE::bindgen_test_layout_MovementHandler ... ok
-test bindings::root::RE::bindgen_test_layout_NavMesh ... ok
-test bindings::root::RE::bindgen_test_layout_NavMeshArray ... ok
-test bindings::root::RE::bindgen_test_layout_NAVMESH_PORTAL ... ok
-test bindings::root::RE::bindgen_test_layout_NAVMESH_PORTAL_Nav ... ok
+test bindings::root::RE::bindgen_test_layout_MovementControllerNPC ... FAILED
 test bindings::root::RE::bindgen_test_layout_MoviePlayer ... ok
 test bindings::root::RE::bindgen_test_layout_MultiBoundMarkerData ... ok
-test bindings::root::RE::bindgen_test_layout_NiAllocator ... ok
+test bindings::root::RE::bindgen_test_layout_NAVMESH_PORTAL ... ok
+test bindings::root::RE::bindgen_test_layout_NAVMESH_PORTAL_Nav ... ok
+test bindings::root::RE::bindgen_test_layout_NavMesh ... ok
+test bindings::root::RE::bindgen_test_layout_NavMeshArray ... ok
 test bindings::root::RE::bindgen_test_layout_NavMeshInfoMap ... FAILED
 test bindings::root::RE::bindgen_test_layout_NavMeshInfoMap_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_NavMesh_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_NiAVObject ... ok
+test bindings::root::RE::bindgen_test_layout_NiAllocator ... ok
 test bindings::root::RE::bindgen_test_layout_NiAlphaProperty ... ok
-test bindings::root::RE::bindgen_test_layout_NiBinaryStream ... ok
 test bindings::root::RE::bindgen_test_layout_NiAnimationKey ... ok
+test bindings::root::RE::bindgen_test_layout_NiBinaryStream ... ok
 test bindings::root::RE::bindgen_test_layout_NiBinaryStream_BufferInfo ... ok
 test bindings::root::RE::bindgen_test_layout_NiBoneMatrixSetterI ... ok
 test bindings::root::RE::bindgen_test_layout_NiBooleanExtraData ... ok
@@ -1450,228 +1441,228 @@ test bindings::root::RE::bindgen_test_layout_NiCamera_RUNTIME_DATA2 ... ok
 test bindings::root::RE::bindgen_test_layout_NiCloningProcess ... FAILED
 test bindings::root::RE::bindgen_test_layout_NiCollisionObject ... ok
 test bindings::root::RE::bindgen_test_layout_NiColor ... ok
-test bindings::root::RE::bindgen_test_layout_NiColorData ... ok
 test bindings::root::RE::bindgen_test_layout_NiColorA ... ok
-test bindings::root::RE::bindgen_test_layout_NiControllerSequence ... ok
+test bindings::root::RE::bindgen_test_layout_NiColorData ... ok
+test bindings::root::RE::bindgen_test_layout_NiColorInterpolator ... ok
+test bindings::root::RE::bindgen_test_layout_NiColorKey ... ok
 test bindings::root::RE::bindgen_test_layout_NiControllerManager ... FAILED
+test bindings::root::RE::bindgen_test_layout_NiControllerSequence ... ok
 test bindings::root::RE::bindgen_test_layout_NiControllerSequence_IDTag ... ok
 test bindings::root::RE::bindgen_test_layout_NiControllerSequence_InterpArrayItem ... ok
-test bindings::root::RE::bindgen_test_layout_NiColorInterpolator ... ok
-test bindings::root::RE::bindgen_test_layout_NiFile ... ok
-test bindings::root::RE::bindgen_test_layout_NiExtraData ... ok
-test bindings::root::RE::bindgen_test_layout_NiColorKey ... ok
 test bindings::root::RE::bindgen_test_layout_NiCullingProcess ... ok
+test bindings::root::RE::bindgen_test_layout_NiExtraData ... ok
+test bindings::root::RE::bindgen_test_layout_NiFile ... ok
 test bindings::root::RE::bindgen_test_layout_NiFloatData ... ok
 test bindings::root::RE::bindgen_test_layout_NiFloatExtraData ... ok
 test bindings::root::RE::bindgen_test_layout_NiFloatInterpolator ... ok
 test bindings::root::RE::bindgen_test_layout_NiFloatKey ... ok
 test bindings::root::RE::bindgen_test_layout_NiFloatsExtraData ... ok
 test bindings::root::RE::bindgen_test_layout_NiFormArray ... ok
+test bindings::root::RE::bindgen_test_layout_NiFrustum ... ok
 test bindings::root::RE::bindgen_test_layout_NiFrustumPlanes ... ok
+test bindings::root::RE::bindgen_test_layout_NiFrustumPlanes_Planes ... ok
 test bindings::root::RE::bindgen_test_layout_NiGeometry ... ok
 test bindings::root::RE::bindgen_test_layout_NiGeometryData ... ok
-test bindings::root::RE::bindgen_test_layout_NiLight ... ok
-test bindings::root::RE::bindgen_test_layout_NiFrustum ... ok
-test bindings::root::RE::bindgen_test_layout_NiFrustumPlanes_Planes ... ok
+test bindings::root::RE::bindgen_test_layout_NiGeometry_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_NiIntegerExtraData ... ok
 test bindings::root::RE::bindgen_test_layout_NiIntegersExtraData ... ok
+test bindings::root::RE::bindgen_test_layout_NiInterpController ... ok
 test bindings::root::RE::bindgen_test_layout_NiInterpolator ... ok
 test bindings::root::RE::bindgen_test_layout_NiKeyBasedInterpolator ... ok
-test bindings::root::RE::bindgen_test_layout_NiIntegerExtraData ... ok
-test bindings::root::RE::bindgen_test_layout_NiInterpController ... ok
-test bindings::root::RE::bindgen_test_layout_NiGeometry_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_NiLight ... ok
 test bindings::root::RE::bindgen_test_layout_NiLight_LIGHT_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_NiMatrix3 ... ok
-test bindings::root::RE::bindgen_test_layout_NiNode ... ok
 test bindings::root::RE::bindgen_test_layout_NiMemManager ... ok
-test bindings::root::RE::bindgen_test_layout_NiObject ... ok
 test bindings::root::RE::bindgen_test_layout_NiMultiTargetTransformController ... ok
 test bindings::root::RE::bindgen_test_layout_NiNPShortPoint3 ... ok
+test bindings::root::RE::bindgen_test_layout_NiNode ... ok
+test bindings::root::RE::bindgen_test_layout_NiObject ... ok
+test bindings::root::RE::bindgen_test_layout_NiObjectGroup ... ok
+test bindings::root::RE::bindgen_test_layout_NiObjectNET ... ok
+test bindings::root::RE::bindgen_test_layout_NiPlane ... ok
+test bindings::root::RE::bindgen_test_layout_NiPoint2 ... ok
 test bindings::root::RE::bindgen_test_layout_NiPoint3 ... ok
 test bindings::root::RE::bindgen_test_layout_NiPointLight ... ok
-test bindings::root::RE::bindgen_test_layout_NiPlane ... ok
+test bindings::root::RE::bindgen_test_layout_NiPointLight_POINT_LIGHT_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_NiProperty ... ok
 test bindings::root::RE::bindgen_test_layout_NiQuaternion ... ok
-test bindings::root::RE::bindgen_test_layout_NiPoint2 ... ok
 test bindings::root::RE::bindgen_test_layout_NiRTTI ... ok
 test bindings::root::RE::bindgen_test_layout_NiRefObject ... ok
 test bindings::root::RE::bindgen_test_layout_NiShadeProperty ... ok
-test bindings::root::RE::bindgen_test_layout_NiObjectGroup ... ok
-test bindings::root::RE::bindgen_test_layout_NiPointLight_POINT_LIGHT_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_NiSkinData ... ok
+test bindings::root::RE::bindgen_test_layout_NiSkinData_BoneData ... ok
 test bindings::root::RE::bindgen_test_layout_NiSkinData_BoneVertData ... ok
-test bindings::root::RE::bindgen_test_layout_NiStream ... ok
+test bindings::root::RE::bindgen_test_layout_NiSkinInstance ... ok
 test bindings::root::RE::bindgen_test_layout_NiSkinPartition ... ok
 test bindings::root::RE::bindgen_test_layout_NiSkinPartition_Partition ... ok
 test bindings::root::RE::bindgen_test_layout_NiSourceTexture ... ok
-test bindings::root::RE::bindgen_test_layout_NiProperty ... ok
-test bindings::root::RE::bindgen_test_layout_NiSkinData_BoneData ... ok
-test bindings::root::RE::bindgen_test_layout_NiObjectNET ... ok
+test bindings::root::RE::bindgen_test_layout_NiStream ... ok
 test bindings::root::RE::bindgen_test_layout_NiStringExtraData ... ok
-test bindings::root::RE::bindgen_test_layout_NiSkinInstance ... ok
 test bindings::root::RE::bindgen_test_layout_NiStringsExtraData ... ok
-test bindings::root::RE::bindgen_test_layout_NiSkinData ... ok
 test bindings::root::RE::bindgen_test_layout_NiTexture ... ok
 test bindings::root::RE::bindgen_test_layout_NiTexture_FormatPrefs ... ok
 test bindings::root::RE::bindgen_test_layout_NiTexture_RendererData ... ok
 test bindings::root::RE::bindgen_test_layout_NiTimeController ... ok
 test bindings::root::RE::bindgen_test_layout_NiTransform ... ok
+test bindings::root::RE::bindgen_test_layout_NiUpdateData ... ok
 test bindings::root::RE::bindgen_test_layout_NonActorMagicCaster ... ok
 test bindings::root::RE::bindgen_test_layout_NonActorMagicTarget ... ok
 test bindings::root::RE::bindgen_test_layout_OBJ_ARMA ... ok
 test bindings::root::RE::bindgen_test_layout_OBJ_BOOK ... ok
-test bindings::root::RE::bindgen_test_layout_NiUpdateData ... ok
 test bindings::root::RE::bindgen_test_layout_OBJ_BOOK_Teaches ... ok
 test bindings::root::RE::bindgen_test_layout_OBJ_LAND ... ok
 test bindings::root::RE::bindgen_test_layout_OBJ_LIGH ... ok
 test bindings::root::RE::bindgen_test_layout_OBJ_REFR ... ok
+test bindings::root::RE::bindgen_test_layout_OBJ_TREE ... ok
+test bindings::root::RE::bindgen_test_layout_ObjectEquipParams ... ok
 test bindings::root::RE::bindgen_test_layout_ObjectstoAcquire ... ok
 test bindings::root::RE::bindgen_test_layout_OcclusionPlaneLinkedRefData ... ok
 test bindings::root::RE::bindgen_test_layout_OldMessageBoxCallback ... ok
+test bindings::root::RE::bindgen_test_layout_PACKAGE_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_OverrideData ... FAILED
+test bindings::root::RE::bindgen_test_layout_PACK_SCHED_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_PART_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_PATH_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_PLAYER_TARGET_LOC ... ok
-test bindings::root::RE::bindgen_test_layout_OBJ_TREE ... ok
-test bindings::root::RE::bindgen_test_layout_ObjectEquipParams ... ok
-test bindings::root::RE::bindgen_test_layout_PACKAGE_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_PACK_SCHED_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_PackageSchedule ... ok
 test bindings::root::RE::bindgen_test_layout_PackageEventAction ... ok
 test bindings::root::RE::bindgen_test_layout_PackageEventAction_TopicData ... ok
 test bindings::root::RE::bindgen_test_layout_PackageList ... ok
+test bindings::root::RE::bindgen_test_layout_PackageLocation ... ok
+test bindings::root::RE::bindgen_test_layout_PackageLocation_Data ... ok
+test bindings::root::RE::bindgen_test_layout_PackageSchedule ... ok
+test bindings::root::RE::bindgen_test_layout_PackageTarget ... ok
 test bindings::root::RE::bindgen_test_layout_PackageTarget_Target ... ok
 test bindings::root::RE::bindgen_test_layout_ParalysisEffect ... ok
-test bindings::root::RE::bindgen_test_layout_PerformOpFunc ... ok
-test bindings::root::RE::bindgen_test_layout_PackageTarget ... ok
-test bindings::root::RE::bindgen_test_layout_PerkData ... ok
-test bindings::root::RE::bindgen_test_layout_PackageLocation_Data ... ok
-test bindings::root::RE::bindgen_test_layout_PatrolRefData ... ok
 test bindings::root::RE::bindgen_test_layout_PathingCell ... ok
-test bindings::root::RE::bindgen_test_layout_PackageLocation ... ok
-test bindings::root::RE::bindgen_test_layout_PlayerCamera ... FAILED
-test bindings::root::RE::bindgen_test_layout_PlayerCameraTransitionState ... ok
+test bindings::root::RE::bindgen_test_layout_PatrolRefData ... ok
+test bindings::root::RE::bindgen_test_layout_PerformOpFunc ... ok
+test bindings::root::RE::bindgen_test_layout_PerkData ... ok
+test bindings::root::RE::bindgen_test_layout_PerkEntryVisitor ... ok
+test bindings::root::RE::bindgen_test_layout_PerkRankData ... ok
 test bindings::root::RE::bindgen_test_layout_PerkRankVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_PlayerActionObject ... ok
+test bindings::root::RE::bindgen_test_layout_PlayerCamera ... FAILED
+test bindings::root::RE::bindgen_test_layout_PlayerCameraTransitionState ... ok
+test bindings::root::RE::bindgen_test_layout_PlayerCamera_Unk120 ... ok
+test bindings::root::RE::bindgen_test_layout_PlayerCharacter ... FAILED
+test bindings::root::RE::bindgen_test_layout_PlayerCharacter_Data928 ... ok
 test bindings::root::RE::bindgen_test_layout_PlayerCharacter_CrimeValue ... FAILED
 test bindings::root::RE::bindgen_test_layout_PlayerCharacter_GameStateData ... ok
-test bindings::root::RE::bindgen_test_layout_PerkRankData ... ok
-test bindings::root::RE::bindgen_test_layout_PerkEntryVisitor ... ok
-test bindings::root::RE::bindgen_test_layout_PlayerCamera_Unk120 ... ok
-test bindings::root::RE::bindgen_test_layout_PlayerCharacter_Data928 ... ok
-test bindings::root::RE::bindgen_test_layout_PlayerCharacter ... FAILED
 test bindings::root::RE::bindgen_test_layout_PlayerCharacter_INFO_RUNTIME_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_PlayerCharacter_PLAYER_RUNTIME_DATA ... FAILED
-test bindings::root::RE::bindgen_test_layout_PlayerCharacter_PlayerSkills ... ok
-test bindings::root::RE::bindgen_test_layout_PlayerCharacter_PlayerSkills_Data_Skills ... ok
 test bindings::root::RE::bindgen_test_layout_PlayerCharacter_PlayerSkills_Data ... ok
 test bindings::root::RE::bindgen_test_layout_PlayerCharacter_PlayerSkills_Data_SkillData ... ok
 test bindings::root::RE::bindgen_test_layout_PlayerCharacter_RaceData ... ok
-test bindings::root::RE::bindgen_test_layout_PlayerInputHandler ... ok
-test bindings::root::RE::bindgen_test_layout_PoisonedWeapon ... ok
+test bindings::root::RE::bindgen_test_layout_PlayerCharacter_PlayerSkills_Data_Skills ... ok
 test bindings::root::RE::bindgen_test_layout_PoisonedWeapon_Event ... ok
+test bindings::root::RE::bindgen_test_layout_PlayerInputHandler ... ok
 test bindings::root::RE::bindgen_test_layout_PortalLinkedRefData ... ok
+test bindings::root::RE::bindgen_test_layout_PoisonedWeapon ... ok
+test bindings::root::RE::bindgen_test_layout_PlayerCharacter_PLAYER_RUNTIME_DATA ... FAILED
+test bindings::root::RE::bindgen_test_layout_PlayerCharacter_PlayerSkills ... ok
+test bindings::root::RE::bindgen_test_layout_PrecomputedNavmeshInfoPathMap ... ok
 test bindings::root::RE::bindgen_test_layout_PlayerControls ... FAILED
-test bindings::root::RE::bindgen_test_layout_PositionPlayerEvent ... ok
 test bindings::root::RE::bindgen_test_layout_PlayerControlsData ... ok
+test bindings::root::RE::bindgen_test_layout_PositionPlayerEvent ... ok
 test bindings::root::RE::bindgen_test_layout_Precipitation ... ok
 test bindings::root::RE::bindgen_test_layout_Precipitation_OcclusionMapData ... ok
-test bindings::root::RE::bindgen_test_layout_PrecomputedNavmeshInfoPathMap ... ok
 test bindings::root::RE::bindgen_test_layout_ProcessLists ... FAILED
 test bindings::root::RE::bindgen_test_layout_Projectile_LaunchData ... ok
 test bindings::root::RE::bindgen_test_layout_Projectile_Manager ... ok
-test bindings::root::RE::bindgen_test_layout_Projectile_PROJECTILE_RUNTIME_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_ProcessLists_GetActorsFilter ... ok
-test bindings::root::RE::bindgen_test_layout_Projectile ... ok
-test bindings::root::RE::bindgen_test_layout_Projectile_WobbleControl ... ok
 test bindings::root::RE::bindgen_test_layout_Projectile_ImpactData ... ok
 test bindings::root::RE::bindgen_test_layout_QUEST_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_QUEST_STAGE_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_QueuedItem ... ok
-test bindings::root::RE::bindgen_test_layout_RACE_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_RACE_DATA_SkillBoost ... ok
+test bindings::root::RE::bindgen_test_layout_Projectile ... ok
+test bindings::root::RE::bindgen_test_layout_ProcessLists_GetActorsFilter ... ok
+test bindings::root::RE::bindgen_test_layout_Projectile_PROJECTILE_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_Projectile_WobbleControl ... ok
 test bindings::root::RE::bindgen_test_layout_RANK_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_REFR_LIGHT ... ok
+test bindings::root::RE::bindgen_test_layout_QUEST_STAGE_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_REFR_LOCK ... ok
+test bindings::root::RE::bindgen_test_layout_QueuedItem ... ok
+test bindings::root::RE::bindgen_test_layout_RACE_DATA_SkillBoost ... ok
 test bindings::root::RE::bindgen_test_layout_REF_ACTIVATE_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_RaceSexCamera ... FAILED
-test bindings::root::RE::bindgen_test_layout_RagDollBone ... ok
-test bindings::root::RE::bindgen_test_layout_RaceSexMenu ... FAILED
-test bindings::root::RE::bindgen_test_layout_RaceSexMenuEvent_NameChangedEvent ... ok
 test bindings::root::RE::bindgen_test_layout_RaceSexMenuEvent ... ok
-test bindings::root::RE::bindgen_test_layout_RagDollData ... ok
-test bindings::root::RE::bindgen_test_layout_ReadyWeaponHandler ... ok
-test bindings::root::RE::bindgen_test_layout_ReanimateEffect ... ok
+test bindings::root::RE::bindgen_test_layout_RaceSexCamera ... FAILED
+test bindings::root::RE::bindgen_test_layout_RaceSexMenu ... FAILED
+test bindings::root::RE::bindgen_test_layout_REFR_LIGHT ... ok
+test bindings::root::RE::bindgen_test_layout_RACE_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_RaceSexMenuEvent_NameChangedEvent ... ok
 test bindings::root::RE::bindgen_test_layout_RaceSexMenu_RUNTIME_DATA ... FAILED
+test bindings::root::RE::bindgen_test_layout_RagDollBone ... ok
+test bindings::root::RE::bindgen_test_layout_RagDollData ... ok
+test bindings::root::RE::bindgen_test_layout_ReanimateEffect ... ok
 test bindings::root::RE::bindgen_test_layout_RefAttachTechniqueInput ... ok
-test bindings::root::RE::bindgen_test_layout_ReferenceEffectController ... ok
+test bindings::root::RE::bindgen_test_layout_ReadyWeaponHandler ... ok
 test bindings::root::RE::bindgen_test_layout_ReferenceEffect ... ok
+test bindings::root::RE::bindgen_test_layout_ReferenceEffectController ... ok
 test bindings::root::RE::bindgen_test_layout_RefrInteraction ... ok
 test bindings::root::RE::bindgen_test_layout_RegSettingCollection ... FAILED
 test bindings::root::RE::bindgen_test_layout_RemoveCallbackVisitor ... ok
 test bindings::root::RE::bindgen_test_layout_ResponseDictionary ... FAILED
 test bindings::root::RE::bindgen_test_layout_RoomRefData ... FAILED
 test bindings::root::RE::bindgen_test_layout_RunHandler ... ok
-test bindings::root::RE::bindgen_test_layout_SCRIPT_EFFECT_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_SCRIPT_FUNCTION ... ok
 test bindings::root::RE::bindgen_test_layout_RunOncePackage ... ok
-test bindings::root::RE::bindgen_test_layout_SCRIPT_FUNCTION_Chunk ... ok
-test bindings::root::RE::bindgen_test_layout_SCRIPT_FUNCTION_Commands ... ok
 test bindings::root::RE::bindgen_test_layout_SCRIPT_FUNCTION_IntegerChunk ... ok
 test bindings::root::RE::bindgen_test_layout_SCRIPT_FUNCTION_ScriptData ... ok
+test bindings::root::RE::bindgen_test_layout_SCRIPT_FUNCTION ... ok
+test bindings::root::RE::bindgen_test_layout_SCRIPT_EFFECT_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_SCRIPT_FUNCTION_StringChunk ... ok
 test bindings::root::RE::bindgen_test_layout_SCRIPT_HEADER ... ok
+test bindings::root::RE::bindgen_test_layout_SCRIPT_FUNCTION_Chunk ... ok
 test bindings::root::RE::bindgen_test_layout_SCRIPT_LINE ... ok
-test bindings::root::RE::bindgen_test_layout_SCRIPT_LOCAL ... ok
-test bindings::root::RE::bindgen_test_layout_SCRIPT_PARAMETER ... ok
-test bindings::root::RE::bindgen_test_layout_SCRIPT_REFERENCED_OBJECT ... ok
+test bindings::root::RE::bindgen_test_layout_SCRIPT_FUNCTION_Commands ... ok
 test bindings::root::RE::bindgen_test_layout_SEASON ... ok
 test bindings::root::RE::bindgen_test_layout_SETTING_VALUE ... ok
+test bindings::root::RE::bindgen_test_layout_SCRIPT_LOCAL ... ok
 test bindings::root::RE::bindgen_test_layout_SEXES ... ok
 test bindings::root::RE::bindgen_test_layout_SafeZoneMenu ... FAILED
-test bindings::root::RE::bindgen_test_layout_SaveStorageWrapper ... ok
+test bindings::root::RE::bindgen_test_layout_SCRIPT_REFERENCED_OBJECT ... ok
 test bindings::root::RE::bindgen_test_layout_SayOnceTopicInfos ... ok
-test bindings::root::RE::bindgen_test_layout_ScrapHeap_FreeBlock ... ok
 test bindings::root::RE::bindgen_test_layout_ScrapHeap ... ok
+test bindings::root::RE::bindgen_test_layout_SCRIPT_PARAMETER ... ok
+test bindings::root::RE::bindgen_test_layout_SaveStorageWrapper ... ok
 test bindings::root::RE::bindgen_test_layout_ScrapHeap_Block ... ok
-test bindings::root::RE::bindgen_test_layout_ScrapHeap_FreeTreeNode ... ok
-test bindings::root::RE::bindgen_test_layout_ScreenSplatter ... ok
 test bindings::root::RE::bindgen_test_layout_ScriptCompiler ... ok
-test bindings::root::RE::bindgen_test_layout_Script ... ok
 test bindings::root::RE::bindgen_test_layout_ScriptEventSourceHolder ... FAILED
-test bindings::root::RE::bindgen_test_layout_ScriptLocals ... ok
+test bindings::root::RE::bindgen_test_layout_ScrollItem_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_ScreenSplatter ... ok
+test bindings::root::RE::bindgen_test_layout_Script ... ok
 test bindings::root::RE::bindgen_test_layout_Script_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_ScrollItem ... ok
-test bindings::root::RE::bindgen_test_layout_ScriptVariable ... ok
-test bindings::root::RE::bindgen_test_layout_ScrollItem_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_Setting ... ok
 test bindings::root::RE::bindgen_test_layout_SetEventData ... ok
-test bindings::root::RE::bindgen_test_layout_ShaderReferenceEffect ... ok
+test bindings::root::RE::bindgen_test_layout_ScrapHeap_FreeBlock ... ok
+test bindings::root::RE::bindgen_test_layout_ScrapHeap_FreeTreeNode ... ok
+test bindings::root::RE::bindgen_test_layout_ScriptLocals ... ok
+test bindings::root::RE::bindgen_test_layout_ScriptVariable ... ok
+test bindings::root::RE::bindgen_test_layout_Setting ... ok
 test bindings::root::RE::bindgen_test_layout_Setting_Data ... ok
+test bindings::root::RE::bindgen_test_layout_ShaderReferenceEffect ... ok
 test bindings::root::RE::bindgen_test_layout_ShaderReferenceEffect_ParticleShader ... ok
 test bindings::root::RE::bindgen_test_layout_ShaderReferenceEffect_TextureRequest ... ok
-test bindings::root::RE::bindgen_test_layout_ShadowSceneNode ... ok
 test bindings::root::RE::bindgen_test_layout_ShadowSceneNode_LIGHT_CREATE_PARAMS ... ok
-test bindings::root::RE::bindgen_test_layout_ShadowSceneNode_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_ShadowSceneNode ... ok
 test bindings::root::RE::bindgen_test_layout_ShoutAttack ... ok
+test bindings::root::RE::bindgen_test_layout_ShadowSceneNode_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_ShoutAttack_Event ... ok
 test bindings::root::RE::bindgen_test_layout_ShoutHandler ... ok
 test bindings::root::RE::bindgen_test_layout_ShoutMeter ... ok
-test bindings::root::RE::bindgen_test_layout_SkillIncrease_Event ... ok
 test bindings::root::RE::bindgen_test_layout_SimpleAnimationGraphManagerHolder ... ok
 test bindings::root::RE::bindgen_test_layout_SkillIncrease ... ok
+test bindings::root::RE::bindgen_test_layout_SkillIncrease_Event ... ok
 test bindings::root::RE::bindgen_test_layout_Sky ... ok
+test bindings::root::RE::bindgen_test_layout_SkyObject ... ok
+test bindings::root::RE::bindgen_test_layout_SkyEffectController ... ok
+test bindings::root::RE::bindgen_test_layout_Sky_SkyStaticRefData ... ok
+test bindings::root::RE::bindgen_test_layout_SkyrimVM ... FAILED
 test bindings::root::RE::bindgen_test_layout_SkyrimVM_LOSDataEvent ... ok
 test bindings::root::RE::bindgen_test_layout_SkyrimVM_UpdateDataEvent ... ok
-test bindings::root::RE::bindgen_test_layout_SkyEffectController ... ok
-test bindings::root::RE::bindgen_test_layout_SkyObject ... ok
 test bindings::root::RE::bindgen_test_layout_SkyrimVM_WaitCall ... ok
-test bindings::root::RE::bindgen_test_layout_Sky_SkyStaticRefData ... ok
-test bindings::root::RE::bindgen_test_layout_SleepWaitMenu ... FAILED
-test bindings::root::RE::bindgen_test_layout_SkyrimVM ... FAILED
 test bindings::root::RE::bindgen_test_layout_SleepWaitMenu_RUNTIME_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_SpellItem ... ok
 test bindings::root::RE::bindgen_test_layout_SneakHandler ... ok
+test bindings::root::RE::bindgen_test_layout_SleepWaitMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_SoulsTrapped ... ok
 test bindings::root::RE::bindgen_test_layout_SoulsTrapped_Event ... ok
 test bindings::root::RE::bindgen_test_layout_SpecialRefData ... ok
+test bindings::root::RE::bindgen_test_layout_SpellItem ... ok
 test bindings::root::RE::bindgen_test_layout_SpellItem_Data ... ok
 test bindings::root::RE::bindgen_test_layout_SpellItem_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_SpellsLearned ... ok
@@ -1681,8 +1672,8 @@ test bindings::root::RE::bindgen_test_layout_StandardItemData ... ok
 test bindings::root::RE::bindgen_test_layout_Stars ... ok
 test bindings::root::RE::bindgen_test_layout_StaticFunctionTag ... ok
 test bindings::root::RE::bindgen_test_layout_StatsMenu ... FAILED
-test bindings::root::RE::bindgen_test_layout_StatsMenu_UnkData ... ok
 test bindings::root::RE::bindgen_test_layout_StatsMenu_RUNTIME_DATA ... ok
+test bindings::root::RE::bindgen_test_layout_StatsMenu_UnkData ... ok
 test bindings::root::RE::bindgen_test_layout_StatsNode ... FAILED
 test bindings::root::RE::bindgen_test_layout_StealthMeter ... ok
 test bindings::root::RE::bindgen_test_layout_StolenItemValueStruct ... ok
@@ -1708,15 +1699,15 @@ test bindings::root::RE::bindgen_test_layout_TESBoundAnimObject ... ok
 test bindings::root::RE::bindgen_test_layout_TESBoundObject ... ok
 test bindings::root::RE::bindgen_test_layout_TESBoundObject_BOUND_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_TESCamera ... FAILED
-test bindings::root::RE::bindgen_test_layout_TESCameraState ... ok
-test bindings::root::RE::bindgen_test_layout_TESCellAttachDetachEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESCellFullyLoadedEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESChildCell ... ok
-test bindings::root::RE::bindgen_test_layout_TESClass ... ok
-test bindings::root::RE::bindgen_test_layout_TESClass_ChangeFlags ... ok
-test bindings::root::RE::bindgen_test_layout_TESClass_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_TESClimate ... ok
+test bindings::root::RE::bindgen_test_layout_TESCameraState ... ok
 test bindings::root::RE::bindgen_test_layout_TESClimate_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_TESClass_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_TESClass_ChangeFlags ... ok
+test bindings::root::RE::bindgen_test_layout_TESCellAttachDetachEvent ... ok
+test bindings::root::RE::bindgen_test_layout_TESClass ... ok
+test bindings::root::RE::bindgen_test_layout_TESClimate ... ok
 test bindings::root::RE::bindgen_test_layout_TESClimate_SkyObjects ... ok
 test bindings::root::RE::bindgen_test_layout_TESClimate_Timing ... ok
 test bindings::root::RE::bindgen_test_layout_TESClimate_Timing_Interval ... ok
@@ -1738,16 +1729,16 @@ test bindings::root::RE::bindgen_test_layout_TESEnterBleedoutEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESEquipEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESEyes ... ok
 test bindings::root::RE::bindgen_test_layout_TESEyes_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_TESFaction_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESFaction ... ok
 test bindings::root::RE::bindgen_test_layout_TESFaction_ChangeFlags ... ok
+test bindings::root::RE::bindgen_test_layout_TESFaction_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESFastTravelEndEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESFile ... ok
 test bindings::root::RE::bindgen_test_layout_TESFileArray ... ok
-test bindings::root::RE::bindgen_test_layout_TESFileCollection ... ok
 test bindings::root::RE::bindgen_test_layout_TESFlora ... ok
-test bindings::root::RE::bindgen_test_layout_TESFlora_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_TESFileCollection ... ok
 test bindings::root::RE::bindgen_test_layout_TESFileContainer ... ok
+test bindings::root::RE::bindgen_test_layout_TESFlora_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESForm ... ok
 test bindings::root::RE::bindgen_test_layout_TESFormDeleteEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESForm_ChangeFlags ... ok
@@ -1755,31 +1746,31 @@ test bindings::root::RE::bindgen_test_layout_TESForm_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESFullName ... ok
 test bindings::root::RE::bindgen_test_layout_TESFurniture ... ok
 test bindings::root::RE::bindgen_test_layout_TESFurnitureEvent ... ok
-test bindings::root::RE::bindgen_test_layout_TESFurniture_EntryPointData ... ok
 test bindings::root::RE::bindgen_test_layout_TESFurniture_EntryPointData_DisabledEntryPoint ... ok
+test bindings::root::RE::bindgen_test_layout_TESFurniture_EntryPointData ... ok
 test bindings::root::RE::bindgen_test_layout_TESFurniture_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESFurniture_WorkBenchData ... ok
 test bindings::root::RE::bindgen_test_layout_TESGlobal ... ok
 test bindings::root::RE::bindgen_test_layout_TESGlobal_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESGrabReleaseEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESGrass ... ok
-test bindings::root::RE::bindgen_test_layout_TESGrass_GRASS_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_TESGrass_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_TESGrass_GRASS_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_TESHarvestedEvent ... ok
-test bindings::root::RE::bindgen_test_layout_TESHitEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESHarvestedEvent_ItemHarvested ... ok
+test bindings::root::RE::bindgen_test_layout_TESHitEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESIcon ... ok
 test bindings::root::RE::bindgen_test_layout_TESIdleForm ... ok
 test bindings::root::RE::bindgen_test_layout_TESIdleForm_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESImageSpace ... ok
-test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifiableForm ... ok
 test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifier ... ok
+test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifiableForm ... ok
 test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifier_Bloom ... ok
 test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifier_Cinematic ... ok
 test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifier_DOF ... ok
 test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifier_HDR ... ok
-test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifier_RadialBlur ... ok
 test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifier_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_TESImageSpaceModifier_RadialBlur ... ok
 test bindings::root::RE::bindgen_test_layout_TESImageSpace_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESInitScriptEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESKey ... ok
@@ -1793,10 +1784,10 @@ test bindings::root::RE::bindgen_test_layout_TESLevItem ... ok
 test bindings::root::RE::bindgen_test_layout_TESLevItem_ChangeFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESLevItem_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESLevSpell ... ok
-test bindings::root::RE::bindgen_test_layout_TESLevSpell_ChangeFlags ... ok
+test bindings::root::RE::bindgen_test_layout_TESLoadGameEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESLevSpell_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESLeveledList ... ok
-test bindings::root::RE::bindgen_test_layout_TESLoadGameEvent ... ok
+test bindings::root::RE::bindgen_test_layout_TESLevSpell_ChangeFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESLoadScreen ... ok
 test bindings::root::RE::bindgen_test_layout_TESLoadScreen_LoadNIFData ... ok
 test bindings::root::RE::bindgen_test_layout_TESLoadScreen_RecordFlags ... ok
@@ -1827,8 +1818,8 @@ test bindings::root::RE::bindgen_test_layout_TESObjectACTI_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectANIO ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectANIO_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectARMA ... ok
-test bindings::root::RE::bindgen_test_layout_TESObjectARMA_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectARMO ... ok
+test bindings::root::RE::bindgen_test_layout_TESObjectARMA_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectARMO_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectBOOK ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectBOOK_ChangeFlags ... ok
@@ -1849,8 +1840,8 @@ test bindings::root::RE::bindgen_test_layout_TESObjectLAND_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectLIGH ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectLIGH_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectList ... ok
-test bindings::root::RE::bindgen_test_layout_TESObjectLoadedEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectMISC ... ok
+test bindings::root::RE::bindgen_test_layout_TESObjectLoadedEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectMISC_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectREFR ... ok
 test bindings::root::RE::bindgen_test_layout_TESObjectREFR_ChangeFlags ... ok
@@ -1881,20 +1872,20 @@ test bindings::root::RE::bindgen_test_layout_TESQuestStage ... ok
 test bindings::root::RE::bindgen_test_layout_TESQuestStageEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESQuestStageItem ... ok
 test bindings::root::RE::bindgen_test_layout_TESQuestStartStopEvent ... ok
-test bindings::root::RE::bindgen_test_layout_TESQuestTarget ... ok
 test bindings::root::RE::bindgen_test_layout_TESQuest_ChangeFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESQuest_RecordFlags ... ok
+test bindings::root::RE::bindgen_test_layout_TESQuestTarget ... ok
 test bindings::root::RE::bindgen_test_layout_TESRace ... ok
 test bindings::root::RE::bindgen_test_layout_TESRaceForm ... ok
 test bindings::root::RE::bindgen_test_layout_TESRace_FaceRelatedData ... ok
 test bindings::root::RE::bindgen_test_layout_TESRace_FaceRelatedData_Morph ... ok
 test bindings::root::RE::bindgen_test_layout_TESRace_FaceRelatedData_TintAsset ... ok
-test bindings::root::RE::bindgen_test_layout_TESRace_FaceRelatedData_TintAsset_Presets ... ok
 test bindings::root::RE::bindgen_test_layout_TESRace_FaceRelatedData_TintAsset_TintLayer ... ok
 test bindings::root::RE::bindgen_test_layout_TESRace_MovementTypes ... ok
+test bindings::root::RE::bindgen_test_layout_TESRace_FaceRelatedData_TintAsset_Presets ... ok
 test bindings::root::RE::bindgen_test_layout_TESRace_RecordFlags ... ok
-test bindings::root::RE::bindgen_test_layout_TESReactionForm ... ok
 test bindings::root::RE::bindgen_test_layout_TESRace_UnkData ... ok
+test bindings::root::RE::bindgen_test_layout_TESReactionForm ... ok
 test bindings::root::RE::bindgen_test_layout_TESRegion ... ok
 test bindings::root::RE::bindgen_test_layout_TESRegionData ... ok
 test bindings::root::RE::bindgen_test_layout_TESRegionDataLandscape ... ok
@@ -1925,8 +1916,8 @@ test bindings::root::RE::bindgen_test_layout_TESSpellCastEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESSpellList ... ok
 test bindings::root::RE::bindgen_test_layout_TESSpellList_SpellData ... ok
 test bindings::root::RE::bindgen_test_layout_TESSwitchRaceCompleteEvent ... ok
-test bindings::root::RE::bindgen_test_layout_TESTexture1024 ... ok
 test bindings::root::RE::bindgen_test_layout_TESTexture ... ok
+test bindings::root::RE::bindgen_test_layout_TESTexture1024 ... ok
 test bindings::root::RE::bindgen_test_layout_TESTopic ... ok
 test bindings::root::RE::bindgen_test_layout_TESTopicInfo ... ok
 test bindings::root::RE::bindgen_test_layout_TESTopicInfo_ChangeFlags ... ok
@@ -1936,15 +1927,15 @@ test bindings::root::RE::bindgen_test_layout_TESTopic_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESTrackedStatsEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESUniqueIDChangeEvent ... ok
 test bindings::root::RE::bindgen_test_layout_TESValueForm ... ok
-test bindings::root::RE::bindgen_test_layout_TESWaterDisplacement ... ok
 test bindings::root::RE::bindgen_test_layout_TESWaitStopEvent ... ok
+test bindings::root::RE::bindgen_test_layout_TESWaterDisplacement ... ok
 test bindings::root::RE::bindgen_test_layout_TESWaterForm ... ok
 test bindings::root::RE::bindgen_test_layout_TESWaterForm_RecordFlags ... ok
 test bindings::root::RE::bindgen_test_layout_TESWaterNormals ... ok
 test bindings::root::RE::bindgen_test_layout_TESWaterObject ... ok
 test bindings::root::RE::bindgen_test_layout_TESWaterReflections ... ok
-test bindings::root::RE::bindgen_test_layout_TESWaterReflections_CubeMapSide ... ok
 test bindings::root::RE::bindgen_test_layout_TESWaterSystem ... ok
+test bindings::root::RE::bindgen_test_layout_TESWaterReflections_CubeMapSide ... ok
 test bindings::root::RE::bindgen_test_layout_TESWeather ... ok
 test bindings::root::RE::bindgen_test_layout_TESWeather_ColorTimes ... ok
 test bindings::root::RE::bindgen_test_layout_TESWeather_ColorTypes ... ok
@@ -1964,18 +1955,18 @@ test bindings::root::RE::bindgen_test_layout_TES_SystemEventAdapter ... ok
 test bindings::root::RE::bindgen_test_layout_TEXTURE_HAVOK_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_TOPIC_INFO_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_TargetValueModifierEffect ... ok
-test bindings::root::RE::bindgen_test_layout_TaskQueueInterface ... ok
 test bindings::root::RE::bindgen_test_layout_ThirdPersonState ... ok
 test bindings::root::RE::bindgen_test_layout_ThumbstickEvent ... ok
 test bindings::root::RE::bindgen_test_layout_ThumbstickEvent_InputTypes ... ok
-test bindings::root::RE::bindgen_test_layout_TogglePOVHandler ... ok
+test bindings::root::RE::bindgen_test_layout_TaskQueueInterface ... ok
 test bindings::root::RE::bindgen_test_layout_TitleSequenceMenu ... FAILED
+test bindings::root::RE::bindgen_test_layout_TogglePOVHandler ... ok
 test bindings::root::RE::bindgen_test_layout_ToggleRunHandler ... ok
 test bindings::root::RE::bindgen_test_layout_TrainingMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_TrainingMenu_RUNTIME_DATA ... ok
-test bindings::root::RE::bindgen_test_layout_TutorialMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_TweenMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_TweenMenu_PerkData ... ok
+test bindings::root::RE::bindgen_test_layout_TutorialMenu ... FAILED
 test bindings::root::RE::bindgen_test_layout_TweenMenu_RUNTIME_DATA ... ok
 test bindings::root::RE::bindgen_test_layout_UI ... FAILED
 test bindings::root::RE::bindgen_test_layout_UI3DSceneManager ... ok
@@ -1983,8 +1974,8 @@ test bindings::root::RE::bindgen_test_layout_UI3DSceneManager_MenuLight ... ok
 test bindings::root::RE::bindgen_test_layout_UIBlurManager ... FAILED
 test bindings::root::RE::bindgen_test_layout_UIMessage ... ok
 test bindings::root::RE::bindgen_test_layout_UIMessageQueue ... FAILED
-test bindings::root::RE::bindgen_test_layout_UIRenderManager ... ok
 test bindings::root::RE::bindgen_test_layout_UIRenderManager_UILightData ... ok
+test bindings::root::RE::bindgen_test_layout_UIRenderManager ... ok
 test bindings::root::RE::bindgen_test_layout_UISaveLoadManager ... ok
 test bindings::root::RE::bindgen_test_layout_UI_UIMenuEntry ... ok
 test bindings::root::RE::bindgen_test_layout_UniqueNPCData ... ok
@@ -2025,13 +2016,13 @@ test bindings::root::RE::bindgen_test_layout_bhkCharacterStateOnGround ... ok
 test bindings::root::RE::bindgen_test_layout_bhkCharacterStateSwimming ... ok
 test bindings::root::RE::bindgen_test_layout_bhkCollisionFilter ... ok
 test bindings::root::RE::bindgen_test_layout_bhkCollisionObject ... ok
-test bindings::root::RE::bindgen_test_layout_bhkCompressedMeshShape ... ok
 test bindings::root::RE::bindgen_test_layout_bhkCompressedMeshShapeData ... ok
+test bindings::root::RE::bindgen_test_layout_bhkCompressedMeshShape ... ok
 test bindings::root::RE::bindgen_test_layout_bhkEntity ... ok
 test bindings::root::RE::bindgen_test_layout_bhkListShape ... ok
 test bindings::root::RE::bindgen_test_layout_bhkMeshMaterial ... ok
-test bindings::root::RE::bindgen_test_layout_bhkPhantom ... ok
 test bindings::root::RE::bindgen_test_layout_bhkNiCollisionObject ... ok
+test bindings::root::RE::bindgen_test_layout_bhkPhantom ... ok
 test bindings::root::RE::bindgen_test_layout_bhkPickData ... ok
 test bindings::root::RE::bindgen_test_layout_bhkRefObject ... ok
 test bindings::root::RE::bindgen_test_layout_bhkRigidBody ... ok
@@ -2042,8 +2033,8 @@ test bindings::root::RE::bindgen_test_layout_bhkShapePhantom ... ok
 test bindings::root::RE::bindgen_test_layout_bhkThreadMemorySource ... ok
 test bindings::root::RE::bindgen_test_layout_bhkThreadMemorySource_BlockPage ... ok
 test bindings::root::RE::bindgen_test_layout_bhkThreadMemorySource_FreeBlock ... ok
-test bindings::root::RE::bindgen_test_layout_bhkThreadMemorySource_MegaBlockPage ... ok
 test bindings::root::RE::bindgen_test_layout_bhkThreadMemorySource_Row ... ok
+test bindings::root::RE::bindgen_test_layout_bhkThreadMemorySource_MegaBlockPage ... ok
 test bindings::root::RE::bindgen_test_layout_bhkWorld ... ok
 test bindings::root::RE::bindgen_test_layout_bhkWorldObject ... ok
 test bindings::root::RE::bindgen_test_layout_hkAabb ... ok
@@ -2075,9 +2066,9 @@ test bindings::root::RE::bindgen_test_layout_hkVector4Comparison ... ok
 test bindings::root::RE::bindgen_test_layout_hkaAnimatedReferenceFrame ... ok
 test bindings::root::RE::bindgen_test_layout_hkaAnimation ... ok
 test bindings::root::RE::bindgen_test_layout_hkaAnimationBinding ... ok
+test bindings::root::RE::bindgen_test_layout_hkaAnimationControl ... ok
 test bindings::root::RE::bindgen_test_layout_hkaAnimation_DataChunk ... ok
 test bindings::root::RE::bindgen_test_layout_hkaAnimation_TrackAnnotation ... ok
-test bindings::root::RE::bindgen_test_layout_hkaAnimationControl ... ok
 test bindings::root::RE::bindgen_test_layout_hkaAnnotationTrack ... ok
 test bindings::root::RE::bindgen_test_layout_hkaAnnotationTrack_Annotation ... ok
 test bindings::root::RE::bindgen_test_layout_hkaDefaultAnimationControl ... ok
@@ -2110,8 +2101,8 @@ test bindings::root::RE::bindgen_test_layout_hkpAction ... ok
 test bindings::root::RE::bindgen_test_layout_hkpAgentNnTrack ... ok
 test bindings::root::RE::bindgen_test_layout_hkpAllCdPointCollector ... ok
 test bindings::root::RE::bindgen_test_layout_hkpAngFrictionConstraintAtom ... ok
-test bindings::root::RE::bindgen_test_layout_hkpAngLimitConstraintAtom ... ok
 test bindings::root::RE::bindgen_test_layout_hkpAngMotorConstraintAtom ... ok
+test bindings::root::RE::bindgen_test_layout_hkpAngLimitConstraintAtom ... ok
 test bindings::root::RE::bindgen_test_layout_hkpArrayAction ... ok
 test bindings::root::RE::bindgen_test_layout_hkpBallSocketConstraintAtom ... ok
 test bindings::root::RE::bindgen_test_layout_hkpBoxShape ... ok
@@ -2126,48 +2117,48 @@ test bindings::root::RE::bindgen_test_layout_hkpCachingShapePhantom_CollisionDet
 test bindings::root::RE::bindgen_test_layout_hkpCachingShapePhantom_OrderByUid ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCapsuleShape ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCdBody ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCdPoint ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCharacterContext ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCharacterInput ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCdPointCollector ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCharacterObjectInteractionEvent ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCharacterOutput ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCharacterObjectInteractionResult ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCharacterProxy ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCharacterContext ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCdPoint ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCharacterStateManager ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCharacterStateTypes ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCharacterOutput ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCharacterProxyListener ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCharacterState ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCharacterProxy ... ok
 test bindings::root::RE::bindgen_test_layout_hkpClosestRayHitCollector ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCollidable ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCollidableCollidableFilter ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCollidable_BoundingVolumeData ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCollisionEvent ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCollisionFilter ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCollisionInput ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCollidable_BoundingVolumeData ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCharacterProxyListener ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCollisionInput_Aabb32Info ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCharacterInput ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCharacterState ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCollidableCollidableFilter ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCompressedMeshShape ... ok
-test bindings::root::RE::bindgen_test_layout_hkpCompressedMeshShape_Chunk ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCollisionInput_Aabb32Info ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCompressedMeshShape_BigTriangle ... ok
+test bindings::root::RE::bindgen_test_layout_hkpCompressedMeshShape_Chunk ... ok
 test bindings::root::RE::bindgen_test_layout_hkpCompressedMeshShape_ConvexPiece ... ok
-test bindings::root::RE::bindgen_test_layout_hkpConstraintData_RuntimeInfo ... ok
-test bindings::root::RE::bindgen_test_layout_hkpConstraintData ... ok
 test bindings::root::RE::bindgen_test_layout_hkpConeLimitConstraintAtom ... ok
 test bindings::root::RE::bindgen_test_layout_hkpConstraintAtom ... ok
+test bindings::root::RE::bindgen_test_layout_hkpConstraintData ... ok
+test bindings::root::RE::bindgen_test_layout_hkpConstraintData_RuntimeInfo ... ok
 test bindings::root::RE::bindgen_test_layout_hkpConstraintInfo ... ok
 test bindings::root::RE::bindgen_test_layout_hkpConstraintInstance ... ok
 test bindings::root::RE::bindgen_test_layout_hkpConstraintOwner ... ok
 test bindings::root::RE::bindgen_test_layout_hkpContactListener ... ok
 test bindings::root::RE::bindgen_test_layout_hkpContactPointEvent ... ok
-test bindings::root::RE::bindgen_test_layout_hkpConvexShape ... ok
-test bindings::root::RE::bindgen_test_layout_hkpEaseConstraintsAction ... ok
 test bindings::root::RE::bindgen_test_layout_hkpConvexListFilter ... ok
+test bindings::root::RE::bindgen_test_layout_hkpConvexShape ... ok
 test bindings::root::RE::bindgen_test_layout_hkpEntity ... ok
+test bindings::root::RE::bindgen_test_layout_hkpEaseConstraintsAction ... ok
 test bindings::root::RE::bindgen_test_layout_hkpEntityListener ... ok
-test bindings::root::RE::bindgen_test_layout_hkpEntity_SpuCollisionCallback ... ok
 test bindings::root::RE::bindgen_test_layout_hkpEntity_ExtendedListeners ... ok
-test bindings::root::RE::bindgen_test_layout_hkpFixedRigidMotion ... ok
 test bindings::root::RE::bindgen_test_layout_hkpEntity_SmallArraySerializeOverrideType ... ok
+test bindings::root::RE::bindgen_test_layout_hkpEntity_SpuCollisionCallback ... ok
+test bindings::root::RE::bindgen_test_layout_hkpFixedRigidMotion ... ok
 test bindings::root::RE::bindgen_test_layout_hkpKeyframedRigidMotion ... ok
 test bindings::root::RE::bindgen_test_layout_hkpLimitedHingeConstraintData ... ok
 test bindings::root::RE::bindgen_test_layout_hkpLimitedHingeConstraintData_Atoms ... ok
@@ -2181,10 +2172,10 @@ test bindings::root::RE::bindgen_test_layout_hkpMaterial ... ok
 test bindings::root::RE::bindgen_test_layout_hkpMaxSizeMotion ... ok
 test bindings::root::RE::bindgen_test_layout_hkpMeshMaterial ... ok
 test bindings::root::RE::bindgen_test_layout_hkpMoppAabbCastVirtualMachine ... ok
-test bindings::root::RE::bindgen_test_layout_hkpMoppBvTreeShape ... ok
 test bindings::root::RE::bindgen_test_layout_hkpMoppAabbCastVirtualMachine_hkpAabbCastInput ... ok
-test bindings::root::RE::bindgen_test_layout_hkpMoppCode_CodeInfo ... ok
+test bindings::root::RE::bindgen_test_layout_hkpMoppBvTreeShape ... ok
 test bindings::root::RE::bindgen_test_layout_hkpMoppCode ... ok
+test bindings::root::RE::bindgen_test_layout_hkpMoppCode_CodeInfo ... ok
 test bindings::root::RE::bindgen_test_layout_hkpMotion ... ok
 test bindings::root::RE::bindgen_test_layout_hkpPhantom ... ok
 test bindings::root::RE::bindgen_test_layout_hkpPhantomListener ... ok
@@ -2200,28 +2191,28 @@ test bindings::root::RE::bindgen_test_layout_hkpRigidBody ... ok
 test bindings::root::RE::bindgen_test_layout_hkpRootCdPoint ... ok
 test bindings::root::RE::bindgen_test_layout_hkpSetLocalTransformsConstraintAtom ... ok
 test bindings::root::RE::bindgen_test_layout_hkpSetupStabilizationAtom ... ok
-test bindings::root::RE::bindgen_test_layout_hkpShapeContainer ... ok
-test bindings::root::RE::bindgen_test_layout_hkpShapeCollection ... ok
-test bindings::root::RE::bindgen_test_layout_hkpShapeCollectionFilter ... ok
-test bindings::root::RE::bindgen_test_layout_hkpShapePhantom ... ok
-test bindings::root::RE::bindgen_test_layout_hkpShape_ShapeFuncs2 ... ok
-test bindings::root::RE::bindgen_test_layout_hkpSimplexSolverInput ... ok
 test bindings::root::RE::bindgen_test_layout_hkpShape ... ok
 test bindings::root::RE::bindgen_test_layout_hkpShapeBuffer ... ok
-test bindings::root::RE::bindgen_test_layout_hkpShape_CalcSizeForSpuInput ... ok
-test bindings::root::RE::bindgen_test_layout_hkpSimulationIsland ... ok
-test bindings::root::RE::bindgen_test_layout_hkpShape_ShapeFuncs ... ok
-test bindings::root::RE::bindgen_test_layout_hkpSolverInfo_DeactivationClasses ... ok
+test bindings::root::RE::bindgen_test_layout_hkpShapeCollection ... ok
+test bindings::root::RE::bindgen_test_layout_hkpShapeCollectionFilter ... ok
+test bindings::root::RE::bindgen_test_layout_hkpShapeContainer ... ok
+test bindings::root::RE::bindgen_test_layout_hkpShapePhantom ... ok
 test bindings::root::RE::bindgen_test_layout_hkpShapeRayCastCollectorOutput ... ok
+test bindings::root::RE::bindgen_test_layout_hkpShapeRayCastOutput ... ok
+test bindings::root::RE::bindgen_test_layout_hkpShape_CalcSizeForSpuInput ... ok
+test bindings::root::RE::bindgen_test_layout_hkpShape_ShapeFuncs ... ok
+test bindings::root::RE::bindgen_test_layout_hkpShape_ShapeFuncs2 ... ok
+test bindings::root::RE::bindgen_test_layout_hkpSimplexSolverInput ... ok
+test bindings::root::RE::bindgen_test_layout_hkpSimulationIsland ... ok
+test bindings::root::RE::bindgen_test_layout_hkpSingleShapeContainer ... ok
 test bindings::root::RE::bindgen_test_layout_hkpSolverInfo ... ok
+test bindings::root::RE::bindgen_test_layout_hkpSolverInfo_DeactivationClasses ... ok
 test bindings::root::RE::bindgen_test_layout_hkpSolverInfo_DeactivationInfo ... ok
 test bindings::root::RE::bindgen_test_layout_hkpSphereRepShape ... ok
-test bindings::root::RE::bindgen_test_layout_hkpShapeRayCastOutput ... ok
-test bindings::root::RE::bindgen_test_layout_hkpSingleShapeContainer ... ok
-test bindings::root::RE::bindgen_test_layout_hkpSurfaceInfo ... ok
 test bindings::root::RE::bindgen_test_layout_hkpSphereShape ... ok
-test bindings::root::RE::bindgen_test_layout_hkpTwistLimitConstraintAtom ... ok
 test bindings::root::RE::bindgen_test_layout_hkpSurfaceConstraintInfo ... ok
+test bindings::root::RE::bindgen_test_layout_hkpSurfaceInfo ... ok
+test bindings::root::RE::bindgen_test_layout_hkpTwistLimitConstraintAtom ... ok
 test bindings::root::RE::bindgen_test_layout_hkpTypedBroadPhaseHandle ... ok
 test bindings::root::RE::bindgen_test_layout_hkpWeldingUtility ... ok
 test bindings::root::RE::bindgen_test_layout_hkpWeldingUtility_SinCosTableEntry ... ok
@@ -2237,18 +2228,18 @@ test bindings::root::RE::detail::__bindgen_test_layout_BSFixedString_open0_char_
 test bindings::root::RE::detail::__bindgen_test_layout_BSFixedString_open0_wchar_t_close0_instantiation ... ok
 test bindings::root::RE::msvc::bindgen_test_layout_type_info ... ok
 test bindings::root::REL::bindgen_test_layout_ID ... ok
-test bindings::root::REL::bindgen_test_layout_IDDatabase ... ok
 test bindings::root::REL::bindgen_test_layout_IDDatabase_Offset2ID ... ok
 test bindings::root::REL::bindgen_test_layout_IDDatabase_header_t ... ok
+test bindings::root::REL::bindgen_test_layout_IDDatabase ... ok
 test bindings::root::REL::bindgen_test_layout_IDDatabase_istream_t ... ok
-test bindings::root::REL::bindgen_test_layout_IDDatabase_mapping_t ... ok
 test bindings::root::REL::bindgen_test_layout_Module ... ok
+test bindings::root::REL::bindgen_test_layout_IDDatabase_mapping_t ... ok
 test bindings::root::REL::bindgen_test_layout_Offset ... ok
 test bindings::root::REL::bindgen_test_layout_RelocationID ... ok
 test bindings::root::REL::bindgen_test_layout_Segment ... ok
-test bindings::root::REL::bindgen_test_layout_VariantID ... ok
 test bindings::root::REL::bindgen_test_layout_VariantOffset ... ok
 test bindings::root::REL::bindgen_test_layout_Version ... ok
+test bindings::root::REL::bindgen_test_layout_VariantID ... ok
 test bindings::root::REL::detail::bindgen_test_layout_memory_map ... ok
 test bindings::root::REL::detail::rules::bindgen_test_layout_Wildcard ... ok
 test bindings::root::SKSE::Impl::__bindgen_test_layout_RegistrationSetUnique_open0_void_close0_instantiation ... FAILED
@@ -2305,8 +2296,8 @@ test bindings::root::__bindgen_test_layout_BGSPackageDataPointerTemplate_open0_I
 test bindings::root::__bindgen_test_layout_BGSTypedItem_open0_BGSProcedureTreeProcedure_BGSProcedureTreeConditionalItem_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BGSTypedItem_open0_BGSProcedureTreeSequence_BGSProcedureTreeBranch_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSBitField_open0_BSBitFieldHeapAllocator_close0_instantiation ... ok
-test bindings::root::__bindgen_test_layout_BSFixedString_open0_char_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSFixedString_open0_char_close0_instantiation_1 ... ok
+test bindings::root::__bindgen_test_layout_BSFixedString_open0_char_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSFixedString_open0_char_close0_instantiation_10 ... ok
 test bindings::root::__bindgen_test_layout_BSFixedString_open0_char_close0_instantiation_11 ... ok
 test bindings::root::__bindgen_test_layout_BSFixedString_open0_char_close0_instantiation_12 ... ok
@@ -2338,8 +2329,8 @@ test bindings::root::__bindgen_test_layout_BSPointerHandle_open0_TESObjectREFR_B
 test bindings::root::__bindgen_test_layout_BSPointerHandle_open0_TESObjectREFR_BSUntypedPointerHandle_open1_close1_close0_instantiation_4 ... ok
 test bindings::root::__bindgen_test_layout_BSResponse_open0_BSFixedString_Actor_BSFixedString_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ActorHandle_close0_instantiation ... FAILED
-test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ObjectRefHandle_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_NiPointer_open1_ImageSpaceModifierInstance_close1_close0_instantiation ... ok
+test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ObjectRefHandle_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ObjectRefHandle_close0_instantiation_1 ... FAILED
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ObjectRefHandle_close0_instantiation_2 ... FAILED
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ObjectRefHandle_close0_instantiation_3 ... FAILED
@@ -2369,12 +2360,12 @@ test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_MESSAGEBOX_BUT
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_ObjectstoAcquire_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_RANK_DATA_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_REF_ACTIVATE_DATA_close0_instantiation ... ok
-test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_REF_ACTIVATE_DATA_close0_instantiation_1 ... ok
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_SCRIPT_REFERENCED_OBJECT_close0_instantiation ... ok
+test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_REF_ACTIVATE_DATA_close0_instantiation_1 ... ok
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_ScriptVariable_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_TESFile_close0_instantiation ... ok
-test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_TESGrass_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_TESObjectREFR_close0_instantiation ... ok
+test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_TESGrass_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_TESObjectREFR_close0_instantiation_1 ... ok
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_TESObjectREFR_close0_instantiation_2 ... ok
 test bindings::root::__bindgen_test_layout_BSSimpleList_open0_ptr_TESObjectREFR_close0_instantiation_3 ... ok
@@ -2417,8 +2408,8 @@ test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEv
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEvent_close0_instantiation_2 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEvent_close0_instantiation_3 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEvent_close0_instantiation_4 ... ok
-test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEvent_close0_instantiation_6 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEvent_close0_instantiation_5 ... ok
+test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEvent_close0_instantiation_6 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEvent_close0_instantiation_7 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEvent_close0_instantiation_8 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_BSAnimationGraphEvent_close0_instantiation_9 ... ok
@@ -2482,9 +2473,9 @@ test bindings::root::__bindgen_test_layout_BSTEventSink_open0_MenuOpenCloseEvent
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_MenuOpenCloseEvent_close0_instantiation_7 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_MenuOpenCloseEvent_close0_instantiation_8 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_MenuOpenCloseEvent_close0_instantiation_9 ... ok
+test bindings::root::__bindgen_test_layout_BSTEventSink_open0_PositionPlayerEvent_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_PositionPlayerEvent_close0_instantiation_1 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_PositionPlayerEvent_close0_instantiation_2 ... ok
-test bindings::root::__bindgen_test_layout_BSTEventSink_open0_PositionPlayerEvent_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_PositionPlayerEvent_close0_instantiation_3 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_PositionPlayerEvent_close0_instantiation_4 ... ok
 test bindings::root::__bindgen_test_layout_BSTEventSink_open0_RaceSexMenuEvent_NameChangedEvent_close0_instantiation ... ok
@@ -2648,8 +2639,8 @@ test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSceneActionEv
 test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSceneEvent_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESScenePhaseEvent_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSellEvent_close0_instantiation ... FAILED
-test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStartEvent_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStopEvent_close0_instantiation ... FAILED
+test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStartEvent_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSpellCastEvent_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSwitchRaceCompleteEvent_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESTopicInfoEvent_close0_instantiation ... FAILED
@@ -2692,8 +2683,8 @@ test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_CellID_pt
 test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_CellID_ptr_unsigned_int_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_CellID_ptr_unsigned_int_close0_instantiation_1 ... ok
 test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_int_int_close0_instantiation ... ok
-test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_ptr_BGSDialogueBranch_ptr_BSTArray_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_ptr_NiObject_bool__close0_instantiation ... ok
+test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_ptr_BGSDialogueBranch_ptr_BSTArray_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_ptr_NiObject_ptr_NiObject_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_ptr_TESQuest_float_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_BSTScatterTableTraits_open0_ptr_TESQuest_unsigned_int_close0_instantiation ... ok
@@ -2771,17 +2762,17 @@ test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_U
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_VMTypeID_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_unsigned_int_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_ptr_BGSActionData_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_ptr_BGSActionData_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_ptr_NiControllerSequence_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_ptr_NiControllerSequence_close1_close0_instantiation ... FAILED
-test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_ptr_TESForm_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_ptr_TESForm_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_unsigned_int_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_unsigned_int_close1_close0_instantiation ... FAILED
+test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_ptr_TESForm_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_ptr_TESForm_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_FormID_BSTScatterTableTraits_open1_CellID_ptr_unsigned_int_close1_close0_instantiation ... FAILED
-test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_FormID_BSTScatterTableTraits_open1_CellID_ptr_unsigned_int_close1_close0_instantiation_1 ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_TESObjectCELL_BSTScatterTableTraits_open1_CellID_ptr_TESObjectCELL_close1_close0_instantiation ... FAILED
+test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_FormID_BSTScatterTableTraits_open1_CellID_ptr_unsigned_int_close1_close0_instantiation_1 ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_CellID_BSTScatterTableTraits_open1_unsigned_int_CellID_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_equal_to_open1_unsigned_int_close1_BSTSetTraits_open1_unsigned_int_close1_close0_instantiation ... FAILED
-test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_ptr_BGSLocation_BSTScatterTableTraits_open1_unsigned_int_ptr_BGSLocation_close1_close0_instantiation ... FAILED
-test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_ptr_TESForm_BSTScatterTableTraits_open1_unsigned_int_ptr_TESForm_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation ... FAILED
+test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_ptr_TESForm_BSTScatterTableTraits_open1_unsigned_int_ptr_TESForm_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation_1 ... FAILED
+test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_ptr_BGSLocation_BSTScatterTableTraits_open1_unsigned_int_ptr_BGSLocation_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_ObjectRefHandle_ptr_Action_BSTScatterTableTraits_open1_BSPointerHandle_open2_TESObjectREFR_BSUntypedPointerHandle_open3_close3_close2_ptr_Action_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_UnkKey_UnkValue_BSTScatterTableTraits_open1_unsigned_long_long_unsigned_long_long_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_UnkKey_UnkValue_BSTScatterTableTraits_open1_unsigned_long_long_unsigned_long_long_close1_close0_instantiation_1 ... FAILED
@@ -2847,8 +2838,8 @@ test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_pt
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_BSTArray_BSTScatterTableTraits_open1_unsigned_int_ptr_BSTArray_close1_close0_instantiation_1 ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_BSXAudio2GameSound_BSTScatterTableTraits_open1_unsigned_int_ptr_BSXAudio2GameSound_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_InputButton_BSTScatterTableTraits_open1_unsigned_int_ptr_InputButton_close1_close0_instantiation ... FAILED
-test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_InstanceData_BSTScatterTableTraits_open1_unsigned_int_ptr_InstanceData_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_NavMeshInfo_BSTScatterTableTraits_open1_unsigned_int_ptr_NavMeshInfo_close1_close0_instantiation ... FAILED
+test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_InstanceData_BSTScatterTableTraits_open1_unsigned_int_ptr_InstanceData_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_TreeGroup_BSTScatterTableTraits_open1_unsigned_int_ptr_TreeGroup_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_unsigned_int_BSTScatterTableTraits_open1_unsigned_int_unsigned_int_close1_close0_instantiation ... FAILED
 test bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_long_long_BSFixedString_BSTScatterTableTraits_open1_unsigned_long_long_BSFixedString_open2_char_close2_close1_close0_instantiation ... FAILED
@@ -2873,9 +2864,9 @@ test bindings::root::__bindgen_test_layout_GHashNode_open0_GString_FxDelegate_Ca
 test bindings::root::__bindgen_test_layout_GHashNode_open0_GString_FxDelegate_CallbackDefn_FxDelegate_CallbackHashFunctor_close0_instantiation_3 ... ok
 test bindings::root::__bindgen_test_layout_GHashSet_open0_GHashNode_open1_GString_FxDelegate_CallbackDefn_FxDelegate_CallbackHashFunctor_close1_NodeHashF_NodeAltHashF_GAllocatorGH_open1_GString_close1_GHashsetCachedNodeEntry_open1_GHashNode_open2_GString_FxDelegate_CallbackDefn_FxDelegate_CallbackHashFunctor_close2_NodeHashF_close1_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_GHash_open0_GString_FxDelegate_CallbackDefn_FxDelegate_CallbackHashFunctor_GAllocatorGH_open1_GString_close1_GHashNode_open1_GString_FxDelegate_CallbackDefn_FxDelegate_CallbackHashFunctor_close1_GHashsetCachedNodeEntry_open1_GHashNode_open2_GString_FxDelegate_CallbackDefn_FxDelegate_CallbackHashFunctor_close2_NodeHashF_close1_GHashSet_open1_GHashNode_open2_GString_FxDelegate_CallbackDefn_FxDelegate_CallbackHashFunctor_close2_NodeHashF_NodeAltHashF_GAllocatorGH_open2_GString_close2_GHashsetCachedNodeEntry_open2_GHashNode_open3_GString_FxDelegate_CallbackDefn_FxDelegate_CallbackHashFunctor_close3_NodeHashF_close2_close1_close0_instantiation ... ok
+test bindings::root::__bindgen_test_layout_GListNode_open0_GMemoryHeap_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_GListNode_open0_GRendererEventHandler_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_GList_open0_GMemoryHeap_close0_instantiation ... ok
-test bindings::root::__bindgen_test_layout_GListNode_open0_GMemoryHeap_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_GList_open0_GRendererEventHandler_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_GPoint_open0_double_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_GPoint_open0_float_close0_instantiation ... ok
@@ -2912,8 +2903,8 @@ test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_
 test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_float_close0_instantiation_1 ... ok
 test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_float_close0_instantiation_10 ... ok
 test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_float_close0_instantiation_11 ... ok
-test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_float_close0_instantiation_2 ... ok
 test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_float_close0_instantiation_3 ... ok
+test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_float_close0_instantiation_2 ... ok
 test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_float_close0_instantiation_4 ... ok
 test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_float_close0_instantiation_5 ... ok
 test bindings::root::__bindgen_test_layout_ImageSpaceModifierData_MultAdd_open0_float_close0_instantiation_6 ... ok
@@ -2963,8 +2954,8 @@ test bindings::root::__bindgen_test_layout_NiPointer_open0_BSFogProperty_close0_
 test bindings::root::__bindgen_test_layout_NiPointer_open0_BSFogProperty_close0_instantiation_2 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_BSGeometry_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_BSGeometry_close0_instantiation_1 ... ok
-test bindings::root::__bindgen_test_layout_NiPointer_open0_BSGeometry_close0_instantiation_3 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_BSGeometry_close0_instantiation_2 ... ok
+test bindings::root::__bindgen_test_layout_NiPointer_open0_BSGeometry_close0_instantiation_3 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_BSGeometry_close0_instantiation_4 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_BSGeometry_close0_instantiation_5 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_BSHandleRefObject_close0_instantiation ... ok
@@ -3090,8 +3081,8 @@ test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAVObject_close0_ins
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAVObject_close0_instantiation_49 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAVObject_close0_instantiation_5 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAVObject_close0_instantiation_50 ... ok
-test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAVObject_close0_instantiation_6 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAVObject_close0_instantiation_7 ... ok
+test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAVObject_close0_instantiation_6 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAVObject_close0_instantiation_8 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAVObject_close0_instantiation_9 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiAdditionalGeometryData_close0_instantiation ... ok
@@ -3305,20 +3296,20 @@ test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTextKeyExtraData_cl
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_1 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_10 ... ok
-test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_11 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_12 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_13 ... ok
+test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_11 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_14 ... ok
-test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_15 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_16 ... ok
+test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_15 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_2 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_3 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_4 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_5 ... ok
+test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_6 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_7 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_8 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_9 ... ok
-test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTexture_close0_instantiation_6 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTimeController_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTimeController_close0_instantiation_1 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_NiTimeController_close0_instantiation_2 ... ok
@@ -3380,8 +3371,8 @@ test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_
 test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_instantiation_46 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_instantiation_47 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_instantiation_48 ... ok
-test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_instantiation_5 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_instantiation_49 ... ok
+test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_instantiation_5 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_instantiation_50 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_instantiation_51 ... ok
 test bindings::root::__bindgen_test_layout_NiPointer_open0_TESObjectREFR_close0_instantiation_6 ... ok
@@ -3424,8 +3415,8 @@ test bindings::root::__bindgen_test_layout_SimpleArray_open0_NiPointer_open1_BSA
 test bindings::root::__bindgen_test_layout_SimpleArray_open0_NiSkinPartition_Partition_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_SimpleArray_open0_TESCondition_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_TESImageSpaceModifier_MinMax_open0_NiPointer_open1_NiFloatInterpolator_close1_close0_instantiation ... ok
-test bindings::root::__bindgen_test_layout_TESImageSpaceModifier_MultAdd_open0_NiPointer_open1_NiFloatInterpolator_close1_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_TESImageSpaceModifier_MultAdd_open0_NiPointer_open1_NiFloatInterpolator_close1_close0_instantiation_1 ... ok
+test bindings::root::__bindgen_test_layout_TESImageSpaceModifier_MultAdd_open0_NiPointer_open1_NiFloatInterpolator_close1_close0_instantiation ... ok
 test bindings::root::__bindgen_test_layout_TESImageSpaceModifier_MultAdd_open0_NiPointer_open1_NiFloatInterpolator_close1_close0_instantiation_10 ... ok
 test bindings::root::__bindgen_test_layout_TESImageSpaceModifier_MultAdd_open0_NiPointer_open1_NiFloatInterpolator_close1_close0_instantiation_11 ... ok
 test bindings::root::__bindgen_test_layout_TESImageSpaceModifier_MultAdd_open0_NiPointer_open1_NiFloatInterpolator_close1_close0_instantiation_2 ... ok
@@ -3646,17 +3637,17 @@ assertion `left == right` failed: Offset of field: SmithingMenu::unk100
   left: 264
  right: 256
 
----- bindings::root::RE::SkyrimScript::bindgen_test_layout_Logger stdout ----
-thread 'bindings::root::RE::SkyrimScript::bindgen_test_layout_Logger' panicked at src\bindings.rs:134700:17:
-assertion `left == right` failed: Size of: Logger
-  left: 104
- right: 176
-
 ---- bindings::root::RE::SkyrimScript::bindgen_test_layout_FragmentSystem stdout ----
 thread 'bindings::root::RE::SkyrimScript::bindgen_test_layout_FragmentSystem' panicked at src\bindings.rs:134429:17:
 assertion `left == right` failed: Size of: FragmentSystem
   left: 240
  right: 280
+
+---- bindings::root::RE::SkyrimScript::bindgen_test_layout_Logger stdout ----
+thread 'bindings::root::RE::SkyrimScript::bindgen_test_layout_Logger' panicked at src\bindings.rs:134700:17:
+assertion `left == right` failed: Size of: Logger
+  left: 104
+ right: 176
 
 ---- bindings::root::RE::SkyrimScript::bindgen_test_layout_HandlePolicy stdout ----
 thread 'bindings::root::RE::SkyrimScript::bindgen_test_layout_HandlePolicy' panicked at src\bindings.rs:134557:17:
@@ -3826,17 +3817,17 @@ assertion `left == right` failed: Size of: BSInputDevice
   left: 96
  right: 112
 
----- bindings::root::RE::bindgen_test_layout_BSInputDeviceManager_RUNTIME_DATA stdout ----
-thread 'bindings::root::RE::bindgen_test_layout_BSInputDeviceManager_RUNTIME_DATA' panicked at src\bindings.rs:182813:13:
-assertion `left == right` failed: Size of: BSInputDeviceManager_RUNTIME_DATA
-  left: 48
- right: 112
-
 ---- bindings::root::RE::bindgen_test_layout_BSInputDeviceManager stdout ----
 thread 'bindings::root::RE::bindgen_test_layout_BSInputDeviceManager' panicked at src\bindings.rs:182946:13:
 assertion `left == right` failed: Size of: BSInputDeviceManager
   left: 112
  right: 240
+
+---- bindings::root::RE::bindgen_test_layout_BSInputDeviceManager_RUNTIME_DATA stdout ----
+thread 'bindings::root::RE::bindgen_test_layout_BSInputDeviceManager_RUNTIME_DATA' panicked at src\bindings.rs:182813:13:
+assertion `left == right` failed: Size of: BSInputDeviceManager_RUNTIME_DATA
+  left: 48
+ right: 112
 
 ---- bindings::root::RE::bindgen_test_layout_BSKeyboardDevice stdout ----
 thread 'bindings::root::RE::bindgen_test_layout_BSKeyboardDevice' panicked at src\bindings.rs:183460:13:
@@ -4480,17 +4471,17 @@ assertion `left == right` failed: Size of: PlayerCamera
   left: 368
  right: 360
 
----- bindings::root::RE::bindgen_test_layout_PlayerCharacter_CrimeValue stdout ----
-thread 'bindings::root::RE::bindgen_test_layout_PlayerCharacter_CrimeValue' panicked at src\bindings.rs:258707:13:
-assertion `left == right` failed: Size of: PlayerCharacter_CrimeValue
-  left: 80
- right: 96
-
 ---- bindings::root::RE::bindgen_test_layout_PlayerCharacter stdout ----
 thread 'bindings::root::RE::bindgen_test_layout_PlayerCharacter' panicked at src\bindings.rs:261625:13:
 assertion `left == right` failed: Size of: PlayerCharacter
   left: 2792
  right: 3040
+
+---- bindings::root::RE::bindgen_test_layout_PlayerCharacter_CrimeValue stdout ----
+thread 'bindings::root::RE::bindgen_test_layout_PlayerCharacter_CrimeValue' panicked at src\bindings.rs:258707:13:
+assertion `left == right` failed: Size of: PlayerCharacter_CrimeValue
+  left: 80
+ right: 96
 
 ---- bindings::root::RE::bindgen_test_layout_PlayerCharacter_PLAYER_RUNTIME_DATA stdout ----
 thread 'bindings::root::RE::bindgen_test_layout_PlayerCharacter_PLAYER_RUNTIME_DATA' panicked at src\bindings.rs:259889:13:
@@ -4558,17 +4549,17 @@ assertion `left == right` failed: Size of: ScriptEventSourceHolder
   left: 1080
  right: 4752
 
----- bindings::root::RE::bindgen_test_layout_SleepWaitMenu stdout ----
-thread 'bindings::root::RE::bindgen_test_layout_SleepWaitMenu' panicked at src\bindings.rs:336873:13:
-assertion `left == right` failed: Size of: SleepWaitMenu
-  left: 96
- right: 88
-
 ---- bindings::root::RE::bindgen_test_layout_SkyrimVM stdout ----
 thread 'bindings::root::RE::bindgen_test_layout_SkyrimVM' panicked at src\bindings.rs:336103:13:
 assertion `left == right` failed: Size of: SkyrimVM
   left: 34920
  right: 35192
+
+---- bindings::root::RE::bindgen_test_layout_SleepWaitMenu stdout ----
+thread 'bindings::root::RE::bindgen_test_layout_SleepWaitMenu' panicked at src\bindings.rs:336873:13:
+assertion `left == right` failed: Size of: SleepWaitMenu
+  left: 96
+ right: 88
 
 ---- bindings::root::RE::bindgen_test_layout_StatsMenu stdout ----
 thread 'bindings::root::RE::bindgen_test_layout_StatsMenu' panicked at src\bindings.rs:338278:13:
@@ -4630,17 +4621,17 @@ assertion `left == right` failed: Size of: TrainingMenu
   left: 248
  right: 240
 
----- bindings::root::RE::bindgen_test_layout_TutorialMenu stdout ----
-thread 'bindings::root::RE::bindgen_test_layout_TutorialMenu' panicked at src\bindings.rs:346956:13:
-assertion `left == right` failed: Size of: TutorialMenu
-  left: 80
- right: 72
-
 ---- bindings::root::RE::bindgen_test_layout_TweenMenu stdout ----
 thread 'bindings::root::RE::bindgen_test_layout_TweenMenu' panicked at src\bindings.rs:347130:13:
 assertion `left == right` failed: Size of: TweenMenu
   left: 88
  right: 80
+
+---- bindings::root::RE::bindgen_test_layout_TutorialMenu stdout ----
+thread 'bindings::root::RE::bindgen_test_layout_TutorialMenu' panicked at src\bindings.rs:346956:13:
+assertion `left == right` failed: Size of: TutorialMenu
+  left: 80
+ right: 72
 
 ---- bindings::root::RE::bindgen_test_layout_UI stdout ----
 thread 'bindings::root::RE::bindgen_test_layout_UI' panicked at src\bindings.rs:347343:13:
@@ -5321,14 +5312,14 @@ assertion `left == right` failed: Size of template specialization: root::RE::BST
   left: 20
  right: 88
 
----- bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStartEvent_close0_instantiation stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStartEvent_close0_instantiation' panicked at src\bindings.rs:372159:9:
+---- bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStopEvent_close0_instantiation stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStopEvent_close0_instantiation' panicked at src\bindings.rs:372178:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTEventSource
   left: 20
  right: 88
 
----- bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStopEvent_close0_instantiation stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStopEvent_close0_instantiation' panicked at src\bindings.rs:372178:9:
+---- bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStartEvent_close0_instantiation stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTEventSource_open0_TESSleepStartEvent_close0_instantiation' panicked at src\bindings.rs:372159:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTEventSource
   left: 20
  right: 88
@@ -5531,14 +5522,14 @@ assertion `left == right` failed: Size of template specialization: root::RE::BST
   left: 40
  right: 48
 
----- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_ptr_TESForm_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_ptr_TESForm_close1_close0_instantiation stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_ptr_TESForm_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_ptr_TESForm_close1_close0_instantiation' panicked at src\bindings.rs:351846:9:
+---- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_unsigned_int_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_unsigned_int_close1_close0_instantiation stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_unsigned_int_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_unsigned_int_close1_close0_instantiation' panicked at src\bindings.rs:356296:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTScatterTable
   left: 40
  right: 48
 
----- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_unsigned_int_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_unsigned_int_close1_close0_instantiation stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_unsigned_int_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_unsigned_int_close1_close0_instantiation' panicked at src\bindings.rs:356296:9:
+---- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_ptr_TESForm_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_ptr_TESForm_close1_close0_instantiation stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_BSFixedString_ptr_TESForm_BSTScatterTableTraits_open1_BSFixedString_open2_char_close2_ptr_TESForm_close1_close0_instantiation' panicked at src\bindings.rs:351846:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTScatterTable
   left: 40
  right: 48
@@ -5549,14 +5540,14 @@ assertion `left == right` failed: Size of template specialization: root::RE::BST
   left: 40
  right: 48
 
----- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_FormID_BSTScatterTableTraits_open1_CellID_ptr_unsigned_int_close1_close0_instantiation_1 stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_FormID_BSTScatterTableTraits_open1_CellID_ptr_unsigned_int_close1_close0_instantiation_1' panicked at src\bindings.rs:365740:9:
+---- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_TESObjectCELL_BSTScatterTableTraits_open1_CellID_ptr_TESObjectCELL_close1_close0_instantiation stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_TESObjectCELL_BSTScatterTableTraits_open1_CellID_ptr_TESObjectCELL_close1_close0_instantiation' panicked at src\bindings.rs:365780:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTScatterTable
   left: 40
  right: 48
 
----- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_TESObjectCELL_BSTScatterTableTraits_open1_CellID_ptr_TESObjectCELL_close1_close0_instantiation stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_TESObjectCELL_BSTScatterTableTraits_open1_CellID_ptr_TESObjectCELL_close1_close0_instantiation' panicked at src\bindings.rs:365780:9:
+---- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_FormID_BSTScatterTableTraits_open1_CellID_ptr_unsigned_int_close1_close0_instantiation_1 stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_CellID_ptr_FormID_BSTScatterTableTraits_open1_CellID_ptr_unsigned_int_close1_close0_instantiation_1' panicked at src\bindings.rs:365740:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTScatterTable
   left: 40
  right: 48
@@ -5573,8 +5564,8 @@ assertion `left == right` failed: Size of template specialization: root::RE::BST
   left: 40
  right: 48
 
----- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_ptr_BGSLocation_BSTScatterTableTraits_open1_unsigned_int_ptr_BGSLocation_close1_close0_instantiation stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_ptr_BGSLocation_BSTScatterTableTraits_open1_unsigned_int_ptr_BGSLocation_close1_close0_instantiation' panicked at src\bindings.rs:365936:9:
+---- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation' panicked at src\bindings.rs:365174:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTScatterTable
   left: 40
  right: 48
@@ -5585,14 +5576,14 @@ assertion `left == right` failed: Size of template specialization: root::RE::BST
   left: 40
  right: 48
 
----- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation' panicked at src\bindings.rs:365174:9:
+---- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation_1 stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation_1' panicked at src\bindings.rs:365271:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTScatterTable
   left: 40
  right: 48
 
----- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation_1 stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_NiPointer_open1_TESObjectREFR_close1_equal_to_open1_NiPointer_open2_TESObjectREFR_close2_close1_BSTSetTraits_open1_NiPointer_open2_TESObjectREFR_close2_close1_close0_instantiation_1' panicked at src\bindings.rs:365271:9:
+---- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_ptr_BGSLocation_BSTScatterTableTraits_open1_unsigned_int_ptr_BGSLocation_close1_close0_instantiation stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_FormID_ptr_BGSLocation_BSTScatterTableTraits_open1_unsigned_int_ptr_BGSLocation_close1_close0_instantiation' panicked at src\bindings.rs:365936:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTScatterTable
   left: 40
  right: 48
@@ -5987,14 +5978,14 @@ assertion `left == right` failed: Size of template specialization: root::RE::BST
   left: 40
  right: 48
 
----- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_InstanceData_BSTScatterTableTraits_open1_unsigned_int_ptr_InstanceData_close1_close0_instantiation stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_InstanceData_BSTScatterTableTraits_open1_unsigned_int_ptr_InstanceData_close1_close0_instantiation' panicked at src\bindings.rs:354679:9:
+---- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_NavMeshInfo_BSTScatterTableTraits_open1_unsigned_int_ptr_NavMeshInfo_close1_close0_instantiation stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_NavMeshInfo_BSTScatterTableTraits_open1_unsigned_int_ptr_NavMeshInfo_close1_close0_instantiation' panicked at src\bindings.rs:361445:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTScatterTable
   left: 40
  right: 48
 
----- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_NavMeshInfo_BSTScatterTableTraits_open1_unsigned_int_ptr_NavMeshInfo_close1_close0_instantiation stdout ----
-thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_NavMeshInfo_BSTScatterTableTraits_open1_unsigned_int_ptr_NavMeshInfo_close1_close0_instantiation' panicked at src\bindings.rs:361445:9:
+---- bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_InstanceData_BSTScatterTableTraits_open1_unsigned_int_ptr_InstanceData_close1_close0_instantiation stdout ----
+thread 'bindings::root::__bindgen_test_layout_BSTScatterTable_open0_unsigned_int_ptr_InstanceData_BSTScatterTableTraits_open1_unsigned_int_ptr_InstanceData_close1_close0_instantiation' panicked at src\bindings.rs:354679:9:
 assertion `left == right` failed: Size of template specialization: root::RE::BSTScatterTable
   left: 40
  right: 48
@@ -6472,6 +6463,6 @@ failures:
     bindings::root::__bindgen_test_layout_SettingCollectionMap_open0_Setting_close0_instantiation
     bindings::root::bindgen_test_layout_Node
 
-test result: FAILED. 3171 passed; 410 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s
+test result: FAILED. 3171 passed; 410 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.35s
 
 error: test failed, to rerun pass `--lib`
