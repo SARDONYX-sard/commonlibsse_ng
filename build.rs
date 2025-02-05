@@ -1,5 +1,7 @@
-// SPDX-FileCopyrightText: (C) 2024 metricexpansion
-// SPDX-License-Identifier: CC-BY-NC-SA-4.0
+/// SPDX-FileCopyrightText: (C) 2024 metricexpansion
+/// SPDX-License-Identifier: MIT OR CC-BY-NC-SA-4.0
+///
+/// See: https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE/-/issues/2#note_2332635556
 
 fn main() {
     let crate_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));

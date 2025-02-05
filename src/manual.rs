@@ -1,8 +1,7 @@
-// SPDX-FileCopyrightText: (C) 2024 metricexpansion
-// SPDX-License-Identifier: CC-BY-NC-SA-4.0
-
-/// ported: vcpkg_installed\x64-windows\commonlibsse_ng\include\SKSE\Trampoline.h
+/// SPDX-FileCopyrightText: (C) 2024 metricexpansion
+/// SPDX-License-Identifier: MIT OR CC-BY-NC-SA-4.0
 ///
+/// See: https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE/-/issues/2#note_2332635556
 use crate::bindings::root::SKSE;
 
 impl Default for SKSE::PluginVersionData {
@@ -29,6 +28,7 @@ impl Default for SKSE::PluginVersionData {
     }
 }
 
+/// - ref: vcpkg_installed\x64-windows\commonlibsse_ng\include\SKSE\Trampoline.h
 impl SKSE::Trampoline {
     pub const unsafe fn write_branch<const N: usize>(a_src: usize, a_dst: usize) -> usize {
         let data: u8 = match N {

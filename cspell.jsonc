@@ -3,11 +3,13 @@
     "ARMO",
     "bindgen",
     "Bitfield",
+    "commonlibsse",
     "ctypes",
     "declspec",
     "MSVC",
     "reqwest",
     "SKSE",
+    "Skyrim",
     "vcpkg"
   ]
 }
