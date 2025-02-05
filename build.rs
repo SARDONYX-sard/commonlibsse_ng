@@ -126,7 +126,7 @@ where
 {
     use std::io::Cursor;
 
-    let url = "https://github.com/SARDONYX-sard/commonlibsse_ng/releases/download/push/CommonLibSSE-NG-prebuilt.zip";
+    let url = "https://github.com/SARDONYX-sard/commonlibsse_ng/releases/download/CommonLibSSE-NG-prebuilt/CommonLibSSE-NG-prebuilt.zip";
     let out_dir = out_dir.as_ref();
 
     // Download zip(Wait up to 30 minutes to download 160 MB considering the slow network.)
