@@ -87,7 +87,7 @@ where
         .derive_eq(true)
         .derive_ord(true)
         .enable_cxx_namespaces() // Have the C++ namespace reproduced in Rust for ease of use.
-        .generate_inline_functions(true)
+        // .generate_inline_functions(true) // The inline function cannot be called because it does not exist in the .lib file.
         // .layout_tests(false)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()));
 

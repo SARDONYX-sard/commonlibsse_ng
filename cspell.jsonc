@@ -6,10 +6,13 @@
     "commonlibsse",
     "ctypes",
     "declspec",
+    "HSTRING",
     "MSVC",
+    "nextest",
     "reqwest",
     "SKSE",
     "Skyrim",
+    "steamapps",
     "vcpkg"
   ]
 }

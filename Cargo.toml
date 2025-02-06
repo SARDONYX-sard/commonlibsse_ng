@@ -1,12 +1,24 @@
 [package]
-name = "commonlibsse_ng_sys"
+name = "commonlibsse_ng"
+description = "CommonLibSSE-NG Rust bindings"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cxx = "1.0"
+tracing = { version = "0.1.41", optional = true }
+snafu = { version = "0.8.5" }                     # To define error types.
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.59.0", features = [
+  "Win32",
+  "Win32_System",
+  "Win32_System_Environment",
+  "Win32_System_LibraryLoader",
+  "Win32_Storage",
+  "Win32_Storage_FileSystem",
+], optional = true }
 
 [build-dependencies]
 bindgen = { version = "0.69.5", optional = true }
@@ -14,13 +26,27 @@ reqwest = { version = "0.12.12", features = ["blocking"], optional = true }
 zip-extract = { version = "0.2.1", optional = true }
 
 [features]
+# Default features for the project
 default = ["prebuilt"]
+# For test and debugging.
+debug = ["win_api", "tracing"]
 
-# Get the pre-built header files and libs from the URL.(zip: 160MB, Extracted: 600MB)
+# Get the pre-built header files and libs from the URL. (zip: 160MB, Extracted: 600MB)
 # NOTE: Timeout is 30mins
-prebuilt = ["dep:reqwest", "dep:zip-extract"]
+prebuilt = ["sys", "dep:reqwest", "dep:zip-extract"]
+
 # Use vcpkg to build C++ and get headers and libs
-vcpkg = []
+vcpkg = ["sys"]
 
 # Generate binding
 generate = ["dep:bindgen"]
+
+# Use C++ binding
+sys = []
+
+# Enable functions that use the Windows API.
+# For example, functions to get file version information.
+win_api = ["dep:windows"]
+
+# Enable tracing log support
+tracing = ["dep:tracing"]
