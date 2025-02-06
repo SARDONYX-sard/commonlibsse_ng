@@ -12,10 +12,10 @@ mod win_api;
 #[cfg(feature = "win_api")]
 pub use win_api::{get_file_version, FileVersionError};
 
-#[cfg(feature = "sys")]
+#[cfg(not(feature = "no_sys"))]
 pub use crate::sys::REL::Version;
 
-#[cfg(not(feature = "sys"))]
+#[cfg(feature = "no_sys")]
 /// Represents a 4-part version number.
 ///
 /// # Example

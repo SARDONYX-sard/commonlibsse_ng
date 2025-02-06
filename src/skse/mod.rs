@@ -1,8 +1,8 @@
-#[cfg(feature = "sys")]
+#[cfg(not(feature = "no_sys"))]
 mod interface;
-#[cfg(feature = "sys")]
+#[cfg(not(feature = "no_sys"))]
 mod trampoline;
-#[cfg(feature = "sys")]
+#[cfg(not(feature = "no_sys"))]
 mod translation;
 
 pub mod version;

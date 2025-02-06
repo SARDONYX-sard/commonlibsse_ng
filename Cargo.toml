@@ -28,21 +28,15 @@ zip-extract = { version = "0.2.1", optional = true }
 [features]
 # Default features for the project
 default = ["prebuilt"]
-# For test and debugging.
-debug = ["win_api", "tracing"]
 
 # Get the pre-built header files and libs from the URL. (zip: 160MB, Extracted: 600MB)
 # NOTE: Timeout is 30mins
-prebuilt = ["sys", "dep:reqwest", "dep:zip-extract"]
-
+prebuilt = ["dep:reqwest", "dep:zip-extract"]
 # Use vcpkg to build C++ and get headers and libs
-vcpkg = ["sys"]
+vcpkg = []
 
-# Generate binding
+# Generate binding(For crate maintainer)
 generate = ["dep:bindgen"]
-
-# Use C++ binding
-sys = []
 
 # Enable functions that use the Windows API.
 # For example, functions to get file version information.
@@ -50,3 +44,10 @@ win_api = ["dep:windows"]
 
 # Enable tracing log support
 tracing = ["dep:tracing"]
+
+
+# For test and debugging.
+debug = ["win_api", "tracing", "no_sys"]
+
+# Non use C++ binding(For debugging)
+no_sys = []
