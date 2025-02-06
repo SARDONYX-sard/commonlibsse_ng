@@ -5,7 +5,7 @@ It probably will crash if used it does not pass the layout test.
 See [test results](./test_results.txt)
 
 ```toml
-commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "80681c3" } # Fixed by rev(commit sha)
+commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "7378d43" }
 ```
 
 ## Licenses
