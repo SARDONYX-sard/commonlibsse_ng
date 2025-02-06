@@ -27,7 +27,11 @@ fn main() {
     #[cfg(feature = "generate")]
     bindgen(&crate_root);
 
-    println!("cargo:rustc-link-search=native={}", lib_path.display());
+    println!("cargo:rustc-link-search={}", lib_path.display());
+    // https://doc.rust-lang.org/cargo/reference/build-scripts.html#rustc-link-lib
+    println!("cargo:rustc-link-lib=static=CommonLibSSE");
+    println!("cargo:rustc-link-lib=static=fmt");
+    println!("cargo:rustc-link-lib=static=spdlog");
 }
 
 #[cfg(feature = "generate")]
