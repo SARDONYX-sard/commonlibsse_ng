@@ -1,1 +1,219 @@
-# [allow (non_snake_case)] # [allow (dead_code)] # [allow (non_upper_case_globals)] # [allow (non_camel_case_types)] mod ffi { pub trait ToCppString { fn into_cpp (self) -> cxx :: UniquePtr < cxx :: CxxString > ; } impl ToCppString for & str { fn into_cpp (self) -> cxx :: UniquePtr < cxx :: CxxString > { make_string (self) } } impl ToCppString for String { fn into_cpp (self) -> cxx :: UniquePtr < cxx :: CxxString > { make_string (& self) } } impl ToCppString for & String { fn into_cpp (self) -> cxx :: UniquePtr < cxx :: CxxString > { make_string (self) } } impl ToCppString for cxx :: UniquePtr < cxx :: CxxString > { fn into_cpp (self) -> cxx :: UniquePtr < cxx :: CxxString > { self } } unsafe impl cxx :: ExternType for bindgen :: root :: RE :: Calendar { type Id = cxx :: type_id ! ("RE::Calendar") ; type Kind = cxx :: kind :: Opaque ; } unsafe impl cxx :: ExternType for bindgen :: root :: tm { type Id = cxx :: type_id ! ("tm") ; type Kind = cxx :: kind :: Opaque ; } mod bindgen { pub (super) mod root { # [repr (C , align (4))] pub struct tm { _pinned : core :: marker :: PhantomData < core :: marker :: PhantomPinned > , _non_send_sync : core :: marker :: PhantomData < [* const u8 ; 0] > , _data : :: core :: cell :: UnsafeCell < :: core :: mem :: MaybeUninit < [u8 ; 36] > > } unsafe impl autocxx :: moveit :: MakeCppStorage for root :: tm { unsafe fn allocate_uninitialized_cpp_storage () -> * mut root :: tm { cxxbridge :: tm_autocxx_alloc_autocxx_wrapper_0xf17503e17c2ca26a () } unsafe fn free_uninitialized_cpp_storage (arg0 : * mut root :: tm) { cxxbridge :: tm_autocxx_free_autocxx_wrapper_0xf17503e17c2ca26a (arg0) } } unsafe impl autocxx :: moveit :: new :: MoveNew for root :: tm { # [doc = "Synthesized move constructor."] unsafe fn move_new (mut other : :: core :: pin :: Pin < autocxx :: moveit :: MoveRef < '_ , root :: tm > > , this : :: core :: pin :: Pin < & mut :: core :: mem :: MaybeUninit < root :: tm > >) { cxxbridge :: tm_new_synthetic_move_ctor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a (this . get_unchecked_mut () . as_mut_ptr () , { let r : & mut _ = :: core :: pin :: Pin :: into_inner_unchecked (other . as_mut ()) ; r }) } } unsafe impl autocxx :: moveit :: new :: CopyNew for root :: tm { # [doc = "Synthesized copy constructor."] unsafe fn copy_new (other : & root :: tm , this : :: core :: pin :: Pin < & mut :: core :: mem :: MaybeUninit < root :: tm > >) { cxxbridge :: tm_new_synthetic_const_copy_ctor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a (this . get_unchecked_mut () . as_mut_ptr () , other) } } pub mod RE { # [repr (C , align (8))] pub struct Calendar { _pinned : core :: marker :: PhantomData < core :: marker :: PhantomPinned > , _non_send_sync : core :: marker :: PhantomData < [* const u8 ; 0] > , _data : :: core :: cell :: UnsafeCell < :: core :: mem :: MaybeUninit < [u8 ; 64] > > } impl Calendar { pub fn GetSingleton () -> * mut root :: RE :: Calendar { cxxbridge :: RE_Calendar_GetSingleton_autocxx_wrapper_0xf17503e17c2ca26a () } pub fn GetDayName (self : & root :: RE :: Calendar) -> cxx :: UniquePtr < cxx :: CxxString > { cxxbridge :: GetDayName_autocxx_wrapper_0xf17503e17c2ca26a (self) } pub fn GetMonthName (self : & root :: RE :: Calendar) -> cxx :: UniquePtr < cxx :: CxxString > { cxxbridge :: GetMonthName_autocxx_wrapper_0xf17503e17c2ca26a (self) } pub fn GetTime < 'a > (self : & 'a root :: RE :: Calendar) -> impl autocxx :: moveit :: new :: New < Output = root :: tm > + 'a { unsafe { autocxx :: moveit :: new :: by_raw (move | placement_return_type | { let placement_return_type = placement_return_type . get_unchecked_mut () . as_mut_ptr () ; cxxbridge :: GetTime_autocxx_wrapper_0xf17503e17c2ca26a (self , placement_return_type) }) } } } unsafe impl autocxx :: moveit :: MakeCppStorage for root :: RE :: Calendar { unsafe fn allocate_uninitialized_cpp_storage () -> * mut root :: RE :: Calendar { cxxbridge :: Calendar_autocxx_alloc_autocxx_wrapper_0xf17503e17c2ca26a () } unsafe fn free_uninitialized_cpp_storage (arg0 : * mut root :: RE :: Calendar) { cxxbridge :: Calendar_autocxx_free_autocxx_wrapper_0xf17503e17c2ca26a (arg0) } } impl Drop for root :: RE :: Calendar { # [doc = "Synthesized destructor."] fn drop (self : & mut root :: RE :: Calendar) { unsafe { cxxbridge :: Calendar_synthetic_destructor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a (self) } } } # [allow (unused_imports)] use self :: super :: super :: super :: { cxxbridge , ToCppString } ; # [allow (unused_imports)] use self :: super :: super :: root ; } # [allow (unused_imports)] use self :: super :: super :: { cxxbridge , ToCppString } ; # [allow (unused_imports)] use self :: super :: root ; } } # [cxx :: bridge] mod cxxbridge { impl UniquePtr < Calendar > { } impl SharedPtr < Calendar > { } impl WeakPtr < Calendar > { } impl UniquePtr < tm > { } impl SharedPtr < tm > { } impl WeakPtr < tm > { } impl CxxVector < tm > { } unsafe extern "C++" { fn autocxx_make_string_0xf17503e17c2ca26a (str_ : & str) -> UniquePtr < CxxString > ; pub unsafe fn Calendar_autocxx_alloc_autocxx_wrapper_0xf17503e17c2ca26a () -> * mut Calendar ; pub unsafe fn Calendar_autocxx_free_autocxx_wrapper_0xf17503e17c2ca26a (arg0 : * mut Calendar) ; # [namespace = "RE"] type Calendar = super :: bindgen :: root :: RE :: Calendar ; pub fn RE_Calendar_GetSingleton_autocxx_wrapper_0xf17503e17c2ca26a () -> * mut Calendar ; # [namespace = "RE"] pub fn GetCurrentGameTime (self : & Calendar) -> f32 ; # [namespace = "RE"] pub fn GetDay (self : & Calendar) -> f32 ; pub fn GetDayName_autocxx_wrapper_0xf17503e17c2ca26a (autocxx_gen_this : & Calendar) -> UniquePtr < CxxString > ; # [namespace = "RE"] pub fn GetDayOfWeek (self : & Calendar) -> c_uint ; # [namespace = "RE"] pub fn GetDaysPassed (self : & Calendar) -> f32 ; # [namespace = "RE"] pub unsafe fn GetTimeDateString (self : & Calendar , a_dest : * mut c_char , a_max : c_uint , a_showYear : bool) ; # [namespace = "RE"] pub fn GetHour (self : & Calendar) -> f32 ; # [namespace = "RE"] pub fn GetHoursPassed (self : & Calendar) -> f32 ; # [namespace = "RE"] pub fn GetMonth (self : & Calendar) -> c_uint ; pub fn GetMonthName_autocxx_wrapper_0xf17503e17c2ca26a (autocxx_gen_this : & Calendar) -> UniquePtr < CxxString > ; pub unsafe fn GetTime_autocxx_wrapper_0xf17503e17c2ca26a (autocxx_gen_this : & Calendar , placement_return_type : * mut tm) ; # [namespace = "RE"] pub fn GetTimescale (self : & Calendar) -> f32 ; # [namespace = "RE"] pub fn GetYear (self : & Calendar) -> c_uint ; # [doc = "Synthesized destructor."] pub unsafe fn Calendar_synthetic_destructor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a (autocxx_gen_this : * mut Calendar) ; type tm = super :: bindgen :: root :: tm ; pub unsafe fn tm_autocxx_alloc_autocxx_wrapper_0xf17503e17c2ca26a () -> * mut tm ; pub unsafe fn tm_autocxx_free_autocxx_wrapper_0xf17503e17c2ca26a (arg0 : * mut tm) ; # [doc = "Synthesized move constructor."] pub unsafe fn tm_new_synthetic_move_ctor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a (autocxx_gen_this : * mut tm , other : * mut tm) ; # [doc = "Synthesized copy constructor."] pub unsafe fn tm_new_synthetic_const_copy_ctor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a (autocxx_gen_this : * mut tm , other : & tm) ; type c_uint = autocxx :: c_uint ; include ! ("wrapper.hpp") ; include ! ("autocxxgen_ffi.h") ; } extern "Rust" { } } # [allow (unused_imports)] use bindgen :: root ; pub use cxxbridge :: autocxx_make_string_0xf17503e17c2ca26a as make_string ; # [allow (unused_imports)] pub use bindgen :: root :: tm ; pub mod RE { # [allow (unused_imports)] pub use super :: bindgen :: root :: RE :: Calendar ; } }
+#[allow(non_snake_case)]
+#[allow(dead_code)]
+#[allow(non_upper_case_globals)]
+#[allow(non_camel_case_types)]
+mod ffi {
+    pub trait ToCppString {
+        fn into_cpp(self) -> cxx::UniquePtr<cxx::CxxString>;
+    }
+    impl ToCppString for &str {
+        fn into_cpp(self) -> cxx::UniquePtr<cxx::CxxString> {
+            make_string(self)
+        }
+    }
+    impl ToCppString for String {
+        fn into_cpp(self) -> cxx::UniquePtr<cxx::CxxString> {
+            make_string(&self)
+        }
+    }
+    impl ToCppString for &String {
+        fn into_cpp(self) -> cxx::UniquePtr<cxx::CxxString> {
+            make_string(self)
+        }
+    }
+    impl ToCppString for cxx::UniquePtr<cxx::CxxString> {
+        fn into_cpp(self) -> cxx::UniquePtr<cxx::CxxString> {
+            self
+        }
+    }
+    unsafe impl cxx::ExternType for bindgen::root::RE::Calendar {
+        type Id = cxx::type_id!("RE::Calendar");
+        type Kind = cxx::kind::Opaque;
+    }
+    unsafe impl cxx::ExternType for bindgen::root::tm {
+        type Id = cxx::type_id!("tm");
+        type Kind = cxx::kind::Opaque;
+    }
+    mod bindgen {
+        pub(super) mod root {
+            #[repr(C, align(4))]
+            pub struct tm {
+                _pinned: core::marker::PhantomData<core::marker::PhantomPinned>,
+                _non_send_sync: core::marker::PhantomData<[*const u8; 0]>,
+                _data: ::core::cell::UnsafeCell<::core::mem::MaybeUninit<[u8; 36]>>,
+            }
+            unsafe impl autocxx::moveit::MakeCppStorage for root::tm {
+                unsafe fn allocate_uninitialized_cpp_storage() -> *mut root::tm {
+                    cxxbridge::tm_autocxx_alloc_autocxx_wrapper_0xf17503e17c2ca26a()
+                }
+                unsafe fn free_uninitialized_cpp_storage(arg0: *mut root::tm) {
+                    cxxbridge::tm_autocxx_free_autocxx_wrapper_0xf17503e17c2ca26a(arg0)
+                }
+            }
+            unsafe impl autocxx::moveit::new::MoveNew for root::tm {
+                #[doc = "Synthesized move constructor."]
+                unsafe fn move_new(
+                    mut other: ::core::pin::Pin<autocxx::moveit::MoveRef<'_, root::tm>>,
+                    this: ::core::pin::Pin<&mut ::core::mem::MaybeUninit<root::tm>>,
+                ) {
+                    cxxbridge :: tm_new_synthetic_move_ctor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a (this . get_unchecked_mut () . as_mut_ptr () , { let r : & mut _ = :: core :: pin :: Pin :: into_inner_unchecked (other . as_mut ()) ; r })
+                }
+            }
+            unsafe impl autocxx::moveit::new::CopyNew for root::tm {
+                #[doc = "Synthesized copy constructor."]
+                unsafe fn copy_new(
+                    other: &root::tm,
+                    this: ::core::pin::Pin<&mut ::core::mem::MaybeUninit<root::tm>>,
+                ) {
+                    cxxbridge :: tm_new_synthetic_const_copy_ctor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a (this . get_unchecked_mut () . as_mut_ptr () , other)
+                }
+            }
+            pub mod RE {
+                #[repr(C, align(8))]
+                pub struct Calendar {
+                    _pinned: core::marker::PhantomData<core::marker::PhantomPinned>,
+                    _non_send_sync: core::marker::PhantomData<[*const u8; 0]>,
+                    _data: ::core::cell::UnsafeCell<::core::mem::MaybeUninit<[u8; 64]>>,
+                }
+                impl Calendar {
+                    pub fn GetSingleton() -> *mut root::RE::Calendar {
+                        cxxbridge::RE_Calendar_GetSingleton_autocxx_wrapper_0xf17503e17c2ca26a()
+                    }
+                    pub fn GetDayName(self: &root::RE::Calendar) -> cxx::UniquePtr<cxx::CxxString> {
+                        cxxbridge::GetDayName_autocxx_wrapper_0xf17503e17c2ca26a(self)
+                    }
+                    pub fn GetMonthName(
+                        self: &root::RE::Calendar,
+                    ) -> cxx::UniquePtr<cxx::CxxString> {
+                        cxxbridge::GetMonthName_autocxx_wrapper_0xf17503e17c2ca26a(self)
+                    }
+                    pub fn GetTime<'a>(
+                        self: &'a root::RE::Calendar,
+                    ) -> impl autocxx::moveit::new::New<Output = root::tm> + 'a
+                    {
+                        unsafe {
+                            autocxx::moveit::new::by_raw(move |placement_return_type| {
+                                let placement_return_type =
+                                    placement_return_type.get_unchecked_mut().as_mut_ptr();
+                                cxxbridge::GetTime_autocxx_wrapper_0xf17503e17c2ca26a(
+                                    self,
+                                    placement_return_type,
+                                )
+                            })
+                        }
+                    }
+                }
+                unsafe impl autocxx::moveit::MakeCppStorage for root::RE::Calendar {
+                    unsafe fn allocate_uninitialized_cpp_storage() -> *mut root::RE::Calendar {
+                        cxxbridge::Calendar_autocxx_alloc_autocxx_wrapper_0xf17503e17c2ca26a()
+                    }
+                    unsafe fn free_uninitialized_cpp_storage(arg0: *mut root::RE::Calendar) {
+                        cxxbridge::Calendar_autocxx_free_autocxx_wrapper_0xf17503e17c2ca26a(arg0)
+                    }
+                }
+                impl Drop for root::RE::Calendar {
+                    #[doc = "Synthesized destructor."]
+                    fn drop(self: &mut root::RE::Calendar) {
+                        unsafe {
+                            cxxbridge :: Calendar_synthetic_destructor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a (self)
+                        }
+                    }
+                }
+                #[allow(unused_imports)]
+                use self::super::super::super::{cxxbridge, ToCppString};
+                #[allow(unused_imports)]
+                use self::super::super::root;
+            }
+            #[allow(unused_imports)]
+            use self::super::super::{cxxbridge, ToCppString};
+            #[allow(unused_imports)]
+            use self::super::root;
+        }
+    }
+    #[cxx::bridge]
+    mod cxxbridge {
+        impl UniquePtr<Calendar> {}
+        impl SharedPtr<Calendar> {}
+        impl WeakPtr<Calendar> {}
+        impl UniquePtr<tm> {}
+        impl SharedPtr<tm> {}
+        impl WeakPtr<tm> {}
+        impl CxxVector<tm> {}
+        unsafe extern "C++" {
+            fn autocxx_make_string_0xf17503e17c2ca26a(str_: &str) -> UniquePtr<CxxString>;
+            pub unsafe fn Calendar_autocxx_alloc_autocxx_wrapper_0xf17503e17c2ca26a(
+            ) -> *mut Calendar;
+            pub unsafe fn Calendar_autocxx_free_autocxx_wrapper_0xf17503e17c2ca26a(
+                arg0: *mut Calendar,
+            );
+            #[namespace = "RE"]
+            type Calendar = super::bindgen::root::RE::Calendar;
+            pub fn RE_Calendar_GetSingleton_autocxx_wrapper_0xf17503e17c2ca26a() -> *mut Calendar;
+            #[namespace = "RE"]
+            pub fn GetCurrentGameTime(self: &Calendar) -> f32;
+            #[namespace = "RE"]
+            pub fn GetDay(self: &Calendar) -> f32;
+            pub fn GetDayName_autocxx_wrapper_0xf17503e17c2ca26a(
+                autocxx_gen_this: &Calendar,
+            ) -> UniquePtr<CxxString>;
+            #[namespace = "RE"]
+            pub fn GetDayOfWeek(self: &Calendar) -> c_uint;
+            #[namespace = "RE"]
+            pub fn GetDaysPassed(self: &Calendar) -> f32;
+            #[namespace = "RE"]
+            pub unsafe fn GetTimeDateString(
+                self: &Calendar,
+                a_dest: *mut c_char,
+                a_max: c_uint,
+                a_showYear: bool,
+            );
+            #[namespace = "RE"]
+            pub fn GetHour(self: &Calendar) -> f32;
+            #[namespace = "RE"]
+            pub fn GetHoursPassed(self: &Calendar) -> f32;
+            #[namespace = "RE"]
+            pub fn GetMonth(self: &Calendar) -> c_uint;
+            pub fn GetMonthName_autocxx_wrapper_0xf17503e17c2ca26a(
+                autocxx_gen_this: &Calendar,
+            ) -> UniquePtr<CxxString>;
+            pub unsafe fn GetTime_autocxx_wrapper_0xf17503e17c2ca26a(
+                autocxx_gen_this: &Calendar,
+                placement_return_type: *mut tm,
+            );
+            #[namespace = "RE"]
+            pub fn GetTimescale(self: &Calendar) -> f32;
+            #[namespace = "RE"]
+            pub fn GetYear(self: &Calendar) -> c_uint;
+            #[doc = "Synthesized destructor."]
+            pub unsafe fn Calendar_synthetic_destructor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a(
+                autocxx_gen_this: *mut Calendar,
+            );
+            type tm = super::bindgen::root::tm;
+            pub unsafe fn tm_autocxx_alloc_autocxx_wrapper_0xf17503e17c2ca26a() -> *mut tm;
+            pub unsafe fn tm_autocxx_free_autocxx_wrapper_0xf17503e17c2ca26a(arg0: *mut tm);
+            #[doc = "Synthesized move constructor."]
+            pub unsafe fn tm_new_synthetic_move_ctor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a(
+                autocxx_gen_this: *mut tm,
+                other: *mut tm,
+            );
+            #[doc = "Synthesized copy constructor."]
+            pub unsafe fn tm_new_synthetic_const_copy_ctor_0xf17503e17c2ca26a_autocxx_wrapper_0xf17503e17c2ca26a(
+                autocxx_gen_this: *mut tm,
+                other: &tm,
+            );
+            type c_uint = autocxx::c_uint;
+            include!("wrapper.hpp");
+            include!("autocxxgen_ffi.h");
+        }
+        extern "Rust" {}
+    }
+    #[allow(unused_imports)]
+    use bindgen::root;
+    #[allow(unused_imports)]
+    pub use bindgen::root::tm;
+    pub use cxxbridge::autocxx_make_string_0xf17503e17c2ca26a as make_string;
+    pub mod RE {
+        #[allow(unused_imports)]
+        pub use super::bindgen::root::RE::Calendar;
+    }
+}
