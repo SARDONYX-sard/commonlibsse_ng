@@ -53,23 +53,25 @@ where
     let mut b = autocxx_build::Builder::new("src/sys.rs", &[&header, &include_dir])
         .extra_clang_args(&[
             "-std=c++20",
-            "-D_CRT_USE_BUILTIN_OFFSETOF",
+            "-D_CRT_USE_BUILTIN_OFFSETOF", // Ensure Clang uses its built-in offsetof for better compatibility with Windows code.
             "-DENABLE_COMMONLIBSSE_TESTING",
             "-DENABLE_SKYRIM_SE",
-            "-fms-compatibility",
-            "-fms-extensions",
-            "-fdelayed-template-parsing",
+            "-fms-compatibility", // Enable MSVC compatibility for MS-specific features (e.g., inline assembly).
+            "-fms-extensions", // Allow MSVC-specific extensions like #pragma once and __declspec.
         ])
-        .custom_gendir(crate_root.join("src"))
+        // .custom_gendir(crate_root.join("src").join("sys"))
         .build()?;
-    b.flag_if_supported("-std=c++20")
-        .flag_if_supported("-D_CRT_USE_BUILTIN_OFFSETOF") // Ensure Clang uses its built-in offsetof for better compatibility with Windows code.
+    b.opt_level(2)
+        .cpp(true)
+        .flag_if_supported("-std=c++20")
+        .flag_if_supported("/std:c++20")
+        .flag_if_supported("-D_CRT_USE_BUILTIN_OFFSETOF")
         .flag_if_supported("-DENABLE_COMMONLIBSSE_TESTING")
         .flag_if_supported("-DENABLE_SKYRIM_SE")
-        .flag_if_supported("-fms-compatibility") // Enable MSVC compatibility for MS-specific features (e.g., inline assembly).
-        .flag_if_supported("-fms-extensions") // Allow MSVC-specific extensions like #pragma once and __declspec.
-        .flag_if_supported("-fdelayed-template-parsing") // Delay template parsing to match MSVC's behavior.
+        .flag_if_supported("-fms-compatibility")
+        .flag_if_supported("-fms-extensions")
         .compile("commonlibsse_ng"); // arbitrary library name, pick anything
+
     println!("cargo:rerun-if-changed=src/sys.rs");
 
     Ok(())
