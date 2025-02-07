@@ -94,11 +94,8 @@ pub enum FileVersionError {
         err: windows::core::Error,
     },
 
-    /// Failed to query product version for '{filename}'
+    /// Failed to query product version for '{filename}'. (NOTE: If the target exe, dll exists, this error is probably due to the fact that it is not US English.)
     VersionQuery { filename: String },
-
-    /// Invalid version format in '{filename}'
-    VersionFormat { filename: String },
 }
 
 #[cfg(test)]
