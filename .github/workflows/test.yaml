@@ -34,3 +34,26 @@ jobs:
       - name: Test
         run: cargo nextest run --target ${{ matrix.job.target }} --features debug --no-default-features
         # run: cargo nextest run --workspace --target ${{ matrix.job.target }}
+
+  doc-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          # - { target: aarch64-apple-darwin, os: macos-latest }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest }
+          # - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest }
+    runs-on: ${{ matrix.job.os }}
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2.7.7
+        with:
+          prefix-key: cargo-debug-${{ matrix.job.target }}
+
+      # https://nexte.st/docs/installation/pre-built-binaries/#using-nextest-in-github-actions
+      - name: Install nextest(Parallel Test Execution CLI)
+        uses: taiki-e/install-action@nextest
+      - name: Test
+        run: cargo test --doc --target ${{ matrix.job.target }} --features debug --no-default-features
