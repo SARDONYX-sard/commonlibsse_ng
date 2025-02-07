@@ -9,7 +9,8 @@ if ($Build) {
 elseif ($Gen) {
   $env:RUST_BACKTRACE = 1
   Write-Host "Generate bindings..." -ForegroundColor Green
-  cargo build --features "generate,vcpkg" --no-default-features *> ./target/gen_results.txt
+  cargo build --features "generate,vcpkg" --no-default-features
+  # cargo build --features "generate,vcpkg" --no-default-features *> ./target/gen_results.txt
 }
 elseif ($Test) {
   Write-Host "Testing..." -ForegroundColor Green

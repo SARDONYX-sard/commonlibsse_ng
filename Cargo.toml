@@ -7,6 +7,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+autocxx = "0.27.1"
+cxx = "1.0"
 tracing = { version = "0.1.41", optional = true }
 snafu = { version = "0.8.5" }                     # To define error types.
 
@@ -24,6 +26,9 @@ windows = { version = "0.59.0", features = [
 bindgen = { version = "0.69.5", optional = true }
 reqwest = { version = "0.12.12", features = ["blocking"], optional = true }
 zip-extract = { version = "0.2.1", optional = true }
+
+autocxx-build = "0.27.1"
+miette = { version = "5", features = ["fancy"] }
 
 [features]
 # Default features for the project
@@ -47,7 +52,7 @@ tracing = ["dep:tracing"]
 
 
 # For test and debugging.
-debug = ["win_api", "tracing", "no_sys"]
+debug = ["win_api", "tracing", "no_sys", "generate"]
 
 # Non use C++ binding(For debugging)
 no_sys = []

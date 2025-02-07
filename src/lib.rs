@@ -8,5 +8,5 @@ pub mod skse;
 
 /// FFI
 #[doc(hidden)]
-#[cfg(not(feature = "no_sys"))]
+// #[cfg(not(feature = "no_sys"))]
 pub mod sys;
