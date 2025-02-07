@@ -31,7 +31,8 @@ zip-extract = { version = "0.2.1", optional = true }
 
 [features]
 # Default features for the project
-default = ["prebuilt"]
+# default = ["prebuilt"]
+default = ["debug"]
 
 # Get the pre-built header files and libs from the URL. (zip: 160MB, Extracted: 600MB)
 # NOTE: Timeout is 30mins

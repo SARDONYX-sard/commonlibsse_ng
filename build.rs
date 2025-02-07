@@ -50,7 +50,8 @@ where
         include_dir
     };
 
-    let mut b = autocxx_build::Builder::new("src/sys.rs", &[&header, &include_dir])
+    let rs_file = crate_root.join("src/sys.rs");
+    let mut b = autocxx_build::Builder::new(&rs_file, &[&header, &include_dir])
         .extra_clang_args(&[
             "-std=c++20",
             "-D_CRT_USE_BUILTIN_OFFSETOF", // Ensure Clang uses its built-in offsetof for better compatibility with Windows code.
@@ -59,7 +60,7 @@ where
             "-fms-compatibility", // Enable MSVC compatibility for MS-specific features (e.g., inline assembly).
             "-fms-extensions", // Allow MSVC-specific extensions like #pragma once and __declspec.
         ])
-        // .custom_gendir(crate_root.join("src").join("sys"))
+        .custom_gendir(crate_root.join("src").join("sys"))
         .build()?;
     b.opt_level(2)
         .cpp(true)
@@ -72,7 +73,7 @@ where
         .flag_if_supported("-fms-extensions")
         .compile("commonlibsse_ng"); // arbitrary library name, pick anything
 
-    println!("cargo:rerun-if-changed=src/sys.rs");
+    println!("cargo:rerun-if-changed={}", rs_file.display());
 
     Ok(())
 }
