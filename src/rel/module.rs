@@ -6,205 +6,65 @@
 //
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
+//! Module handling library for Skyrim SE/AE/VR .
+//!
+//! This module provides functionality to interact with loaded modules (executables and DLLs),
+//! extract segment information, and parse NT headers.
+
+mod module_handle;
+mod runtime;
+mod segment;
+
+pub use self::module_handle::{ModuleError, ModuleHandle};
+pub use self::runtime::Runtime;
+pub use self::segment::Segment;
 
 use crate::rel::version::{get_file_version, FileVersionError, Version};
-use snafu::ResultExt as _;
-use std::{
-    num::NonZeroUsize,
-    sync::{atomic::Ordering, LazyLock, RwLock, RwLockWriteGuard, TryLockResult},
+use std::sync::{atomic::Ordering, LazyLock, RwLock, RwLockWriteGuard, TryLockResult};
+use windows::Win32::System::Diagnostics::Debug::{
+    IMAGE_SCN_MEM_EXECUTE, IMAGE_SCN_MEM_WRITE, IMAGE_SECTION_CHARACTERISTICS,
 };
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Segment {
-    pub proxy_base: usize,
-    pub address: u32,
-    pub size: u32,
-}
-
-#[allow(unused)]
-#[repr(usize)]
-enum Name {
-    Textx,
-    Idata,
-    Rdata,
-    Data,
-    Pdata,
-    Tls,
-    Textw,
-    Gfids,
-    Total,
-}
-
-impl Segment {
-    #[inline]
-    pub const fn new(proxy_base: usize, address: u32, size: u32) -> Self {
-        Self {
-            proxy_base,
-            address,
-            size,
-        }
-    }
-
-    #[inline]
-    pub const fn offset(&self) -> usize {
-        (self.address as usize).wrapping_sub(self.proxy_base)
-    }
-}
-
+/// Represents a loaded module in memory.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Module {
+    /// Name of the module. (e.g. `"SkyrimSE.exe"`)
     pub filename: windows::core::HSTRING,
+    /// File path of the module. (e.g. `"SkyrimSE.exe"`)
     pub file_path: String,
+    /// Memory segments of the module.
     segments: [Segment; 8],
+    /// Version information of the module.
     pub version: Version,
+    /// Base module handle if available.
     pub base: Option<ModuleHandle>,
+    /// Runtime type of the module.
     pub runtime: Runtime,
-}
-
-/// Wrapper type to safely hold and handle valid handle addresses provided by `GetModuleHandleW`.
-///
-/// It holds void ptr internally, but can be handled null-safely by getter by method.
-///
-/// # Lifetime
-/// - As long as this structure is alive, the module handler is valid.
-/// - Call `FreeLibrary` at drop to invalidate the address.
-///
-/// # Why not use `HMODULE` as it is?
-/// It is not thread-safe as it is because it holds raw_pointer.
-///
-/// Therefore, we can keep it safe by creating another type that is valid as long as it holds the pointer, with the restriction that it is only invalidated on drop.
-#[repr(transparent)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ModuleHandle(NonZeroUsize);
-
-impl ModuleHandle {
-    /// # Example
-    /// ```
-    /// use commonlibsse_ng::rel::module::ModuleHandle;
-    /// use windows::core::h; // `h!` is utf-16 str macro.
-    ///
-    /// let handle = ModuleHandle::new(h!("C:\\Windows\\splwow64.exe")).unwrap();
-    /// ```
-    ///
-    /// # Errors
-    /// If the specified module handle could not be obtained.
-    #[inline]
-    pub fn new<H>(module_name: H) -> Result<Self, ModuleError>
-    where
-        H: windows::core::Param<windows::core::PCWSTR>,
-    {
-        let handle =
-            unsafe { windows::Win32::System::LibraryLoader::GetModuleHandleW(module_name) }
-                .with_context(|_| HandleNotFoundSnafu)?;
-
-        // If it is null, it is not null because of an error in the previous Result.
-        // Therefore, we use `.unwrap()`.
-        let handle = NonZeroUsize::new(handle.0 as usize).ok_or(ModuleError::NullHandle)?;
-        Ok(Self(handle))
-    }
-
-    #[inline]
-    pub fn to_hmodule(self) -> windows::Win32::Foundation::HMODULE {
-        windows::Win32::Foundation::HMODULE(self.0.get() as *mut core::ffi::c_void)
-    }
-
-    /// Returns the module handle itself (i.e., the virtual address of the exe located in the DRAM).
-    #[inline]
-    pub const fn as_raw(&self) -> usize {
-        self.0.get()
-    }
-
-    /// Attempt to parse NT Header part.
-    ///
-    /// # Lifetime
-    /// The reference is invalid if the module handle itself is dropped because it refers to the subsequent address of the module handle.
-    ///
-    /// # Errors
-    /// When fail to parse as valid header.
-    pub fn try_as_nt_header(
-        &self,
-    ) -> Result<&windows::Win32::System::Diagnostics::Debug::IMAGE_NT_HEADERS64, ModuleError> {
-        use windows::Win32::System::Diagnostics::Debug::IMAGE_NT_HEADERS64;
-        use windows::Win32::System::SystemServices::{
-            IMAGE_DOS_HEADER, IMAGE_DOS_SIGNATURE, IMAGE_NT_SIGNATURE,
-        };
-
-        let dos_header = {
-            let module_handle_address = self.0.get();
-            module_handle_address as *const IMAGE_DOS_HEADER
-        };
-
-        {
-            // If it is a valid exe or dll, the first two bytes are the letters `MZ`
-            // (inverted with little endian by u16 and containing 0x5a4d) from the designer's name.
-            let signature = unsafe { *dos_header }.e_magic;
-            if (unsafe { *dos_header }).e_magic != IMAGE_DOS_SIGNATURE {
-                return Err(ModuleError::InvalidDosHeaderSignature { actual: signature });
-            }
-        }
-
-        // The nt_header exists at the position e_lfanew from the start of the dos_header, i.e., the binary data of the exe.
-        let nt_header = unsafe {
-            &*dos_header
-                .add((*dos_header).e_lfanew as usize)
-                .cast::<IMAGE_NT_HEADERS64>()
-        };
-
-        let nt_signature = nt_header.Signature;
-        if nt_signature == IMAGE_NT_SIGNATURE {
-            Ok(nt_header)
-        } else {
-            Err(ModuleError::InvalidNtHeader64Signature {
-                actual: nt_signature,
-            })
-        }
-    }
-}
-
-impl Drop for ModuleHandle {
-    fn drop(&mut self) {
-        let h_module = self.clone().to_hmodule();
-        if let Err(err) = unsafe { windows::Win32::Foundation::FreeLibrary(h_module) } {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to free library: {err}",);
-        }
-    }
-}
-
-#[derive(Debug, snafu::Snafu)]
-pub enum ModuleError {
-    /// Invalid module handle.
-    NullHandle,
-
-    /// Failed to get module handle for '{source}'
-    HandleNotFound { source: windows::core::Error },
-    /// Invalid dos header of this exe/dll. Expected `0x5a4d`, but got `{actual}`
-    InvalidDosHeaderSignature { actual: u16 },
-    /// Invalid NT header64.  Expected `PE\0\0`(0x4550), but got `{actual:X}`
-    InvalidNtHeader64Signature { actual: u32 },
 }
 
 static IS_CLEARED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 static MODULE: LazyLock<RwLock<Module>> = LazyLock::new(|| RwLock::new(Module::init()));
 
 impl Module {
-    const ENVIRONMENT_W: &windows::core::HSTRING = windows::core::h!("SKSE_RUNTIME");
-
-    /// TODO: phf table or mut HashMap?
-    const SEGMENTS: [(&str, u32); 8] = [
-        (".text", 0),
-        (".idata", 0),
-        (".rdata", 0),
-        (".data", 0),
-        (".pdata", 0),
-        (".tls", 0),
-        (".text", 0),
-        (".gfids", 0),
+    const SEGMENTS: [(&str, IMAGE_SECTION_CHARACTERISTICS); 8] = [
+        (".text", IMAGE_SCN_MEM_EXECUTE),
+        (".idata", IMAGE_SECTION_CHARACTERISTICS(0)),
+        (".rdata", IMAGE_SECTION_CHARACTERISTICS(0)),
+        (".data", IMAGE_SECTION_CHARACTERISTICS(0)),
+        (".pdata", IMAGE_SECTION_CHARACTERISTICS(0)),
+        (".tls", IMAGE_SECTION_CHARACTERISTICS(0)),
+        (".text", IMAGE_SCN_MEM_WRITE),
+        (".gfids", IMAGE_SECTION_CHARACTERISTICS(0)),
     ];
 
     const RUNTIMES: [&'static windows::core::HSTRING; 2] = [
-        windows::core::h!("SkyrimVR.exe"),
+        // Use `msvcrt.dll` for testing since the dll is always US English and
+        // always loaded in the msvc target when the test is run.
+        #[cfg(feature = "debug")]
+        windows::core::h!("msvcrt.dll"),
+        #[cfg(not(feature = "debug"))]
         windows::core::h!("SkyrimSE.exe"),
+        windows::core::h!("SkyrimVR.exe"),
     ];
 
     // static mut INSTANCE: Option<Module> = None;
@@ -225,8 +85,20 @@ impl Module {
         MODULE.try_write()
     }
 
+    /// Initializes a new `Module` instance by detecting the currently loaded module.
+    ///
+    /// This method attempts to retrieve the module information from the `SKSE_RUNTIME`
+    /// or fallback to a predefined list of runtime binaries(e.g. `SkyrimSE.exe`).
+    ///
+    /// # Examples
+    /// ```no_run
+    /// use commonlibsse_ng::rel::module::Module;
+    ///
+    /// let module = Module::init();
+    /// println!("Loaded module: {}", module.file_path);
+    /// ```
     pub fn init() -> Self {
-        use windows::core::HSTRING;
+        use windows::core::{h, HSTRING};
         use windows::Win32::System::Environment::GetEnvironmentVariableW;
 
         // buffer size: https://github.com/search?q=repo%3Arust-lang%2Frust%20GetEnvironmentVariableW&type=code
@@ -234,7 +106,7 @@ impl Module {
 
         // - fn ref: https://learn.microsoft.com/windows/win32/api/processenv/nf-processenv-getenvironmentvariablew
         let filename_len =
-            unsafe { GetEnvironmentVariableW(Self::ENVIRONMENT_W, Some(&mut filename)) } as usize;
+            unsafe { GetEnvironmentVariableW(h!("SKSE_RUNTIME"), Some(&mut filename)) } as usize;
 
         let mut filename = HSTRING::from_wide(&filename);
         let mut module_handle = None;
@@ -271,40 +143,63 @@ impl Module {
         }
     }
 
+    /// Gets a specific memory segment by [`Name`].
+    ///
+    /// # Example
+    /// ```no_run
+    /// use commonlibsse_ng::rel::module::{Module, Name};
+    ///
+    /// let module = Module::init();
+    /// let text_segment = module.segment(Name::Textx);
+    /// ```
+    ///
+    /// [`Name`]: commonlibsse_ng::rel::module::segment#Name
+    #[inline]
+    pub const fn segment(&self, name: segment::Name) -> Segment {
+        self.segments[name as usize]
+    }
+
+    /// Resets the module instance, clearing its internal state.
+    ///
+    /// # Error log
+    /// log if the global module lock is poisoned.
     #[inline]
     pub fn reset() {
         if let Err(err) = MODULE.write().map(|mut instance| {
             instance.clear();
-            IS_CLEARED.store(true, std::sync::atomic::Ordering::Relaxed);
         }) {
             #[cfg(feature = "tracing")]
             tracing::error!("Couldn't clear MODULE instance.{err}");
         };
     }
 
-    #[inline]
-    pub const fn segment(&self, segment: usize) -> &Segment {
-        &self.segments[segment]
-    }
-
+    /// Returns the runtime type of the module.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// use commonlibsse_ng::rel::module::Module;
+    ///
+    /// let module = Module::init();
+    /// println!("Runtime: {:?}", module.get_runtime()); // e.g. Runtime::Se
+    /// ```
     #[inline]
     pub const fn get_runtime(&self) -> Runtime {
         self.runtime
     }
 
-    /// Is the current Skyrim Runtime the AE version?
+    /// Is the current Skyrim runtime the Anniversary Edition (AE)?
     #[inline]
     pub fn is_ae(&self) -> bool {
         self.get_runtime() == Runtime::Ae
     }
 
-    /// Is the current Skyrim Runtime the SE version?
+    /// Is the current Skyrim runtime the Special Edition (SE).
     #[inline]
     pub fn is_se(&self) -> bool {
         self.get_runtime() == Runtime::Se
     }
 
-    /// Is the current Skyrim Runtime the VR version?
+    /// Is the current Skyrim runtime the VR version?
     #[inline]
     pub fn is_vr(&self) -> bool {
         self.get_runtime() == Runtime::Vr
@@ -335,7 +230,9 @@ impl Module {
             let maybe_found = Self::SEGMENTS.iter().enumerate().find(|(_, elem)| {
                 let maybe_ascii = core::str::from_utf8(&current_section.Name);
                 maybe_ascii.is_ok_and(|section_name| {
-                    elem.0 != section_name && ((current_section.Characteristics.0 & elem.1) != 0)
+                    elem.0 != section_name
+                        && ((current_section.Characteristics & elem.1)
+                            != IMAGE_SECTION_CHARACTERISTICS(0))
                 })
             });
 
@@ -362,12 +259,35 @@ impl Module {
         Ok((version, runtime))
     }
 
+    /// Clears the internal state of the object.
+    ///
+    /// This function resets the state of the object by:
+    /// - Releasing any allocated resources (like the injected module) using the [`FreeLibrary`]function.
+    /// - Clearing file path and filename.
+    /// - Resetting runtime to `Runtime::Ae`.
+    /// - Resetting segments to default values.
+    /// - Resetting version to the default version.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// use commonlibsse_ng::rel::module::Module;
+    ///
+    /// let mut module = Module::new();
+    /// // Initialize the module with some state
+    /// module.clear();
+    /// // The module's internal state is now cleared
+    /// ```
+    ///
+    /// [`FreeLibrary`]: windows::Win32::Foundation#FreeLibrary
     pub fn clear(&mut self) {
         // if let Some(module) = self.injected_module {
         //     unsafe { FreeLibrary(module) };
         //     self.injected_module = None;
         // }
-        self.base = None;
+        if let Some(module) = self.base.take() {
+            use windows::core::Free;
+            unsafe { module.to_hmodule().free() };
+        }
         self.file_path.clear();
         self.filename = windows::core::HSTRING::default();
         self.runtime = Runtime::Ae;
@@ -375,18 +295,23 @@ impl Module {
         self.version = Version::const_default();
 
         // ID_DATABASE.lock().unwrap().clear();
+        IS_CLEARED.store(true, std::sync::atomic::Ordering::Release);
     }
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum Runtime {
-    /// Unknown runtime
-    #[default]
-    Unknown = 0,
-    /// The Skyrim runtime is a post-Anniversary Edition Skyrim SE release (version 1.6.x and later).
-    Ae = 1,
-    /// The Skyrim runtime is a pre-Anniversary Edition Skyrim SE release (version 1.5.97 and prior).
-    Se = 1 << 1,
-    /// The Skyrim runtime is Skyrim VR.
-    Vr = 1 << 2,
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_module_init() {
+        let module = dbg!(Module::init());
+        assert!(!module.file_path.is_empty());
+    }
+
+    #[test]
+    fn test_module_reset() {
+        Module::reset();
+        assert!(IS_CLEARED.load(std::sync::atomic::Ordering::Acquire));
+    }
 }

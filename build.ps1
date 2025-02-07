@@ -13,7 +13,8 @@ elseif ($Gen) {
 }
 elseif ($Test) {
   Write-Host "Testing..." -ForegroundColor Green
-  cargo test *> ./test_results.txt
+  # cargo test run *> ./test_results.txt
+  cargo nextest run --features "debug" --no-default-features
 }
 else {
   build

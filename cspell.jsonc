@@ -6,16 +6,22 @@
     "commonlibsse",
     "ctypes",
     "declspec",
+    "gfids",
     "HSTRING",
     "lfanew",
     "MSVC",
+    "msvcrt",
     "nextest",
+    "pdata",
+    "rdata",
     "repr",
     "reqwest",
     "SKSE",
     "Skyrim",
     "splwow",
     "steamapps",
+    "Textw",
+    "Textx",
     "vcpkg"
   ]
 }
