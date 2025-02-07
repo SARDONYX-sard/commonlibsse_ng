@@ -85,6 +85,9 @@ impl ModuleHandle {
     ///
     /// let handle = ModuleHandle::new(h!("C:\\Windows\\splwow64.exe")).unwrap();
     /// ```
+    ///
+    /// # Errors
+    /// If the specified module handle could not be obtained.
     #[inline]
     pub fn new<H>(module_name: H) -> Result<Self, ModuleError>
     where
@@ -96,7 +99,8 @@ impl ModuleHandle {
 
         // If it is null, it is not null because of an error in the previous Result.
         // Therefore, we use `.unwrap()`.
-        Ok(Self(NonZeroUsize::new(handle.0 as usize).unwrap()))
+        let handle = NonZeroUsize::new(handle.0 as usize).ok_or(ModuleError::NullHandle)?;
+        Ok(Self(handle))
     }
 
     #[inline]
@@ -106,7 +110,7 @@ impl ModuleHandle {
 
     /// Returns the module handle itself (i.e., the virtual address of the exe located in the DRAM).
     #[inline]
-    pub fn as_raw(&self) -> usize {
+    pub const fn as_raw(&self) -> usize {
         self.0.get()
     }
 
@@ -141,7 +145,9 @@ impl ModuleHandle {
 
         // The nt_header exists at the position e_lfanew from the start of the dos_header, i.e., the binary data of the exe.
         let nt_header = unsafe {
-            &*(dos_header.add((*dos_header).e_lfanew as usize) as *const IMAGE_NT_HEADERS64)
+            &*dos_header
+                .add((*dos_header).e_lfanew as usize)
+                .cast::<IMAGE_NT_HEADERS64>()
         };
 
         let nt_signature = nt_header.Signature;
@@ -167,6 +173,9 @@ impl Drop for ModuleHandle {
 
 #[derive(Debug, snafu::Snafu)]
 pub enum ModuleError {
+    /// Invalid module handle.
+    NullHandle,
+
     /// Failed to get module handle for '{source}'
     HandleNotFound { source: windows::core::Error },
     /// Invalid dos header of this exe/dll. Expected `0x5a4d`, but got `{actual}`
@@ -202,16 +211,18 @@ impl Module {
     // static INIT_LOCK: Lazy<Mutex<()>> = Lazy::new(||Mutex::new(()));
 
     /// Get mutable singleton instance.
-    pub fn get_or_init_mut() -> TryLockResult<RwLockWriteGuard<'static, Module>> {
+    ///
+    /// # Errors
+    /// If the caller who obtained the lock panics.
+    pub fn get_or_init_mut() -> TryLockResult<RwLockWriteGuard<'static, Self>> {
         if IS_CLEARED.load(Ordering::Acquire) {
             if let Ok(mut guard) = MODULE.try_write() {
                 *guard = Self::init();
             };
             IS_CLEARED.store(true, Ordering::Release);
-            MODULE.try_write()
-        } else {
-            MODULE.try_write()
         }
+
+        MODULE.try_write()
     }
 
     pub fn init() -> Self {
@@ -240,15 +251,15 @@ impl Module {
 
         let file_path = filename.to_string();
         let mut segments = None;
-        let (version, runtime) = if let Some(module_handle) = &module_handle {
-            segments = Self::load_segments(module_handle).ok();
-            match Self::load_version(&file_path) {
-                Ok((new_version, new_runtime)) => (Some(new_version), Some(new_runtime)),
-                Err(_err) => (None, None),
-            }
-        } else {
-            (None, None)
-        };
+        let (version, runtime) = module_handle
+            .as_ref()
+            .map_or((None, None), |module_handle| {
+                segments = Self::load_segments(module_handle).ok();
+                match Self::load_version(&file_path) {
+                    Ok((new_version, new_runtime)) => (Some(new_version), Some(new_runtime)),
+                    Err(_err) => (None, None),
+                }
+            });
 
         Self {
             filename,
@@ -323,11 +334,9 @@ impl Module {
 
             let maybe_found = Self::SEGMENTS.iter().enumerate().find(|(_, elem)| {
                 let maybe_ascii = core::str::from_utf8(&current_section.Name);
-                if let Ok(section_name) = maybe_ascii {
+                maybe_ascii.is_ok_and(|section_name| {
                     elem.0 != section_name && ((current_section.Characteristics.0 & elem.1) != 0)
-                } else {
-                    false
-                }
+                })
             });
 
             if let Some((idx, _)) = maybe_found {

@@ -105,7 +105,7 @@ impl Version {
     /// ```
     #[inline]
     pub const fn const_from_str(version: &str) -> Result<Self, VersionParseError> {
-        let mut parts = [0u16; 4];
+        let mut parts = [0_u16; 4];
         let mut idx = 0;
         let mut num = 0;
         let mut has_digit = false;
@@ -270,7 +270,7 @@ impl core::str::FromStr for Version {
 
     #[inline]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Version::const_from_str(s)
+        Self::const_from_str(s)
     }
 }
 

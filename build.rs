@@ -1,9 +1,9 @@
-/// SPDX-FileCopyrightText: (C) 2024 metricexpansion
-/// SPDX-License-Identifier: MIT OR CC-BY-NC-SA-4.0
-///
-/// See: https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE/-/issues/2#note_2332635556
+// SPDX-FileCopyrightText: (C) 2024 metricexpansion
+// SPDX-License-Identifier: MIT OR CC-BY-NC-SA-4.0
+//
+// See: https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE/-/issues/2#note_2332635556
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let crate_root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let lib_path = crate_root.join("vcpkg_installed/x64-windows/lib");
 
@@ -35,6 +35,7 @@ fn main() {
         println!("cargo:rustc-link-lib=static=fmt");
         println!("cargo:rustc-link-lib=static=spdlog");
     }
+    Ok(())
 }
 
 #[cfg(feature = "generate")]
@@ -144,5 +145,5 @@ where
     let response = client.get(url).send().expect("Failed to download ZIP");
     let bytes = response.bytes().expect("Failed to read response bytes");
 
-    zip_extract::extract(Cursor::new(bytes), &out_dir, false).unwrap_or_else(|err| panic!("{err}"));
+    zip_extract::extract(Cursor::new(bytes), out_dir, false).unwrap_or_else(|err| panic!("{err}"));
 }

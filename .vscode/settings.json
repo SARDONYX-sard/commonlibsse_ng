@@ -1,4 +1,5 @@
 {
   "rust-analyzer.cargo.features": ["debug"],
+  "rust-analyzer.check.command": "clippy",
   "rust-analyzer.check.features": ["debug"]
 }

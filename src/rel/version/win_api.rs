@@ -44,7 +44,7 @@ pub fn get_file_version(filename: &str) -> Result<Version, FileVersionError> {
         });
     }
 
-    let mut buf = vec![0u8; size as usize];
+    let mut buf = vec![0_u8; size as usize];
 
     if let Err(err) =
         unsafe { GetFileVersionInfoW(&filename_w, None, size, buf.as_mut_ptr().cast()) }
@@ -60,8 +60,8 @@ pub fn get_file_version(filename: &str) -> Result<Version, FileVersionError> {
         let query_path = windows::core::h!("\\StringFileInfo\\040904B0\\ProductVersion"); // NOTE: assumed 040904B0(US English, Unicode
         let mut ver_buf = ptr::null_mut();
         let mut ver_len: u32 = 0;
-        if unsafe { VerQueryValueW(buf_void_ptr, query_path, &mut ver_buf, &mut ver_len) }.as_bool()
-            == false
+        if !unsafe { VerQueryValueW(buf_void_ptr, query_path, &mut ver_buf, &mut ver_len) }
+            .as_bool()
         {
             return Err(FileVersionError::VersionQuery {
                 filename: filename.to_string(),
