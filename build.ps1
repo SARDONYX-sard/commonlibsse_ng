@@ -1,5 +1,5 @@
 [CmdletBinding()]
-Param([switch]$Build, [switch]$Test, [switch]$Gen)
+Param([switch]$Build, [switch]$NTest, [switch]$Test, [switch]$Gen)
 
 $env:LIBCLANG_PATH = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib"
 
@@ -13,8 +13,12 @@ elseif ($Gen) {
 }
 elseif ($Test) {
   Write-Host "Testing..." -ForegroundColor Green
-  # cargo test run *> ./test_results.txt
-  cargo nextest run --features "debug" --no-default-features
+  # cargo test *> ./test_results.txt
+  cargo test --features debug --no-default-features
+}
+elseif ($NTest) {
+  Write-Host "Parallel Testing..." -ForegroundColor Green
+  cargo nextest run --features debug --no-default-features
 }
 else {
   build

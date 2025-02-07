@@ -48,6 +48,24 @@ impl ModuleHandle {
         let handle =
             unsafe { GetModuleHandleW(module_name) }.with_context(|_| HandleNotFoundSnafu)?;
 
+        // TODO: size of module
+        // let _module_size = {
+        //     let mut module_info = windows::Win32::System::ProcessStatus::MODULEINFO::default();
+        //     if let Err(err) = unsafe {
+        //         windows::Win32::System::ProcessStatus::GetModuleInformation(
+        //             windows::Win32::System::Threading::GetCurrentProcess(),
+        //             handle,
+        //             &mut module_info,
+        //             core::mem::size_of::<windows::Win32::System::ProcessStatus::MODULEINFO>()
+        //                 as u32,
+        //         )
+        //     } {
+        //         panic!("Couldn't get module information: {err}");
+        //     }
+
+        //     dbg!(module_info.SizeOfImage)
+        // };
+
         // If it is null, it is not null because of an error in the previous Result.
         // Therefore, we use `.unwrap()`.
         let handle = NonZeroUsize::new(handle.0 as usize).ok_or(ModuleError::NullHandle)?;
@@ -86,19 +104,24 @@ impl ModuleHandle {
             module_handle_address as *const IMAGE_DOS_HEADER
         };
 
-        {
+        let e_lfanew_offset = {
+            let dos_header = unsafe { *dos_header };
             // If it is a valid exe or dll, the first two bytes are the letters `MZ`
             // (inverted with little endian by u16 and containing 0x5a4d) from the designer's name.
-            let signature = unsafe { *dos_header }.e_magic;
-            if (unsafe { *dos_header }).e_magic != IMAGE_DOS_SIGNATURE {
-                return Err(ModuleError::InvalidDosHeaderSignature { actual: signature });
+            let dos_magic = dos_header.e_magic;
+            if dos_magic != IMAGE_DOS_SIGNATURE {
+                return Err(ModuleError::InvalidDosHeaderSignature { actual: dos_magic });
             }
-        }
+
+            dos_header.e_lfanew as usize
+        };
 
         // The nt_header exists at the position e_lfanew from the start of the dos_header, i.e., the binary data of the exe.
         let nt_header = unsafe {
+            // NOTE: &* is special and means treating a raw pointer as a reference.
             &*dos_header
-                .add((*dos_header).e_lfanew as usize)
+                // Be careful not to mistakenly use `.add` or `.offset`.
+                .byte_add(e_lfanew_offset)
                 .cast::<IMAGE_NT_HEADERS64>()
         };
 

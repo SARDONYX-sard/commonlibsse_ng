@@ -53,7 +53,7 @@ impl Segment {
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(usize)]
 /// Represents different sections in a binary executable.
-pub enum Name {
+pub enum SegmentName {
     /// Executable code section (typically `.text`).
     #[default]
     Textx,

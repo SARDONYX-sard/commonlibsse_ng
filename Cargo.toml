@@ -21,8 +21,10 @@ windows = { version = "0.59.0", features = [
   "Win32_System_Diagnostics_Debug",
   "Win32_System_Environment",
   "Win32_System_LibraryLoader",
+  "Win32_System_ProcessStatus",
   "Win32_System_SystemInformation",
   "Win32_System_SystemServices",
+  "Win32_System_Threading",
 ], optional = true }
 
 [build-dependencies]

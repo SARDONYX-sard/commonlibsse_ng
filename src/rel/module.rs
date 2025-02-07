@@ -17,7 +17,7 @@ mod segment;
 
 pub use self::module_handle::{ModuleError, ModuleHandle};
 pub use self::runtime::Runtime;
-pub use self::segment::Segment;
+pub use self::segment::{Segment, SegmentName};
 
 use crate::rel::version::{get_file_version, FileVersionError, Version};
 use std::sync::{atomic::Ordering, LazyLock, RwLock, RwLockWriteGuard, TryLockResult};
@@ -143,26 +143,42 @@ impl Module {
         }
     }
 
-    /// Gets a specific memory segment by [`Name`].
+    /// Gets a specific memory segment by [`SegmentName`].
     ///
     /// # Example
+    ///
     /// ```no_run
-    /// use commonlibsse_ng::rel::module::{Module, Name};
+    /// use commonlibsse_ng::rel::module::{Module, SegmentName};
     ///
     /// let module = Module::init();
-    /// let text_segment = module.segment(Name::Textx);
+    /// let text_segment = module.segment(SegmentName::Textx);
     /// ```
-    ///
-    /// [`Name`]: commonlibsse_ng::rel::module::segment#Name
     #[inline]
-    pub const fn segment(&self, name: segment::Name) -> Segment {
+    pub const fn segment(&self, name: SegmentName) -> Segment {
         self.segments[name as usize]
     }
 
     /// Resets the module instance, clearing its internal state.
     ///
+    /// This function resets the state of the object by:
+    /// - Disables the module handle.
+    /// - Clearing file path and filename.
+    /// - Resetting runtime to `Runtime::Ae`.
+    /// - Resetting segments to default values.
+    /// - Resetting version to the default version.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// use commonlibsse_ng::rel::module::Module;
+    ///
+    /// Module::reset();
+    /// // The module's internal state is now cleared
+    /// ```
+    ///
     /// # Error log
     /// log if the global module lock is poisoned.
+    ///
+    /// [`FreeLibrary`]: https://learn.microsoft.com/windows/win32/api/libloaderapi/nf-libloaderapi-freelibrary
     #[inline]
     pub fn reset() {
         if let Err(err) = MODULE.write().map(|mut instance| {
@@ -259,35 +275,12 @@ impl Module {
         Ok((version, runtime))
     }
 
-    /// Clears the internal state of the object.
-    ///
-    /// This function resets the state of the object by:
-    /// - Releasing any allocated resources (like the injected module) using the [`FreeLibrary`]function.
-    /// - Clearing file path and filename.
-    /// - Resetting runtime to `Runtime::Ae`.
-    /// - Resetting segments to default values.
-    /// - Resetting version to the default version.
-    ///
-    /// # Examples
-    /// ```no_run
-    /// use commonlibsse_ng::rel::module::Module;
-    ///
-    /// let mut module = Module::new();
-    /// // Initialize the module with some state
-    /// module.clear();
-    /// // The module's internal state is now cleared
-    /// ```
-    ///
-    /// [`FreeLibrary`]: windows::Win32::Foundation#FreeLibrary
-    pub fn clear(&mut self) {
+    fn clear(&mut self) {
         // if let Some(module) = self.injected_module {
         //     unsafe { FreeLibrary(module) };
         //     self.injected_module = None;
         // }
-        if let Some(module) = self.base.take() {
-            use windows::core::Free;
-            unsafe { module.to_hmodule().free() };
-        }
+        self.base = None;
         self.file_path.clear();
         self.filename = windows::core::HSTRING::default();
         self.runtime = Runtime::Ae;
