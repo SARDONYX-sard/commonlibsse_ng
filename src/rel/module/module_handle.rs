@@ -1,13 +1,20 @@
-// NOTE: If we implement `Drop` in ModuleHandle and call FreeLibrary in it, it will overflow the stack.
+// C++ Original code
+// - https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/include/REL/Module.h
+// - load_segments, clear: https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/src/REL/Module.cpp
+// SPDX-FileCopyrightText: (C) 2018 Ryan-rsm-McKenzie
+// SPDX-License-Identifier: MIT
+//
+// SPDX-FileCopyrightText: (C) 2025 SARDONYX
+// SPDX-License-Identifier: Apache-2.0 OR MI
 
+// NOTE: If we implement `Drop` in ModuleHandle and call FreeLibrary in it, it will overflow the stack.
+//
 /// Wrapper type to safely hold and handle valid handle addresses provided by `GetModuleHandleW`.
 ///
 /// # Unsafe this implementation
 /// The module handle is the start of the exe, but if you don't know the end, you don't know how far is the valid memory range.
 /// The current implementation could crash at any time.
 /// It holds void ptr internally, but can be handled null-safely by getter by method.
-///
-/// TODO: has valid size.
 ///
 /// # Why not use `HMODULE` as it is?
 /// It is not thread-safe as it is because it holds raw_pointer.

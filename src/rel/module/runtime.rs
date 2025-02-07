@@ -1,3 +1,12 @@
+// C++ Original code
+// - https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/include/REL/Module.h
+// - load_segments, clear: https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/src/REL/Module.cpp
+// SPDX-FileCopyrightText: (C) 2018 Ryan-rsm-McKenzie
+// SPDX-License-Identifier: MIT
+//
+// SPDX-FileCopyrightText: (C) 2025 SARDONYX
+// SPDX-License-Identifier: Apache-2.0 OR MI
+
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Runtime {
     /// Unknown runtime
