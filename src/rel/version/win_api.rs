@@ -55,18 +55,20 @@ pub fn get_file_version(filename: &str) -> Result<Version, FileVersionError> {
         });
     }
 
-    let ver_str = unsafe {
+    let ver_str = {
         let buf_void_ptr = buf.as_mut_ptr().cast();
         let query_path = windows::core::h!("\\StringFileInfo\\040904B0\\ProductVersion"); // NOTE: assumed 040904B0(US English, Unicode
         let mut ver_buf = ptr::null_mut();
         let mut ver_len: u32 = 0;
-        if VerQueryValueW(buf_void_ptr, query_path, &mut ver_buf, &mut ver_len).as_bool() == false {
+        if unsafe { VerQueryValueW(buf_void_ptr, query_path, &mut ver_buf, &mut ver_len) }.as_bool()
+            == false
+        {
             return Err(FileVersionError::VersionQuery {
                 filename: filename.to_string(),
             });
         }
 
-        let slice = core::slice::from_raw_parts(ver_buf as *const u16, ver_len as usize);
+        let slice = unsafe { core::slice::from_raw_parts(ver_buf as *const u16, ver_len as usize) };
         String::from_utf16_lossy(slice)
     };
 
