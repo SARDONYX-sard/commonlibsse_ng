@@ -7,11 +7,14 @@
     "ctypes",
     "declspec",
     "HSTRING",
+    "lfanew",
     "MSVC",
     "nextest",
+    "repr",
     "reqwest",
     "SKSE",
     "Skyrim",
+    "splwow",
     "steamapps",
     "vcpkg"
   ]
