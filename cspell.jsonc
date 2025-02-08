@@ -14,8 +14,10 @@
     "MSVC",
     "msvcrt",
     "nextest",
+    "PCWSTR",
     "pdata",
     "rdata",
+    "READWRITE",
     "repr",
     "reqwest",
     "SKSE",
@@ -24,6 +26,8 @@
     "steamapps",
     "Textw",
     "Textx",
+    "ularge",
+    "unmaps",
     "vcpkg"
   ]
 }

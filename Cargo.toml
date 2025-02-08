@@ -14,6 +14,7 @@ snafu = { version = "0.8.5" }                     # To define error types.
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.59.0", features = [
   "Win32",
+  "Win32_Security",
   "Win32_Storage",
   "Win32_Storage_FileSystem",
   "Win32_System",
@@ -21,6 +22,7 @@ windows = { version = "0.59.0", features = [
   "Win32_System_Diagnostics_Debug",
   "Win32_System_Environment",
   "Win32_System_LibraryLoader",
+  "Win32_System_Memory",
   "Win32_System_ProcessStatus",
   "Win32_System_SystemInformation",
   "Win32_System_SystemServices",

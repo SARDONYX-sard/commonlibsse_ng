@@ -4,6 +4,7 @@
 #![allow(non_upper_case_globals)]
 
 pub mod rel;
+pub mod rex;
 pub mod skse;
 
 /// FFI
