@@ -43,7 +43,7 @@ impl ModuleHandle {
     /// # Errors
     /// - Errors if a module is specified that is not loaded by the calling process.
     /// - If the specified module handle could not be obtained.
-    pub fn new<H>(module_name: H) -> Result<Self, ModuleError>
+    pub fn new<H>(module_name: H) -> Result<Self, ModuleHandleError>
     where
         H: windows::core::Param<windows::core::PCWSTR>,
     {
@@ -75,7 +75,7 @@ impl ModuleHandle {
 
         // If it is null, it is not null because of an error in the previous Result.
         // Therefore, we use `.unwrap()`.
-        let handle = NonZeroUsize::new(handle.0 as usize).ok_or(ModuleError::NullHandle)?;
+        let handle = NonZeroUsize::new(handle.0 as usize).ok_or(ModuleHandleError::NullHandle)?;
         Ok(Self(handle))
     }
 
@@ -100,7 +100,8 @@ impl ModuleHandle {
     /// When fail to parse as valid header.
     pub fn try_as_nt_header(
         &self,
-    ) -> Result<&windows::Win32::System::Diagnostics::Debug::IMAGE_NT_HEADERS64, ModuleError> {
+    ) -> Result<&windows::Win32::System::Diagnostics::Debug::IMAGE_NT_HEADERS64, ModuleHandleError>
+    {
         use windows::Win32::System::Diagnostics::Debug::IMAGE_NT_HEADERS64;
         use windows::Win32::System::SystemServices::{
             IMAGE_DOS_HEADER, IMAGE_DOS_SIGNATURE, IMAGE_NT_SIGNATURE,
@@ -117,7 +118,7 @@ impl ModuleHandle {
             // (inverted with little endian by u16 and containing 0x5a4d) from the designer's name.
             let dos_magic = dos_header.e_magic;
             if dos_magic != IMAGE_DOS_SIGNATURE {
-                return Err(ModuleError::InvalidDosHeaderSignature { actual: dos_magic });
+                return Err(ModuleHandleError::InvalidDosHeaderSignature { actual: dos_magic });
             }
 
             dos_header.e_lfanew as usize
@@ -136,16 +137,16 @@ impl ModuleHandle {
         if nt_signature == IMAGE_NT_SIGNATURE {
             Ok(nt_header)
         } else {
-            Err(ModuleError::InvalidNtHeader64Signature {
+            Err(ModuleHandleError::InvalidNtHeader64Signature {
                 actual: nt_signature,
             })
         }
     }
 }
 
-/// Error types for module operations.
+/// Error types for module handle operations.
 #[derive(Debug, snafu::Snafu)]
-pub enum ModuleError {
+pub enum ModuleHandleError {
     /// Invalid module handle.
     NullHandle,
 

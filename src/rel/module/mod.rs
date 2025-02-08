@@ -15,7 +15,7 @@ mod module_handle;
 mod runtime;
 mod segment;
 
-pub use self::module_handle::{ModuleError, ModuleHandle};
+pub use self::module_handle::{ModuleHandle, ModuleHandleError};
 pub use self::runtime::Runtime;
 pub use self::segment::{Segment, SegmentName};
 
@@ -221,7 +221,7 @@ impl Module {
         self.get_runtime() == Runtime::Vr
     }
 
-    fn load_segments(module_handle: &ModuleHandle) -> Result<[Segment; 8], ModuleError> {
+    fn load_segments(module_handle: &ModuleHandle) -> Result<[Segment; 8], ModuleHandleError> {
         use windows::Win32::System::Diagnostics::Debug::{
             IMAGE_NT_HEADERS64, IMAGE_SECTION_HEADER,
         };
