@@ -93,9 +93,6 @@ impl ModuleHandle {
 
     /// Attempt to parse NT Header part.
     ///
-    /// # Lifetime
-    /// The reference is invalid if the module handle itself is dropped because it refers to the subsequent address of the module handle.
-    ///
     /// # Errors
     /// When fail to parse as valid header.
     pub fn try_as_nt_header(

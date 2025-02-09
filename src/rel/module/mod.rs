@@ -104,6 +104,10 @@ impl Module {
         // buffer size: https://github.com/search?q=repo%3Arust-lang%2Frust%20GetEnvironmentVariableW&type=code
         let mut filename = vec![0; windows::Win32::Foundation::MAX_PATH as usize]; // MAX 260
 
+        // FIXME: The original implementation skips getting ModuleHandle if the value is available from SKSE_RUNTIME,
+        //        but I am not sure of the intent of that implementation.
+        // I think it would be appropriate to remove the SKSE_RUNTIME search process and just search ModuleHandle.
+        //
         // - fn ref: https://learn.microsoft.com/windows/win32/api/processenv/nf-processenv-getenvironmentvariablew
         let filename_len =
             unsafe { GetEnvironmentVariableW(h!("SKSE_RUNTIME"), Some(&mut filename)) } as usize;
@@ -111,6 +115,7 @@ impl Module {
         let mut filename = HSTRING::from_wide(&filename);
         let mut module_handle = None;
         let is_failed = filename_len != filename.len() - 1 || filename_len == 0;
+
         if is_failed {
             for runtime in Self::RUNTIMES {
                 if let Ok(new_handle) = ModuleHandle::new(runtime) {
