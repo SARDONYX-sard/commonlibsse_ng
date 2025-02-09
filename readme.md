@@ -8,6 +8,10 @@ See [test results](./test_results.txt)
 commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "7378d43" }
 ```
 
+## Manual implementation
+
+- [api docs](https://commonlibsse-ng-docs-rs.netlify.app/commonlibsse_ng/)
+
 ## Licenses
 
 - [SkyrimOutfitSystemSE](https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE): `commonlibsse_ng` Rust code

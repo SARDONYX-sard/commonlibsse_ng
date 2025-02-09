@@ -18,6 +18,7 @@
     "pdata",
     "rdata",
     "READWRITE",
+    "reimplementation",
     "repr",
     "reqwest",
     "SKSE",
