@@ -39,9 +39,9 @@ zip-extract = { version = "0.2.1", optional = true }
 default = ["prebuilt"]
 
 # Get the pre-built header files and libs from the URL. (zip: 160MB, Extracted: 600MB, Timeout: 30mins)
-prebuilt = ["dep:reqwest", "dep:zip-extract"]
+prebuilt = ["dep:reqwest", "dep:zip-extract", "win_apt"]
 # Use vcpkg to build C++ and get headers and libs
-vcpkg = []
+vcpkg = ["win_apt"]
 
 # Generate binding(For crate maintainer)
 generate = ["dep:bindgen"]
