@@ -34,7 +34,6 @@ impl MemoryMap {
     ///
     /// let memory_map = MemoryMap::new();
     /// ```
-    #[allow(clippy::new_without_default)]
     pub const fn new() -> Self {
         Self {
             mapping: windows::Win32::Foundation::HANDLE(core::ptr::null_mut()),
@@ -190,6 +189,13 @@ impl MemoryMap {
         }
 
         Ok(())
+    }
+}
+
+impl Default for MemoryMap {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
     }
 }
 
