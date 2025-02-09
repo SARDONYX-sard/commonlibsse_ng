@@ -29,6 +29,9 @@ impl Header {
     /// # Example
     ///
     /// ```rust
+    /// use commonlibsse_ng::rel::id::Header;
+    /// use commonlibsse_ng::rel::version::Version;
+    ///
     /// let header = Header::new(Version::new(1, 5, 97, 0), 8, 778674);
     /// assert_eq!(header.pointer_size(), 8);
     /// ```
@@ -81,7 +84,7 @@ impl Header {
     ///
     /// let mut cursor = Cursor::new(binary_data);
     /// let header = Header::from_reader(&mut cursor, 1).expect("Failed to read header");
-    /// assert_eq!(header.version(), Version::new(1, 5, 97, 0));
+    /// assert_eq!(header.version, Version::new(1, 5, 97, 0));
     /// assert_eq!(header.pointer_size(), 8);
     /// assert_eq!(header.address_count(), 778674);
     /// ```
@@ -160,6 +163,7 @@ impl Header {
     ///
     /// ```rust
     /// use commonlibsse_ng::rel::id::Header;
+    /// use commonlibsse_ng::rel::version::Version;
     ///
     /// let header = Header::new(Version::new(1, 5, 97, 0), 8, 778674);
     /// assert_eq!(header.address_count(), 778674);
@@ -174,6 +178,7 @@ impl Header {
     ///
     /// ```rust
     /// use commonlibsse_ng::rel::id::Header;
+    /// use commonlibsse_ng::rel::version::Version;
     ///
     /// let header = Header::new(Version::new(1, 5, 97, 0), 8, 778674);
     /// assert_eq!(header.pointer_size(), 8);
