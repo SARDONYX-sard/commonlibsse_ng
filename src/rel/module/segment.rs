@@ -7,6 +7,8 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+//! Defines segment(e.g. `.text`) types.
+
 /// Represents a memory segment in a module.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Segment {

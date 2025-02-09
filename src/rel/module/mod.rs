@@ -6,75 +6,145 @@
 //
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
-//! Module handling library for Skyrim SE/AE/VR .
-//!
-//! This module provides functionality to interact with loaded modules (executables and DLLs),
-//! extract segment information, and parse NT headers.
 
+//! Module handling library for Skyrim SE/AE/VR .
+
+mod module_core;
 mod module_handle;
 mod runtime;
 mod segment;
 
+pub use self::module_core::{Module, ModuleInitError};
 pub use self::module_handle::{ModuleHandle, ModuleHandleError};
 pub use self::runtime::Runtime;
 pub use self::segment::{Segment, SegmentName};
 
-use crate::rel::version::{get_file_version, FileVersionError, Version};
-use std::sync::{atomic::Ordering, LazyLock, RwLock, RwLockWriteGuard, TryLockResult};
-use windows::Win32::System::Diagnostics::Debug::{
-    IMAGE_SCN_MEM_EXECUTE, IMAGE_SCN_MEM_WRITE, IMAGE_SECTION_CHARACTERISTICS,
-};
+use std::sync::atomic::AtomicBool;
+use std::sync::{LazyLock, RwLock, RwLockReadGuard, RwLockWriteGuard, TryLockResult};
 
-/// Represents a loaded module in memory.
+/// Clear flag separated from singleton instances to avoid taking locks unnecessarily.
+static IS_CLEARED: AtomicBool = AtomicBool::new(false);
+static MODULE: LazyLock<RwLock<ModuleState>> = LazyLock::new(|| RwLock::new(ModuleState::init()));
+
+/// Represents the state of the module.
+///
+/// This enum implements an API to manage a single global variable of internally managed module (e.g. `SkyrimSE.exe`) information.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Module {
-    /// Name of the module. (e.g. `"SkyrimSE.exe"`)
-    pub filename: windows::core::HSTRING,
-    /// File path of the module. (e.g. `"SkyrimSE.exe"`)
-    pub file_path: String,
-    /// Memory segments of the module.
-    segments: [Segment; 8],
-    /// Version information of the module.
-    pub version: Version,
-    /// Base module handle if available.
-    pub base: Option<ModuleHandle>,
-    /// Runtime type of the module.
-    pub runtime: Runtime,
+pub enum ModuleState {
+    /// The module is successfully initialized and active.
+    Active(Module),
+
+    /// The module instance has been explicitly cleared and memory has been freed.
+    Cleared,
+
+    /// The module failed to initialize.
+    FailedInit(ModuleInitError),
 }
 
-static IS_CLEARED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
-static MODULE: LazyLock<RwLock<Module>> = LazyLock::new(|| RwLock::new(Module::init()));
+impl ModuleState {
+    /// Initialize the module.
+    fn init() -> Self {
+        match Module::init() {
+            Ok(module) => Self::Active(module),
+            Err(err) => Self::FailedInit(err),
+        }
+    }
 
-impl Module {
-    const SEGMENTS: [(&str, IMAGE_SECTION_CHARACTERISTICS); 8] = [
-        (".text", IMAGE_SCN_MEM_EXECUTE),
-        (".idata", IMAGE_SECTION_CHARACTERISTICS(0)),
-        (".rdata", IMAGE_SECTION_CHARACTERISTICS(0)),
-        (".data", IMAGE_SECTION_CHARACTERISTICS(0)),
-        (".pdata", IMAGE_SECTION_CHARACTERISTICS(0)),
-        (".tls", IMAGE_SECTION_CHARACTERISTICS(0)),
-        (".text", IMAGE_SCN_MEM_WRITE),
-        (".gfids", IMAGE_SECTION_CHARACTERISTICS(0)),
-    ];
-
-    const RUNTIMES: [&'static windows::core::HSTRING; 2] = [
-        // Use `msvcrt.dll` for testing since the dll is always US English and
-        // always loaded in the msvc target when the test is run.
-        #[cfg(feature = "debug")]
-        windows::core::h!("msvcrt.dll"),
-        #[cfg(not(feature = "debug"))]
-        windows::core::h!("SkyrimSE.exe"),
-        windows::core::h!("SkyrimVR.exe"),
-    ];
-
-    // static mut INSTANCE: Option<Module> = None;
-    // static INIT_LOCK: Lazy<Mutex<()>> = Lazy::new(||Mutex::new(()));
-
-    /// Get mutable singleton instance.
+    /// Attempts to retrieve a read-only reference to the current module state.
+    ///
+    /// It is better to call [`Clone::clone`] and drop the `guard` than to lock for a long time.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::rel::module::ModuleState;
+    ///
+    /// match ModuleState::get() {
+    ///     Ok(guard) => match &*guard { // <- It is locked during this block scope.
+    ///         ModuleState::Active(module) => {
+    ///             println!("Module version: {}", module.version);
+    ///         }
+    ///         ModuleState::Cleared => println!("Module has been reset."),
+    ///         ModuleState::FailedInit(module_init_error) => {
+    ///             tracing::error!("Failed to initialize module: {module_init_error}");
+    ///         }
+    ///         // unlocked by guard
+    ///     },
+    ///     Err(lock_err) => tracing::error!("Failed to lock. {lock_err}"),
+    /// };
+    /// ```
+    ///
+    /// # Example(Long time reading)
+    ///
+    /// If we read the information of a module for a long time we should [`Drop::drop`].
+    ///
+    /// Q. Is the address of the Module singleton valid in that case?
+    ///
+    /// A. This is valid unless someone in the current process is calling `FreeLibrary`(Win32 API) unnaturally for `SKSE`, `SkyrimSE.exe`, etc.
+    ///    And there is no call to `FreeLibrary` in the Module singleton.
+    ///
+    /// ```
+    /// use commonlibsse_ng::rel::module::{ModuleState, Runtime};
+    ///
+    /// // This time we clone the information to read the module information for a long time
+    /// // and immediately let go of the guard.
+    /// let module_state = match ModuleState::get() {
+    ///     Ok(guard) => guard.clone(), // Auto unlock by `Drop::drop`
+    ///     Err(lock_err) => {
+    ///         tracing::error!("RwLock is poisoned: {lock_err}");
+    ///         return;
+    ///     }
+    /// };
+    ///
+    /// if let ModuleState::Active(module) = module_state {
+    ///    // Some kind of prolonged processing. (Reproduced in sleep in the example)
+    ///    std::thread::sleep(std::time::Duration::from_secs(2));
+    ///
+    ///    assert_eq!(module.runtime, Runtime::Se);
+    ///    tracing::info!("Module version: {}", module.version);
+    /// }
+    /// ```
     ///
     /// # Errors
-    /// If the caller who obtained the lock panics.
+    /// If the thread that had previously acquired a lock on the singleton instance panics(i.e. poisoned), an error is returned.
+    pub fn get() -> TryLockResult<RwLockReadGuard<'static, Self>> {
+        MODULE.try_read()
+    }
+
+    /// Attempts to retrieve a mutable reference to the active module.
+    ///
+    /// If the module is in the `Cleared` state, it will be reinitialized.
+    ///
+    /// **Note:** If you only want to read the value of a Module, you should use `ModuleState::get`.
+    ///
+    /// Reasons: The `MODULE` singleton uses [`RwLock`], multiple threads can read at the same time if other threads are not using write.
+    ///
+    /// Also, it is better to call [`Clone::clone`] and drop the `guard` than to lock for a long time.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::rel::module::ModuleState;
+    ///
+    /// match ModuleState::get_or_init_mut() {
+    ///     Ok(mut drop_guard) => match &mut *drop_guard {
+    ///         ModuleState::Active(module) => {
+    ///             println!("Module version: {}", module.version);
+    ///             // We can change this value, but be careful when modifying it.
+    ///             module.file_path = "Test".to_string();
+    ///         }
+    ///         ModuleState::Cleared => println!("Module has been reset."),
+    ///         ModuleState::FailedInit(module_init_error) => {
+    ///             tracing::error!("Failed to initialize module: {module_init_error}");
+    ///         }
+    ///     },
+    ///     Err(lock_err) => tracing::error!("Failed to lock. {lock_err}"),
+    /// };
+    /// ```
+    ///
+    /// # Errors
+    /// If the thread that had previously acquired a lock on the singleton instance panics(i.e. poisoned), an error is returned.
     pub fn get_or_init_mut() -> TryLockResult<RwLockWriteGuard<'static, Self>> {
+        use core::sync::atomic::Ordering;
+
         if IS_CLEARED.load(Ordering::Acquire) {
             if let Ok(mut guard) = MODULE.try_write() {
                 *guard = Self::init();
@@ -85,215 +155,25 @@ impl Module {
         MODULE.try_write()
     }
 
-    /// Initializes a new `Module` instance by detecting the currently loaded module.
-    ///
-    /// This method attempts to retrieve the module information from the `SKSE_RUNTIME`
-    /// or fallback to a predefined list of runtime binaries(e.g. `SkyrimSE.exe`).
-    ///
-    /// # Examples
-    /// ```no_run
-    /// use commonlibsse_ng::rel::module::Module;
-    ///
-    /// let module = Module::init();
-    /// println!("Loaded module: {}", module.file_path);
-    /// ```
-    pub fn init() -> Self {
-        use windows::core::{h, HSTRING};
-        use windows::Win32::System::Environment::GetEnvironmentVariableW;
-
-        // buffer size: https://github.com/search?q=repo%3Arust-lang%2Frust%20GetEnvironmentVariableW&type=code
-        let mut filename = vec![0; windows::Win32::Foundation::MAX_PATH as usize]; // MAX 260
-
-        // FIXME: The original implementation skips getting ModuleHandle if the value is available from SKSE_RUNTIME,
-        //        but I am not sure of the intent of that implementation.
-        // I think it would be appropriate to remove the SKSE_RUNTIME search process and just search ModuleHandle.
-        //
-        // - fn ref: https://learn.microsoft.com/windows/win32/api/processenv/nf-processenv-getenvironmentvariablew
-        let filename_len =
-            unsafe { GetEnvironmentVariableW(h!("SKSE_RUNTIME"), Some(&mut filename)) } as usize;
-
-        let mut filename = HSTRING::from_wide(&filename);
-        let mut module_handle = None;
-        let is_failed = filename_len != filename.len() - 1 || filename_len == 0;
-
-        if is_failed {
-            for runtime in Self::RUNTIMES {
-                if let Ok(new_handle) = ModuleHandle::new(runtime) {
-                    filename = runtime.clone();
-                    module_handle = Some(new_handle);
-                    break;
-                }
-            }
-        };
-
-        let file_path = filename.to_string();
-        let mut segments = None;
-        let (version, runtime) = module_handle
-            .as_ref()
-            .map_or((None, None), |module_handle| {
-                segments = Self::load_segments(module_handle).ok();
-                match Self::load_version(&file_path) {
-                    Ok((new_version, new_runtime)) => (Some(new_version), Some(new_runtime)),
-                    Err(_err) => (None, None),
-                }
-            });
-
-        Self {
-            filename,
-            file_path,
-            segments: segments.unwrap_or_default(),
-            version: version.unwrap_or(Version::const_default()),
-            base: module_handle,
-            runtime: runtime.unwrap_or_default(),
-        }
-    }
-
-    /// Gets a specific memory segment by [`SegmentName`].
+    /// Clears the module, transitioning it to the `Cleared` state.
     ///
     /// # Example
-    ///
-    /// ```no_run
-    /// use commonlibsse_ng::rel::module::{Module, SegmentName};
-    ///
-    /// let module = Module::init();
-    /// let text_segment = module.segment(SegmentName::Textx);
     /// ```
-    #[inline]
-    pub const fn segment(&self, name: SegmentName) -> Segment {
-        self.segments[name as usize]
-    }
-
-    /// Resets the module instance, clearing its internal state.
+    /// use commonlibsse_ng::rel::module::ModuleState;
     ///
-    /// This function resets the state of the object by:
-    /// - Disables the module handle.
-    /// - Clearing file path and filename.
-    /// - Resetting runtime to `Runtime::Ae`.
-    /// - Resetting segments to default values.
-    /// - Resetting version to the default version.
-    ///
-    /// # Examples
-    /// ```no_run
-    /// use commonlibsse_ng::rel::module::Module;
-    ///
-    /// Module::reset();
-    /// // The module's internal state is now cleared
+    /// assert!(ModuleState::reset().is_ok());
     /// ```
     ///
-    /// # Error log
-    /// log if the global module lock is poisoned.
-    ///
-    /// [`FreeLibrary`]: https://learn.microsoft.com/windows/win32/api/libloaderapi/nf-libloaderapi-freelibrary
-    #[inline]
-    pub fn reset() {
-        if let Err(err) = MODULE.write().map(|mut instance| {
-            instance.clear();
-        }) {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Couldn't clear MODULE instance.{err}");
-        };
-    }
-
-    /// Returns the runtime type of the module.
-    ///
-    /// # Examples
-    /// ```no_run
-    /// use commonlibsse_ng::rel::module::Module;
-    ///
-    /// let module = Module::init();
-    /// println!("Runtime: {:?}", module.get_runtime()); // e.g. Runtime::Se
-    /// ```
-    #[inline]
-    pub const fn get_runtime(&self) -> Runtime {
-        self.runtime
-    }
-
-    /// Is the current Skyrim runtime the Anniversary Edition (AE)?
-    #[inline]
-    pub fn is_ae(&self) -> bool {
-        self.get_runtime() == Runtime::Ae
-    }
-
-    /// Is the current Skyrim runtime the Special Edition (SE).
-    #[inline]
-    pub fn is_se(&self) -> bool {
-        self.get_runtime() == Runtime::Se
-    }
-
-    /// Is the current Skyrim runtime the VR version?
-    #[inline]
-    pub fn is_vr(&self) -> bool {
-        self.get_runtime() == Runtime::Vr
-    }
-
-    fn load_segments(module_handle: &ModuleHandle) -> Result<[Segment; 8], ModuleHandleError> {
-        use windows::Win32::System::Diagnostics::Debug::{
-            IMAGE_NT_HEADERS64, IMAGE_SECTION_HEADER,
-        };
-
-        let nt_header = module_handle.try_as_nt_header()?;
-        let section_header_offset = {
-            let optional_header_offset = core::mem::offset_of!(IMAGE_NT_HEADERS64, OptionalHeader);
-            optional_header_offset + nt_header.FileHeader.SizeOfOptionalHeader as usize
-        };
-
-        let section = ((nt_header as *const _ as usize) + section_header_offset)
-            as *const IMAGE_SECTION_HEADER;
-        let section_len = core::cmp::min(
-            nt_header.FileHeader.NumberOfSections,
-            Self::SEGMENTS.len() as u16,
-        );
-
-        let mut segments = [Segment::default(); 8];
-        for i in 0..section_len {
-            let current_section = unsafe { &*section.add(i as usize) };
-
-            let maybe_found = Self::SEGMENTS.iter().enumerate().find(|(_, elem)| {
-                let maybe_ascii = core::str::from_utf8(&current_section.Name);
-                maybe_ascii.is_ok_and(|section_name| {
-                    elem.0 != section_name
-                        && ((current_section.Characteristics & elem.1)
-                            != IMAGE_SECTION_CHARACTERISTICS(0))
-                })
-            });
-
-            if let Some((idx, _)) = maybe_found {
-                segments[idx] = Segment::new(
-                    module_handle.as_raw(),
-                    current_section.VirtualAddress,
-                    current_section.SizeOfRawData,
-                );
-            }
-        }
-        Ok(segments)
-    }
-
-    #[inline]
-    fn load_version(file_path: &str) -> Result<(Version, Runtime), FileVersionError> {
-        let version = get_file_version(file_path)?;
-        let runtime = match version.minor() {
-            4 => Runtime::Vr,
-            6 => Runtime::Ae,
-            _ => Runtime::Se,
-        };
-
-        Ok((version, runtime))
-    }
-
-    fn clear(&mut self) {
-        // if let Some(module) = self.injected_module {
-        //     unsafe { FreeLibrary(module) };
-        //     self.injected_module = None;
-        // }
-        self.base = None;
-        self.file_path.clear();
-        self.filename = windows::core::HSTRING::default();
-        self.runtime = Runtime::Ae;
-        self.segments = [Segment::new(0, 0, 0); 8];
-        self.version = Version::const_default();
-
-        // ID_DATABASE.lock().unwrap().clear();
-        IS_CLEARED.store(true, std::sync::atomic::Ordering::Release);
+    /// # Errors
+    /// If the thread that had previously acquired a lock on the singleton instance panics, an error is returned.
+    pub fn reset() -> TryLockResult<()> {
+        MODULE
+            .try_write()
+            .map_or(Err(std::sync::TryLockError::WouldBlock), |mut guard| {
+                *guard = Self::Cleared;
+                IS_CLEARED.store(true, std::sync::atomic::Ordering::Release);
+                Ok(())
+            })
     }
 }
 
@@ -302,14 +182,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_module_init() {
-        let module = dbg!(Module::init());
-        assert!(!module.file_path.is_empty());
-    }
-
-    #[test]
     fn test_module_reset() {
-        Module::reset();
+        assert!(ModuleState::reset().is_ok());
         assert!(IS_CLEARED.load(std::sync::atomic::Ordering::Acquire));
     }
 }

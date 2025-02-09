@@ -18,6 +18,8 @@ pub use crate::sys::REL::Version;
 #[cfg(feature = "no_sys")]
 /// Represents a 4-part version number.
 ///
+/// In binding, [`Copy`] is inherited, but it is omitted to avoid implicit copying in for loops, etc.
+///
 /// # Example
 /// ```
 /// use commonlibsse_ng::rel::version::Version;
@@ -25,7 +27,7 @@ pub use crate::sys::REL::Version;
 /// let ver = Version::new(1, 6, 1170, 0);
 /// assert_eq!(ver.major(), 1);
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Version {
     /// Internal representation of the version as a 4-element array.
     ///

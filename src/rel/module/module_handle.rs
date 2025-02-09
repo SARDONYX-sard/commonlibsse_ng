@@ -7,6 +7,11 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MI
 
+//! Module handling library for Skyrim SE/AE/VR .
+//!
+//! This module provides functionality to interact with loaded modules (executables and DLLs),
+//! extract segment information, and parse NT headers.
+
 // NOTE: If we implement `Drop` in ModuleHandle and call FreeLibrary in it, it will overflow the stack.
 //
 /// Wrapper type to safely hold and handle valid handle addresses provided by `GetModuleHandleW`.
@@ -55,7 +60,9 @@ impl ModuleHandle {
         let handle =
             unsafe { GetModuleHandleW(module_name) }.with_context(|_| HandleNotFoundSnafu)?;
 
-        // TODO: size of module
+        // TODO: size of module(However, it incurs the overhead of a function call.
+        //       If the assumption is that the search exe is not faked, it may not be necessary to calculate size.)
+        //
         // let _module_size = {
         //     let mut module_info = windows::Win32::System::ProcessStatus::MODULEINFO::default();
         //     if let Err(err) = unsafe {
@@ -142,7 +149,7 @@ impl ModuleHandle {
 }
 
 /// Error types for module handle operations.
-#[derive(Debug, snafu::Snafu)]
+#[derive(Debug, Clone, PartialEq, Eq, snafu::Snafu)]
 pub enum ModuleHandleError {
     /// Invalid module handle.
     NullHandle,
