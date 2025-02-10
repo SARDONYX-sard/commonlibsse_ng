@@ -49,7 +49,7 @@ impl RelocationID {
     pub fn id(&self) -> Result<u64, crate::rel::module::ModuleStateError> {
         use crate::rel::module::{ModuleState, Runtime};
 
-        let runtime = ModuleState::map_active(|module| module.runtime)?; // derived Copy
+        let runtime = ModuleState::map_or_init(|module| module.runtime)?; // derived Copy
 
         Ok(match runtime {
             Runtime::Unknown => 0,
@@ -65,6 +65,6 @@ impl RelocationID {
     /// Returns an error if the module is in an invalid state.
     #[inline]
     fn base() -> Result<usize, crate::rel::module::ModuleStateError> {
-        crate::rel::module::ModuleState::map_active(|module| module.base.as_raw())
+        crate::rel::module::ModuleState::map_or_init(|module| module.base.as_raw())
     }
 }

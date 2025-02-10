@@ -116,6 +116,9 @@ impl ModuleState {
     /// This function tries to acquire a read lock on the module state and applies
     /// the provided function `f` if the module state is [`ModuleState::Active`].
     ///
+    /// If you do not know when you did the [`Self::reset`], or if you want it to be reinitialized automatically if necessary,
+    /// [`Self::map_or_init`] is useful.
+    ///
     /// # Example
     /// ```
     /// use commonlibsse_ng::rel::module::ModuleState;
@@ -192,6 +195,53 @@ impl ModuleState {
         }
 
         MODULE.try_write()
+    }
+
+    /// Attempts to apply a function to the active module state, initializing it if necessary.
+    ///
+    /// If the module state is `Cleared`, it will be initialized before applying the function `f`.
+    /// This function also attempts a read lock first and falls back to initialization only if needed.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::rel::module::ModuleState;
+    ///
+    /// let result = ModuleState::map_or_init(|module| module.version.clone());
+    /// match result {
+    ///     Ok(version) => println!("Module version: {}", version),
+    ///     Err(err) => eprintln!("Error: {:?}", err),
+    /// }
+    /// ```
+    ///
+    /// # Errors
+    /// Returns an error if:
+    /// - The module state is [`ModuleState::FailedInit`], in which case the initialization error is propagated.
+    /// - The internal lock is poisoned.
+    pub fn map_or_init<F, T>(f: F) -> Result<T, ModuleStateError>
+    where
+        F: FnOnce(&Module) -> T,
+    {
+        if let Ok(guard) = MODULE.try_read() {
+            if let Self::Active(module) = &*guard {
+                return Ok(f(module));
+            }
+        }
+
+        let mut guard = MODULE
+            .try_write()
+            .map_err(|_| ModuleStateError::ModuleLockIsPoisoned)?;
+
+        if matches!(&*guard, Self::Cleared | Self::FailedInit(_)) {
+            *guard = Self::init();
+        }
+
+        match &*guard {
+            Self::Active(module) => Ok(f(module)),
+            Self::Cleared => Err(ModuleStateError::ModuleHasBeenCleared),
+            Self::FailedInit(module_init_error) => Err(ModuleStateError::FailedInit {
+                source: module_init_error.clone(),
+            }),
+        }
     }
 
     /// Clears the module, transitioning it to the `Cleared` state.

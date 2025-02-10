@@ -52,7 +52,7 @@ impl IdDatabase {
     fn load() -> Result<Self, DataBaseLoaderError> {
         use crate::rel::module::{ModuleState, Runtime};
 
-        let (version, runtime) = ModuleState::map_active(|module| {
+        let (version, runtime) = ModuleState::map_or_init(|module| {
             let version = module.version.clone();
             let runtime = module.runtime;
             (version, runtime)

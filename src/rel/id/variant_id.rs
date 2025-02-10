@@ -40,7 +40,7 @@ impl VariantID {
     pub fn offset(&self) -> Result<usize, DataBaseLoaderError> {
         use crate::rel::module::{ModuleState, Runtime};
 
-        let runtime = ModuleState::map_active(|module| module.runtime)?; // derived Copy
+        let runtime = ModuleState::map_or_init(|module| module.runtime)?; // derived Copy
 
         let id = match runtime {
             Runtime::Unknown => 0,
@@ -58,6 +58,6 @@ impl VariantID {
     /// Returns an error if the module is in an invalid state.
     #[inline]
     fn base() -> Result<usize, crate::rel::module::ModuleStateError> {
-        crate::rel::module::ModuleState::map_active(|module| module.base.as_raw())
+        crate::rel::module::ModuleState::map_or_init(|module| module.base.as_raw())
     }
 }
