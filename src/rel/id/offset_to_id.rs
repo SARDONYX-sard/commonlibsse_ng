@@ -10,7 +10,7 @@
 //! The mapping is backed by a sorted vector for quick binary search.
 
 use super::id_database::ID_DATABASE;
-use super::memory_map::MemoryMapCastError;
+use super::memory_map::MemoryMapCastSizeError;
 use super::Mapping;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -30,7 +30,7 @@ impl OffsetToID {
     /// # Note
     /// Parse the binary table of bin data in `AddressLibrary` and arrange the offset/id pair structures in order of offset,
     /// noting that a call to [`Clone::clone`] is made to prevent sort from destroying the existing table.
-    pub fn new() -> Result<Self, MemoryMapCastError> {
+    pub fn new() -> Result<Self, MemoryMapCastSizeError> {
         let mut offset_to_id = ID_DATABASE.mem_map.as_mapping_slice()?.to_vec();
         offset_to_id.sort_by(|a, b| a.offset.cmp(&b.offset));
         Ok(Self { offset_to_id })

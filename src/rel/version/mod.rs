@@ -94,7 +94,7 @@ impl Version {
     ///
     /// assert_eq!(
     ///     Version::const_from_str("1.2.3.4.5"),
-    ///     Err(VersionParseError::TooManyParts { parts: 4 })
+    ///     Err(VersionParseError::TooManyParts { parts: 4 }) // 0 based index. got 5 length
     /// );
     /// assert_eq!(
     ///     Version::const_from_str("1.2.f.4.5"),

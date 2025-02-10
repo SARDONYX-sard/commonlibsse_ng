@@ -4,6 +4,14 @@
 // SPDX-FileCopyrightText: (C) 2018 Ryan-rsm-McKenzie
 // SPDX-License-Identifier: MIT
 
+//! This module provides functionality for loading and managing an ID-to-offset mapping
+//! from a binary address library. It is primarily used to resolve function or data
+//! addresses based on their ID values.
+//!
+//! The ID database is loaded from a precompiled binary file that is versioned based
+//! on the runtime environment and module state. This ensures compatibility between
+//! different versions of the script extender and the game runtime.
+
 use super::byte_reader::{read_le_u16, read_le_u32, read_le_u64, read_u8};
 use super::header::Header;
 use super::memory_map::MemoryMap;
@@ -13,15 +21,22 @@ use snafu::ResultExt as _;
 use std::io::Read;
 use std::sync::LazyLock;
 
+/// Global static instance of `IdDatabase` initialized lazily.
+/// This ensures the database is only loaded when needed.
 pub(super) static ID_DATABASE: LazyLock<IdDatabase> = LazyLock::new(|| IdDatabase::load().unwrap());
 
+/// Represents a database of ID-to-offset mappings loaded from an address library binary file.
 pub struct IdDatabase {
+    /// Memory-mapped storage of the ID database.
     pub(super) mem_map: MemoryMap,
 }
 
 impl IdDatabase {
+    /// Retrieves the offset corresponding to the given ID.
+    ///
     /// # Errors
-    pub fn id_to_offset(&self, id: u64) -> Result<usize, DataBaseLoaderError> {
+    /// Returns an error if the ID is not found in the database.
+    pub(super) fn id_to_offset(&self, id: u64) -> Result<usize, DataBaseLoaderError> {
         let slice = self.mem_map.as_mapping_slice()?;
         slice.binary_search_by(|m| m.id.cmp(&id)).map_or_else(
             |_| Err(DataBaseLoaderError::NotFoundId { id }),
@@ -29,34 +44,19 @@ impl IdDatabase {
         )
     }
 
-    pub fn is_ver_address_library_at_least_version(minimal_vr_address_lib_version: &str) {
-        let _ = minimal_vr_address_lib_version;
-        todo!()
-    }
-
+    /// Loads the ID database from the appropriate binary file based on the module state.
+    ///
     /// # Errors
+    /// Returns an error if the module state is invalid, the file cannot be read,
+    /// or if the data is not properly formatted.
     fn load() -> Result<Self, DataBaseLoaderError> {
         use crate::rel::module::{ModuleState, Runtime};
 
-        let (version, runtime) = match ModuleState::get() {
-            Ok(guard) => match &*guard {
-                ModuleState::Active(module) => {
-                    let version = module.version.clone();
-                    let runtime = module.runtime;
-                    drop(guard);
-                    (version, runtime)
-                }
-                ModuleState::Cleared => {
-                    return Err(DataBaseLoaderError::MappingCreationFailed);
-                }
-                ModuleState::FailedInit(module_init_error) => {
-                    return Err(DataBaseLoaderError::FailedInit {
-                        source: module_init_error.clone(),
-                    })
-                }
-            },
-            Err(_poison_err) => return Err(DataBaseLoaderError::ModuleLockIsPoisoned),
-        };
+        let (version, runtime) = ModuleState::map_active(|module| {
+            let version = module.version.clone();
+            let runtime = module.runtime;
+            (version, runtime)
+        })?;
 
         let is_ae = runtime == Runtime::Ae;
         let path = {
@@ -68,9 +68,9 @@ impl IdDatabase {
         Self::load_bin_file(&path, version, expected_fmt_ver)
     }
 
-    /// Read a binary file from the given path.
+    /// Reads and parses the ID database binary file.
     ///
-    /// - `expected_fmt_ver`: Expected AddressLibrary format version. SE/VR: 1, AE: 1
+    /// - `expected_fmt_ver`: Expected AddressLibrary format version. SE/VR: 1, AE: 2
     ///
     /// # Errors
     /// - If the specified path does not exist.
@@ -119,11 +119,11 @@ impl IdDatabase {
         Ok(Self { mem_map })
     }
 
-    /// Add the parsed data of `AddressLibrary` to `MemoryMap`.
+    /// Unpacks the ID database from the binary file and writes it into the memory map.
     ///
     /// # Errors
     /// - If the memory allocated as `MemoryMap` is not consistent as the length of the mapping data array.
-    /// - When reading data in `AddressLibrary` fails.
+    /// - Returns an error if the binary data cannot be properly parsed.
     fn unpack_file<R>(mem_map: &MemoryMap, reader: &mut R, ptr_size: u64) -> Result<(), UnpackError>
     where
         R: Read,
@@ -195,21 +195,9 @@ impl IdDatabase {
 /// Errors that can occur during the file loading process.
 #[derive(Debug, snafu::Snafu)]
 pub enum DataBaseLoaderError {
-    /// The thread that was getting Module's lock panicked.
-    ModuleLockIsPoisoned,
-
-    /// Module has been cleared
-    ModuleHasBeenCleared,
-
     /// Failed to find the id within the address library: {id}. This means this script extender plugin is incompatible.,
     #[snafu(display("Failed to find the id within the address library: {id}\nThis means this script extender plugin is incompatible."))]
     NotFoundId { id: u64 },
-
-    /// Module initialization error
-    #[snafu(display("Module initialization error: {source}"))]
-    FailedInit {
-        source: crate::rel::module::ModuleInitError,
-    },
 
     /// Version mismatch
     #[snafu(display("Version mismatch: expected {}, got {}", expected, actual))]
@@ -222,6 +210,12 @@ pub enum DataBaseLoaderError {
     AddressLibraryNotFound {
         path: String,
         source: std::io::Error,
+    },
+
+    /// Inherited module state(manager) get error.
+    #[snafu(transparent)]
+    ModuleStateError {
+        source: crate::rel::module::ModuleStateError,
     },
 
     /// Inherited header parsing error.
@@ -237,7 +231,7 @@ pub enum DataBaseLoaderError {
     /// Inherited memory mapping error.
     #[snafu(transparent)]
     MemoryMapCastError {
-        source: super::memory_map::MemoryMapCastError,
+        source: super::memory_map::MemoryMapCastSizeError,
     },
 
     /// Failed to unpack file at: {source}
@@ -249,7 +243,7 @@ pub enum UnpackError {
     /// Inherited memory mapping error.
     #[snafu(transparent)]
     MemoryMapCastError {
-        source: super::memory_map::MemoryMapCastError,
+        source: super::memory_map::MemoryMapCastSizeError,
     },
 
     #[snafu(transparent)]

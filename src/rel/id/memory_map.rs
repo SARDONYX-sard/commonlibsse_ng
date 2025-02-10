@@ -58,7 +58,7 @@ impl MemoryMap {
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::rel::id::memory_map::MemoryMap;
+    /// use commonlibsse_ng::rel::id::MemoryMap;
     /// use windows::core::h; // `h!` is utf-16 string macro
     ///
     /// // It is expected to be made before it opens.
@@ -103,7 +103,7 @@ impl MemoryMap {
     ///
     /// # Examples
     /// ```
-    /// use commonlibsse_ng::rel::id::memory_map::MemoryMap;
+    /// use commonlibsse_ng::rel::id::MemoryMap;
     /// use windows::core::h; // utf-16 macro
     ///
     /// let memory_map = MemoryMap::create(h!("new_mapping"), 2048).expect("Failed to create memory map");
@@ -187,7 +187,7 @@ impl MemoryMap {
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::rel::id::memory_map::MemoryMap;
+    /// use commonlibsse_ng::rel::id::MemoryMap;
     /// use windows::core::h; // utf-16 macro
     ///
     /// let memory_map = MemoryMap::create(h!("example_mapping"), 1024).expect("Failed to open");
@@ -201,7 +201,7 @@ impl MemoryMap {
     ///
     /// # Examples
     /// ```
-    /// use commonlibsse_ng::rel::id::memory_map::MemoryMap;
+    /// use commonlibsse_ng::rel::id::MemoryMap;
     /// use windows::core::h; // utf-16 macro
     ///
     /// let memory_map = MemoryMap::create(h!("example_mapping"), 1024).expect("Failed to create");
@@ -215,7 +215,7 @@ impl MemoryMap {
     ///
     /// # Examples
     /// ```
-    /// use commonlibsse_ng::rel::id::memory_map::MemoryMap;
+    /// use commonlibsse_ng::rel::id::MemoryMap;
     /// use windows::core::h; // utf-16 macro
     ///
     /// let mut memory_map = MemoryMap::create(h!("example_mapping"), 1024).expect("Failed to create");
@@ -285,20 +285,20 @@ impl MemoryMap {
     /// assert_eq!(mappings[1].id, 84);
     /// assert_eq!(mappings[1].offset, 200);
     /// ```
-    pub const fn as_mapping_slice<'a>(&'a self) -> Result<&'a [Mapping], MemoryMapCastError> {
+    pub const fn as_mapping_slice<'a>(&'a self) -> Result<&'a [Mapping], MemoryMapCastSizeError> {
         // Check if the memory size is zero
         if self.size == 0 {
-            return Err(MemoryMapCastError::ZeroSize);
+            return Err(MemoryMapCastSizeError::Zero);
         }
 
         // Check if the memory size is smaller than the size of one Mapping struct
         if self.size < SIZE_OF_MAPPING {
-            return Err(MemoryMapCastError::InsufficientSize { actual: self.size });
+            return Err(MemoryMapCastSizeError::Insufficient { actual: self.size });
         }
 
         // Ensure the memory map size is a multiple of the size of Mapping
         if self.size % SIZE_OF_MAPPING != 0 {
-            return Err(MemoryMapCastError::NonMultipleSize {
+            return Err(MemoryMapCastSizeError::NonMultiple {
                 allocated_size: self.size,
             });
         }
@@ -355,20 +355,20 @@ impl MemoryMap {
     /// assert_eq!(mappings[1].id, 84);
     /// assert_eq!(mappings[1].offset, 200);
     /// ```
-    pub fn as_mapping_slice_mut<'a>(&'a self) -> Result<&'a mut [Mapping], MemoryMapCastError> {
+    pub fn as_mapping_slice_mut<'a>(&'a self) -> Result<&'a mut [Mapping], MemoryMapCastSizeError> {
         // Check if the memory size is zero
         if self.size == 0 {
-            return Err(MemoryMapCastError::ZeroSize);
+            return Err(MemoryMapCastSizeError::Zero);
         }
 
         // Check if the memory size is smaller than the size of one Mapping struct
         if self.size < SIZE_OF_MAPPING {
-            return Err(MemoryMapCastError::InsufficientSize { actual: self.size });
+            return Err(MemoryMapCastSizeError::Insufficient { actual: self.size });
         }
 
         // Ensure the memory map size is a multiple of the size of Mapping
         if self.size % SIZE_OF_MAPPING != 0 {
-            return Err(MemoryMapCastError::NonMultipleSize {
+            return Err(MemoryMapCastSizeError::NonMultiple {
                 allocated_size: self.size,
             });
         }
@@ -432,15 +432,15 @@ pub enum MemoryMapError {
 
 /// Define errors that may occur when casting memory to `Mapping` structs.
 #[derive(Debug, snafu::Snafu)]
-pub enum MemoryMapCastError {
+pub enum MemoryMapCastSizeError {
     /// Memory size is zero.
-    ZeroSize,
+    Zero,
 
     /// Memory size({actual} bytes) is smaller than the size of Mapping struct(8 + 8 bytes)
-    InsufficientSize { actual: usize },
+    Insufficient { actual: usize },
 
     /// Memory region size({allocated_size}) is not a multiple of Mapping struct size(16bytes)
-    NonMultipleSize { allocated_size: usize },
+    NonMultiple { allocated_size: usize },
 }
 
 #[cfg(test)]

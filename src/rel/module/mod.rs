@@ -106,8 +106,47 @@ impl ModuleState {
     ///
     /// # Errors
     /// If the thread that had previously acquired a lock on the singleton instance panics(i.e. poisoned), an error is returned.
+    #[inline]
     pub fn get() -> TryLockResult<RwLockReadGuard<'static, Self>> {
         MODULE.try_read()
+    }
+
+    /// Attempts to apply a function to the active module state.
+    ///
+    /// This function tries to acquire a read lock on the module state and applies
+    /// the provided function `f` if the module state is [`ModuleState::Active`].
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::rel::module::ModuleState;
+    ///
+    /// let result = ModuleState::map_active(|module| module.version.clone());
+    /// match result {
+    ///     Ok(version) => println!("Module version: {}", version),
+    ///     Err(err) => eprintln!("Error: {:?}", err),
+    /// }
+    /// ```
+    ///
+    /// # Errors
+    /// Returns an error if:
+    /// - The module state is [`ModuleState::Cleared`].
+    /// - The module state is [`ModuleState::FailedInit`], in which case the initialization error is propagated.
+    /// - The internal lock is poisoned.
+    pub fn map_active<F, T>(f: F) -> Result<T, ModuleStateError>
+    where
+        F: FnOnce(&Module) -> T,
+    {
+        let guard = MODULE
+            .try_read()
+            .map_err(|_| ModuleStateError::ModuleLockIsPoisoned)?;
+
+        match &*guard {
+            Self::Active(module) => Ok(f(module)),
+            Self::Cleared => Err(ModuleStateError::ModuleHasBeenCleared),
+            Self::FailedInit(module_init_error) => Err(ModuleStateError::FailedInit {
+                source: module_init_error.clone(),
+            }),
+        }
     }
 
     /// Attempts to retrieve a mutable reference to the active module.
@@ -175,6 +214,23 @@ impl ModuleState {
                 Ok(())
             })
     }
+}
+
+/// Type definition for treating an instance of information management as an error when it is in
+/// a state where information cannot be obtained.
+#[derive(Debug, snafu::Snafu)]
+pub enum ModuleStateError {
+    /// The thread that was getting Module's lock panicked.
+    ModuleLockIsPoisoned,
+
+    /// Module has been cleared
+    ModuleHasBeenCleared,
+
+    /// Module initialization error
+    #[snafu(display("Module initialization error: {source}"))]
+    FailedInit {
+        source: crate::rel::module::ModuleInitError,
+    },
 }
 
 #[cfg(test)]

@@ -29,7 +29,7 @@ pub struct Module {
     /// Version information of the module.
     pub version: Version,
     /// Base module handle if available.
-    pub base: Option<ModuleHandle>,
+    pub base: ModuleHandle,
     /// Runtime type of the module.
     pub runtime: Runtime,
 }
@@ -134,7 +134,7 @@ impl Module {
             file_path,
             segments,
             version,
-            base: Some(module_handle),
+            base: module_handle,
             runtime,
         })
     }
