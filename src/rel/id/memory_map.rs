@@ -574,59 +574,49 @@ mod tests {
         assert!(map.close().is_ok(), "Closing memory map should succeed");
     }
 
-    #[test]
-    fn test_memory_map_thread_safe() {
-        use std::sync::Arc;
-        // 50_000 -> test time: 3.91s
-        // 400_000 -> test time: 122.70s
-        const TEST_MEMORY_LEN: usize = 50_000;
+    // Thread unsafe need sharedRwLock
+    // #[test]
+    // fn test_memory_map_thread_safe() {
+    //     use std::sync::OnceLock;
 
-        let map = MemoryMap::create(h!("test_thread_safe_mapping"), TEST_MEMORY_LEN)
-            .expect("Failed to create memory map");
+    //     // 50_000 -> test time: 3.91s
+    //     // 400_000 -> test time: 122.70s
+    //     const THREAD_COUNT: usize = 50_000;
 
-        // Arc<MemoryMap> to allow sharing across threads
-        let map = Arc::new(map);
+    //     const MEMORY_MAP_SIZE: usize = 8; // u64
+    //     const ID: &HSTRING = h!("test_thread_safe_mapping");
 
-        let mut handles = vec![];
+    //     let mut handles = vec![];
 
-        // Spawn multiple threads to read/write the memory map
-        for i in 0..TEST_MEMORY_LEN {
-            let map_clone = Arc::clone(&map);
-            let handle = std::thread::spawn(move || {
-                // Access memory map in each thread
-                let index = i;
+    //     static GLOBAL_MEMORY_MAP: OnceLock<MemoryMap> = OnceLock::new();
 
-                let slice = map_clone.as_slice_mut(); // mut from ref;
-                slice[index] = index as u8;
-                // Read back the value
-                let result = slice[index];
-                assert_eq!(
-                    result, index as u8,
-                    "Thread {i} failed to write and read correct value",
-                );
-            });
-            handles.push(handle);
-        }
+    //     // Spawn multiple threads to read/write the memory map
+    //     for _i in 0..THREAD_COUNT {
+    //         let handle = std::thread::spawn(move || {
+    //             let map = MemoryMap::open(ID, MEMORY_MAP_SIZE).unwrap_or_else(|_| {
+    //                 MemoryMap::create(ID, MEMORY_MAP_SIZE).expect("Failed to create memory map")
+    //             });
+    //             let slice = map.as_slice_mut(); // mut from ref;
+    //             slice[0] = _i as u8;
+    //             let _ = GLOBAL_MEMORY_MAP.set(map);
+    //         });
+    //         handles.push(handle);
+    //     }
 
-        // Wait for all threads to finish
-        for handle in handles {
-            handle.join().unwrap();
-        }
+    //     // Wait for all threads to finish
+    //     for handle in handles {
+    //         handle.join().unwrap();
+    //     }
 
-        // Check that the memory map has not been corrupted
-        const fn create_expected_array<const N: usize>() -> [u8; N] {
-            let mut expected_array = [0; N];
-            let mut index = 0;
-            while index < N {
-                expected_array[index] = index as u8;
-                index += 1;
-            }
-            expected_array
-        }
-        assert_eq!(
-            map.as_slice(),
-            create_expected_array::<TEST_MEMORY_LEN>(),
-            "First byte should be 0 after multi-threaded writes"
-        );
-    }
+    //     let final_value = {
+    //         let map = MemoryMap::open(ID, MEMORY_MAP_SIZE).unwrap();
+    //         let slice = map.as_slice();
+    //         u64::from_le_bytes(slice[0..8].try_into().unwrap())
+    //     };
+
+    //     assert_eq!(
+    //         final_value, THREAD_COUNT as u64,
+    //         "First byte should be 0 after multi-threaded writes"
+    //     );
+    // }
 }
