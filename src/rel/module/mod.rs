@@ -20,9 +20,9 @@ pub use self::runtime::Runtime;
 pub use self::segment::{Segment, SegmentName};
 
 use std::sync::atomic::AtomicBool;
-use std::sync::{LazyLock, RwLock, RwLockReadGuard, RwLockWriteGuard, TryLockResult};
+use std::sync::{LazyLock, LockResult, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-/// Clear flag separated from singleton instances to avoid taking locks unnecessarily.
+/// clear flag separated from singleton instances to avoid taking locks unnecessarily.
 static IS_CLEARED: AtomicBool = AtomicBool::new(false);
 static MODULE: LazyLock<RwLock<ModuleState>> = LazyLock::new(|| RwLock::new(ModuleState::init()));
 
@@ -106,9 +106,12 @@ impl ModuleState {
     ///
     /// # Errors
     /// If the thread that had previously acquired a lock on the singleton instance panics(i.e. poisoned), an error is returned.
+    ///
+    /// # Panics
+    /// This function might panic when called if the lock is already held by the current thread.
     #[inline]
-    pub fn get() -> TryLockResult<RwLockReadGuard<'static, Self>> {
-        MODULE.try_read()
+    pub fn get() -> LockResult<RwLockReadGuard<'static, Self>> {
+        MODULE.read()
     }
 
     /// Attempts to apply a function to the active module state.
@@ -135,12 +138,15 @@ impl ModuleState {
     /// - The module state is [`ModuleState::Cleared`].
     /// - The module state is [`ModuleState::FailedInit`], in which case the initialization error is propagated.
     /// - The internal lock is poisoned.
+    ///
+    /// # Panics
+    /// This function might panic when called if the lock is already held by the current thread.
     pub fn map_active<F, T>(f: F) -> Result<T, ModuleStateError>
     where
         F: FnOnce(&Module) -> T,
     {
         let guard = MODULE
-            .try_read()
+            .read()
             .map_err(|_| ModuleStateError::ModuleLockIsPoisoned)?;
 
         match &*guard {
@@ -184,17 +190,20 @@ impl ModuleState {
     ///
     /// # Errors
     /// If the thread that had previously acquired a lock on the singleton instance panics(i.e. poisoned), an error is returned.
-    pub fn get_or_init_mut() -> TryLockResult<RwLockWriteGuard<'static, Self>> {
+    ///
+    /// # Panics
+    /// This function might panic when called if the lock is already held by the current thread.
+    pub fn get_or_init_mut() -> LockResult<RwLockWriteGuard<'static, Self>> {
         use core::sync::atomic::Ordering;
 
         if IS_CLEARED.load(Ordering::Acquire) {
-            if let Ok(mut guard) = MODULE.try_write() {
+            if let Ok(mut guard) = MODULE.write() {
                 *guard = Self::init();
             };
             IS_CLEARED.store(true, Ordering::Release);
         }
 
-        MODULE.try_write()
+        MODULE.write()
     }
 
     /// Attempts to apply a function to the active module state, initializing it if necessary.
@@ -217,18 +226,21 @@ impl ModuleState {
     /// Returns an error if:
     /// - The module state is [`ModuleState::FailedInit`], in which case the initialization error is propagated.
     /// - The internal lock is poisoned.
+    ///
+    /// # Panics
+    /// This function might panic when called if the lock is already held by the current thread.
     pub fn map_or_init<F, T>(f: F) -> Result<T, ModuleStateError>
     where
         F: FnOnce(&Module) -> T,
     {
-        if let Ok(guard) = MODULE.try_read() {
+        if let Ok(guard) = MODULE.read() {
             if let Self::Active(module) = &*guard {
                 return Ok(f(module));
             }
         }
 
         let mut guard = MODULE
-            .try_write()
+            .write()
             .map_err(|_| ModuleStateError::ModuleLockIsPoisoned)?;
 
         if matches!(&*guard, Self::Cleared | Self::FailedInit(_)) {
@@ -255,10 +267,13 @@ impl ModuleState {
     ///
     /// # Errors
     /// If the thread that had previously acquired a lock on the singleton instance panics, an error is returned.
-    pub fn reset() -> TryLockResult<()> {
+    ///
+    /// # Panics
+    /// This function might panic when called if the lock is already held by the current thread.
+    pub fn reset() -> Result<(), ModuleStateError> {
         MODULE
-            .try_write()
-            .map_or(Err(std::sync::TryLockError::WouldBlock), |mut guard| {
+            .write()
+            .map_or(Err(ModuleStateError::ModuleLockIsPoisoned), |mut guard| {
                 *guard = Self::Cleared;
                 IS_CLEARED.store(true, std::sync::atomic::Ordering::Release);
                 Ok(())
