@@ -1,13 +1,12 @@
 mod byte_reader;
 mod header;
 mod id_database;
-mod memory_map;
 mod offset_to_id;
 mod relocation_id;
+pub mod shared_rwlock;
 mod variant_id;
 
 pub use self::header::{Header, HeaderError};
-pub use self::memory_map::MemoryMap;
 pub use self::offset_to_id::OffsetToID;
 pub use self::relocation_id::RelocationID;
 pub use self::variant_id::VariantID;
@@ -50,7 +49,7 @@ impl ID {
     /// # Errors
     /// Returns an error if the ID cannot be resolved.
     #[inline]
-    pub fn address(&self) -> Result<usize, id_database::DataBaseLoaderError> {
+    pub fn address(&self) -> Result<usize, id_database::DataBaseError> {
         Ok(Self::base()? + self.offset()?)
     }
 
@@ -59,7 +58,7 @@ impl ID {
     /// # Errors
     /// Returns an error if the ID is not found.
     #[inline]
-    pub fn offset(&self) -> Result<usize, id_database::DataBaseLoaderError> {
+    pub fn offset(&self) -> Result<usize, id_database::DataBaseError> {
         id_database::ID_DATABASE.id_to_offset(self.id)
     }
 

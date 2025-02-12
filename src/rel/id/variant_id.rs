@@ -1,4 +1,4 @@
-use crate::rel::id::id_database::DataBaseLoaderError;
+use crate::rel::id::id_database::DataBaseError;
 
 /// Represents an ID with a possible VR-specific offset.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -24,7 +24,7 @@ impl VariantID {
     /// # Errors
     /// Returns an error if the ID cannot be resolved.
     #[inline]
-    pub fn address(&self) -> Result<usize, DataBaseLoaderError> {
+    pub fn address(&self) -> Result<usize, DataBaseError> {
         let offset = self.offset()?;
         Ok(if offset == 0 {
             0
@@ -37,7 +37,7 @@ impl VariantID {
     ///
     /// # Errors
     /// Returns an error if the ID is not found.
-    pub fn offset(&self) -> Result<usize, DataBaseLoaderError> {
+    pub fn offset(&self) -> Result<usize, DataBaseError> {
         use crate::rel::module::{ModuleState, Runtime};
 
         let runtime = ModuleState::map_or_init(|module| module.runtime)?; // derived Copy

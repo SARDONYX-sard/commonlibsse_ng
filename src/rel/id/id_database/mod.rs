@@ -15,7 +15,7 @@
 mod bin_loader;
 mod unpack;
 
-use super::memory_map::MemoryMap;
+use super::{shared_rwlock::SharedRwLock, Mapping};
 use crate::rel::version::Version;
 use std::sync::LazyLock;
 
@@ -27,7 +27,7 @@ pub(super) static ID_DATABASE: LazyLock<IdDatabase> =
 /// Represents a database of ID-to-offset mappings loaded from an address library binary file.
 pub struct IdDatabase {
     /// Memory-mapped storage of the ID database.
-    pub(super) mem_map: MemoryMap,
+    pub(super) mem_map: SharedRwLock<Mapping>,
 }
 
 impl IdDatabase {
@@ -36,7 +36,7 @@ impl IdDatabase {
     /// # Errors
     /// Returns an error if the module state is invalid, the file cannot be read,
     /// or if the data is not properly formatted.
-    fn from_bin() -> Result<Self, DataBaseLoaderError> {
+    fn from_bin() -> Result<Self, DataBaseError> {
         use crate::rel::module::{ModuleState, Runtime};
 
         let (version, runtime) = ModuleState::map_or_init(|module| {
@@ -60,10 +60,14 @@ impl IdDatabase {
     ///
     /// # Errors
     /// Returns an error if the ID is not found in the database.
-    pub(super) fn id_to_offset(&self, id: u64) -> Result<usize, DataBaseLoaderError> {
-        let slice = self.mem_map.as_mapping_slice()?;
+    pub(super) fn id_to_offset(&self, id: u64) -> Result<usize, DataBaseError> {
+        let slice = self
+            .mem_map
+            .read()
+            .map_err(|_| DataBaseError::MappingCreationFailed)?;
+
         slice.binary_search_by(|m| m.id.cmp(&id)).map_or_else(
-            |_| Err(DataBaseLoaderError::NotFoundId { id }),
+            |_| Err(DataBaseError::NotFoundId { id }),
             |index| Ok(slice[index].offset as usize),
         )
     }
@@ -71,7 +75,7 @@ impl IdDatabase {
 
 /// Errors that can occur during the file loading process.
 #[derive(Debug, snafu::Snafu)]
-pub enum DataBaseLoaderError {
+pub enum DataBaseError {
     /// Failed to find the id within the address library: {id}. This means this script extender plugin is incompatible.,
     #[snafu(display("Failed to find the id within the address library: {id}\nThis means this script extender plugin is incompatible."))]
     NotFoundId { id: u64 },
@@ -102,15 +106,12 @@ pub enum DataBaseLoaderError {
     #[snafu(transparent)]
     HeaderParseError { source: super::HeaderError },
 
-    /// Inherited memory mapping error.
-    #[snafu(transparent)]
-    MemoryMapError {
-        source: super::memory_map::MemoryMapError,
-    },
+    /// A thread that was taking database locks panicked.
+    Poisoned,
 
     /// Inherited memory mapping error.
     #[snafu(transparent)]
-    MemoryMapCastError {
-        source: super::memory_map::MemoryMapCastSizeError,
+    MemoryMapError {
+        source: super::shared_rwlock::MemoryMapError,
     },
 }

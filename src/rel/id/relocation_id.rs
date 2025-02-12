@@ -1,4 +1,4 @@
-use crate::rel::id::id_database::DataBaseLoaderError;
+use crate::rel::id::id_database::DataBaseError;
 
 /// Represents an ID that varies based on runtime format.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -24,7 +24,7 @@ impl RelocationID {
     /// # Errors
     /// Returns an error if the ID cannot be resolved.
     #[inline]
-    pub fn address(&self) -> Result<usize, DataBaseLoaderError> {
+    pub fn address(&self) -> Result<usize, DataBaseError> {
         let offset = self.offset()?;
         Ok(if offset == 0 {
             0
@@ -38,7 +38,7 @@ impl RelocationID {
     /// # Errors
     /// Returns an error if the ID is not found.
     #[inline]
-    pub fn offset(&self) -> Result<usize, DataBaseLoaderError> {
+    pub fn offset(&self) -> Result<usize, DataBaseError> {
         crate::rel::id::id_database::ID_DATABASE.id_to_offset(self.id()?)
     }
 

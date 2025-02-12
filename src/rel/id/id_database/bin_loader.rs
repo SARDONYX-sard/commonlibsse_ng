@@ -1,9 +1,9 @@
 use crate::rel::id::header::Header;
 use crate::rel::id::id_database::unpack::unpack_file;
 use crate::rel::id::id_database::{
-    AddressLibraryNotFoundSnafu, DataBaseLoaderError, FailedUnpackFileSnafu,
+    AddressLibraryNotFoundSnafu, DataBaseError, FailedUnpackFileSnafu,
 };
-use crate::rel::id::memory_map::MemoryMap;
+use crate::rel::id::shared_rwlock::SharedRwLock;
 use crate::rel::id::Mapping;
 use crate::rel::version::Version;
 use snafu::ResultExt as _;
@@ -22,7 +22,7 @@ pub(super) fn load_bin_file(
     path: &str,
     version: Version,
     expected_fmt_ver: u8,
-) -> Result<MemoryMap, DataBaseLoaderError> {
+) -> Result<SharedRwLock<Mapping>, DataBaseError> {
     use std::fs::File;
     use std::io;
 
@@ -37,7 +37,7 @@ pub(super) fn load_bin_file(
     let header = Header::from_reader(&mut reader, expected_fmt_ver)?;
 
     if header.version != version {
-        return Err(DataBaseLoaderError::VersionMismatch {
+        return Err(DataBaseError::VersionMismatch {
             expected: version,
             actual: header.version,
         });
@@ -46,14 +46,14 @@ pub(super) fn load_bin_file(
     let map_name = windows::core::HSTRING::from(format!("CommonLibSSEOffsets-v2-{version}"));
     let byte_size = header.address_count() * size_of::<Mapping>();
 
-    let mem_map = if let Ok(mem_map) = MemoryMap::open(&map_name, byte_size) {
-        mem_map
-    } else if let Ok(mem_map) = MemoryMap::create(&map_name, byte_size) {
-        unpack_file(&mem_map, &mut reader, header.pointer_size()).context(FailedUnpackFileSnafu)?;
-        mem_map
-    } else {
-        return Err(DataBaseLoaderError::MappingCreationFailed);
-    };
+    let (mem_map, is_created) = SharedRwLock::new(&map_name, byte_size)
+        .map_err(|err| DataBaseError::MemoryMapError { source: err })?;
+
+    if is_created {
+        let mut mem_map = mem_map.write().map_err(|_| DataBaseError::Poisoned)?;
+        unpack_file(&mut mem_map, &mut reader, header.pointer_size())
+            .context(FailedUnpackFileSnafu)?;
+    }
 
     Ok(mem_map)
 }

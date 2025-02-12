@@ -1,6 +1,5 @@
 //! REL dir portion of `CommonLibSSE-NG` written by hand.
 
-pub mod common;
 pub mod id;
 #[cfg(feature = "win_api")]
 pub mod module;

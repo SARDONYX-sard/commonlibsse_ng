@@ -8,8 +8,9 @@ rust-version = "1.81"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tracing = { version = "0.1.41", optional = true }
 snafu = { version = "0.8.5" }                     # To define error types.
+static_assertions = "1.1.0"                                    # Compile tim assertions
+tracing = { version = "0.1.41", optional = true }
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.59.0", features = [

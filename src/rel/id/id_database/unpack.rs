@@ -1,5 +1,4 @@
 use crate::rel::id::byte_reader::{read_le_u16, read_le_u32, read_le_u64, read_u8};
-use crate::rel::id::memory_map::{MemoryMap, MemoryMapCastSizeError};
 use crate::rel::id::Mapping;
 use std::io::Read;
 
@@ -9,7 +8,7 @@ use std::io::Read;
 /// - If the memory allocated as `MemoryMap` is not consistent as the length of the mapping data array.
 /// - Returns an error if the binary data cannot be properly parsed.
 pub(crate) fn unpack_file<R>(
-    mem_map: &MemoryMap,
+    mem_map: &mut [Mapping],
     reader: &mut R,
     ptr_size: u64,
 ) -> Result<(), UnpackError>
@@ -21,7 +20,7 @@ where
     let mut prev_id: u64 = 0;
     let mut prev_offset: u64 = 0;
 
-    let mappings = mem_map.as_mapping_slice_mut()?;
+    let mappings = mem_map;
     for mapping in &mut *mappings {
         let type_byte = read_u8(reader)?;
 
@@ -99,10 +98,6 @@ pub enum UnpackError {
     /// Invalid offset encountered
     #[snafu(display("Invalid offset encountered: {}", offset))]
     InvalidOffset { offset: u64 },
-
-    /// Inherited memory mapping error.
-    #[snafu(transparent)]
-    MemoryMapCastError { source: MemoryMapCastSizeError },
 
     /// Inherited IO Error
     #[snafu(transparent)]
