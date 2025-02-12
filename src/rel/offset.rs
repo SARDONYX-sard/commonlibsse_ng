@@ -1,3 +1,8 @@
+// C++ Original code
+// - ref: https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/include/REL/Offset.h
+// SPDX-FileCopyrightText: (C) 2018 Ryan-rsm-McKenzie
+// SPDX-License-Identifier: MIT
+
 use crate::rel::id::DataBaseError;
 use crate::rel::module::ModuleState;
 
