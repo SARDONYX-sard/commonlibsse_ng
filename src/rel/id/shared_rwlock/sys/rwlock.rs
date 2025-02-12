@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 //
-// # Forked rust std::sync::poison(ver. 1.84.0)
+// # Forked rust (ver. 1.84.0)
 // See: https://github.com/rust-lang/rust/blob/1.84.0/library/std/src/sys/sync/rwlock/futex.rs
 // See Rust license detail: https://github.com/rust-lang/rust/pull/43498
 
