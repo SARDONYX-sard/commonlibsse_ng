@@ -44,9 +44,8 @@ pub(super) fn load_bin_file(
     }
 
     let map_name = windows::core::HSTRING::from(format!("CommonLibSSEOffsets-v2-{version}"));
-    let byte_size = header.address_count() * size_of::<Mapping>();
 
-    let (mem_map, is_created) = SharedRwLock::new(&map_name, byte_size)
+    let (mem_map, is_created) = SharedRwLock::new(&map_name, header.address_count())
         .map_err(|err| DataBaseError::MemoryMapError { source: err })?;
 
     if is_created {

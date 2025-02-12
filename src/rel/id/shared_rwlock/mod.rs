@@ -40,9 +40,15 @@ pub(super) struct SharedCell<T: ?Sized> {
     // offset: 0x40
     pub(super) data: UnsafeCell<T>,
     // shared memory data array continue ......
+    // element of array
+    // element of array
+    // element of array
 }
 
-static_assertions::assert_eq_size!(SharedCell<u64>, [u8; 72]);
+static_assertions::assert_eq_size!(SharedCell<u64>, [u8; 64 + 8]);
+
+const RWLOCK_LOCK_STATE_SIZE: usize = 64;
+
 unsafe impl<T: ?Sized + Send> Send for SharedCell<T> {}
 unsafe impl<T: ?Sized + Send + Sync> Sync for SharedCell<T> {}
 
@@ -125,7 +131,11 @@ unsafe impl<T: ?Sized + Send> Send for SharedRwLock<T> {}
 unsafe impl<T: ?Sized + Sync> Sync for SharedRwLock<T> {}
 
 impl<T> SharedRwLock<T> {
-    /// Allocate a new SharedRwLock memory.
+    /// Allocate `T` array shared memory. (T * `len`)
+    ///
+    /// The handle is subject to kernel-level locking, but verification has shown that read/write of the shared memory situation is not thread-safe. This is why `RwLock` is used.
+    ///
+    /// The lock data itself is allocated on the shared memory according to the C ABI and the lock state is read/write by AtomicT.
     ///
     /// # Errors
     /// If memory cannot be opened, it creates, but if even that fails, it returns an error.
@@ -137,7 +147,7 @@ impl<T> SharedRwLock<T> {
     /// Invalid pointer.
     #[allow(clippy::unwrap_in_result)]
     pub fn new(shared_id: &HSTRING, len: usize) -> Result<(Self, bool), MemoryMapError> {
-        let size = size_of::<SharedCell<T>>() + size_of::<T>() * len;
+        let size = RWLOCK_LOCK_STATE_SIZE + size_of::<T>() * len;
         let ((handle, view), is_created) = shared_mem::open(shared_id, size)
             .map(|pair| (pair, false))
             .or_else(|_| shared_mem::create(shared_id, size).map(|pair| (pair, true)))?;
@@ -230,6 +240,7 @@ pub struct MappedRwLockReadGuard<'a, T: ?Sized + 'a> {
     // is preferable over `const* T` to allow for niche optimization.
     data: NonNull<T>,
     inner_lock: &'a sys::RwLock,
+    len: usize,
 }
 
 // impl<T: ?Sized> !Send for MappedRwLockReadGuard<'_, T> {}
@@ -269,6 +280,7 @@ pub struct MappedRwLockWriteGuard<'a, T: ?Sized + 'a> {
     poison_flag: &'a poison::Flag,
     poison: poison::Guard,
     _variance: PhantomData<&'a mut T>,
+    len: usize,
 }
 
 // impl<T: ?Sized> !Send for MappedRwLockWriteGuard<'_, T> {}
@@ -605,54 +617,6 @@ impl<'rwlock, T: ?Sized> RwLockWriteGuard<'rwlock, T> {
     }
 }
 
-// impl<T: ?Sized + fmt::Debug> fmt::Debug for RwLockReadGuard<'_, T> {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         (**self).fmt(f)
-//     }
-// }
-
-// impl<T: ?Sized + fmt::Display> fmt::Display for RwLockReadGuard<'_, T> {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         (**self).fmt(f)
-//     }
-// }
-
-// impl<T: ?Sized + fmt::Debug> fmt::Debug for RwLockWriteGuard<'_, T> {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         (**self).fmt(f)
-//     }
-// }
-
-// impl<T: ?Sized + fmt::Display> fmt::Display for RwLockWriteGuard<'_, T> {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         (**self).fmt(f)
-//     }
-// }
-
-impl<T: ?Sized + fmt::Debug> fmt::Debug for MappedRwLockReadGuard<'_, T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        (**self).fmt(f)
-    }
-}
-
-impl<T: ?Sized + fmt::Display> fmt::Display for MappedRwLockReadGuard<'_, T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        (**self).fmt(f)
-    }
-}
-
-impl<T: ?Sized + fmt::Debug> fmt::Debug for MappedRwLockWriteGuard<'_, T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        (**self).fmt(f)
-    }
-}
-
-impl<T: ?Sized + fmt::Display> fmt::Display for MappedRwLockWriteGuard<'_, T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        (**self).fmt(f)
-    }
-}
-
 impl<T> Deref for RwLockReadGuard<'_, T> {
     type Target = [T];
 
@@ -678,31 +642,31 @@ impl<T> DerefMut for RwLockWriteGuard<'_, T> {
     }
 }
 
-impl<T: ?Sized> Deref for MappedRwLockReadGuard<'_, T> {
-    type Target = T;
+impl<T> Deref for MappedRwLockReadGuard<'_, T> {
+    type Target = [T];
 
-    fn deref(&self) -> &T {
+    fn deref(&self) -> &[T] {
         // SAFETY: the conditions of `RwLockReadGuard::new` were satisfied when the original guard
         // was created, and have been upheld throughout `map` and/or `try_map`.
-        unsafe { self.data.as_ref() }
+        unsafe { core::slice::from_raw_parts(self.data.as_ref(), self.len) }
     }
 }
 
-impl<T: ?Sized> Deref for MappedRwLockWriteGuard<'_, T> {
-    type Target = T;
+impl<T> Deref for MappedRwLockWriteGuard<'_, T> {
+    type Target = [T];
 
-    fn deref(&self) -> &T {
+    fn deref(&self) -> &[T] {
         // SAFETY: the conditions of `RwLockWriteGuard::new` were satisfied when the original guard
         // was created, and have been upheld throughout `map` and/or `try_map`.
-        unsafe { self.data.as_ref() }
+        unsafe { core::slice::from_raw_parts(self.data.as_ref(), self.len) }
     }
 }
 
-impl<T: ?Sized> DerefMut for MappedRwLockWriteGuard<'_, T> {
-    fn deref_mut(&mut self) -> &mut T {
+impl<T> DerefMut for MappedRwLockWriteGuard<'_, T> {
+    fn deref_mut(&mut self) -> &mut [T] {
         // SAFETY: the conditions of `RwLockWriteGuard::new` were satisfied when the original guard
         // was created, and have been upheld throughout `map` and/or `try_map`.
-        unsafe { self.data.as_mut() }
+        unsafe { core::slice::from_raw_parts_mut(self.data.as_mut(), self.len) }
     }
 }
 
@@ -774,6 +738,7 @@ impl<'a, T: ?Sized> RwLockReadGuard<'a, T> {
         MappedRwLockReadGuard {
             data,
             inner_lock: orig.inner_lock,
+            len: orig.len,
         }
     }
 
@@ -809,6 +774,7 @@ impl<'a, T: ?Sized> RwLockReadGuard<'a, T> {
                 Ok(MappedRwLockReadGuard {
                     data,
                     inner_lock: orig.inner_lock,
+                    len: orig.len,
                 })
             }
             None => Err(orig),
@@ -844,6 +810,7 @@ impl<'a, T: ?Sized> MappedRwLockReadGuard<'a, T> {
         MappedRwLockReadGuard {
             data,
             inner_lock: orig.inner_lock,
+            len: orig.len,
         }
     }
 
@@ -879,6 +846,7 @@ impl<'a, T: ?Sized> MappedRwLockReadGuard<'a, T> {
                 Ok(MappedRwLockReadGuard {
                     data,
                     inner_lock: orig.inner_lock,
+                    len: orig.len,
                 })
             }
             None => Err(orig),
@@ -917,6 +885,7 @@ impl<'a, T: ?Sized> RwLockWriteGuard<'a, T> {
             poison_flag: &orig.lock.shared().poison,
             poison: orig.poison.clone(),
             _variance: PhantomData,
+            len: orig.lock.len,
         }
     }
 
@@ -955,6 +924,7 @@ impl<'a, T: ?Sized> RwLockWriteGuard<'a, T> {
                     poison_flag: &orig.lock.shared().poison,
                     poison: orig.poison.clone(),
                     _variance: PhantomData,
+                    len: orig.lock.len,
                 })
             }
             None => Err(orig),
@@ -1055,6 +1025,7 @@ impl<'a, T: ?Sized> MappedRwLockWriteGuard<'a, T> {
             poison_flag: orig.poison_flag,
             poison: orig.poison.clone(),
             _variance: PhantomData,
+            len: orig.len,
         }
     }
 
@@ -1093,6 +1064,7 @@ impl<'a, T: ?Sized> MappedRwLockWriteGuard<'a, T> {
                     poison_flag: orig.poison_flag,
                     poison: orig.poison.clone(),
                     _variance: PhantomData,
+                    len: orig.len,
                 })
             }
             None => Err(orig),
