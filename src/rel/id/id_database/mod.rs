@@ -21,8 +21,8 @@ use std::sync::LazyLock;
 
 /// Global static instance of `IdDatabase` initialized lazily.
 /// This ensures the database is only loaded when needed.
-pub(super) static ID_DATABASE: LazyLock<IdDatabase> =
-    LazyLock::new(|| IdDatabase::from_bin().unwrap());
+pub(crate) static ID_DATABASE: LazyLock<IdDatabase> =
+    LazyLock::new(|| IdDatabase::from_bin().unwrap()); // TODO: non use Unwrap
 
 /// Represents a database of ID-to-offset mappings loaded from an address library binary file.
 pub struct IdDatabase {
@@ -60,7 +60,7 @@ impl IdDatabase {
     ///
     /// # Errors
     /// Returns an error if the ID is not found in the database.
-    pub(super) fn id_to_offset(&self, id: u64) -> Result<usize, DataBaseError> {
+    pub(crate) fn id_to_offset(&self, id: u64) -> Result<usize, DataBaseError> {
         let slice = self
             .mem_map
             .read()

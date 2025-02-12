@@ -4,6 +4,7 @@
 // See: https://github.com/rust-lang/rust/blob/1.84.0/library/std/src/sync/poison.rs
 // See Rust license detail: https://github.com/rust-lang/rust/pull/43498
 
+// TODO: Remove unnecessary example docs
 mod errors;
 mod poison;
 mod shared_mem;
@@ -13,30 +14,29 @@ mod sys;
 mod tests;
 
 pub use self::errors::MemoryMapError;
-pub use poison::{LockResult, PoisonError, TryLockError, TryLockResult};
+pub use self::poison::{LockResult, PoisonError, TryLockError, TryLockResult};
 
+use core::cell::UnsafeCell;
 use core::fmt;
-use core::mem::size_of;
-use std::cell::UnsafeCell;
-use std::marker::PhantomData;
-use std::mem::ManuallyDrop;
-use std::ops::{Deref, DerefMut};
-use std::ptr::NonNull;
-use std::{ffi::c_void, num::NonZeroUsize};
-use windows::{core::HSTRING, Win32::Foundation::HANDLE};
+use core::marker::PhantomData;
+use core::mem::{size_of, ManuallyDrop};
+use core::ops::{Deref, DerefMut};
+use core::ptr::NonNull;
+use core::{ffi::c_void, num::NonZeroUsize};
+use windows::core::HSTRING;
 
 #[repr(C)]
-pub(super) struct SharedCell<T: ?Sized> {
+struct SharedCell<T: ?Sized> {
     // shared memory lock state: 64bytes(To avoid false sharing)
-    pub(super) inner: sys::RwLock, // size 56bytes
-    pub(super) poison: poison::Flag,
+    inner: sys::RwLock, // size 56bytes
+    poison: poison::Flag,
     _pad39: u8,  // 0x39
     _pad3a: u32, // 0x3a
     // <------- 64bytes
 
     // Shared memory data array start(Same as `MEMORY_MAPPED_VIEW_ADDRESS` ptr)
     // offset: 0x40
-    pub(super) data: UnsafeCell<T>,
+    data: UnsafeCell<T>,
     // shared memory data array continue ......
     // - an element of array
     // - an element of array
@@ -44,7 +44,6 @@ pub(super) struct SharedCell<T: ?Sized> {
 }
 
 static_assertions::assert_eq_size!(SharedCell<u64>, [u8; 64 + 8]);
-// static_assertions::assert_eq_size!(SharedCell<u64>, [u8; 64 + 8]);
 
 const RWLOCK_LOCK_STATE_SIZE: usize = 64;
 
@@ -121,6 +120,8 @@ pub struct SharedRwLock<T: ?Sized> {
 
 impl<T: ?Sized> Drop for SharedRwLock<T> {
     fn drop(&mut self) {
+        use windows::Win32::Foundation::HANDLE;
+
         let ptr = self.shared.as_ptr().cast::<c_void>();
         let _ = shared_mem::close(HANDLE(self.handle.get() as *mut c_void), ptr);
     }
@@ -174,6 +175,7 @@ impl<T> SharedRwLock<T> {
 }
 
 impl<T: ?Sized> SharedRwLock<T> {
+    #[inline]
     const fn shared(&self) -> &SharedCell<T> {
         unsafe { self.shared.as_ref() }
     }

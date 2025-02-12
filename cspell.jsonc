@@ -19,6 +19,7 @@
     "nextest",
     "PCWSTR",
     "pdata",
+    "RAII",
     "rdata",
     "READWRITE",
     "reimplementation",

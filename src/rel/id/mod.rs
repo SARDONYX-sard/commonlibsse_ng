@@ -7,6 +7,7 @@ pub mod shared_rwlock;
 mod variant_id;
 
 pub use self::header::{Header, HeaderError};
+pub use self::id_database::DataBaseError;
 pub use self::offset_to_id::OffsetToID;
 pub use self::relocation_id::RelocationID;
 pub use self::variant_id::VariantID;

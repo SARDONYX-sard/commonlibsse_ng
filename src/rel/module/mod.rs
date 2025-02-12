@@ -19,11 +19,8 @@ pub use self::module_handle::{ModuleHandle, ModuleHandleError};
 pub use self::runtime::Runtime;
 pub use self::segment::{Segment, SegmentName};
 
-use std::sync::atomic::AtomicBool;
-use std::sync::{LazyLock, LockResult, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::sync::{LazyLock, RwLock};
 
-/// clear flag separated from singleton instances to avoid taking locks unnecessarily.
-static IS_CLEARED: AtomicBool = AtomicBool::new(false);
 static MODULE: LazyLock<RwLock<ModuleState>> = LazyLock::new(|| RwLock::new(ModuleState::init()));
 
 /// Represents the state of the module.
@@ -48,70 +45,6 @@ impl ModuleState {
             Ok(module) => Self::Active(module),
             Err(err) => Self::FailedInit(err),
         }
-    }
-
-    /// Attempts to retrieve a read-only reference to the current module state.
-    ///
-    /// It is better to call [`Clone::clone`] and drop the `guard` than to lock for a long time.
-    ///
-    /// # Example
-    /// ```
-    /// use commonlibsse_ng::rel::module::ModuleState;
-    ///
-    /// match ModuleState::get() {
-    ///     Ok(guard) => match &*guard { // <- It is locked during this block scope.
-    ///         ModuleState::Active(module) => {
-    ///             println!("Module version: {}", module.version);
-    ///         }
-    ///         ModuleState::Cleared => println!("Module has been reset."),
-    ///         ModuleState::FailedInit(module_init_error) => {
-    ///             tracing::error!("Failed to initialize module: {module_init_error}");
-    ///         }
-    ///         // unlocked by guard
-    ///     },
-    ///     Err(lock_err) => tracing::error!("Failed to lock. {lock_err}"),
-    /// };
-    /// ```
-    ///
-    /// # Example(Long time reading)
-    ///
-    /// If we read the information of a module for a long time we should [`Drop::drop`].
-    ///
-    /// Q. Is the address of the Module singleton valid in that case?
-    ///
-    /// A. This is valid unless someone in the current process is calling `FreeLibrary`(Win32 API) unnaturally for `SKSE`, `SkyrimSE.exe`, etc.
-    ///    And there is no call to `FreeLibrary` in the Module singleton.
-    ///
-    /// ```
-    /// use commonlibsse_ng::rel::module::{ModuleState, Runtime};
-    ///
-    /// // This time we clone the information to read the module information for a long time
-    /// // and immediately let go of the guard.
-    /// let module_state = match ModuleState::get() {
-    ///     Ok(guard) => guard.clone(), // Auto unlock by `Drop::drop`
-    ///     Err(lock_err) => {
-    ///         tracing::error!("RwLock is poisoned: {lock_err}");
-    ///         return;
-    ///     }
-    /// };
-    ///
-    /// if let ModuleState::Active(module) = module_state {
-    ///    // Some kind of prolonged processing. (Reproduced in sleep in the example)
-    ///    std::thread::sleep(std::time::Duration::from_secs(2));
-    ///
-    ///    assert_eq!(module.runtime, Runtime::Se);
-    ///    tracing::info!("Module version: {}", module.version);
-    /// }
-    /// ```
-    ///
-    /// # Errors
-    /// If the thread that had previously acquired a lock on the singleton instance panics(i.e. poisoned), an error is returned.
-    ///
-    /// # Panics
-    /// This function might panic when called if the lock is already held by the current thread.
-    #[inline]
-    pub fn get() -> LockResult<RwLockReadGuard<'static, Self>> {
-        MODULE.read()
     }
 
     /// Attempts to apply a function to the active module state.
@@ -158,54 +91,6 @@ impl ModuleState {
         }
     }
 
-    /// Attempts to retrieve a mutable reference to the active module.
-    ///
-    /// If the module is in the `Cleared` state, it will be reinitialized.
-    ///
-    /// **Note:** If you only want to read the value of a Module, you should use `ModuleState::get`.
-    ///
-    /// Reasons: The `MODULE` singleton uses [`RwLock`], multiple threads can read at the same time if other threads are not using write.
-    ///
-    /// Also, it is better to call [`Clone::clone`] and drop the `guard` than to lock for a long time.
-    ///
-    /// # Example
-    /// ```
-    /// use commonlibsse_ng::rel::module::ModuleState;
-    ///
-    /// match ModuleState::get_or_init_mut() {
-    ///     Ok(mut drop_guard) => match &mut *drop_guard {
-    ///         ModuleState::Active(module) => {
-    ///             println!("Module version: {}", module.version);
-    ///             // We can change this value, but be careful when modifying it.
-    ///             module.file_path = "Test".to_string();
-    ///         }
-    ///         ModuleState::Cleared => println!("Module has been reset."),
-    ///         ModuleState::FailedInit(module_init_error) => {
-    ///             tracing::error!("Failed to initialize module: {module_init_error}");
-    ///         }
-    ///     },
-    ///     Err(lock_err) => tracing::error!("Failed to lock. {lock_err}"),
-    /// };
-    /// ```
-    ///
-    /// # Errors
-    /// If the thread that had previously acquired a lock on the singleton instance panics(i.e. poisoned), an error is returned.
-    ///
-    /// # Panics
-    /// This function might panic when called if the lock is already held by the current thread.
-    pub fn get_or_init_mut() -> LockResult<RwLockWriteGuard<'static, Self>> {
-        use core::sync::atomic::Ordering;
-
-        if IS_CLEARED.load(Ordering::Acquire) {
-            if let Ok(mut guard) = MODULE.write() {
-                *guard = Self::init();
-            };
-            IS_CLEARED.store(true, Ordering::Release);
-        }
-
-        MODULE.write()
-    }
-
     /// Attempts to apply a function to the active module state, initializing it if necessary.
     ///
     /// If the module state is `Cleared`, it will be initialized before applying the function `f`.
@@ -239,21 +124,24 @@ impl ModuleState {
             }
         }
 
-        let mut guard = MODULE
+        // The fact that it was not `Active` means that it absolutely needs to be initialized.
+        let (ret, module_state) = match Module::init() {
+            Ok(module) => (Ok(f(&module)), Self::Active(module)),
+            Err(err) => {
+                let ret_err = ModuleStateError::FailedInit {
+                    source: err.clone(),
+                };
+                (Err(ret_err), Self::FailedInit(err))
+            }
+        };
+
+        // Delaying lock acquisition to avoid prolonged lock acquisition.
+        MODULE
             .write()
+            .map(|mut guard| *guard = module_state)
             .map_err(|_| ModuleStateError::ModuleLockIsPoisoned)?;
 
-        if matches!(&*guard, Self::Cleared | Self::FailedInit(_)) {
-            *guard = Self::init();
-        }
-
-        match &*guard {
-            Self::Active(module) => Ok(f(module)),
-            Self::Cleared => Err(ModuleStateError::ModuleHasBeenCleared),
-            Self::FailedInit(module_init_error) => Err(ModuleStateError::FailedInit {
-                source: module_init_error.clone(),
-            }),
-        }
+        ret
     }
 
     /// Clears the module, transitioning it to the `Cleared` state.
@@ -275,7 +163,6 @@ impl ModuleState {
             .write()
             .map_or(Err(ModuleStateError::ModuleLockIsPoisoned), |mut guard| {
                 *guard = Self::Cleared;
-                IS_CLEARED.store(true, std::sync::atomic::Ordering::Release);
                 Ok(())
             })
     }
@@ -305,6 +192,5 @@ mod tests {
     #[test]
     fn test_module_reset() {
         assert!(ModuleState::reset().is_ok());
-        assert!(IS_CLEARED.load(std::sync::atomic::Ordering::Acquire));
     }
 }
