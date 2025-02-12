@@ -29,8 +29,6 @@ use windows::{core::HSTRING, Win32::Foundation::HANDLE};
 pub(super) struct SharedCell<T: ?Sized> {
     // shared memory lock state: 64bytes(To avoid false sharing)
     pub(super) inner: sys::RwLock, // size 56bytes
-
-    // shared memory lock state: 64bytes(To avoid false sharing)
     pub(super) poison: poison::Flag,
     _pad39: u8,  // 0x39
     _pad3a: u32, // 0x3a
@@ -40,12 +38,13 @@ pub(super) struct SharedCell<T: ?Sized> {
     // offset: 0x40
     pub(super) data: UnsafeCell<T>,
     // shared memory data array continue ......
-    // element of array
-    // element of array
-    // element of array
+    // - an element of array
+    // - an element of array
+    // - an element of array
 }
 
 static_assertions::assert_eq_size!(SharedCell<u64>, [u8; 64 + 8]);
+// static_assertions::assert_eq_size!(SharedCell<u64>, [u8; 64 + 8]);
 
 const RWLOCK_LOCK_STATE_SIZE: usize = 64;
 
@@ -557,6 +556,10 @@ impl<T: ?Sized> SharedRwLock<T> {
 impl<T: fmt::Debug> fmt::Debug for SharedRwLock<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut d = f.debug_struct("RwLock");
+        d.field("handle", &self.handle);
+        d.field("shared_address", &(self.shared.as_ptr() as usize));
+        d.field("len", &self.len);
+
         match self.try_read() {
             Ok(guard) => {
                 d.field("data", &&*guard);
