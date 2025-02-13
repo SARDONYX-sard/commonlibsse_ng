@@ -34,15 +34,14 @@ pub enum Format {
 
 /// Represents an ID that can be used to look up an address in the ID database.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ID {
-    id: u64,
-}
+#[repr(transparent)]
+pub struct ID(u64);
 
 impl ID {
     /// Creates a new ID instance.
     #[inline]
     pub const fn new(id: u64) -> Self {
-        Self { id }
+        Self(id)
     }
 
     /// Retrieves the absolute address corresponding to the ID.
@@ -50,7 +49,7 @@ impl ID {
     /// # Errors
     /// Returns an error if the ID cannot be resolved.
     #[inline]
-    pub fn address(&self) -> Result<usize, id_database::DataBaseError> {
+    pub fn address(&self) -> Result<usize, DataBaseError> {
         Ok(Self::base()? + self.offset()?)
     }
 
@@ -59,8 +58,8 @@ impl ID {
     /// # Errors
     /// Returns an error if the ID is not found.
     #[inline]
-    pub fn offset(&self) -> Result<usize, id_database::DataBaseError> {
-        id_database::ID_DATABASE.id_to_offset(self.id)
+    pub fn offset(&self) -> Result<usize, DataBaseError> {
+        id_database::ID_DATABASE.id_to_offset(self.0)
     }
 
     /// Retrieves the base address of the module.

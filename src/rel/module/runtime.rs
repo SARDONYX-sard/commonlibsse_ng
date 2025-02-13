@@ -115,6 +115,24 @@ impl Runtime {
             _ => return None,
         })
     }
+
+    /// Is the current Skyrim runtime the Anniversary Edition (AE)?
+    #[inline]
+    pub fn is_ae(&self) -> bool {
+        *self == Self::Ae
+    }
+
+    /// Is the current Skyrim runtime the Special Edition (SE).
+    #[inline]
+    pub fn is_se(&self) -> bool {
+        *self == Self::Se
+    }
+
+    /// Is the current Skyrim runtime the VR version?
+    #[inline]
+    pub fn is_vr(&self) -> bool {
+        *self == Self::Vr
+    }
 }
 
 #[cfg(test)]

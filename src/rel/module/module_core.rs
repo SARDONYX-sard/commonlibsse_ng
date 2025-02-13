@@ -153,7 +153,7 @@ impl Module {
     /// ```no_run
     /// use commonlibsse_ng::rel::module::{Module, SegmentName};
     ///
-    /// match Module::init() {
+    /// match Module::from_skyrim() {
     ///     Ok(module) => println!("{:?}", module.segment(SegmentName::Textx)),
     ///     Err(err) => tracing::error!("Failed to initialize module: {err}"),
     /// }
@@ -161,24 +161,6 @@ impl Module {
     #[inline]
     pub const fn segment(&self, name: SegmentName) -> Segment {
         self.segments[name as usize]
-    }
-
-    /// Is the current Skyrim runtime the Anniversary Edition (AE)?
-    #[inline]
-    pub fn is_ae(&self) -> bool {
-        self.runtime == Runtime::Ae
-    }
-
-    /// Is the current Skyrim runtime the Special Edition (SE).
-    #[inline]
-    pub fn is_se(&self) -> bool {
-        self.runtime == Runtime::Se
-    }
-
-    /// Is the current Skyrim runtime the VR version?
-    #[inline]
-    pub fn is_vr(&self) -> bool {
-        self.runtime == Runtime::Vr
     }
 
     #[inline]
