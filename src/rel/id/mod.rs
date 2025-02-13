@@ -16,7 +16,7 @@ pub use self::variant_id::VariantID;
 ///
 /// This struct is used to uniquely identify a mapped memory region.
 #[repr(C)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Mapping {
     /// The unique ID of the memory-mapped file.
     pub id: u64,
@@ -33,7 +33,7 @@ pub enum Format {
 }
 
 /// Represents an ID that can be used to look up an address in the ID database.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct ID(u64);
 

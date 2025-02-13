@@ -7,7 +7,7 @@ use crate::rel::id::DataBaseError;
 use crate::rel::module::ModuleState;
 
 /// Represents an ID with a possible VR-specific offset.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct Offset(usize);
 
