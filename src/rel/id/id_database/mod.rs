@@ -77,7 +77,7 @@ impl IdDatabase {
 }
 
 /// Errors that can occur during the file loading process.
-#[derive(Debug, snafu::Snafu)]
+#[derive(Debug, Clone, snafu::Snafu)]
 pub enum DataBaseError {
     /// Failed to find the id within the address library: {id}. This means this script extender plugin is incompatible.,
     #[snafu(display("Failed to find the id within the address library: {id}\nThis means this script extender plugin is incompatible."))]
@@ -90,11 +90,8 @@ pub enum DataBaseError {
     /// Failed to create shared mapping
     MappingCreationFailed,
 
-    /// Failed to locate an appropriate address library at: {path}, {source}
-    AddressLibraryNotFound {
-        path: String,
-        source: std::io::Error,
-    },
+    /// Failed to locate an appropriate address library at: {path}
+    AddressLibraryNotFound { path: String },
 
     /// Failed to unpack file at: {source}
     FailedUnpackFile { source: self::unpack::UnpackError },

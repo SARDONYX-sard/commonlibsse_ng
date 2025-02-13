@@ -101,5 +101,18 @@ pub enum UnpackError {
 
     /// Inherited IO Error
     #[snafu(transparent)]
-    IoError { source: std::io::Error },
+    Io { source: std::io::Error },
+}
+
+// io::Error doesn't have `Clone`. Therefore, implement manually.
+impl Clone for UnpackError {
+    fn clone(&self) -> Self {
+        match self {
+            Self::InvalidId { id } => Self::InvalidId { id: *id },
+            Self::InvalidOffset { offset } => Self::InvalidOffset { offset: *offset },
+            Self::Io { source: err } => Self::Io {
+                source: std::io::Error::new(err.kind(), err.to_string()),
+            },
+        }
+    }
 }

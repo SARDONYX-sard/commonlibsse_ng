@@ -144,6 +144,39 @@ pub enum HeaderError {
     ReadAddressCount { source: std::io::Error },
 }
 
+// io::Error doesn't have `Clone`. Therefore, implement manually.
+impl Clone for HeaderError {
+    fn clone(&self) -> Self {
+        match self {
+            Self::ReadFormatVersion { source } => Self::ReadFormatVersion {
+                source: std::io::Error::new(source.kind(), source.to_string()),
+            },
+            Self::UnexpectedFormat {
+                expected,
+                actual_format,
+            } => Self::UnexpectedFormat {
+                expected: *expected,
+                actual_format: *actual_format,
+            },
+            Self::ReadVersion { source } => Self::ReadVersion {
+                source: std::io::Error::new(source.kind(), source.to_string()),
+            },
+            Self::ReadNameLength { source } => Self::ReadNameLength {
+                source: std::io::Error::new(source.kind(), source.to_string()),
+            },
+            Self::SeekAfterNameLength { source } => Self::SeekAfterNameLength {
+                source: std::io::Error::new(source.kind(), source.to_string()),
+            },
+            Self::ReadPointerSize { source } => Self::ReadPointerSize {
+                source: std::io::Error::new(source.kind(), source.to_string()),
+            },
+            Self::ReadAddressCount { source } => Self::ReadAddressCount {
+                source: std::io::Error::new(source.kind(), source.to_string()),
+            },
+        }
+    }
+}
+
 // Helper functions for version parsing
 const fn u8_to_le_u32_array(input: [u8; 16]) -> [u32; 4] {
     [

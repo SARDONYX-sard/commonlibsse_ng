@@ -1,5 +1,5 @@
 /// Defines errors that may occur when working with `MemoryMap`.
-#[derive(Debug, snafu::Snafu)]
+#[derive(Debug, Clone, PartialEq, Eq, snafu::Snafu)]
 pub enum MemoryMapError {
     /// Failed to open memory mapping: {source}
     OpenMapping { source: windows::core::Error },

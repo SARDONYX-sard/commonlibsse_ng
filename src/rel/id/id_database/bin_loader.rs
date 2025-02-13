@@ -1,8 +1,6 @@
 use crate::rel::id::id_database::header::Header;
 use crate::rel::id::id_database::unpack::unpack_file;
-use crate::rel::id::id_database::{
-    AddressLibraryNotFoundSnafu, DataBaseError, FailedUnpackFileSnafu,
-};
+use crate::rel::id::id_database::{DataBaseError, FailedUnpackFileSnafu};
 use crate::rel::id::shared_rwlock::SharedRwLock;
 use crate::rel::id::Mapping;
 use crate::rel::version::Version;
@@ -27,7 +25,7 @@ pub(super) fn load_bin_file(
     use std::io;
 
     let mut reader = {
-        let file = File::open(path).with_context(|_| AddressLibraryNotFoundSnafu {
+        let file = File::open(path).map_err(|_| DataBaseError::AddressLibraryNotFound {
             path: path.to_string(),
         })?;
         io::BufReader::new(file)
