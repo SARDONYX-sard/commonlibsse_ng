@@ -52,7 +52,6 @@ impl RelocationID {
         let runtime = ModuleState::map_or_init(|module| module.runtime)?; // derived Copy
 
         Ok(match runtime {
-            Runtime::Unknown => 0,
             Runtime::Ae => self.ae_id,
             Runtime::Se => self.se_id,
             Runtime::Vr => self.vr_id,

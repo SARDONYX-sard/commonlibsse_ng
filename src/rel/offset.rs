@@ -92,7 +92,6 @@ impl VariantOffset {
         let runtime = ModuleState::map_or_init(|module| module.runtime)?; // derived Copy
 
         Ok(match runtime {
-            Runtime::Unknown => 0,
             Runtime::Ae => self.ae_offset,
             Runtime::Se => self.se_offset,
             Runtime::Vr => self.vr_offset,
