@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["INT3","JMP32","JMP8","NOP","NOP2","NOP3","NOP4","NOP5","NOP6","NOP7","NOP8","NOP9","RET"],"fn":["invoke","invoke_member_function_non_pod","relocate"],"struct":["MemberFunctionNonPodType","MemberFunctionPodType","Relocation"],"trait":["IsX64Pod","MeetsFunctionReq","MeetsLengthReq","MeetsMemberReq"]};

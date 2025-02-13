@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["tracing_core",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.84.1/core/convert/trait.AsRef.html\" title=\"trait core::convert::AsRef\">AsRef</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/1.84.1/std/primitive.str.html\">str</a>&gt; for <a class=\"struct\" href=\"tracing_core/struct.Field.html\" title=\"struct tracing_core::Field\">Field</a>"]]],["windows_core",[["impl&lt;T: <a class=\"trait\" href=\"windows_core/trait.ComObjectInner.html\" title=\"trait windows_core::ComObjectInner\">ComObjectInner</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.84.1/core/convert/trait.AsRef.html\" title=\"trait core::convert::AsRef\">AsRef</a>&lt;T&gt; for <a class=\"struct\" href=\"windows_core/struct.ComObject.html\" title=\"struct windows_core::ComObject\">ComObject</a>&lt;T&gt;<div class=\"where\">where\n    <a class=\"struct\" href=\"windows_core/struct.IUnknown.html\" title=\"struct windows_core::IUnknown\">IUnknown</a>: <a class=\"trait\" href=\"https://doc.rust-lang.org/1.84.1/core/convert/trait.From.html\" title=\"trait core::convert::From\">From</a>&lt;T&gt; + <a class=\"trait\" href=\"windows_core/trait.AsImpl.html\" title=\"trait windows_core::AsImpl\">AsImpl</a>&lt;T&gt;,</div>"]]],["windows_strings",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.84.1/core/convert/trait.AsRef.html\" title=\"trait core::convert::AsRef\">AsRef</a>&lt;<a class=\"struct\" href=\"windows_strings/struct.PCWSTR.html\" title=\"struct windows_strings::PCWSTR\">PCWSTR</a>&gt; for <a class=\"struct\" href=\"windows_strings/struct.PCWSTR.html\" title=\"struct windows_strings::PCWSTR\">PCWSTR</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[379,865,412]}

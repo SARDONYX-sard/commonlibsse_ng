@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["FileVersionError","VersionParseError"],"fn":["get_file_version"],"struct":["Version"]};

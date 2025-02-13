@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DataBaseError","Format"],"mod":["shared_rwlock"],"struct":["ID","Mapping","OffsetToID","RelocationID","VariantID"]};
