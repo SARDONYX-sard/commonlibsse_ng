@@ -5,50 +5,57 @@
 
 use crate::rel::id::DataBaseError;
 use crate::rel::module::ModuleState;
+use crate::rel::ResolvableAddress;
 
-/// Represents an ID with a possible VR-specific offset.
+/// Represents an offset that can be used to compute an absolute address.
+///
+/// This struct wraps a `usize` value, which directly corresponds to an offset.
+///
+/// ```
+/// use commonlibsse_ng::rel::offset::Offset;
+/// use commonlibsse_ng::rel::ResolvableAddress as _;
+///
+/// let offset = Offset::new(0x1000);
+/// assert_eq!(offset.offset().unwrap(), 0x1000);
+/// ```
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct Offset(usize);
 
 impl Offset {
-    /// Creates a new `Offset` instance.
+    /// Creates a new `Offset` instance with the given value.
     #[inline]
     pub const fn new(offset: usize) -> Self {
         Self(offset)
     }
+}
 
-    /// Get the absolute address corresponding to the offset.
+impl ResolvableAddress for Offset {
+    /// Returns the stored offset value.
     ///
-    /// # Errors
-    /// Returns an error if the ID cannot be resolved.
+    /// This implementation absolutely returns [`Result::Ok`].
     #[inline]
-    pub fn address(&self) -> Result<usize, DataBaseError> {
-        let offset = self.offset();
-        Ok(if offset == 0 {
-            0
-        } else {
-            Self::base()? + offset
-        })
-    }
-
-    /// Get the offset.
-    #[inline]
-    pub const fn offset(&self) -> usize {
-        self.0
-    }
-
-    /// Get the base address of the module.
-    ///
-    /// # Errors
-    /// Returns an error if the module is in an invalid state.
-    #[inline]
-    fn base() -> Result<usize, crate::rel::module::ModuleStateError> {
-        ModuleState::map_or_init(|module| module.base.as_raw())
+    fn offset(&self) -> Result<usize, DataBaseError> {
+        Ok(self.0)
     }
 }
 
-/// Represents an ID with a possible VR-specific offset.
+/// Represents an offset that varies depending on the runtime environment.
+///
+/// This struct holds three possible offset values, each corresponding to a
+/// different runtime: Special Edition (`se_offset`), Anniversary Edition (`ae_offset`),
+/// and Virtual Reality (`vr_offset`).
+///
+/// The appropriate offset is selected based on the current runtime.
+///
+/// # Example
+/// ```rust
+/// use commonlibsse_ng::rel::offset::VariantOffset;
+/// use commonlibsse_ng::rel::ResolvableAddress as _;
+///
+/// let variant_offset = VariantOffset::new(0x1000, 0x2000, 0x3000);
+/// let offset = variant_offset.offset().unwrap();
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct VariantOffset {
     se_offset: u64,
@@ -57,7 +64,7 @@ pub struct VariantOffset {
 }
 
 impl VariantOffset {
-    /// Creates a new `VariantOffset` instance.
+    /// Creates a new `VariantOffset` instance with specified offsets for each runtime.
     #[inline]
     pub const fn new(se_offset: u64, ae_offset: u64, vr_offset: u64) -> Self {
         Self {
@@ -66,44 +73,23 @@ impl VariantOffset {
             vr_offset,
         }
     }
+}
 
-    /// Get the absolute address corresponding to the offset.
+impl ResolvableAddress for VariantOffset {
+    /// Retrieves the offset based on the current runtime.
     ///
     /// # Errors
-    /// Returns an error if the ID cannot be resolved.
+    /// Returns an error if the module state is invalid or the runtime is unknown.
     #[inline]
-    pub fn address(&self) -> Result<usize, DataBaseError> {
-        let offset = self.offset()?;
-        Ok(if offset == 0 {
-            0
-        } else {
-            Self::base()? + offset
-        })
-    }
-
-    /// Get the offset corresponding to the `Runtime`.
-    ///
-    /// # Errors
-    /// Returns an error if the ID is not found.
-    #[inline]
-    pub fn offset(&self) -> Result<usize, DataBaseError> {
+    fn offset(&self) -> Result<usize, DataBaseError> {
         use crate::rel::module::Runtime;
 
-        let runtime = ModuleState::map_or_init(|module| module.runtime)?; // derived Copy
+        let runtime = ModuleState::map_or_init(|module| module.runtime)?; // Derived Copy
 
         Ok(match runtime {
             Runtime::Ae => self.ae_offset,
             Runtime::Se => self.se_offset,
             Runtime::Vr => self.vr_offset,
         } as usize)
-    }
-
-    /// Get the base address of the module.
-    ///
-    /// # Errors
-    /// Returns an error if the module is in an invalid state.
-    #[inline]
-    fn base() -> Result<usize, crate::rel::module::ModuleStateError> {
-        ModuleState::map_or_init(|module| module.base.as_raw())
     }
 }

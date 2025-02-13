@@ -24,25 +24,6 @@ pub struct Header {
 }
 
 impl Header {
-    /// Creates a new `Header` instance with the given version, pointer size, and address count.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use commonlibsse_ng::rel::id::Header;
-    /// use commonlibsse_ng::rel::version::Version;
-    ///
-    /// let header = Header::new(Version::new(1, 5, 97, 0), 8, 778674);
-    /// assert_eq!(header.pointer_size(), 8);
-    /// ```
-    pub const fn new(version: Version, pointer_size: u32, address_count: u32) -> Self {
-        Self {
-            version,
-            pointer_size,
-            address_count,
-        }
-    }
-
     /// Parses a `Header` from a reader.
     ///
     /// Reads the format version, the address library version, name length, pointer size, and address count.
@@ -53,41 +34,6 @@ impl Header {
     /// - Reading format version
     /// - Unsupported address format
     /// - Reading version, name length, pointer size, or address count
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use commonlibsse_ng::rel::id::Header;
-    /// use commonlibsse_ng::rel::version::Version;
-    /// use std::io::Cursor;
-    ///
-    /// let binary_data: &[u8] = &[
-    ///     0x01, 0x00, 0x00, 0x00, // 00000000:  u32_le: Format version => 0x00000001
-    ///
-    ///     // Skyrim version(1.5.97.0)
-    ///     0x01, 0x00, 0x00, 0x00, // 00000004:  u32_le: Major -> 1
-    ///     0x05, 0x00, 0x00, 0x00, // 00000008:  u32_le: Minor -> 5
-    ///     0x61, 0x00, 0x00, 0x00, // 0000000C:  u32_le: Patch -> 97
-    ///     0x00, 0x00, 0x00, 0x00, // 00000010:  u32_le: build -> 0
-    ///
-    ///     0x0C, 0x00, 0x00, 0x00, // 00000014:  u32_le: name length -> 0xc -> 12bytes
-    ///
-    ///     // The string "SkyrimSE.exe"(12bytes len) is being read here in ASCII
-    ///     0x53, 0x6B, 0x79, 0x72, // 00000018:  The string (0x53 = 'S', 0x6B = 'k', 0x79 = 'y', 0x72 = 'r')
-    ///     0x69, 0x6D, 0x53, 0x45, // 0000001C:  The string  (0x69 = 'i', 0x6D = 'm', 0x53 = 'S', 0x45 = 'E')
-    ///     0x2E, 0x65, 0x78, 0x65, // 00000020:  The string ".exe" (0x2E = '.', 0x65 = 'e', etc.)
-    ///
-    ///     0x08, 0x00, 0x00, 0x00, // 00000024:  u32_le: The pointer size (this should be the pointer size, which is 8 bytes in this case)
-    ///
-    ///     0xB2, 0xE1, 0x0B, 0x00, // 00000028:  u32_le: Address count (0xbe1b2 -> 778_674)
-    /// ];
-    ///
-    /// let mut cursor = Cursor::new(binary_data);
-    /// let header = Header::from_reader(&mut cursor, 1).expect("Failed to read header");
-    /// assert_eq!(header.version, Version::new(1, 5, 97, 0));
-    /// assert_eq!(header.pointer_size(), 8);
-    /// assert_eq!(header.address_count(), 778674);
-    /// ```
     pub fn from_reader<R>(reader: &mut R, expected_fmt_ver: u8) -> Result<Self, HeaderError>
     where
         R: std::io::Read + std::io::Seek,
@@ -158,31 +104,11 @@ impl Header {
     }
 
     /// Returns the number of addresses in the address library.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use commonlibsse_ng::rel::id::Header;
-    /// use commonlibsse_ng::rel::version::Version;
-    ///
-    /// let header = Header::new(Version::new(1, 5, 97, 0), 8, 778674);
-    /// assert_eq!(header.address_count(), 778674);
-    /// ```
     pub const fn address_count(&self) -> usize {
         self.address_count as usize
     }
 
     /// Returns the pointer size in bytes, typically 8 bytes for 64-bit systems.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use commonlibsse_ng::rel::id::Header;
-    /// use commonlibsse_ng::rel::version::Version;
-    ///
-    /// let header = Header::new(Version::new(1, 5, 97, 0), 8, 778674);
-    /// assert_eq!(header.pointer_size(), 8);
-    /// ```
     pub const fn pointer_size(&self) -> u64 {
         self.pointer_size as u64
     }
@@ -235,4 +161,43 @@ const fn u32_to_u16_array(input: [u32; 4]) -> [u16; 4] {
         input[2] as u16,
         input[3] as u16,
     ]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+    /// use commonlibsse_ng::rel::id::Header;
+    /// use commonlibsse_ng::rel::version::Version;
+
+    #[test]
+    fn test_parse_header() {
+        #[rustfmt::skip]
+        let binary_data: &[u8] = &[
+            0x01, 0x00, 0x00, 0x00, // 00000000:  u32_le: Format version => 0x00000001
+
+            // Skyrim version(1.5.97.0)
+            0x01, 0x00, 0x00, 0x00, // 00000004:  u32_le: Major -> 1
+            0x05, 0x00, 0x00, 0x00, // 00000008:  u32_le: Minor -> 5
+            0x61, 0x00, 0x00, 0x00, // 0000000C:  u32_le: Patch -> 97
+            0x00, 0x00, 0x00, 0x00, // 00000010:  u32_le: build -> 0
+
+            0x0C, 0x00, 0x00, 0x00, // 00000014:  u32_le: name length -> 0xc -> 12bytes
+
+            // The string "SkyrimSE.exe"(12bytes len) is being read here in ASCII
+            0x53, 0x6B, 0x79, 0x72, // 00000018:  The string (0x53 = 'S', 0x6B = 'k', 0x79 = 'y', 0x72 = 'r')
+            0x69, 0x6D, 0x53, 0x45, // 0000001C:  The string  (0x69 = 'i', 0x6D = 'm', 0x53 = 'S', 0x45 = 'E')
+            0x2E, 0x65, 0x78, 0x65, // 00000020:  The string ".exe" (0x2E = '.', 0x65 = 'e', etc.)
+
+            0x08, 0x00, 0x00, 0x00, // 00000024:  u32_le: The pointer size (this should be the pointer size, which is 8 bytes in this case)
+
+            0xB2, 0xE1, 0x0B, 0x00, // 00000028:  u32_le: Address count (0xbe1b2 -> 778_674)
+        ];
+
+        let mut cursor = Cursor::new(binary_data);
+        let header = Header::from_reader(&mut cursor, 1).expect("Failed to read header");
+        assert_eq!(header.version, Version::new(1, 5, 97, 0));
+        assert_eq!(header.pointer_size(), 8);
+        assert_eq!(header.address_count(), 778674);
+    }
 }

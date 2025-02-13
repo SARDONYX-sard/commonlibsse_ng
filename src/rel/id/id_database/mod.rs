@@ -13,6 +13,8 @@
 //! different versions of the script extender and the game runtime.
 
 mod bin_loader;
+mod byte_reader;
+mod header;
 mod unpack;
 
 use super::{shared_rwlock::SharedRwLock, Mapping};
@@ -22,7 +24,7 @@ use std::sync::LazyLock;
 /// Global static instance of `IdDatabase` initialized lazily.
 /// This ensures the database is only loaded when needed.
 pub(crate) static ID_DATABASE: LazyLock<IdDatabase> =
-    LazyLock::new(|| IdDatabase::from_bin().unwrap()); // TODO: non use Unwrap
+    LazyLock::new(|| IdDatabase::from_bin().unwrap()); // TODO: remove unwrap
 
 /// Represents a database of ID-to-offset mappings loaded from an address library binary file.
 pub struct IdDatabase {
@@ -37,22 +39,23 @@ impl IdDatabase {
     /// Returns an error if the module state is invalid, the file cannot be read,
     /// or if the data is not properly formatted.
     fn from_bin() -> Result<Self, DataBaseError> {
-        use crate::rel::module::{ModuleState, Runtime};
+        use self::bin_loader::load_bin_file;
+        use crate::rel::module::ModuleState;
 
         let (version, runtime) = ModuleState::map_or_init(|module| {
             let version = module.version.clone();
             (version, module.runtime)
         })?;
 
-        let is_ae = runtime == Runtime::Ae;
+        let is_ae = runtime.is_ae();
         let path = {
             let ver_suffix = if is_ae { "lib" } else { "" };
             format!("Data/SKSE/Plugins/version{ver_suffix}-{version}.bin")
         };
-        let expected_fmt_ver = if is_ae { 2 } else { 1 }; // Expected AddressLibrary format version. SE/VR: 1, AE: 1
+        let expected_fmt_ver = if is_ae { 2 } else { 1 }; // Expected AddressLibrary format version. SE/VR: 1, AE: 2
 
         Ok(Self {
-            mem_map: self::bin_loader::load_bin_file(&path, version, expected_fmt_ver)?,
+            mem_map: load_bin_file(&path, version, expected_fmt_ver)?,
         })
     }
 
@@ -94,7 +97,7 @@ pub enum DataBaseError {
     },
 
     /// Failed to unpack file at: {source}
-    FailedUnpackFile { source: unpack::UnpackError },
+    FailedUnpackFile { source: self::unpack::UnpackError },
 
     /// Inherited module state(manager) get error.
     #[snafu(transparent)]
@@ -104,7 +107,7 @@ pub enum DataBaseError {
 
     /// Inherited header parsing error.
     #[snafu(transparent)]
-    HeaderParseError { source: super::HeaderError },
+    HeaderParseError { source: self::header::HeaderError },
 
     /// A thread that was taking database locks panicked.
     Poisoned,

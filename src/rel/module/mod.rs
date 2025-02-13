@@ -41,7 +41,7 @@ pub enum ModuleState {
 impl ModuleState {
     /// Initialize the module.
     fn init() -> Self {
-        match Module::from_skyrim() {
+        match Module::init() {
             Ok(module) => Self::Active(module),
             Err(err) => Self::FailedInit(err),
         }
@@ -125,7 +125,7 @@ impl ModuleState {
         }
 
         // The fact that it was not `Active` means that it absolutely needs to be initialized.
-        let (ret, module_state) = match Module::from_skyrim() {
+        let (ret, module_state) = match Module::init() {
             Ok(module) => (Ok(f(&module)), Self::Active(module)),
             Err(err) => {
                 let ret_err = ModuleStateError::FailedInit {
@@ -170,7 +170,7 @@ impl ModuleState {
 
 /// Type definition for treating an instance of information management as an error when it is in
 /// a state where information cannot be obtained.
-#[derive(Debug, snafu::Snafu)]
+#[derive(Debug, Clone, snafu::Snafu)]
 pub enum ModuleStateError {
     /// The thread that was getting Module's lock panicked.
     ModuleLockIsPoisoned,

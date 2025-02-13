@@ -1,16 +1,16 @@
-mod byte_reader;
-mod header;
 mod id_database;
 mod offset_to_id;
 mod relocation_id;
 pub mod shared_rwlock;
 mod variant_id;
 
-pub use self::header::{Header, HeaderError};
 pub use self::id_database::DataBaseError;
 pub use self::offset_to_id::OffsetToID;
 pub use self::relocation_id::RelocationID;
 pub use self::variant_id::VariantID;
+
+use self::id_database::ID_DATABASE;
+use super::ResolvableAddress;
 
 /// Represents a memory mapping ID and offset.
 ///
@@ -33,41 +33,37 @@ pub enum Format {
 }
 
 /// Represents an ID that can be used to look up an address in the ID database.
+///
+/// This struct wraps a `u64` value and allows resolution of an absolute address
+/// based on the ID's corresponding offset.
+///
+/// # Example
+/// ```rust
+/// use commonlibsse_ng::rel::id::ID;
+/// use commonlibsse_ng::rel::ResolvableAddress;
+///
+/// let id = ID::new(42);
+/// let address = id.address();
+/// ```
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct ID(u64);
 
 impl ID {
-    /// Creates a new ID instance.
+    /// Creates a new `ID` instance with the given value.
     #[inline]
     pub const fn new(id: u64) -> Self {
         Self(id)
     }
+}
 
-    /// Retrieves the absolute address corresponding to the ID.
-    ///
-    /// # Errors
-    /// Returns an error if the ID cannot be resolved.
-    #[inline]
-    pub fn address(&self) -> Result<usize, DataBaseError> {
-        Ok(Self::base()? + self.offset()?)
-    }
-
+impl ResolvableAddress for ID {
     /// Retrieves the offset corresponding to the ID.
     ///
     /// # Errors
-    /// Returns an error if the ID is not found.
+    /// Returns an error if the ID is not found in the database.
     #[inline]
-    pub fn offset(&self) -> Result<usize, DataBaseError> {
-        id_database::ID_DATABASE.id_to_offset(self.0)
-    }
-
-    /// Retrieves the base address of the module.
-    ///
-    /// # Errors
-    /// Returns an error if the module is in an invalid state.
-    #[inline]
-    fn base() -> Result<usize, crate::rel::module::ModuleStateError> {
-        crate::rel::module::ModuleState::map_or_init(|module| module.base.as_raw())
+    fn offset(&self) -> Result<usize, DataBaseError> {
+        ID_DATABASE.id_to_offset(self.0)
     }
 }

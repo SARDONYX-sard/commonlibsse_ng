@@ -1,4 +1,4 @@
-use crate::rel::id::header::Header;
+use crate::rel::id::id_database::header::Header;
 use crate::rel::id::id_database::unpack::unpack_file;
 use crate::rel::id::id_database::{
     AddressLibraryNotFoundSnafu, DataBaseError, FailedUnpackFileSnafu,
@@ -33,9 +33,7 @@ pub(super) fn load_bin_file(
         io::BufReader::new(file)
     };
 
-    // Simulate reading header
     let header = Header::from_reader(&mut reader, expected_fmt_ver)?;
-
     if header.version != version {
         return Err(DataBaseError::VersionMismatch {
             expected: version,
@@ -43,10 +41,12 @@ pub(super) fn load_bin_file(
         });
     }
 
-    let map_name = windows::core::HSTRING::from(format!("CommonLibSSEOffsets-v2-{version}"));
-
-    let (mem_map, is_created) = SharedRwLock::new(&map_name, header.address_count())
-        .map_err(|err| DataBaseError::MemoryMapError { source: err })?;
+    let (mem_map, is_created) = {
+        let shared_id =
+            windows::core::HSTRING::from(format!("CommonLibSSEOffsets-rs-v2-{version}"));
+        SharedRwLock::new(&shared_id, header.address_count())
+    }
+    .map_err(|err| DataBaseError::MemoryMapError { source: err })?;
 
     if is_created {
         let mut mem_map = mem_map.write().map_err(|_| DataBaseError::Poisoned)?;

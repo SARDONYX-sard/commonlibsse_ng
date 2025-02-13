@@ -25,7 +25,7 @@ impl OffsetToID {
     /// Creates a new `Offset2ID` instance by loading the offset-to-ID mapping(Global instance).
     ///
     /// # Errors
-    /// Returns [`MemoryMapCastError`] if the mapping slice cannot be retrieved.
+    /// If poisoned.
     ///
     /// # Note
     /// Parse the binary table of bin data in `AddressLibrary` and arrange the offset/id pair structures in order of offset,

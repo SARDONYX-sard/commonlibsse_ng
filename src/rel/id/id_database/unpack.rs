@@ -1,4 +1,4 @@
-use crate::rel::id::byte_reader::{read_le_u16, read_le_u32, read_le_u64, read_u8};
+use crate::rel::id::id_database::byte_reader::{read_le_u16, read_le_u32, read_le_u64, read_u8};
 use crate::rel::id::Mapping;
 use std::io::Read;
 

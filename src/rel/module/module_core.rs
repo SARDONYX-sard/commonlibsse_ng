@@ -46,17 +46,14 @@ impl Module {
         (".gfids", IMAGE_SECTION_CHARACTERISTICS(0)),
     ];
 
-    const RUNTIMES: [&'static windows::core::HSTRING; 2] = [
-        windows::core::h!("SkyrimSE.exe"),
-        windows::core::h!("SkyrimVR.exe"),
-    ];
-
-    #[cfg(test)]
-    fn new(filename: windows::core::HSTRING) -> Result<Self, ModuleInitError> {
-        let module_handle = ModuleHandle::new(&filename)
+    /// Method by which a dummy file(`msvcrt.dll`) is loaded for testing.
+    #[cfg(feature = "debug")]
+    pub(crate) fn init() -> Result<Self, ModuleInitError> {
+        let filename = windows::core::h!("msvcrt.dll");
+        let module_handle = ModuleHandle::new(filename)
             .map_err(|_| ModuleInitError::ModuleNameAndHandleNotFound)?;
 
-        Self::init_inner(filename, module_handle)
+        Self::init_inner(filename.clone(), module_handle)
     }
 
     /// Initializes a new `Module` instance by detecting the currently loaded module.
@@ -83,7 +80,8 @@ impl Module {
     /// An error occurs in the following cases
     /// - If the module handle could not be obtained.
     /// - Module version could not be obtained.
-    pub fn from_skyrim() -> Result<Self, ModuleInitError> {
+    #[cfg(not(feature = "debug"))]
+    pub fn init() -> Result<Self, ModuleInitError> {
         use windows::core::{h, HSTRING};
         use windows::Win32::System::Environment::GetEnvironmentVariableW;
 
@@ -109,8 +107,13 @@ impl Module {
             #[cfg(feature = "tracing")]
             tracing::info!("Failed to read the `SKSE_RUNTIME` environment variable. Trying to get it from Runtime exe (e.g. `SkyrimSE.exe`) instead...");
 
+            const RUNTIMES: [&'static windows::core::HSTRING; 2] = [
+                windows::core::h!("SkyrimSE.exe"),
+                windows::core::h!("SkyrimVR.exe"),
+            ];
+
             let mut ret = None;
-            for runtime_name in Module::RUNTIMES {
+            for runtime_name in RUNTIMES {
                 if let Ok(new_handle) = ModuleHandle::new(runtime_name) {
                     ret = Some((runtime_name.clone(), new_handle));
                     break;
@@ -241,9 +244,8 @@ mod tests {
     fn test_module_init() {
         // Use `msvcrt.dll` for testing since the dll is always US English and
         // always loaded in the msvc target when the test is run.
-        let filename = windows::core::h!("msvcrt.dll");
 
-        match dbg!(Module::new(filename.clone())) {
+        match dbg!(Module::init()) {
             Ok(module) => {
                 assert!(!module.file_path.is_empty());
                 assert!(!module.filename.is_empty());
