@@ -41,7 +41,7 @@ pub enum ModuleState {
 impl ModuleState {
     /// Initialize the module.
     fn init() -> Self {
-        match Module::init() {
+        match Module::from_skyrim() {
             Ok(module) => Self::Active(module),
             Err(err) => Self::FailedInit(err),
         }
@@ -125,7 +125,7 @@ impl ModuleState {
         }
 
         // The fact that it was not `Active` means that it absolutely needs to be initialized.
-        let (ret, module_state) = match Module::init() {
+        let (ret, module_state) = match Module::from_skyrim() {
             Ok(module) => (Ok(f(&module)), Self::Active(module)),
             Err(err) => {
                 let ret_err = ModuleStateError::FailedInit {

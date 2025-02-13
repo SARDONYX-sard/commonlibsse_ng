@@ -20,24 +20,23 @@ use crate::sys::REL::Version;
 /// # Example
 /// ```no_run
 /// use commonlibsse_ng::rel::version::{get_file_version, Version};
+/// use windows::core::h; // Windows UTF-16 string conversion macro
 ///
-/// let target = r"D:\STEAM\steamapps\common\Skyrim Special Edition\SkyrimSE.exe";
+/// let target = h!(r"D:\STEAM\steamapps\common\Skyrim Special Edition\SkyrimSE.exe");
 /// let result = get_file_version(target);
 /// assert_eq!(result, Ok(Version::new(1, 6, 1170, 0)));
 /// ```
 ///
 /// [`lang-codepage`]: https://learn.microsoft.com/windows/win32/api/winver/nf-winver-verqueryvaluew#stringfileinfolang-codepagestring-name
-pub fn get_file_version(filename: &str) -> Result<Version, FileVersionError> {
+pub fn get_file_version(filename: &windows::core::HSTRING) -> Result<Version, FileVersionError> {
     // https://microsoft.github.io/windows-docs-rs/doc/windows/?search=GetFileVersionInfoSizeW
     use core::ptr;
     use windows::Win32::Storage::FileSystem::{
         GetFileVersionInfoSizeW, GetFileVersionInfoW, VerQueryValueW,
     };
 
-    let filename_w = windows::core::HSTRING::from(filename);
-
     let mut dummy = 0;
-    let size = unsafe { GetFileVersionInfoSizeW(&filename_w, Some(&mut dummy)) };
+    let size = unsafe { GetFileVersionInfoSizeW(filename, Some(&mut dummy)) };
     if size == 0 {
         return Err(FileVersionError::VersionInfoSize {
             filename: filename.to_string(),
@@ -46,8 +45,7 @@ pub fn get_file_version(filename: &str) -> Result<Version, FileVersionError> {
 
     let mut buf = vec![0_u8; size as usize];
 
-    if let Err(err) =
-        unsafe { GetFileVersionInfoW(&filename_w, None, size, buf.as_mut_ptr().cast()) }
+    if let Err(err) = unsafe { GetFileVersionInfoW(filename, None, size, buf.as_mut_ptr().cast()) }
     {
         return Err(FileVersionError::VersionInfoRetrieval {
             filename: filename.to_string(),
@@ -101,18 +99,19 @@ pub enum FileVersionError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use windows::core::h;
 
     #[test]
     fn test_valid_file_version() {
         // Use a system file that is guaranteed to exist on Windows.
-        let target = "C:\\Windows\\splwow64.exe";
+        let target = h!("C:\\Windows\\splwow64.exe");
         let version = get_file_version(target).unwrap_or_else(|err| panic!("{err}"));
         dbg!(version);
     }
 
     #[test]
     fn test_invalid_file_version() {
-        let target = "C:\\nonexistent_file.exe";
+        let target = h!("C:\\nonexistent_file.exe");
         let result = get_file_version(target);
 
         let expected_err = Err(FileVersionError::VersionInfoSize {

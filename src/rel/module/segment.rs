@@ -21,6 +21,14 @@ pub struct Segment {
 }
 
 impl Segment {
+    pub const fn const_default() -> Self {
+        Self {
+            proxy_base: 0,
+            address: 0,
+            size: 0,
+        }
+    }
+
     /// Creates a new segment instance.
     ///
     /// # Example
