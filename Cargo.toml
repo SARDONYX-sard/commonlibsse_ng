@@ -1,11 +1,17 @@
 [package]
 name = "commonlibsse_ng"
+authors = ["SARDONYX"]
 description = "CommonLibSSE-NG Rust bindings"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.81"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[example]]
+name = "parse_db"
+crate-type = ["cdylib"]
+path = "./examples/parse_db.rs"
 
 [dependencies]
 snafu = { version = "0.8.5" }                     # To define error types.
@@ -67,11 +73,11 @@ cargo = { level = "warn", priority = -1 }
 nursery = { level = "warn", priority = -1 }
 
 # allow list
-negative_feature_names = "allow" # Because it is hard to debug without the no_sys feature.
 cargo_common_metadata = "allow"
 derive_partial_eq_without_eq = "allow"
 future_not_send = "allow"
 multiple_crate_versions = "allow"
+negative_feature_names = "allow" # Because it is hard to debug without the no_sys feature.
 pub_with_shorthand = "allow"
 redundant_pub_crate = "allow"
 

@@ -1,0 +1,2 @@
+-I./vcpkg_installed/x64-windows/include
+-std=c++20

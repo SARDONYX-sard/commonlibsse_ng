@@ -72,7 +72,7 @@ impl Version {
 
     /// Parses a version string at compile time.
     ///
-    /// # Errors
+    /// # Panics
     /// Errors are made under the following conditions.
     ///
     /// - When there is no number after a point.
@@ -83,30 +83,15 @@ impl Version {
     /// ```rust
     /// use commonlibsse_ng::rel::version::{Version, VersionParseError};
     ///
-    /// assert_eq!(
-    ///     Version::from_str_const("1.2.3.4"),
-    ///     Ok(Version::new(1, 2, 3, 4))
-    /// );
-    /// assert_eq!(
-    ///     Version::from_str_const("1.2.3"),
-    ///     Ok(Version::new(1, 2, 3, 0))
-    /// );
+    /// assert_eq!(Version::from_str_const("1.2.3"), Version::new(1, 2, 3, 0));
     ///
-    /// assert_eq!(
-    ///     Version::from_str_const_("1.2.3.4.5"),
-    ///     Err(VersionParseError::TooManyParts { parts: 4 }) // 0 based index. got 5 length
-    /// );
-    /// assert_eq!(
-    ///     Version::from_str_const("1.2.f.4.5"),
-    ///     Err(VersionParseError::InvalidCharacter { character: 'f' })
-    /// );
-    /// assert_eq!(
-    ///     Version::from_str_const("1.2."),
-    ///     Err(VersionParseError::MissingNumber { part: 2 })
-    /// );
+    /// // Panics
+    /// // assert_eq!(Version::from_str_const_("1.2.3.4.5")); // Too many numbers
+    /// // assert_eq!(Version::from_str_const("1.2.f.4.5")); // Invalid char `f`
+    /// // assert_eq!(Version::from_str_const("1.2.")); // Missing number
     /// ```
     #[inline]
-    pub const fn from_str_const(version: &str) -> Result<Self, VersionParseError> {
+    pub const fn from_str_const(version: &str) -> Self {
         let mut parts = [0_u16; 4];
         let mut idx = 0;
         let mut num = 0;
@@ -119,7 +104,7 @@ impl Version {
             let b = bytes[i];
             if b == b'.' {
                 if idx >= 4 {
-                    return Err(VersionParseError::TooManyParts { parts: idx });
+                    panic!("Expected at most 4 parts, but got too many parts.");
                 }
                 parts[idx] = num;
 
@@ -130,23 +115,21 @@ impl Version {
                 num = num * 10 + (b - b'0') as u16;
                 has_digit = true;
             } else {
-                return Err(VersionParseError::InvalidCharacter {
-                    character: b as char,
-                });
+                panic!("Expected a number but got invalid character.");
             }
             i += 1;
         }
 
         if has_digit {
             if idx >= 4 {
-                return Err(VersionParseError::TooManyParts { parts: idx });
+                panic!("Expected at most 4 parts, but got too many parts.");
             }
             parts[idx] = num;
         } else {
-            return Err(VersionParseError::MissingNumber { part: idx });
+            panic!("Expected numbers after the dots, but got none in parts");
         }
 
-        Ok(Self { _impl: parts })
+        Self { _impl: parts }
     }
 
     /// Returns the major version component.
@@ -271,8 +254,47 @@ impl core::str::FromStr for Version {
     type Err = VersionParseError;
 
     #[inline]
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from_str_const(s)
+    fn from_str(version: &str) -> Result<Self, Self::Err> {
+        let mut parts = [0_u16; 4];
+        let mut idx = 0;
+        let mut num = 0;
+        let mut has_digit = false;
+
+        let bytes = version.as_bytes();
+        let len = bytes.len();
+        let mut i = 0;
+        while i < len {
+            let b = bytes[i];
+            if b == b'.' {
+                if idx >= 4 {
+                    return Err(VersionParseError::TooManyParts { parts: idx });
+                }
+                parts[idx] = num;
+
+                num = 0;
+                idx += 1;
+                has_digit = false;
+            } else if b.is_ascii_digit() {
+                num = num * 10 + (b - b'0') as u16;
+                has_digit = true;
+            } else {
+                return Err(VersionParseError::InvalidCharacter {
+                    character: b as char,
+                });
+            }
+            i += 1;
+        }
+
+        if has_digit {
+            if idx >= 4 {
+                return Err(VersionParseError::TooManyParts { parts: idx });
+            }
+            parts[idx] = num;
+        } else {
+            return Err(VersionParseError::MissingNumber { part: idx });
+        }
+
+        Ok(Self { _impl: parts })
     }
 }
 
@@ -303,5 +325,26 @@ mod tests {
         assert!(v2 > v1);
         assert!(v3 > v1);
         assert!(v1 == v4);
+    }
+
+    #[test]
+    fn test_from_str() {
+        use core::str::FromStr as _;
+
+        assert_eq!(Version::from_str("1.2.3.4"), Ok(Version::new(1, 2, 3, 4)));
+        assert_eq!(Version::from_str("1.2.3"), Ok(Version::new(1, 2, 3, 0)));
+
+        assert_eq!(
+            Version::from_str("1.2.3.4.5"),
+            Err(VersionParseError::TooManyParts { parts: 4 }) // 0 based index. got 5 length
+        );
+        assert_eq!(
+            Version::from_str("1.2.f.4.5"),
+            Err(VersionParseError::InvalidCharacter { character: 'f' })
+        );
+        assert_eq!(
+            Version::from_str("1.2."),
+            Err(VersionParseError::MissingNumber { part: 2 })
+        );
     }
 }

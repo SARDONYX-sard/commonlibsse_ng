@@ -86,6 +86,7 @@ impl Trampoline {
 
     const INT3: u8 = 0xCC;
 
+    /// # Panics
     pub fn create(&mut self, size: usize, mut module: *mut u8) {
         if size == 0 {
             panic!("Cannot create a trampoline with a size of zero");
@@ -104,7 +105,7 @@ impl Trampoline {
                 let deleter: Deleter = Some(Box::new(|mem, _size| {
                     let _ = unsafe { VirtualFree(mem, 0, MEM_RELEASE) };
                 }));
-                self.set_trampoline(mem, size, deleter);
+                unsafe { self.set_trampoline(mem, size, deleter) };
             }
             None => {
                 panic!("Failed to create trampoline.");
@@ -112,8 +113,9 @@ impl Trampoline {
         }
     }
 
+    /// # Safety
     #[inline]
-    pub fn set_trampoline(&mut self, trampoline: *mut u8, size: usize, deleter: Deleter) {
+    pub unsafe fn set_trampoline(&mut self, trampoline: *mut u8, size: usize, deleter: Deleter) {
         if !trampoline.is_null() {
             unsafe { ptr::write_bytes(trampoline, Self::INT3, size) };
         }
@@ -161,6 +163,8 @@ impl Trampoline {
         self.capacity.saturating_sub(self.size)
     }
 
+    /// # Safety
+    /// # Panics
     #[inline]
     pub unsafe fn write_branch<const N: usize>(&mut self, a_src: usize, a_dst: usize) -> usize {
         let data: u8 = match N {
@@ -172,6 +176,8 @@ impl Trampoline {
         self.write_branch_with_data::<N>(a_src, a_dst, data)
     }
 
+    /// # Safety
+    /// # Panics
     #[inline]
     pub unsafe fn write_call<const N: usize>(&mut self, a_src: usize, a_dst: usize) -> usize {
         let data: u8 = match N {
@@ -317,6 +323,7 @@ impl Trampoline {
         *mem = a_dst;
     }
 
+    /// # Safety
     #[inline]
     pub unsafe fn write_branch_with_data<const N: usize>(
         &mut self,
