@@ -70,7 +70,7 @@ pub fn get_file_version(filename: &windows::core::HSTRING) -> Result<Version, Fi
         String::from_utf16_lossy(slice)
     };
 
-    let mut version = Version::const_default();
+    let mut version = Version::default_const();
     for (i, token) in ver_str.split('.').take(4).enumerate() {
         if let Ok(num) = token.parse::<u16>() {
             version[i] = num;

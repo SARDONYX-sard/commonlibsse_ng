@@ -47,10 +47,10 @@ impl Version {
     /// ```
     /// use commonlibsse_ng::rel::version::Version;
     ///
-    /// assert_eq!(Version::const_default(), Version::new(0, 0, 0, 0));
+    /// assert_eq!(Version::default_const(), Version::new(0, 0, 0, 0));
     /// ```
     #[inline]
-    pub const fn const_default() -> Self {
+    pub const fn default_const() -> Self {
         Self::new(0, 0, 0, 0)
     }
 
@@ -84,29 +84,29 @@ impl Version {
     /// use commonlibsse_ng::rel::version::{Version, VersionParseError};
     ///
     /// assert_eq!(
-    ///     Version::const_from_str("1.2.3.4"),
+    ///     Version::from_str_const("1.2.3.4"),
     ///     Ok(Version::new(1, 2, 3, 4))
     /// );
     /// assert_eq!(
-    ///     Version::const_from_str("1.2.3"),
+    ///     Version::from_str_const("1.2.3"),
     ///     Ok(Version::new(1, 2, 3, 0))
     /// );
     ///
     /// assert_eq!(
-    ///     Version::const_from_str("1.2.3.4.5"),
+    ///     Version::from_str_const_("1.2.3.4.5"),
     ///     Err(VersionParseError::TooManyParts { parts: 4 }) // 0 based index. got 5 length
     /// );
     /// assert_eq!(
-    ///     Version::const_from_str("1.2.f.4.5"),
+    ///     Version::from_str_const("1.2.f.4.5"),
     ///     Err(VersionParseError::InvalidCharacter { character: 'f' })
     /// );
     /// assert_eq!(
-    ///     Version::const_from_str("1.2."),
+    ///     Version::from_str_const("1.2."),
     ///     Err(VersionParseError::MissingNumber { part: 2 })
     /// );
     /// ```
     #[inline]
-    pub const fn const_from_str(version: &str) -> Result<Self, VersionParseError> {
+    pub const fn from_str_const(version: &str) -> Result<Self, VersionParseError> {
         let mut parts = [0_u16; 4];
         let mut idx = 0;
         let mut num = 0;
@@ -237,7 +237,7 @@ impl Version {
 
 impl Default for Version {
     fn default() -> Self {
-        Self::const_default()
+        Self::default_const()
     }
 }
 
@@ -272,7 +272,7 @@ impl core::str::FromStr for Version {
 
     #[inline]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::const_from_str(s)
+        Self::from_str_const(s)
     }
 }
 
