@@ -156,7 +156,7 @@ impl Module {
     /// ```no_run
     /// use commonlibsse_ng::rel::module::{Module, SegmentName};
     ///
-    /// match Module::from_skyrim() {
+    /// match Module::init() {
     ///     Ok(module) => println!("{:?}", module.segment(SegmentName::Textx)),
     ///     Err(err) => tracing::error!("Failed to initialize module: {err}"),
     /// }
@@ -181,13 +181,13 @@ impl Module {
         let section = ((nt_header as *const _ as usize) + section_header_offset)
             as *const IMAGE_SECTION_HEADER;
         let section_len = core::cmp::min(
-            nt_header.FileHeader.NumberOfSections,
-            Self::SEGMENTS.len() as u16,
+            nt_header.FileHeader.NumberOfSections as usize,
+            Self::SEGMENTS.len(),
         );
 
         let mut segments = [Segment::const_default(); 8];
         for i in 0..section_len {
-            let current_section = unsafe { &*section.add(i as usize) };
+            let current_section = unsafe { &*section.add(i) };
 
             let maybe_found = Self::SEGMENTS.iter().enumerate().find(|(_, elem)| {
                 let maybe_ascii = core::str::from_utf8(&current_section.Name);

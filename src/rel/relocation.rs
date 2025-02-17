@@ -90,15 +90,19 @@ unsafe fn restore_memory_protection(
     VirtualProtect(addr, len, old_protection, &mut temp)
 }
 
+/// # Errors
+/// # Safety
 #[inline]
-unsafe fn safe_write<T>(dst: *mut T, src: *const T, len: usize) -> windows::core::Result<()> {
+pub unsafe fn safe_write<T>(dst: *mut T, src: *const T, len: usize) -> windows::core::Result<()> {
     let old_protection = enable_write_permission(dst as _, len)?;
     core::ptr::copy_nonoverlapping(src, dst, len);
     restore_memory_protection(dst as _, len, old_protection)
 }
 
+/// # Errors
+/// # Safety
 #[inline]
-unsafe fn safe_write_value<T>(dst: *mut T, src: &T) -> windows::core::Result<()> {
+pub unsafe fn safe_write_value<T>(dst: *mut T, src: &T) -> windows::core::Result<()> {
     safe_write(dst, src, core::mem::size_of::<T>())
 }
 
