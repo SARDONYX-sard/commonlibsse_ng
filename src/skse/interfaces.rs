@@ -2,73 +2,25 @@
 // SPDX-License-Identifier: MIT OR CC-BY-NC-SA-4.0
 //
 // See: https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE/-/issues/2#note_2332635556
-// use crate::sys::root::{__BindgenBitfieldUnit, SKSE};
+
+pub mod load;
+pub mod messaging;
+pub mod object;
+pub mod papyrus;
+pub mod query;
+pub mod scaleform;
+pub mod serialization;
+pub mod task;
+pub mod types;
 
 use crate::rel::version::Version;
 
-use super::impls::stab::{PluginHandle, SKSEInterface};
+pub struct TrampolineInterface;
+impl TrampolineInterface {
+    pub const VERSION: u32 = 1;
 
-#[repr(C)]
-pub struct QueryInterface {
-    proxy: *const u8,
-}
-
-impl QueryInterface {
-    pub fn editor_version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).editor_version }
-    }
-
-    pub fn is_editor(&self) -> bool {
-        unsafe { (*self.get_proxy()).is_editor != 0 }
-    }
-
-    pub fn runtime_version(&self) -> Version {
-        let packed = unsafe { (*self.get_proxy()).runtime_version };
-        let major = ((packed & 0xFF000000) >> 24) as u16;
-        let minor = ((packed & 0x00FF0000) >> 16) as u16;
-        let revision = ((packed & 0x0000FFF0) >> 4) as u16;
-        let build = (packed & 0x0000000F) as u16;
-        Version::new(major, minor, revision, build)
-    }
-
-    pub fn skse_version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).skse_version }
-    }
-
-    fn get_proxy(&self) -> *const SKSEInterface {
-        assert!(!self.proxy.is_null());
-        self.proxy.cast()
-    }
-}
-
-#[repr(C)]
-pub struct LoadInterface {
-    _base: QueryInterface,
-}
-
-impl LoadInterface {
-    /// # Safety
-    pub unsafe fn get_plugin_handle(&self) -> PluginHandle {
-        let base = &*self._base.get_proxy();
-        (base.get_plugin_handle)()
-    }
-
-    /// # Safety
-    pub unsafe fn get_plugin_info(&self, name: &std::ffi::CStr) -> *const core::ffi::c_void {
-        let base = &*self._base.get_proxy();
-        (base.get_plugin_info)(name.as_ptr())
-    }
-
-    /// # Safety
-    pub unsafe fn get_release_index(&self) -> u32 {
-        let base = &*self._base.get_proxy();
-        (base.get_release_index)()
-    }
-
-    /// # Safety
-    pub unsafe fn query_interface(&self, id: u32) -> *const core::ffi::c_void {
-        let base = &*self._base.get_proxy();
-        (base.query_interface)(id)
+    pub fn version(&self) -> u32 {
+        Self::VERSION
     }
 }
 

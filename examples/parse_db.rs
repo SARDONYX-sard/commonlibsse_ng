@@ -2,7 +2,7 @@
 use commonlibsse_ng::rel::module::ModuleState;
 use commonlibsse_ng::rel::version::Version;
 use commonlibsse_ng::skse::impls::stab::PluginInfo;
-use commonlibsse_ng::skse::interface::{LoadInterface, PluginVersionData, QueryInterface};
+use commonlibsse_ng::skse::interfaces::{LoadInterface, PluginVersionData, QueryInterface};
 use commonlibsse_ng::skse::version::{RUNTIME_SSE_1_5_97, RUNTIME_SSE_LATEST};
 
 const fn to_fixed_str<const N: usize>(s: &str) -> [u8; N] {
@@ -33,10 +33,7 @@ const fn to_cstr(s: &str) -> &core::ffi::CStr {
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub extern "C" fn SKSEPlugin_Query(skse: *const QueryInterface, info: *mut PluginInfo) -> bool {
     {
-        let info = unsafe {
-            #[allow(clippy::not_unsafe_ptr_arg_deref)]
-            &mut *info
-        };
+        let info = unsafe { &mut *info };
         let ver = Version::from_str_const(env!("CARGO_PKG_VERSION"));
         *info = PluginInfo {
             version: ver.pack(),

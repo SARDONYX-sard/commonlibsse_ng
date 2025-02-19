@@ -28,6 +28,7 @@
     "repr",
     "reqwest",
     "rwlock",
+    "Scaleform",
     "SKSE",
     "Skyrim",
     "splwow",
@@ -39,6 +40,7 @@
     "unmaps",
     "vcpkg",
     "versionlib",
+    "vtbl",
     "waitable"
   ]
 }
