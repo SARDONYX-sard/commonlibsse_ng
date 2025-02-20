@@ -109,13 +109,15 @@ impl APIStorage {
 /// # Safety
 /// # Panics
 #[allow(clippy::cognitive_complexity)]
-pub unsafe fn init(load_interface: &LoadInterface) {
+pub unsafe fn init(load_interface: *const LoadInterface) {
     use tracing::error;
 
     let mut storage = APIStorage::get().write().unwrap();
     if storage.api_init {
         return;
     }
+
+    let load_interface = &*load_interface;
 
     storage.plugin_handle = load_interface.get_plugin_handle();
     storage.release_index = load_interface.get_release_index();

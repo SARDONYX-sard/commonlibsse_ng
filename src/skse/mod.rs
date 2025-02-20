@@ -8,3 +8,5 @@ pub mod trampoline;
 #[cfg(not(feature = "no_sys"))]
 mod translation;
 pub mod version;
+
+pub use api::init;

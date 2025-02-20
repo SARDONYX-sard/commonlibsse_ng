@@ -152,6 +152,10 @@ impl VersionNumber {
         }
     }
 
+    pub const fn default_const() -> Self {
+        Self::new(0, 0, 0, 0)
+    }
+
     pub const fn from_version(version: Version) -> Self {
         Self {
             packed: version.pack(),
@@ -167,24 +171,84 @@ impl VersionNumber {
     }
 }
 
+const fn to_fixed_str<const N: usize>(s: &str) -> [u8; N] {
+    let bytes = s.as_bytes();
+    let bytes_len = bytes.len();
+
+    assert!(
+        bytes_len < N, // NUL 終端のために N-1 文字まで
+        "The length of the input string is too large for the specified size."
+    );
+
+    let mut buf = [0_u8; N];
+
+    let mut i = 0;
+    while i < bytes_len {
+        let b = bytes[i];
+        assert!(b != 0, "The input string contains a null byte.");
+        assert!(
+            b.is_ascii(),
+            "The input string contains non-ASCII characters."
+        );
+        buf[i] = b;
+        i += 1;
+    }
+
+    buf
+}
+
+// const fn to_cstr(s: &str) -> &core::ffi::CStr {
+//     unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(s.as_bytes()) }
+// }
+
 #[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct String256([u8; 256]);
+
+impl String256 {
+    /// Creates a new String256
+    /// # Panics
+    /// - Non ascii characters
+    /// - Null byte
+    pub const fn new(s: &str) -> Self {
+        Self(to_fixed_str(s))
+    }
+
+    /// Creates a new String256 with a default value of 0
+    pub const fn default_const() -> Self {
+        Self([0; 256])
+    }
+}
 
 #[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct String252([u8; 252]);
 
+impl String252 {
+    /// Creates a new String252
+    /// # Panics
+    /// - Non ascii characters
+    /// - Null byte
+    pub const fn new(s: &str) -> Self {
+        Self(to_fixed_str(s))
+    }
+
+    /// Creates a new String252 with a default value of 0
+    pub const fn default_const() -> Self {
+        Self([0; 252])
+    }
+}
+
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct RuntimeCompatibility {
-    address_library: bool,
-    signature_scanning: bool,
-    structs_post_629: bool,
+    pub address_library: bool,
+    pub signature_scanning: bool,
+    pub structs_post_629: bool,
     // _pad0: u8,
     // _pad1: u8,
     // _pad2: u16,
-    compatible_versions: [VersionNumber; 16],
+    pub compatible_versions: [VersionNumber; 16],
 }
 
 const _: () = {
@@ -215,13 +279,13 @@ impl Default for RuntimeCompatibility {
 #[derive(Debug, Clone)]
 pub struct PluginDeclarationInfo {
     /// The version number of the plugin.
-    version: VersionNumber,
+    pub version: VersionNumber,
     /// The plugin's name (maximum of 256 characters).
-    name: String256,
+    pub name: String256,
     /// The name of the plugin's author (maximum of 256 characters).
-    author: String256,
+    pub author: String256,
     /// A support email address for the plugin (maximum of 256 characters).
-    support_email: String252,
+    pub support_email: String252,
     /// Defines the compatibility with structure layout of the plugin.
     ///
     /// For most of modern CommonLibSSE-era plugin development structs in Skyrim have remained
@@ -230,15 +294,15 @@ pub struct PluginDeclarationInfo {
     /// change. CommonLibSSE NG defaults to flagging a plugin independent because it supports
     /// both struct layouts in a single plugin. If your plugin has any RE'd structs that have
     /// changed you should override this.
-    struct_compatibility: StructCompatibility,
+    pub struct_compatibility: StructCompatibility,
     /// A definition of the runtime compatibility for the plugin.
     ///
     /// This can be either an indicator of how version-independence is achieved (either through using Address Library
     /// or signature scanning, indicated with a value from `skse::VersionIndependence`, or a list of up to
     /// 16 version numbers of Skyrim runtimes that are supported by this plugin.
-    runtime_compatibility: RuntimeCompatibility,
+    pub runtime_compatibility: RuntimeCompatibility,
     /// The minimum SKSE version required for the plugin; this should almost always be left 0.
-    minimum_skse_version: VersionNumber,
+    pub minimum_skse_version: VersionNumber,
 }
 
 const _: () = {
