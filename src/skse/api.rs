@@ -110,8 +110,6 @@ impl APIStorage {
 /// # Panics
 #[allow(clippy::cognitive_complexity)]
 pub unsafe fn init(load_interface: *const LoadInterface) {
-    use tracing::error;
-
     let mut storage = APIStorage::get().write().unwrap();
     if storage.api_init {
         return;
@@ -124,7 +122,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
 
     let ptr = load_interface.query_interface(LoadInterfaceEnum::ScaleForm as u32);
     storage.scaleform_interface = if ptr.is_null() {
-        error!("Failed to get ScaleformInterface");
+        #[cfg(feature = "tracing")]
+        tracing::error!("Failed to get ScaleformInterface");
         None
     } else {
         Some(&*ptr.cast::<ScaleformInterface>())
@@ -133,7 +132,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
     storage.papyrus_interface = {
         let ptr = load_interface.query_interface(LoadInterfaceEnum::Papyrus as u32);
         if ptr.is_null() {
-            error!("Failed to get PapyrusInterface");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get PapyrusInterface");
             None
         } else {
             Some(&*ptr.cast::<PapyrusInterface>())
@@ -143,7 +143,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
     storage.serialization_interface = {
         let ptr = load_interface.query_interface(LoadInterfaceEnum::Serialization as u32);
         if ptr.is_null() {
-            error!("Failed to get SerializationInterface");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get SerializationInterface");
             None
         } else {
             Some(&*ptr.cast::<SerializationInterface>())
@@ -153,7 +154,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
     storage.task_interface = {
         let ptr = load_interface.query_interface(LoadInterfaceEnum::Task as u32);
         if ptr.is_null() {
-            error!("Failed to get TaskInterface");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get TaskInterface");
             None
         } else {
             Some(&*ptr.cast::<TaskInterface>())
@@ -163,7 +165,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
     storage.trampoline_interface = {
         let ptr = load_interface.query_interface(LoadInterfaceEnum::Trampoline as u32);
         if ptr.is_null() {
-            error!("Failed to get TrampolineInterface");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get TrampolineInterface");
             None
         } else {
             Some(&*ptr.cast::<TrampolineInterface>())
@@ -172,14 +175,16 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
 
     let messaging_ptr = load_interface.query_interface(LoadInterfaceEnum::Messaging as u32);
     if messaging_ptr.is_null() {
-        error!("Failed to get MessagingInterface");
+        #[cfg(feature = "tracing")]
+        tracing::error!("Failed to get MessagingInterface");
     } else {
         let messaging_interface = &*messaging_ptr.cast::<MessagingInterface>();
         storage.messaging_interface = Some(messaging_interface);
 
         let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::ModEvent);
         storage.mod_callback_event_source = if ptr.is_null() {
-            error!("Failed to get BSTEventSource<ModCallbackEvent>");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get BSTEventSource<ModCallbackEvent>");
             None
         } else {
             Some(&*(ptr as *const _))
@@ -187,7 +192,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
 
         let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::CameraEvent);
         storage.camera_event_source = if ptr.is_null() {
-            error!("Failed to get BSTEventSource<CameraEvent>");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get BSTEventSource<CameraEvent>");
             None
         } else {
             Some(&*(ptr as *const _))
@@ -195,7 +201,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
 
         let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::CameraEvent);
         storage.camera_event_source = if ptr.is_null() {
-            error!("Failed to get BSTEventSource<CameraEvent>");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get BSTEventSource<CameraEvent>");
             None
         } else {
             Some(&*(ptr as *const _))
@@ -203,7 +210,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
 
         let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::CrosshairEvent);
         storage.crosshair_ref_event_source = if ptr.is_null() {
-            error!("Failed to get BSTEventSource<CrosshairEvent>");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get BSTEventSource<CrosshairEvent>");
             None
         } else {
             Some(&*(ptr as *const _))
@@ -211,7 +219,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
 
         let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::ActionEvent);
         storage.action_event_source = if ptr.is_null() {
-            error!("Failed to get BSTEventSource<ActionEvent>");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get BSTEventSource<ActionEvent>");
             None
         } else {
             Some(&*(ptr as *const _))
@@ -220,7 +229,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
         let ptr =
             messaging_interface.get_event_dispatcher(messaging::Dispatcher::NiNodeUpdateEvent);
         storage.ni_node_update_event_source = if ptr.is_null() {
-            error!("Failed to get BSTEventSource<NiNodeUpdateEvent>");
+            #[cfg(feature = "tracing")]
+            tracing::error!("Failed to get BSTEventSource<NiNodeUpdateEvent>");
             None
         } else {
             Some(&*(ptr as *const _))
@@ -229,14 +239,16 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
 
     let object_ptr = load_interface.query_interface(LoadInterfaceEnum::Object as u32);
     if object_ptr.is_null() {
-        error!("Failed to get ObjectInterface");
+        #[cfg(feature = "tracing")]
+        tracing::error!("Failed to get ObjectInterface");
     } else {
         let object_interface = &*object_ptr.cast::<ObjectInterface>();
         storage.object_interface = Some(object_interface);
         storage.delay_functor_manager = {
             let ptr = object_interface.get_delay_functor_manager();
             if ptr.is_null() {
-                error!("Failed to get SKSEDelayFunctorManager");
+                #[cfg(feature = "tracing")]
+                tracing::error!("Failed to get SKSEDelayFunctorManager");
                 None
             } else {
                 Some(&*ptr)
@@ -245,7 +257,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
         storage.object_registry = {
             let ptr = object_interface.get_object_registry();
             if ptr.is_null() {
-                error!("Failed to get SKSEDelayFunctorManager");
+                #[cfg(feature = "tracing")]
+                tracing::error!("Failed to get SKSEDelayFunctorManager");
                 None
             } else {
                 Some(&*ptr)
@@ -255,7 +268,8 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
         storage.persistent_object_storage = {
             let ptr = object_interface.get_persistent_object_storage();
             if ptr.is_null() {
-                error!("Failed to get SKSEDelayFunctorManager");
+                #[cfg(feature = "tracing")]
+                tracing::error!("Failed to get SKSEDelayFunctorManager");
                 None
             } else {
                 Some(&*ptr)

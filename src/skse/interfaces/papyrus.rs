@@ -46,6 +46,7 @@ impl PapyrusInterface {
         let result =
             unsafe { ((*self.get_proxy()).register)((&mut func as *mut RegFunction1).cast()) };
         if !result {
+            #[cfg(feature = "tracing")]
             tracing::error!("Failed to register papyrus callback");
         };
         result

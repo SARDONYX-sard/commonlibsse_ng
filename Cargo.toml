@@ -9,9 +9,9 @@ rust-version = "1.81"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[example]]
-name = "parse_db"
+name = "module_state"
 crate-type = ["cdylib"]
-path = "./examples/parse_db.rs"
+path = "./examples/module_state.rs"
 
 [dependencies]
 snafu = { version = "0.8.5" }                     # To define error types.

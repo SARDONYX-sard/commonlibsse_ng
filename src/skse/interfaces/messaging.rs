@@ -77,12 +77,13 @@ impl MessagingInterface {
             )
         };
         if !result {
-            let receiver = if receiver.is_empty() {
+            let _receiver = if receiver.is_empty() {
                 "all listeners"
             } else {
                 receiver.to_str().unwrap_or_default()
             };
-            tracing::warn!("Failed to dispatch message to {receiver }");
+            #[cfg(feature = "tracing")]
+            tracing::warn!("Failed to dispatch message to {_receiver}");
         }
 
         result
@@ -108,6 +109,7 @@ impl MessagingInterface {
         };
 
         if !result {
+            #[cfg(feature = "tracing")]
             tracing::warn!(
                 "Failed to register listener for sender: {}",
                 sender.to_string_lossy()

@@ -30,6 +30,7 @@ pub extern "C" fn SKSEPlugin_Query(skse: *const QueryInterface, info: *mut Plugi
     };
 
     if unsafe { &*skse }.is_editor() {
+        #[cfg(feature = "tracing")]
         tracing::error!("The use of the SKSE Plugin within Editor is not supported.");
         false
     } else {
@@ -71,6 +72,7 @@ pub extern "C" fn SKSEPlugin_Load(skse: *const LoadInterface) {
     unsafe { skse::init(skse) };
 
     let _ = commonlibsse_ng::rel::module::ModuleState::map_or_init(|module| {
+        #[cfg(feature = "tracing")]
         tracing::info!("{module:?}");
     });
 }

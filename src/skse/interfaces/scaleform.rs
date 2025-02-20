@@ -33,6 +33,7 @@ impl ScaleformInterface {
         let result = unsafe { ((*self.get_proxy()).register)(name.as_ptr(), void_callback) };
 
         if !result {
+            #[cfg(feature = "tracing")]
             tracing::error!("Failed to register scaleform callback: {:?}", name);
         };
         result
