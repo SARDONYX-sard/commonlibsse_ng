@@ -27,11 +27,11 @@ pub(crate) static ID_DATABASE: LazyLock<IDDatabase> = LazyLock::new(|| {
     // TODO: remove unwrap
     {
         #[cfg(not(feature = "debug"))]
-        IDDatabase::from_bin().unwrap()
+        return IDDatabase::from_bin().unwrap();
     }
     {
         #[cfg(feature = "debug")]
-        IDDatabase::from_bin().unwrap_or_else(|_| IDDatabase::new_dummy())
+        return IDDatabase::from_bin().unwrap_or_else(|_| IDDatabase::new_dummy());
     }
 });
 
