@@ -61,21 +61,6 @@ impl Module {
     /// This method attempts to retrieve the module information from the `SKSE_RUNTIME`
     /// or fallback to a predefined list of runtime binaries(e.g. `SkyrimSE.exe`).
     ///
-    /// # Examples
-    /// ```no_run
-    /// use commonlibsse_ng::rel::module::{Module, Runtime};
-    ///
-    /// let module = Module::from_skyrim();
-    /// match module {
-    ///     Ok(module) => {
-    ///         assert!(!module.filename.is_empty());
-    ///         assert!(!module.file_path.is_empty());
-    ///         assert_eq!(module.runtime, Runtime::Se);
-    ///     }
-    ///     Err(err) => panic!("Failed to initialize module: {err}"),
-    /// }
-    /// ```
-    ///
     /// # Errors
     /// An error occurs in the following cases
     /// - If the module handle could not be obtained.

@@ -23,8 +23,17 @@ use std::sync::LazyLock;
 
 /// Global static instance of `IdDatabase` initialized lazily.
 /// This ensures the database is only loaded when needed.
-pub(crate) static ID_DATABASE: LazyLock<IDDatabase> =
-    LazyLock::new(|| IDDatabase::from_bin().unwrap()); // TODO: remove unwrap
+pub(crate) static ID_DATABASE: LazyLock<IDDatabase> = LazyLock::new(|| {
+    // TODO: remove unwrap
+    {
+        #[cfg(not(feature = "debug"))]
+        IDDatabase::from_bin().unwrap()
+    }
+    {
+        #[cfg(feature = "debug")]
+        IDDatabase::from_bin().unwrap_or_else(|_| IDDatabase::new_dummy())
+    }
+});
 
 /// Represents a database of ID-to-offset mappings loaded from an address library binary file.
 pub struct IDDatabase {
@@ -33,6 +42,13 @@ pub struct IDDatabase {
 }
 
 impl IDDatabase {
+    fn new_dummy() -> Self {
+        use windows::core::h;
+
+        let (mem_map, _is_created) = SharedRwLock::new(h!("Dummy for test"), 1).unwrap();
+        Self { mem_map }
+    }
+
     /// Loads the ID database from the appropriate binary file based on the module state.
     ///
     /// # Errors

@@ -15,7 +15,7 @@ commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", re
 ## Example test
 
 ```shell
-cargo build --example module_state --features "debug,no_sys"
+cargo build --example module_state --features "tracing,no_sys"
 ```
 
 ## Licenses
