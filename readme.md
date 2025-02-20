@@ -12,6 +12,12 @@ commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", re
 
 - [api docs](https://commonlibsse-ng-docs-rs.netlify.app/commonlibsse_ng/)
 
+## Example test
+
+```shell
+cargo build --example module_state --features "debug,no_sys"
+```
+
 ## Licenses
 
 - [SkyrimOutfitSystemSE](https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE): `commonlibsse_ng` Rust code
