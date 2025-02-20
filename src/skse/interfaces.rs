@@ -12,7 +12,6 @@ pub mod scaleform;
 pub mod serialization;
 pub mod task;
 pub mod trampoline;
-pub mod types;
 
 use crate::{rel::version::Version, rex::kernel32::get_current_module};
 
@@ -125,6 +124,7 @@ impl PluginVersionData {
         use windows::Win32::System::LibraryLoader::GetProcAddress;
 
         let f = unsafe { GetProcAddress(get_current_module(), s!("SKSEPlugin_Version")) };
+        #[allow(clippy::fn_to_numeric_cast_any)]
         f.map(|f| unsafe { &mut *(f as *mut Self) })
     }
 }
@@ -167,11 +167,11 @@ impl VersionNumber {
     }
 }
 
-#[repr(C, packed)]
+#[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct String256([u8; 256]);
 
-#[repr(C, packed)]
+#[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct String252([u8; 252]);
 
@@ -263,12 +263,13 @@ pub struct PluginDeclaration {
 const _: () = assert!(0x350 == core::mem::size_of::<PluginDeclaration>());
 
 impl PluginDeclaration {
-    pub fn get_singleton() -> Option<&'static mut PluginDeclaration> {
+    pub fn get_singleton() -> Option<&'static mut Self> {
         use windows::core::s;
         use windows::Win32::System::LibraryLoader::GetProcAddress;
 
         let f = unsafe { GetProcAddress(get_current_module(), s!("SKSEPlugin_Version")) };
 
-        f.map(|f| unsafe { &mut *(f as *mut PluginDeclaration) })
+        #[allow(clippy::fn_to_numeric_cast_any)]
+        f.map(|f| unsafe { &mut *(f as *mut Self) })
     }
 }

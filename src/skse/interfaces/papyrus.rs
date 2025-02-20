@@ -10,8 +10,9 @@
 use crate::{re::BSScript, skse::impls::stab::SKSEPapyrusInterface};
 
 type RegFunction1 = fn(vm: *mut BSScript::Internal::VirtualMachine) -> bool;
-type RegFunction2 = fn(vm: *mut BSScript::IVirtualMachine) -> bool;
+// type RegFunction2 = fn(vm: *mut BSScript::IVirtualMachine) -> bool;
 
+#[derive(Debug)]
 pub struct PapyrusInterface {
     address: *const u8,
 }

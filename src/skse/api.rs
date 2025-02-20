@@ -1,32 +1,39 @@
-use std::sync::{Mutex, OnceLock};
+use core::ptr;
+use std::sync::{OnceLock, RwLock};
 
-use crate::{re::BSTEventSource, rel::version::Version, skse::impls::stab::INVALID_PLUGIN_HANDLE};
-
-use super::{
-    impls::stab::{
-        PluginHandle, SKSEDelayFunctorManager, SKSEObjectRegistry, SKSEPersistentObjectStorage,
-    },
-    interfaces::{
-        load::{LoadInterface, LoadInterfaceEnum},
-        messaging::{self, MessagingInterface},
-        object::ObjectInterface,
-        papyrus::PapyrusInterface,
-        scaleform::ScaleformInterface,
-        serialization::SerializationInterface,
-        task::TaskInterface,
-        trampoline::TrampolineInterface,
-    },
+use crate::re::BSTEventSource;
+use crate::rel::version::Version;
+use crate::skse::impls::stab::{
+    PluginHandle, SKSEDelayFunctorManager, SKSEObjectRegistry, SKSEPersistentObjectStorage,
+    INVALID_PLUGIN_HANDLE,
 };
+use crate::skse::interfaces::{
+    load::{LoadInterface, LoadInterfaceEnum},
+    messaging::{self, MessagingInterface},
+    object::ObjectInterface,
+    papyrus::PapyrusInterface,
+    scaleform::ScaleformInterface,
+    serialization::SerializationInterface,
+    task::TaskInterface,
+    trampoline::TrampolineInterface,
+};
+use crate::skse::trampoline::get_trampoline;
 
 // Placeholder for various SKSE interfaces
 
 // Event source stubs
+#[derive(Debug)]
 pub struct ModCallbackEvent;
+#[derive(Debug)]
 pub struct CameraEvent;
+#[derive(Debug)]
 pub struct CrosshairRefEvent;
+#[derive(Debug)]
 pub struct ActionEvent;
+#[derive(Debug)]
 pub struct NiNodeUpdateEvent;
 
+#[derive(Debug, Default)]
 struct APIStorage {
     plugin_name: Option<String>,
     plugin_author: Option<String>,
@@ -54,17 +61,19 @@ struct APIStorage {
     persistent_object_storage: Option<&'static SKSEPersistentObjectStorage>,
 
     api_init: bool,
-    api_init_regs: Vec<Box<dyn Fn() + Send + Sync>>,
+    api_init_regs: Vec<Box<dyn ApiInitRegFns>>,
 }
+
+trait ApiInitRegFns: Fn() + Send + Sync + core::fmt::Debug {}
 
 unsafe impl Send for APIStorage {}
 unsafe impl Sync for APIStorage {}
 
 impl APIStorage {
-    fn get() -> &'static Mutex<Self> {
-        static INSTANCE: OnceLock<Mutex<APIStorage>> = OnceLock::new();
+    fn get() -> &'static RwLock<Self> {
+        static INSTANCE: OnceLock<RwLock<APIStorage>> = OnceLock::new();
         INSTANCE.get_or_init(|| {
-            Mutex::new(Self {
+            RwLock::new(Self {
                 plugin_name: None,
                 plugin_author: None,
                 plugin_version: None,
@@ -97,10 +106,13 @@ impl APIStorage {
     }
 }
 
-unsafe fn init(load_interface: &LoadInterface) {
+/// # Safety
+/// # Panics
+#[allow(clippy::cognitive_complexity)]
+pub unsafe fn init(load_interface: &LoadInterface) {
     use tracing::error;
 
-    let mut storage = APIStorage::get().lock().unwrap();
+    let mut storage = APIStorage::get().write().unwrap();
     if storage.api_init {
         return;
     }
@@ -255,96 +267,133 @@ unsafe fn init(load_interface: &LoadInterface) {
     }
 }
 
-static INIT_MUTEX: Mutex<()> = Mutex::new(());
-
 pub fn register_for_api_init_event<F: Fn() + 'static>(_callback: F) {
     // Register callback logic
 }
 
-#[cfg(feature = "skyrim_ae")]
-pub fn get_plugin_name() -> &'static str {
-    "MyPlugin"
+/// # Panics
+pub fn get_plugin_name() -> Option<String> {
+    APIStorage::get().read().unwrap().plugin_name.clone()
 }
 
-#[cfg(feature = "skyrim_ae")]
-pub fn get_plugin_author() -> &'static str {
-    "Author Name"
+/// # Panics
+pub fn get_plugin_author() -> Option<String> {
+    APIStorage::get().read().unwrap().plugin_author.clone()
 }
 
-#[cfg(feature = "skyrim_ae")]
-pub fn get_plugin_version() -> (u32, u32, u32) {
-    (1, 0, 0)
+/// # Panics
+pub fn get_plugin_version() -> Option<Version> {
+    APIStorage::get().read().unwrap().plugin_version.clone()
 }
 
+/// # Panics
 pub fn get_plugin_handle() -> PluginHandle {
-    APIStorage::get()
-    PluginHandle(0) // Example handle
+    APIStorage::get().read().unwrap().plugin_handle.clone()
 }
 
+/// # Panics
 pub fn get_release_index() -> u32 {
-    0 // Example release index
+    APIStorage::get().read().unwrap().release_index
 }
 
+/// # Panics
 pub fn get_scaleform_interface() -> Option<&'static ScaleformInterface> {
-    None
+    APIStorage::get().read().unwrap().scaleform_interface
 }
 
+/// # Panics
 pub fn get_papyrus_interface() -> Option<&'static PapyrusInterface> {
-    None
+    APIStorage::get().read().unwrap().papyrus_interface
 }
 
+/// # Panics
 pub fn get_serialization_interface() -> Option<&'static SerializationInterface> {
-    None
+    APIStorage::get().read().unwrap().serialization_interface
 }
 
+/// # Panics
 pub fn get_task_interface() -> Option<&'static TaskInterface> {
-    None
+    APIStorage::get().read().unwrap().task_interface
 }
 
+/// # Panics
 pub fn get_trampoline_interface() -> Option<&'static TrampolineInterface> {
-    None
+    APIStorage::get().read().unwrap().trampoline_interface
 }
 
+/// # Panics
 pub fn get_messaging_interface() -> Option<&'static MessagingInterface> {
-    None
+    APIStorage::get().read().unwrap().messaging_interface
 }
 
+/// # Panics
 pub fn get_mod_callback_event_source() -> Option<&'static BSTEventSource<ModCallbackEvent>> {
-    None
+    APIStorage::get().read().unwrap().mod_callback_event_source
 }
 
+/// # Panics
 pub fn get_camera_event_source() -> Option<&'static BSTEventSource<CameraEvent>> {
-    None
+    APIStorage::get().read().unwrap().camera_event_source
 }
 
+/// # Panics
 pub fn get_crosshair_ref_event_source() -> Option<&'static BSTEventSource<CrosshairRefEvent>> {
-    None
+    APIStorage::get().read().unwrap().crosshair_ref_event_source
 }
 
+/// # Panics
 pub fn get_action_event_source() -> Option<&'static BSTEventSource<ActionEvent>> {
-    None
+    APIStorage::get().read().unwrap().action_event_source
 }
 
+/// # Panics
 pub fn get_ni_node_update_event_source() -> Option<&'static BSTEventSource<NiNodeUpdateEvent>> {
-    None
+    APIStorage::get()
+        .read()
+        .unwrap()
+        .ni_node_update_event_source
 }
 
+/// # Panics
 pub fn get_object_interface() -> Option<&'static ObjectInterface> {
-    None
+    APIStorage::get().read().unwrap().object_interface
 }
 
+/// # Panics
 pub fn get_delay_functor_manager() -> Option<&'static SKSEDelayFunctorManager> {
-    None
+    APIStorage::get().read().unwrap().delay_functor_manager
 }
 
+/// # Panics
 pub fn get_object_registry() -> Option<&'static SKSEObjectRegistry> {
-    None
+    APIStorage::get().read().unwrap().object_registry
 }
 
+/// # Panics
 pub fn get_persistent_object_storage() -> Option<&'static SKSEPersistentObjectStorage> {
-    None
+    APIStorage::get().read().unwrap().persistent_object_storage
 }
 
-pub fn alloc_trampoline(_size: usize, _try_skse_reserve: bool) {
-    // Allocate trampoline logic
+/// # Panics
+pub fn alloc_trampoline(size: usize, try_skse_reserve: bool) {
+    let trampoline = get_trampoline();
+
+    if try_skse_reserve {
+        let interface = get_trampoline_interface();
+        if let Some(interface) = interface {
+            let memory = interface.allocate_from_branch_pool(size);
+            if memory.is_null() {
+                unsafe {
+                    trampoline
+                        .write()
+                        .unwrap()
+                        .set_trampoline(memory.cast::<u8>(), size, None);
+                }
+            }
+        }
+
+        return;
+    }
+
+    trampoline.write().unwrap().create(size, ptr::null_mut());
 }

@@ -3,6 +3,7 @@
 use core::ffi::{c_char, c_void, CStr};
 
 #[repr(transparent)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PluginHandle(pub u32);
 pub const INVALID_PLUGIN_HANDLE: PluginHandle = PluginHandle(u32::MAX);
 
@@ -98,20 +99,25 @@ pub struct SKSETrampolineInterface {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct SKSEDelayFunctorManager;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct SKSEObjectRegistry;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct SKSEPersistentObjectStorage;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct TaskDelegate {
     pub vtbl: *const TaskDelegateVirtualTable,
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct UiDelegateV1 {
     pub vtbl: *const UiDelegateV1VirtualTable,
 }

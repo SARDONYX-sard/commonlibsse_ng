@@ -2,7 +2,9 @@
 use commonlibsse_ng::rel::module::ModuleState;
 use commonlibsse_ng::rel::version::Version;
 use commonlibsse_ng::skse::impls::stab::PluginInfo;
-use commonlibsse_ng::skse::interfaces::{LoadInterface, PluginVersionData, QueryInterface};
+use commonlibsse_ng::skse::interfaces::load::LoadInterface;
+use commonlibsse_ng::skse::interfaces::query::QueryInterface;
+use commonlibsse_ng::skse::interfaces::PluginVersionData;
 use commonlibsse_ng::skse::version::{RUNTIME_SSE_1_5_97, RUNTIME_SSE_LATEST};
 
 const fn to_fixed_str<const N: usize>(s: &str) -> [u8; N] {

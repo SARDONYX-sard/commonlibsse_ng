@@ -14,7 +14,7 @@ use crate::skse::{api::get_plugin_handle, impls::stab::SKSEMessagingInterface};
 type MessagingCallback = fn(msg: &Message);
 
 #[repr(u32)]
-enum MessageType {
+pub enum MessageType {
     PostLoad,
     PostPostLoad,
     PreLoadGame,
@@ -39,6 +39,7 @@ pub enum Dispatcher {
     Total,
 }
 
+#[derive(Debug)]
 pub struct Message {
     pub sender: &'static str,
     pub msg_type: u32,
@@ -46,6 +47,7 @@ pub struct Message {
     pub data: *mut c_void,
 }
 
+#[derive(Debug)]
 pub struct MessagingInterface {
     address: *const SKSEMessagingInterface,
 }
@@ -57,7 +59,8 @@ impl MessagingInterface {
         unsafe { (*self.get_proxy()).interface_version }
     }
 
-    pub fn dispatch(
+    /// # Safety
+    pub unsafe fn dispatch(
         &self,
         message_type: MessageType,
         data: *mut c_void,
@@ -94,6 +97,7 @@ impl MessagingInterface {
     }
 
     pub fn register_listener2(&self, sender: &CStr, callback: MessagingCallback) -> bool {
+        #[allow(clippy::fn_to_numeric_cast_any)]
         let void_callback = (callback as *mut MessagingCallback).cast::<c_void>();
         let result = unsafe {
             ((*self.get_proxy()).register_listener)(

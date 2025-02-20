@@ -14,6 +14,7 @@ use crate::skse::impls::stab::{SKSETaskInterface, TaskDelegate, UiDelegateV1};
 // https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/src/SKSE/Interfaces.cpp#L204
 type TaskFn = Box<dyn FnOnce() + Send + 'static>;
 
+#[derive(Debug)]
 pub struct TaskInterface {
     address: *const u8,
 }
@@ -41,6 +42,7 @@ impl TaskInterface {
         unsafe { ((*self.get_proxy()).add_ui_task)((&mut task as *mut UiDelegateV1).cast()) }
     }
 
+    /// # Panics
     pub fn get_proxy(&self) -> *const SKSETaskInterface {
         assert!(!self.address.is_null());
         self.address.cast()

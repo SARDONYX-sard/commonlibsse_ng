@@ -9,7 +9,7 @@
 
 use crate::{rel::version::Version, skse::impls::stab::SKSEInterface};
 
-#[repr(C)]
+#[derive(Debug)]
 pub struct QueryInterface {
     proxy: *const u8,
 }

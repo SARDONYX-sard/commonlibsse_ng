@@ -11,6 +11,7 @@ use crate::skse::impls::stab::{
     SKSEDelayFunctorManager, SKSEObjectInterface, SKSEObjectRegistry, SKSEPersistentObjectStorage,
 };
 
+#[derive(Debug)]
 pub struct ObjectInterface {
     address: *const u8,
 }

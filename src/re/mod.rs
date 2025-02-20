@@ -12,4 +12,5 @@ pub struct InventoryEntryData;
 pub struct VMHandle(pub u64);
 pub struct FormID(pub u32);
 
-pub struct BSTEventSource<T>(std::marker::PhantomData<T>);
+#[derive(Debug)]
+pub struct BSTEventSource<T: core::fmt::Debug>(std::marker::PhantomData<T>);

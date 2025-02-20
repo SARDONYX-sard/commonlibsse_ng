@@ -16,6 +16,7 @@ use crate::skse::impls::stab::SKSESerializationInterface;
 type EventCallback = fn(a_intfc: &SerializationInterface);
 type FormDeleteCallback = fn(a_handle: VMHandle);
 
+#[derive(Debug)]
 pub struct SerializationInterface {
     address: *const u8,
 }
@@ -31,19 +32,23 @@ impl SerializationInterface {
     }
 
     pub fn set_form_delete_callback(&self, callback: FormDeleteCallback) {
+        #[allow(clippy::fn_to_numeric_cast_any)]
         let callback = (callback as *mut FormDeleteCallback).cast();
         unsafe { ((*self.get_proxy()).set_form_delete_callback)(get_plugin_handle(), callback) }
     }
 
     pub fn set_load_callback(&self, callback: EventCallback) {
+        #[allow(clippy::fn_to_numeric_cast_any)]
         let callback = (callback as *mut EventCallback).cast();
         unsafe { ((*self.get_proxy()).set_load_callback)(get_plugin_handle(), callback) }
     }
     pub fn set_revert_callback(&self, callback: EventCallback) {
+        #[allow(clippy::fn_to_numeric_cast_any)]
         let callback = (callback as *mut EventCallback).cast();
         unsafe { ((*self.get_proxy()).set_revert_callback)(get_plugin_handle(), callback) }
     }
     pub fn set_save_callback(&self, callback: EventCallback) {
+        #[allow(clippy::fn_to_numeric_cast_any)]
         let callback = (callback as *mut EventCallback).cast();
         unsafe { ((*self.get_proxy()).set_save_callback)(get_plugin_handle(), callback) }
     }
@@ -52,12 +57,12 @@ impl SerializationInterface {
         self.write_record_raw(
             record_type,
             version,
-            buf as *const _ as *const c_void,
+            (buf as *const T).cast::<c_void>(),
             core::mem::size_of::<T>(),
         )
     }
 
-    pub fn write_record_raw(
+    fn write_record_raw(
         &self,
         record_type: u32,
         version: u32,

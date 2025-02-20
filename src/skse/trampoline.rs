@@ -1,7 +1,12 @@
 //! - ref: vcpkg_installed\x64-windows\commonlibsse_ng\include\SKSE\Trampoline.h
 
 use crate::rel::module::{ModuleState, SegmentName};
-use std::{collections::HashMap, ffi::c_void, mem, ptr};
+use std::{
+    collections::HashMap,
+    ffi::c_void,
+    mem, ptr,
+    sync::{OnceLock, RwLock},
+};
 use windows::Win32::System::Memory::{VirtualFree, MEM_FREE, MEM_RELEASE};
 
 #[inline]
@@ -44,7 +49,7 @@ struct Assembly {
     disp: i32,  // 2
 }
 
-type Deleter = Option<Box<dyn Fn(*mut c_void, usize)>>;
+type Deleter = Option<Box<dyn Fn(*mut c_void, usize) + Send>>;
 
 pub struct Trampoline {
     name: String,
@@ -55,6 +60,9 @@ pub struct Trampoline {
     branches_6: HashMap<usize, *mut u8>,
     deleter: Deleter,
 }
+
+unsafe impl Send for Trampoline {} // FIXME: dummy
+unsafe impl Sync for Trampoline {}
 
 impl core::fmt::Debug for Trampoline {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -67,6 +75,13 @@ impl core::fmt::Debug for Trampoline {
             .field("branches_6", &self.branches_6)
             // .field("deleter", &self.deleter)
             .finish()
+    }
+}
+
+impl Default for Trampoline {
+    #[inline]
+    fn default() -> Self {
+        Self::new("Default Trampoline")
     }
 }
 
@@ -135,12 +150,7 @@ impl Trampoline {
     /// C++: `do_allocate`
     #[inline]
     pub fn allocate(&mut self, size: usize) -> *mut u8 {
-        if size > self.free_size() {
-            return ptr::null_mut();
-        }
-        let ptr = unsafe { self.data.byte_add(self.size) };
-        self.size += size;
-        ptr
+        self.do_allocate(size).unwrap_or(ptr::null_mut()) // FIXME: unsafe
     }
 
     #[inline]
@@ -262,7 +272,8 @@ impl Trampoline {
 
     fn do_allocate(&mut self, size: usize) -> Option<*mut u8> {
         if size > self.free_size() {
-            panic!("Failed to handle allocation request");
+            return None;
+            // panic!("Failed to handle allocation request");
         }
         let mem = unsafe { self.data.add(self.size) };
         self.size += size;
@@ -371,4 +382,9 @@ impl Drop for Trampoline {
     fn drop(&mut self) {
         self.release();
     }
+}
+
+pub fn get_trampoline() -> &'static RwLock<Trampoline> {
+    static TRAMPOLINE: OnceLock<RwLock<Trampoline>> = OnceLock::new();
+    TRAMPOLINE.get_or_init(|| RwLock::new(Trampoline::default()))
 }

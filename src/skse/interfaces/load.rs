@@ -13,6 +13,7 @@ use core::ffi::c_void;
 use std::ffi::CStr;
 
 #[repr(u32)]
+#[derive(Debug)]
 pub enum LoadInterfaceEnum {
     Invalid = 0,
     ScaleForm,
@@ -26,6 +27,7 @@ pub enum LoadInterfaceEnum {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct LoadInterface {
     _base: QueryInterface,
 }

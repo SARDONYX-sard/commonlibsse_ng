@@ -15,6 +15,7 @@ type RegCallback = fn(a_view: *mut GFxMovieView, a_root: *mut GFxValue) -> bool;
 type RegInvCallback =
     fn(a_view: *mut GFxMovieView, a_object: *mut GFxValue, a_item: *mut InventoryEntryData);
 
+#[derive(Debug)]
 pub struct ScaleformInterface {
     address: *const u8,
 }
