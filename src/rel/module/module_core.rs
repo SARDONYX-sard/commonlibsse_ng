@@ -141,7 +141,7 @@ impl Module {
     /// ```no_run
     /// use commonlibsse_ng::rel::module::{ModuleState, SegmentName};
     ///
-    /// ModuleState::map_activate(|module| println!("{:?}", module.segment(SegmentName::Textx))).unwrap();
+    /// ModuleState::map_active(|module| println!("{:?}", module.segment(SegmentName::Textx))).unwrap();
     /// ```
     #[inline]
     pub const fn segment(&self, name: SegmentName) -> Segment {
