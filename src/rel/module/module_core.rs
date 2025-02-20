@@ -139,12 +139,9 @@ impl Module {
     /// # Example
     ///
     /// ```no_run
-    /// use commonlibsse_ng::rel::module::{Module, SegmentName};
+    /// use commonlibsse_ng::rel::module::{ModuleState, SegmentName};
     ///
-    /// match Module::init() {
-    ///     Ok(module) => println!("{:?}", module.segment(SegmentName::Textx)),
-    ///     Err(err) => tracing::error!("Failed to initialize module: {err}"),
-    /// }
+    /// ModuleState::map_activate(|module| println!("{:?}", module.segment(SegmentName::Textx))).unwrap();
     /// ```
     #[inline]
     pub const fn segment(&self, name: SegmentName) -> Segment {
