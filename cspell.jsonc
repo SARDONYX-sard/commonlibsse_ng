@@ -12,6 +12,7 @@
     "Futexable",
     "gfids",
     "HSTRING",
+    "impls",
     "lfanew",
     "modrm",
     "MODULEINFO",
@@ -28,6 +29,7 @@
     "repr",
     "reqwest",
     "rwlock",
+    "Scaleform",
     "SKSE",
     "Skyrim",
     "splwow",
@@ -39,6 +41,7 @@
     "unmaps",
     "vcpkg",
     "versionlib",
+    "vtbl",
     "waitable"
   ]
 }

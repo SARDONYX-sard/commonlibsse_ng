@@ -90,7 +90,7 @@ impl GamepadButtonOffset {
         })
     }
 
-    const fn to_xinput(&self) -> XINPUT_GAMEPAD_BUTTON_FLAGS {
+    pub const fn to_xinput(&self) -> XINPUT_GAMEPAD_BUTTON_FLAGS {
         match *self {
             Self::DpadUp => XINPUT_GAMEPAD_DPAD_UP,
             Self::DpadDown => XINPUT_GAMEPAD_DPAD_DOWN,

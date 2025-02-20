@@ -23,16 +23,16 @@ use std::sync::LazyLock;
 
 /// Global static instance of `IdDatabase` initialized lazily.
 /// This ensures the database is only loaded when needed.
-pub(crate) static ID_DATABASE: LazyLock<IdDatabase> =
-    LazyLock::new(|| IdDatabase::from_bin().unwrap()); // TODO: remove unwrap
+pub(crate) static ID_DATABASE: LazyLock<IDDatabase> =
+    LazyLock::new(|| IDDatabase::from_bin().unwrap()); // TODO: remove unwrap
 
 /// Represents a database of ID-to-offset mappings loaded from an address library binary file.
-pub struct IdDatabase {
+pub struct IDDatabase {
     /// Memory-mapped storage of the ID database.
     pub(super) mem_map: SharedRwLock<Mapping>,
 }
 
-impl IdDatabase {
+impl IDDatabase {
     /// Loads the ID database from the appropriate binary file based on the module state.
     ///
     /// # Errors

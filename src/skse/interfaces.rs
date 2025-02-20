@@ -2,78 +2,21 @@
 // SPDX-License-Identifier: MIT OR CC-BY-NC-SA-4.0
 //
 // See: https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE/-/issues/2#note_2332635556
-// use crate::sys::root::{__BindgenBitfieldUnit, SKSE};
 
-use crate::rel::version::Version;
+pub mod load;
+pub mod messaging;
+pub mod object;
+pub mod papyrus;
+pub mod query;
+pub mod scaleform;
+pub mod serialization;
+pub mod task;
+pub mod trampoline;
 
-use super::impls::stab::{PluginHandle, SKSEInterface};
-
-#[repr(C)]
-pub struct QueryInterface {
-    proxy: *const u8,
-}
-
-impl QueryInterface {
-    pub fn editor_version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).editor_version }
-    }
-
-    pub fn is_editor(&self) -> bool {
-        unsafe { (*self.get_proxy()).is_editor != 0 }
-    }
-
-    pub fn runtime_version(&self) -> Version {
-        let packed = unsafe { (*self.get_proxy()).runtime_version };
-        let major = ((packed & 0xFF000000) >> 24) as u16;
-        let minor = ((packed & 0x00FF0000) >> 16) as u16;
-        let revision = ((packed & 0x0000FFF0) >> 4) as u16;
-        let build = (packed & 0x0000000F) as u16;
-        Version::new(major, minor, revision, build)
-    }
-
-    pub fn skse_version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).skse_version }
-    }
-
-    fn get_proxy(&self) -> *const SKSEInterface {
-        assert!(!self.proxy.is_null());
-        self.proxy.cast()
-    }
-}
+use crate::{rel::version::Version, rex::kernel32::get_current_module};
 
 #[repr(C)]
-pub struct LoadInterface {
-    _base: QueryInterface,
-}
-
-impl LoadInterface {
-    /// # Safety
-    pub unsafe fn get_plugin_handle(&self) -> PluginHandle {
-        let base = &*self._base.get_proxy();
-        (base.get_plugin_handle)()
-    }
-
-    /// # Safety
-    pub unsafe fn get_plugin_info(&self, name: &std::ffi::CStr) -> *const core::ffi::c_void {
-        let base = &*self._base.get_proxy();
-        (base.get_plugin_info)(name.as_ptr())
-    }
-
-    /// # Safety
-    pub unsafe fn get_release_index(&self) -> u32 {
-        let base = &*self._base.get_proxy();
-        (base.get_release_index)()
-    }
-
-    /// # Safety
-    pub unsafe fn query_interface(&self, id: u32) -> *const core::ffi::c_void {
-        let base = &*self._base.get_proxy();
-        (base.query_interface)(id)
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct PluginInfo {
     pub info_version: u32,
     pub name: *const i8,
@@ -95,16 +38,18 @@ pub struct PluginVersionData {
 }
 
 const _: () = {
-    assert!(core::mem::offset_of!(PluginVersionData, data_version) == 0x000);
-    assert!(core::mem::offset_of!(PluginVersionData, plugin_version) == 0x004);
-    assert!(core::mem::offset_of!(PluginVersionData, plugin_name) == 0x008);
-    assert!(core::mem::offset_of!(PluginVersionData, author) == 0x108);
-    assert!(core::mem::offset_of!(PluginVersionData, support_email) == 0x208);
-    assert!(core::mem::offset_of!(PluginVersionData, version_independence_ex) == 0x304);
-    assert!(core::mem::offset_of!(PluginVersionData, version_independence) == 0x308);
-    assert!(core::mem::offset_of!(PluginVersionData, compatible_versions) == 0x30C);
-    assert!(core::mem::offset_of!(PluginVersionData, xse_minimum) == 0x34C);
-    assert!(core::mem::size_of::<PluginVersionData>() == 0x350);
+    use core::mem::offset_of;
+
+    assert!(offset_of!(PluginVersionData, data_version) == 0x000);
+    assert!(offset_of!(PluginVersionData, plugin_version) == 0x004);
+    assert!(offset_of!(PluginVersionData, plugin_name) == 0x008);
+    assert!(offset_of!(PluginVersionData, author) == 0x108);
+    assert!(offset_of!(PluginVersionData, support_email) == 0x208);
+    assert!(offset_of!(PluginVersionData, version_independence_ex) == 0x304);
+    assert!(offset_of!(PluginVersionData, version_independence) == 0x308);
+    assert!(offset_of!(PluginVersionData, compatible_versions) == 0x30C);
+    assert!(offset_of!(PluginVersionData, xse_minimum) == 0x34C);
+    assert!(size_of::<PluginVersionData>() == 0x350);
 };
 
 impl PluginVersionData {
@@ -173,6 +118,15 @@ impl PluginVersionData {
         let end = buffer.iter().position(|&c| c == 0).unwrap_or(buffer.len());
         core::str::from_utf8(&buffer[..end]).unwrap_or("")
     }
+
+    pub fn get_singleton() -> Option<&'static mut Self> {
+        use windows::core::s;
+        use windows::Win32::System::LibraryLoader::GetProcAddress;
+
+        let f = unsafe { GetProcAddress(get_current_module(), s!("SKSEPlugin_Version")) };
+        #[allow(clippy::fn_to_numeric_cast_any)]
+        f.map(|f| unsafe { &mut *(f as *mut Self) })
+    }
 }
 
 #[repr(u32)]
@@ -198,6 +152,10 @@ impl VersionNumber {
         }
     }
 
+    pub const fn default_const() -> Self {
+        Self::new(0, 0, 0, 0)
+    }
+
     pub const fn from_version(version: Version) -> Self {
         Self {
             packed: version.pack(),
@@ -213,24 +171,84 @@ impl VersionNumber {
     }
 }
 
-#[repr(C, packed)]
-#[derive(Debug, Clone, Copy)]
+const fn to_fixed_str<const N: usize>(s: &str) -> [u8; N] {
+    let bytes = s.as_bytes();
+    let bytes_len = bytes.len();
+
+    assert!(
+        bytes_len < N, // NUL 終端のために N-1 文字まで
+        "The length of the input string is too large for the specified size."
+    );
+
+    let mut buf = [0_u8; N];
+
+    let mut i = 0;
+    while i < bytes_len {
+        let b = bytes[i];
+        assert!(b != 0, "The input string contains a null byte.");
+        assert!(
+            b.is_ascii(),
+            "The input string contains non-ASCII characters."
+        );
+        buf[i] = b;
+        i += 1;
+    }
+
+    buf
+}
+
+// const fn to_cstr(s: &str) -> &core::ffi::CStr {
+//     unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(s.as_bytes()) }
+// }
+
+#[repr(transparent)]
+#[derive(Debug, Clone)]
 pub struct String256([u8; 256]);
 
-#[repr(C, packed)]
-#[derive(Debug, Clone, Copy)]
+impl String256 {
+    /// Creates a new String256
+    /// # Panics
+    /// - Non ascii characters
+    /// - Null byte
+    pub const fn new(s: &str) -> Self {
+        Self(to_fixed_str(s))
+    }
+
+    /// Creates a new String256 with a default value of 0
+    pub const fn default_const() -> Self {
+        Self([0; 256])
+    }
+}
+
+#[repr(transparent)]
+#[derive(Debug, Clone)]
 pub struct String252([u8; 252]);
 
+impl String252 {
+    /// Creates a new String252
+    /// # Panics
+    /// - Non ascii characters
+    /// - Null byte
+    pub const fn new(s: &str) -> Self {
+        Self(to_fixed_str(s))
+    }
+
+    /// Creates a new String252 with a default value of 0
+    pub const fn default_const() -> Self {
+        Self([0; 252])
+    }
+}
+
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct RuntimeCompatibility {
-    address_library: bool,
-    signature_scanning: bool,
-    structs_post_629: bool,
+    pub address_library: bool,
+    pub signature_scanning: bool,
+    pub structs_post_629: bool,
     // _pad0: u8,
     // _pad1: u8,
     // _pad2: u16,
-    compatible_versions: [VersionNumber; 16],
+    pub compatible_versions: [VersionNumber; 16],
 }
 
 const _: () = {
@@ -258,16 +276,16 @@ impl Default for RuntimeCompatibility {
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct PluginDeclarationInfo {
     /// The version number of the plugin.
-    version: VersionNumber,
+    pub version: VersionNumber,
     /// The plugin's name (maximum of 256 characters).
-    name: String256,
+    pub name: String256,
     /// The name of the plugin's author (maximum of 256 characters).
-    author: String256,
+    pub author: String256,
     /// A support email address for the plugin (maximum of 256 characters).
-    support_email: String252,
+    pub support_email: String252,
     /// Defines the compatibility with structure layout of the plugin.
     ///
     /// For most of modern CommonLibSSE-era plugin development structs in Skyrim have remained
@@ -276,15 +294,15 @@ pub struct PluginDeclarationInfo {
     /// change. CommonLibSSE NG defaults to flagging a plugin independent because it supports
     /// both struct layouts in a single plugin. If your plugin has any RE'd structs that have
     /// changed you should override this.
-    struct_compatibility: StructCompatibility,
+    pub struct_compatibility: StructCompatibility,
     /// A definition of the runtime compatibility for the plugin.
     ///
     /// This can be either an indicator of how version-independence is achieved (either through using Address Library
     /// or signature scanning, indicated with a value from `skse::VersionIndependence`, or a list of up to
     /// 16 version numbers of Skyrim runtimes that are supported by this plugin.
-    runtime_compatibility: RuntimeCompatibility,
+    pub runtime_compatibility: RuntimeCompatibility,
     /// The minimum SKSE version required for the plugin; this should almost always be left 0.
-    minimum_skse_version: VersionNumber,
+    pub minimum_skse_version: VersionNumber,
 }
 
 const _: () = {
@@ -299,10 +317,23 @@ const _: () = {
     assert!(0x348 == offset_of!(PluginDeclarationInfo, minimum_skse_version));
 };
 
+/// The same memory layout as `PluginVersionData`.
 #[repr(C)]
+#[derive(Debug, Clone)]
 pub struct PluginDeclaration {
     pub data_version: u32,
     pub data: PluginDeclarationInfo,
 }
-
 const _: () = assert!(0x350 == core::mem::size_of::<PluginDeclaration>());
+
+impl PluginDeclaration {
+    pub fn get_singleton() -> Option<&'static mut Self> {
+        use windows::core::s;
+        use windows::Win32::System::LibraryLoader::GetProcAddress;
+
+        let f = unsafe { GetProcAddress(get_current_module(), s!("SKSEPlugin_Version")) };
+
+        #[allow(clippy::fn_to_numeric_cast_any)]
+        f.map(|f| unsafe { &mut *(f as *mut Self) })
+    }
+}
