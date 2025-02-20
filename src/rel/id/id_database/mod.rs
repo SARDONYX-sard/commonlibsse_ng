@@ -38,6 +38,7 @@ pub struct IDDatabase {
 }
 
 impl IDDatabase {
+    #[cfg(feature = "debug")]
     fn new_dummy() -> Self {
         use windows::core::h;
 
