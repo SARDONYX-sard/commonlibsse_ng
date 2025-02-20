@@ -12,6 +12,7 @@
     "Futexable",
     "gfids",
     "HSTRING",
+    "impls",
     "lfanew",
     "modrm",
     "MODULEINFO",

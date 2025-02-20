@@ -40,8 +40,8 @@ pub struct SKSEInterface {
 #[repr(C)]
 pub struct SKSEMessagingInterface {
     pub interface_version: u32,
-    pub register_listener: unsafe fn(PluginHandle, *const u8, *mut c_void) -> bool,
-    pub dispatch: unsafe fn(PluginHandle, u32, *mut c_void, u32, *const u8) -> bool,
+    pub register_listener: unsafe fn(PluginHandle, *const c_char, *mut c_void) -> bool,
+    pub dispatch: unsafe fn(PluginHandle, u32, *mut c_void, u32, *const c_char) -> bool,
     pub get_event_dispatcher: unsafe fn(u32) -> *mut c_void,
 }
 

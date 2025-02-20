@@ -23,30 +23,50 @@ impl PapyrusInterface {
         unsafe { (*self.get_proxy()).interface_version }
     }
 
-    pub fn register<F>(&self, func: F) -> bool
-    where
-        F: Fn(&mut BSScript::Internal::VirtualMachine) -> bool,
-    {
+    pub fn register(&self, func: RegFunction1) -> bool {
         self.register_impl(func)
     }
 
-    pub fn register_multiple<F, R>(&self, func_iter: R) -> bool
+    pub fn register_multiple<R>(&self, func_iter: R) -> bool
     where
-        F: Fn(&mut BSScript::Internal::VirtualMachine) -> bool,
-        R: IntoIterator<Item = F>,
+        R: IntoIterator<Item = RegFunction1>,
     {
         func_iter.into_iter().all(|f| self.register_impl(f))
     }
 
-    fn register_impl<F>(&self, func: F) -> bool
-    where
-        F: Fn(&mut BSScript::Internal::VirtualMachine) -> bool,
-    {
-        unimplemented!()
-        // unsafe { ((*self.get_proxy()).register)((&mut func as *mut _).cast()) }
+    pub fn register_impl(&self, mut func: RegFunction1) -> bool {
+        let vm = BSScript::Internal::VirtualMachine::get_singleton();
+
+        if !vm.is_null() {
+            func(vm);
+            return true;
+        }
+
+        let result =
+            unsafe { ((*self.get_proxy()).register)((&mut func as *mut RegFunction1).cast()) };
+        if !result {
+            tracing::error!("Failed to register papyrus callback");
+        };
+        result
     }
 
-    pub fn get_proxy(&self) -> *const SKSEPapyrusInterface {
+    // pub fn register_impl2(&self, mut func: RegFunction2) -> bool {
+    //     let vm = BSScript::Internal::VirtualMachine::get_singleton();
+
+    //     if !vm.is_null() {
+    //         func(vm);
+    //         return true;
+    //     }
+
+    //     let result =
+    //         unsafe { ((*self.get_proxy()).register)((&mut func as *mut RegFunction2).cast()) };
+    //     if !result {
+    //         tracing::error!("Failed to register papyrus callback");
+    //     };
+    //     result
+    // }
+
+    fn get_proxy(&self) -> *const SKSEPapyrusInterface {
         assert!(!self.address.is_null());
         self.address.cast()
     }

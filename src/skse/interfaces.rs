@@ -11,21 +11,13 @@ pub mod query;
 pub mod scaleform;
 pub mod serialization;
 pub mod task;
+pub mod trampoline;
 pub mod types;
 
-use crate::rel::version::Version;
-
-pub struct TrampolineInterface;
-impl TrampolineInterface {
-    pub const VERSION: u32 = 1;
-
-    pub fn version(&self) -> u32 {
-        Self::VERSION
-    }
-}
+use crate::{rel::version::Version, rex::kernel32::get_current_module};
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct PluginInfo {
     pub info_version: u32,
     pub name: *const i8,
@@ -47,16 +39,18 @@ pub struct PluginVersionData {
 }
 
 const _: () = {
-    assert!(core::mem::offset_of!(PluginVersionData, data_version) == 0x000);
-    assert!(core::mem::offset_of!(PluginVersionData, plugin_version) == 0x004);
-    assert!(core::mem::offset_of!(PluginVersionData, plugin_name) == 0x008);
-    assert!(core::mem::offset_of!(PluginVersionData, author) == 0x108);
-    assert!(core::mem::offset_of!(PluginVersionData, support_email) == 0x208);
-    assert!(core::mem::offset_of!(PluginVersionData, version_independence_ex) == 0x304);
-    assert!(core::mem::offset_of!(PluginVersionData, version_independence) == 0x308);
-    assert!(core::mem::offset_of!(PluginVersionData, compatible_versions) == 0x30C);
-    assert!(core::mem::offset_of!(PluginVersionData, xse_minimum) == 0x34C);
-    assert!(core::mem::size_of::<PluginVersionData>() == 0x350);
+    use core::mem::offset_of;
+
+    assert!(offset_of!(PluginVersionData, data_version) == 0x000);
+    assert!(offset_of!(PluginVersionData, plugin_version) == 0x004);
+    assert!(offset_of!(PluginVersionData, plugin_name) == 0x008);
+    assert!(offset_of!(PluginVersionData, author) == 0x108);
+    assert!(offset_of!(PluginVersionData, support_email) == 0x208);
+    assert!(offset_of!(PluginVersionData, version_independence_ex) == 0x304);
+    assert!(offset_of!(PluginVersionData, version_independence) == 0x308);
+    assert!(offset_of!(PluginVersionData, compatible_versions) == 0x30C);
+    assert!(offset_of!(PluginVersionData, xse_minimum) == 0x34C);
+    assert!(size_of::<PluginVersionData>() == 0x350);
 };
 
 impl PluginVersionData {
@@ -125,6 +119,14 @@ impl PluginVersionData {
         let end = buffer.iter().position(|&c| c == 0).unwrap_or(buffer.len());
         core::str::from_utf8(&buffer[..end]).unwrap_or("")
     }
+
+    pub fn get_singleton() -> Option<&'static mut Self> {
+        use windows::core::s;
+        use windows::Win32::System::LibraryLoader::GetProcAddress;
+
+        let f = unsafe { GetProcAddress(get_current_module(), s!("SKSEPlugin_Version")) };
+        f.map(|f| unsafe { &mut *(f as *mut Self) })
+    }
 }
 
 #[repr(u32)]
@@ -166,15 +168,15 @@ impl VersionNumber {
 }
 
 #[repr(C, packed)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct String256([u8; 256]);
 
 #[repr(C, packed)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct String252([u8; 252]);
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct RuntimeCompatibility {
     address_library: bool,
     signature_scanning: bool,
@@ -210,7 +212,7 @@ impl Default for RuntimeCompatibility {
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct PluginDeclarationInfo {
     /// The version number of the plugin.
     version: VersionNumber,
@@ -251,10 +253,22 @@ const _: () = {
     assert!(0x348 == offset_of!(PluginDeclarationInfo, minimum_skse_version));
 };
 
+/// The same memory layout as `PluginVersionData`.
 #[repr(C)]
+#[derive(Debug, Clone)]
 pub struct PluginDeclaration {
     pub data_version: u32,
     pub data: PluginDeclarationInfo,
 }
-
 const _: () = assert!(0x350 == core::mem::size_of::<PluginDeclaration>());
+
+impl PluginDeclaration {
+    pub fn get_singleton() -> Option<&'static mut PluginDeclaration> {
+        use windows::core::s;
+        use windows::Win32::System::LibraryLoader::GetProcAddress;
+
+        let f = unsafe { GetProcAddress(get_current_module(), s!("SKSEPlugin_Version")) };
+
+        f.map(|f| unsafe { &mut *(f as *mut PluginDeclaration) })
+    }
+}

@@ -8,13 +8,13 @@ use super::{
     },
     interfaces::{
         load::{LoadInterface, LoadInterfaceEnum},
-        messaging::MessagingInterface,
+        messaging::{self, MessagingInterface},
         object::ObjectInterface,
         papyrus::PapyrusInterface,
         scaleform::ScaleformInterface,
         serialization::SerializationInterface,
         task::TaskInterface,
-        TrampolineInterface,
+        trampoline::TrampolineInterface,
     },
 };
 
@@ -61,10 +61,10 @@ unsafe impl Send for APIStorage {}
 unsafe impl Sync for APIStorage {}
 
 impl APIStorage {
-    fn get() -> &'static Mutex<APIStorage> {
+    fn get() -> &'static Mutex<Self> {
         static INSTANCE: OnceLock<Mutex<APIStorage>> = OnceLock::new();
         INSTANCE.get_or_init(|| {
-            Mutex::new(APIStorage {
+            Mutex::new(Self {
                 plugin_name: None,
                 plugin_author: None,
                 plugin_version: None,
@@ -97,7 +97,9 @@ impl APIStorage {
     }
 }
 
-unsafe fn init(load_interface: &LoadInterface, a_log: bool) {
+unsafe fn init(load_interface: &LoadInterface) {
+    use tracing::error;
+
     let mut storage = APIStorage::get().lock().unwrap();
     if storage.api_init {
         return;
@@ -106,37 +108,145 @@ unsafe fn init(load_interface: &LoadInterface, a_log: bool) {
     storage.plugin_handle = load_interface.get_plugin_handle();
     storage.release_index = load_interface.get_release_index();
 
-    storage.scaleform_interface =
-        load_interface.query_interface(LoadInterfaceEnum::ScaleForm as u32);
-    storage.papyrus_interface = load_interface.query_interface(LoadInterfaceEnum::Papyrus as u32);
-    storage.serialization_interface =
-        load_interface.query_interface(LoadInterfaceEnum::Serialization as u32);
-    storage.task_interface = load_interface.query_interface(LoadInterfaceEnum::Task as u32);
-    storage.trampoline_interface =
-        load_interface.query_interface(LoadInterfaceEnum::Trampoline as u32);
+    let ptr = load_interface.query_interface(LoadInterfaceEnum::ScaleForm as u32);
+    storage.scaleform_interface = if ptr.is_null() {
+        error!("Failed to get ScaleformInterface");
+        None
+    } else {
+        Some(&*ptr.cast::<ScaleformInterface>())
+    };
 
-    if let Some(messaging_interface) =
-        load_interface.query_interface(LoadInterfaceEnum::Messaging as u32)
-    {
+    storage.papyrus_interface = {
+        let ptr = load_interface.query_interface(LoadInterfaceEnum::Papyrus as u32);
+        if ptr.is_null() {
+            error!("Failed to get PapyrusInterface");
+            None
+        } else {
+            Some(&*ptr.cast::<PapyrusInterface>())
+        }
+    };
+
+    storage.serialization_interface = {
+        let ptr = load_interface.query_interface(LoadInterfaceEnum::Serialization as u32);
+        if ptr.is_null() {
+            error!("Failed to get SerializationInterface");
+            None
+        } else {
+            Some(&*ptr.cast::<SerializationInterface>())
+        }
+    };
+
+    storage.task_interface = {
+        let ptr = load_interface.query_interface(LoadInterfaceEnum::Task as u32);
+        if ptr.is_null() {
+            error!("Failed to get TaskInterface");
+            None
+        } else {
+            Some(&*ptr.cast::<TaskInterface>())
+        }
+    };
+
+    storage.trampoline_interface = {
+        let ptr = load_interface.query_interface(LoadInterfaceEnum::Trampoline as u32);
+        if ptr.is_null() {
+            error!("Failed to get TrampolineInterface");
+            None
+        } else {
+            Some(&*ptr.cast::<TrampolineInterface>())
+        }
+    };
+
+    let messaging_ptr = load_interface.query_interface(LoadInterfaceEnum::Messaging as u32);
+    if messaging_ptr.is_null() {
+        error!("Failed to get MessagingInterface");
+    } else {
+        let messaging_interface = &*messaging_ptr.cast::<MessagingInterface>();
         storage.messaging_interface = Some(messaging_interface);
-        storage.mod_callback_event_source =
-            messaging_interface.get_event_dispatcher(MessagingInterface::MOD_EVENT);
-        storage.camera_event_source =
-            messaging_interface.get_event_dispatcher(MessagingInterface::CAMERA_EVENT);
-        storage.crosshair_ref_event_source =
-            messaging_interface.get_event_dispatcher(MessagingInterface::CROSSHAIR_EVENT);
-        storage.action_event_source =
-            messaging_interface.get_event_dispatcher(MessagingInterface::ACTION_EVENT);
-        storage.ni_node_update_event_source =
-            messaging_interface.get_event_dispatcher(MessagingInterface::NI_NODE_UPDATE_EVENT);
+
+        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::ModEvent);
+        storage.mod_callback_event_source = if ptr.is_null() {
+            error!("Failed to get BSTEventSource<ModCallbackEvent>");
+            None
+        } else {
+            Some(&*(ptr as *const _))
+        };
+
+        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::CameraEvent);
+        storage.camera_event_source = if ptr.is_null() {
+            error!("Failed to get BSTEventSource<CameraEvent>");
+            None
+        } else {
+            Some(&*(ptr as *const _))
+        };
+
+        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::CameraEvent);
+        storage.camera_event_source = if ptr.is_null() {
+            error!("Failed to get BSTEventSource<CameraEvent>");
+            None
+        } else {
+            Some(&*(ptr as *const _))
+        };
+
+        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::CrosshairEvent);
+        storage.crosshair_ref_event_source = if ptr.is_null() {
+            error!("Failed to get BSTEventSource<CrosshairEvent>");
+            None
+        } else {
+            Some(&*(ptr as *const _))
+        };
+
+        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::ActionEvent);
+        storage.action_event_source = if ptr.is_null() {
+            error!("Failed to get BSTEventSource<ActionEvent>");
+            None
+        } else {
+            Some(&*(ptr as *const _))
+        };
+
+        let ptr =
+            messaging_interface.get_event_dispatcher(messaging::Dispatcher::NiNodeUpdateEvent);
+        storage.ni_node_update_event_source = if ptr.is_null() {
+            error!("Failed to get BSTEventSource<NiNodeUpdateEvent>");
+            None
+        } else {
+            Some(&*(ptr as *const _))
+        };
     }
 
-    if let Some(object_interface) = load_interface.query_interface(LoadInterfaceEnum::Object as u32)
-    {
+    let object_ptr = load_interface.query_interface(LoadInterfaceEnum::Object as u32);
+    if object_ptr.is_null() {
+        error!("Failed to get ObjectInterface");
+    } else {
+        let object_interface = &*object_ptr.cast::<ObjectInterface>();
         storage.object_interface = Some(object_interface);
-        storage.delay_functor_manager = Some(object_interface.get_delay_functor_manager());
-        storage.object_registry = Some(object_interface.get_object_registry());
-        storage.persistent_object_storage = Some(object_interface.get_persistent_object_storage());
+        storage.delay_functor_manager = {
+            let ptr = object_interface.get_delay_functor_manager();
+            if ptr.is_null() {
+                error!("Failed to get SKSEDelayFunctorManager");
+                None
+            } else {
+                Some(&*ptr)
+            }
+        };
+        storage.object_registry = {
+            let ptr = object_interface.get_object_registry();
+            if ptr.is_null() {
+                error!("Failed to get SKSEDelayFunctorManager");
+                None
+            } else {
+                Some(&*ptr)
+            }
+        };
+
+        storage.persistent_object_storage = {
+            let ptr = object_interface.get_persistent_object_storage();
+            if ptr.is_null() {
+                error!("Failed to get SKSEDelayFunctorManager");
+                None
+            } else {
+                Some(&*ptr)
+            }
+        };
     }
 
     storage.api_init = true;
@@ -167,6 +277,7 @@ pub fn get_plugin_version() -> (u32, u32, u32) {
 }
 
 pub fn get_plugin_handle() -> PluginHandle {
+    APIStorage::get()
     PluginHandle(0) // Example handle
 }
 
