@@ -25,14 +25,10 @@ use std::sync::LazyLock;
 /// This ensures the database is only loaded when needed.
 pub(crate) static ID_DATABASE: LazyLock<IDDatabase> = LazyLock::new(|| {
     // TODO: remove unwrap
-    {
-        #[cfg(not(feature = "debug"))]
-        return IDDatabase::from_bin().unwrap();
-    }
-    {
-        #[cfg(feature = "debug")]
-        return IDDatabase::from_bin().unwrap_or_else(|_| IDDatabase::new_dummy());
-    }
+    #[cfg(not(feature = "debug"))]
+    return IDDatabase::from_bin().unwrap();
+    #[cfg(feature = "debug")]
+    return IDDatabase::from_bin().unwrap_or_else(|_| IDDatabase::new_dummy());
 });
 
 /// Represents a database of ID-to-offset mappings loaded from an address library binary file.
