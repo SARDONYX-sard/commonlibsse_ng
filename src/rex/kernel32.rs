@@ -2,7 +2,7 @@ use std::ffi::c_void;
 
 use windows::Win32::{Foundation::HMODULE, System::SystemServices::IMAGE_DOS_HEADER};
 
-extern "C" {
+unsafe extern "C" {
     /// The memory-mapped first relative position address of the dll, which is automatically assigned by ms linker to
     /// the dll created by this library.
     /// - see: https://devblogs.microsoft.com/oldnewthing/20041025-00/?p=37483

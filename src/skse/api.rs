@@ -109,7 +109,7 @@ impl APIStorage {
 /// # Safety
 /// # Panics
 #[allow(clippy::cognitive_complexity)]
-pub unsafe fn init(load_interface: *const LoadInterface) {
+pub unsafe fn init(load_interface: *const LoadInterface) { unsafe {
     let mut storage = APIStorage::get().write().unwrap();
     if storage.api_init {
         return;
@@ -281,7 +281,7 @@ pub unsafe fn init(load_interface: *const LoadInterface) {
     for reg in storage.api_init_regs.drain(..) {
         reg();
     }
-}
+}}
 
 pub fn register_for_api_init_event<F: Fn() + 'static>(_callback: F) {
     // Register callback logic

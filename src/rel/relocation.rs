@@ -66,7 +66,7 @@ where
 unsafe fn enable_write_permission(
     addr: *const core::ffi::c_void,
     len: usize,
-) -> windows::core::Result<windows::Win32::System::Memory::PAGE_PROTECTION_FLAGS> {
+) -> windows::core::Result<windows::Win32::System::Memory::PAGE_PROTECTION_FLAGS> { unsafe {
     use windows::Win32::System::Memory::{
         VirtualProtect, PAGE_EXECUTE_READWRITE, PAGE_PROTECTION_FLAGS,
     };
@@ -75,36 +75,36 @@ unsafe fn enable_write_permission(
     // VirtualProtect: https://learn.microsoft.com/windows/win32/api/memoryapi/nf-memoryapi-virtualprotect
     VirtualProtect(addr, len, PAGE_EXECUTE_READWRITE, &mut old_protection)?;
     Ok(old_protection)
-}
+}}
 
 #[inline]
 unsafe fn restore_memory_protection(
     addr: *const core::ffi::c_void,
     len: usize,
     old_protection: windows::Win32::System::Memory::PAGE_PROTECTION_FLAGS,
-) -> windows::core::Result<()> {
+) -> windows::core::Result<()> { unsafe {
     use windows::Win32::System::Memory::{VirtualProtect, PAGE_PROTECTION_FLAGS};
     let mut temp = PAGE_PROTECTION_FLAGS(0);
 
     // VirtualProtect: https://learn.microsoft.com/windows/win32/api/memoryapi/nf-memoryapi-virtualprotect
     VirtualProtect(addr, len, old_protection, &mut temp)
-}
+}}
 
 /// # Errors
 /// # Safety
 #[inline]
-pub unsafe fn safe_write<T>(dst: *mut T, src: *const T, len: usize) -> windows::core::Result<()> {
+pub unsafe fn safe_write<T>(dst: *mut T, src: *const T, len: usize) -> windows::core::Result<()> { unsafe {
     let old_protection = enable_write_permission(dst as _, len)?;
     core::ptr::copy_nonoverlapping(src, dst, len);
     restore_memory_protection(dst as _, len, old_protection)
-}
+}}
 
 /// # Errors
 /// # Safety
 #[inline]
-pub unsafe fn safe_write_value<T>(dst: *mut T, src: &T) -> windows::core::Result<()> {
+pub unsafe fn safe_write_value<T>(dst: *mut T, src: &T) -> windows::core::Result<()> { unsafe {
     safe_write(dst, src, core::mem::size_of::<T>())
-}
+}}
 
 #[allow(unused)]
 #[inline]
@@ -112,11 +112,11 @@ unsafe fn safe_fill(
     dst: *const core::ffi::c_void,
     value: u8,
     len: usize,
-) -> windows::core::Result<()> {
+) -> windows::core::Result<()> { unsafe {
     let old_protection = enable_write_permission(dst, len)?;
     core::ptr::write_bytes(dst as *mut u8, value, len);
     restore_memory_protection(dst, len, old_protection)
-}
+}}
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Relocation<T = usize> {

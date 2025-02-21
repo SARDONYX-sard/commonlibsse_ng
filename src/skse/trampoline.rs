@@ -177,26 +177,30 @@ impl Trampoline {
     /// # Panics
     #[inline]
     pub unsafe fn write_branch<const N: usize>(&mut self, a_src: usize, a_dst: usize) -> usize {
-        let data: u8 = match N {
-            5 => 0xE9, // JMP rel32
-            6 => 0x25, // JMP r/m64
-            _ => panic!("invalid branch size"),
-        };
+        unsafe {
+            let data: u8 = match N {
+                5 => 0xE9, // JMP rel32
+                6 => 0x25, // JMP r/m64
+                _ => panic!("invalid branch size"),
+            };
 
-        self.write_branch_with_data::<N>(a_src, a_dst, data)
+            self.write_branch_with_data::<N>(a_src, a_dst, data)
+        }
     }
 
     /// # Safety
     /// # Panics
     #[inline]
     pub unsafe fn write_call<const N: usize>(&mut self, a_src: usize, a_dst: usize) -> usize {
-        let data: u8 = match N {
-            5 => 0xE8, // CALL rel32
-            6 => 0x15, // CALL r/m64
-            _ => panic!("invalid call size"),
-        };
+        unsafe {
+            let data: u8 = match N {
+                5 => 0xE8, // CALL rel32
+                6 => 0x15, // CALL r/m64
+                _ => panic!("invalid call size"),
+            };
 
-        self.write_branch_with_data::<N>(a_src, a_dst, data)
+            self.write_branch_with_data::<N>(a_src, a_dst, data)
+        }
     }
 
     fn do_create(size: usize, address: usize) -> Option<*mut u8> {
@@ -281,57 +285,61 @@ impl Trampoline {
     }
 
     unsafe fn write_5branch(&mut self, a_src: usize, a_dst: usize, a_opcode: u8) {
-        let mem = self.branches_5.get(&a_dst).copied().map_or_else(
-            || {
-                let mem = self.allocate_size_of::<usize>();
-                self.branches_5.insert(a_dst, mem);
-                mem
-            },
-            |v| v,
-        );
+        unsafe {
+            let mem = self.branches_5.get(&a_dst).copied().map_or_else(
+                || {
+                    let mem = self.allocate_size_of::<usize>();
+                    self.branches_5.insert(a_dst, mem);
+                    mem
+                },
+                |v| v,
+            );
 
-        let disp = (mem as isize) - (a_src + mem::size_of::<SrcAssembly>()) as isize;
-        if !Self::in_range(disp) {
-            panic!("displacement is out of range");
+            let disp = (mem as isize) - (a_src + mem::size_of::<SrcAssembly>()) as isize;
+            if !Self::in_range(disp) {
+                panic!("displacement is out of range");
+            }
+
+            let assembly = SrcAssembly {
+                opcode: a_opcode,
+                disp: disp as i32,
+            };
+            let _ = crate::rel::relocation::safe_write_value(a_src as *mut SrcAssembly, &assembly);
+
+            let mem = *mem as *mut TrampolineAssembly;
+            (*mem).jmp = 0xFF;
+            (*mem).modrm = 0x25;
+            (*mem).disp = 0;
+            (*mem).addr = a_dst as u64;
         }
-
-        let assembly = SrcAssembly {
-            opcode: a_opcode,
-            disp: disp as i32,
-        };
-        let _ = crate::rel::relocation::safe_write_value(a_src as *mut SrcAssembly, &assembly);
-
-        let mem = *mem as *mut TrampolineAssembly;
-        (*mem).jmp = 0xFF;
-        (*mem).modrm = 0x25;
-        (*mem).disp = 0;
-        (*mem).addr = a_dst as u64;
     }
 
     unsafe fn write_6branch(&mut self, a_src: usize, a_dst: usize, a_modrm: u8) {
-        let mem = self.branches_6.get(&a_dst).copied().map_or_else(
-            || {
-                let mem = self.allocate_size_of::<usize>();
-                self.branches_6.insert(a_dst, mem);
-                mem
-            },
-            |v| v,
-        );
+        unsafe {
+            let mem = self.branches_6.get(&a_dst).copied().map_or_else(
+                || {
+                    let mem = self.allocate_size_of::<usize>();
+                    self.branches_6.insert(a_dst, mem);
+                    mem
+                },
+                |v| v,
+            );
 
-        let disp = (mem as isize) - ((a_src + mem::size_of::<Assembly>()) as isize);
-        if !Self::in_range(disp) {
-            panic!("displacement is out of range");
+            let disp = (mem as isize) - ((a_src + mem::size_of::<Assembly>()) as isize);
+            if !Self::in_range(disp) {
+                panic!("displacement is out of range");
+            }
+
+            let assembly = Assembly {
+                opcode: 0xFF,
+                modrm: a_modrm,
+                disp: disp as i32,
+            };
+            let _ = crate::rel::relocation::safe_write_value(a_src as *mut Assembly, &assembly);
+
+            let mem = *mem as *mut usize;
+            *mem = a_dst;
         }
-
-        let assembly = Assembly {
-            opcode: 0xFF,
-            modrm: a_modrm,
-            disp: disp as i32,
-        };
-        let _ = crate::rel::relocation::safe_write_value(a_src as *mut Assembly, &assembly);
-
-        let mem = *mem as *mut usize;
-        *mem = a_dst;
     }
 
     /// # Safety
@@ -342,19 +350,21 @@ impl Trampoline {
         a_dst: usize,
         data: u8,
     ) -> usize {
-        const { assert!(N == 5 || N == 6) };
+        unsafe {
+            const { assert!(N == 5 || N == 6) };
 
-        if N == 5 {
-            self.write_5branch(a_src, a_dst, data);
-        } else if N == 6 {
-            self.write_6branch(a_src, a_dst, data);
-        } else {
-            panic!("Invalid branch size");
+            if N == 5 {
+                self.write_5branch(a_src, a_dst, data);
+            } else if N == 6 {
+                self.write_6branch(a_src, a_dst, data);
+            } else {
+                panic!("Invalid branch size");
+            }
+
+            let disp = (a_src + N - 4) as *const usize;
+            let next_op = a_src + N;
+            next_op + *disp // return function
         }
-
-        let disp = (a_src + N - 4) as *const usize;
-        let next_op = a_src + N;
-        next_op + unsafe { *disp } // return function
     }
 
     #[inline]

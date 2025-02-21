@@ -34,10 +34,10 @@ pub struct LoadInterface {
 
 impl LoadInterface {
     /// # Safety
-    pub unsafe fn get_plugin_handle(&self) -> PluginHandle {
+    pub unsafe fn get_plugin_handle(&self) -> PluginHandle { unsafe {
         let base = &*self._base.get_proxy();
         (base.get_plugin_handle)()
-    }
+    }}
 
     pub fn get_plugin_info(&self, name: &CStr) -> *const PluginInfo {
         let base = unsafe { &*self._base.get_proxy() };
@@ -50,8 +50,8 @@ impl LoadInterface {
     }
 
     /// # Safety
-    pub unsafe fn query_interface(&self, id: u32) -> *const c_void {
+    pub unsafe fn query_interface(&self, id: u32) -> *const c_void { unsafe {
         let base = &*self._base.get_proxy();
         (base.query_interface)(id)
-    }
+    }}
 }

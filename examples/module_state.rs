@@ -16,7 +16,7 @@ const fn to_cstr(s: &str) -> &core::ffi::CStr {
 
 const PKG_VERSION: Version = Version::from_str_const(env!("CARGO_PKG_VERSION"));
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub extern "C" fn SKSEPlugin_Query(skse: *const QueryInterface, info: *mut PluginInfo) -> bool {
@@ -38,7 +38,7 @@ pub extern "C" fn SKSEPlugin_Query(skse: *const QueryInterface, info: *mut Plugi
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_upper_case_globals)]
 pub static SKSEPlugin_Version: PluginDeclaration = {
     const PKG_NAME: &str = env!("CARGO_PKG_NAME");
@@ -66,7 +66,7 @@ pub static SKSEPlugin_Version: PluginDeclaration = {
     }
 };
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub extern "C" fn SKSEPlugin_Load(skse: *const LoadInterface) {
     unsafe { skse::init(skse) };
