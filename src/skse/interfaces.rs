@@ -176,7 +176,7 @@ const fn to_fixed_str<const N: usize>(s: &str) -> [u8; N] {
     let bytes_len = bytes.len();
 
     assert!(
-        bytes_len < N, // NUL 終端のために N-1 文字まで
+        bytes_len < N,
         "The length of the input string is too large for the specified size."
     );
 

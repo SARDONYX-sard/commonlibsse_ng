@@ -99,7 +99,8 @@ impl Module {
 
             let mut ret = None;
             for runtime_name in RUNTIMES {
-                if let Ok(new_handle) = ModuleHandle::new(runtime_name) {
+                let module_handle = ModuleHandle::new(runtime_name);
+                if let Ok(new_handle) = module_handle {
                     ret = Some((runtime_name.clone(), new_handle));
                     break;
                 }

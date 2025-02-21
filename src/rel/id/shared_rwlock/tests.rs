@@ -21,6 +21,7 @@ fn test_shared_memory_rwlock() {
         .map(|_| {
             thread::spawn(|| {
                 let read_guard = get_shared_memory().read().unwrap();
+                #[cfg(feature = "tracing")]
                 tracing::trace!("{}", read_guard[0]);
             })
         })
