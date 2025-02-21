@@ -21,7 +21,7 @@ jobs:
         with:
           vcpkgGitCommitId: 7f9f0e44db287e8e67c0e888141bfa200ab45121
       - name: Cache
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.1
         with:
           path: |
             vcpkg_installed

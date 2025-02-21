@@ -24,7 +24,7 @@ jobs:
         with:
           vcpkgGitCommitId: 7f9f0e44db287e8e67c0e888141bfa200ab45121
       - name: Cache vcpkg
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.1
         with:
           path: |
             vcpkg_installed
@@ -35,6 +35,8 @@ jobs:
       - name: Install
         run: vcpkg install
 
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@stable
       - name: Rust cache
         uses: Swatinem/rust-cache@v2.7.7
         with:
@@ -59,7 +61,7 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Cache vcpkg
-        uses: actions/cache@v4.2.0
+        uses: actions/cache@v4.2.1
         with:
           path: |
             vcpkg_installed
@@ -67,6 +69,8 @@ jobs:
           key: |
             vcpkg-windows-x64-${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}
 
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@stable
       - name: Rust cache
         uses: Swatinem/rust-cache@v2.7.7
         with:
