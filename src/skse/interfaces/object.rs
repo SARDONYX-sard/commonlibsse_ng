@@ -12,31 +12,34 @@ use crate::skse::impls::stab::{
 };
 
 #[derive(Debug)]
-pub struct ObjectInterface {
-    address: *const u8,
-}
+#[repr(transparent)]
+pub struct ObjectInterface(&'static SKSEObjectInterface);
 
 impl ObjectInterface {
     pub const VERSION: u32 = 2;
 
-    pub fn version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).interface_version }
+    #[inline]
+    pub(crate) const fn new(interface: &'static SKSEObjectInterface) -> Self {
+        Self(interface)
     }
 
+    #[inline]
+    pub const fn version(&self) -> u32 {
+        self.0.interfaceVersion
+    }
+
+    #[inline]
     pub fn get_delay_functor_manager(&self) -> *mut SKSEDelayFunctorManager {
-        unsafe { ((*self.get_proxy()).get_delay_functor_manager)() }
+        unsafe { (self.0.GetDelayFunctorManager)() }
     }
 
+    #[inline]
     pub fn get_object_registry(&self) -> *mut SKSEObjectRegistry {
-        unsafe { ((*self.get_proxy()).get_object_registry)() }
+        unsafe { (self.0.GetObjectRegistry)() }
     }
 
+    #[inline]
     pub fn get_persistent_object_storage(&self) -> *mut SKSEPersistentObjectStorage {
-        unsafe { ((*self.get_proxy()).get_persistent_object_storage)() }
-    }
-
-    fn get_proxy(&self) -> *const SKSEObjectInterface {
-        assert!(!self.address.is_null());
-        self.address.cast()
+        unsafe { (self.0.GetPersistentObjectStorage)() }
     }
 }

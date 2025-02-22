@@ -3,7 +3,7 @@ use commonlibsse_ng::rel::version::Version;
 use commonlibsse_ng::skse;
 use commonlibsse_ng::skse::impls::stab::PluginInfo;
 use commonlibsse_ng::skse::interfaces::load::LoadInterface;
-use commonlibsse_ng::skse::interfaces::query::QueryInterface;
+use commonlibsse_ng::skse::interfaces::query::QueryInterface as _;
 use commonlibsse_ng::skse::interfaces::{
     PluginDeclaration, PluginDeclarationInfo, RuntimeCompatibility, String252, String256,
     StructCompatibility, VersionNumber,
@@ -19,13 +19,13 @@ const PKG_VERSION: Version = Version::from_str_const(env!("CARGO_PKG_VERSION"));
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
-pub extern "C" fn SKSEPlugin_Query(skse: *const QueryInterface, info: *mut PluginInfo) -> bool {
+pub extern "C" fn SKSEPlugin_Query(skse: *const LoadInterface, info: *mut PluginInfo) -> bool {
     {
         let info = unsafe { &mut *info };
         *info = PluginInfo {
             version: PKG_VERSION.pack(),
             name: to_cstr(concat!(env!("CARGO_PKG_NAME"), "\0")).as_ptr(),
-            info_version: PKG_VERSION.major() as u32,
+            infoVersion: PKG_VERSION.major() as u32,
         };
     };
 
@@ -69,7 +69,7 @@ pub static SKSEPlugin_Version: PluginDeclaration = {
 #[unsafe(no_mangle)]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub extern "C" fn SKSEPlugin_Load(skse: *const LoadInterface) {
-    unsafe { skse::init(skse) };
+    skse::init(skse);
 
     let _ = commonlibsse_ng::rel::module::ModuleState::map_or_init(|module| {
         #[cfg(feature = "tracing")]

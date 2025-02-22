@@ -5,10 +5,9 @@ use crate::re::BSTEventSource;
 use crate::rel::version::Version;
 use crate::skse::impls::stab::{
     PluginHandle, SKSEDelayFunctorManager, SKSEObjectRegistry, SKSEPersistentObjectStorage,
-    INVALID_PLUGIN_HANDLE,
 };
 use crate::skse::interfaces::{
-    load::{LoadInterface, LoadInterfaceEnum},
+    load::LoadInterface,
     messaging::{self, MessagingInterface},
     object::ObjectInterface,
     papyrus::PapyrusInterface,
@@ -33,371 +32,261 @@ pub struct ActionEvent;
 #[derive(Debug)]
 pub struct NiNodeUpdateEvent;
 
-#[derive(Debug, Default)]
-struct APIStorage {
-    plugin_name: Option<String>,
-    plugin_author: Option<String>,
-    plugin_version: Option<Version>,
+#[derive(Debug)]
+pub struct APIStorage {
+    plugin_name: String,
+    plugin_author: String,
+    pub plugin_version: Version,
 
     plugin_handle: PluginHandle,
-    release_index: u32,
+    pub release_index: u32,
 
-    scaleform_interface: Option<&'static ScaleformInterface>,
-    papyrus_interface: Option<&'static PapyrusInterface>,
-    serialization_interface: Option<&'static SerializationInterface>,
-    task_interface: Option<&'static TaskInterface>,
-    trampoline_interface: Option<&'static TrampolineInterface>,
+    pub scaleform_interface: ScaleformInterface,
+    pub papyrus_interface: PapyrusInterface,
+    pub serialization_interface: SerializationInterface,
+    pub task_interface: TaskInterface,
+    trampoline_interface: TrampolineInterface,
 
-    messaging_interface: Option<&'static MessagingInterface>,
-    mod_callback_event_source: Option<&'static BSTEventSource<ModCallbackEvent>>,
-    camera_event_source: Option<&'static BSTEventSource<CameraEvent>>,
-    crosshair_ref_event_source: Option<&'static BSTEventSource<CrosshairRefEvent>>,
-    action_event_source: Option<&'static BSTEventSource<ActionEvent>>,
-    ni_node_update_event_source: Option<&'static BSTEventSource<NiNodeUpdateEvent>>,
+    pub messaging_interface: MessagingInterface,
+    pub mod_callback_event_source: *mut BSTEventSource<ModCallbackEvent>,
+    pub camera_event_source: *mut BSTEventSource<CameraEvent>,
+    pub crosshair_ref_event_source: *mut BSTEventSource<CrosshairRefEvent>,
+    pub action_event_source: *mut BSTEventSource<ActionEvent>,
+    pub ni_node_update_event_source: *mut BSTEventSource<NiNodeUpdateEvent>,
 
-    object_interface: Option<&'static ObjectInterface>,
-    delay_functor_manager: Option<&'static SKSEDelayFunctorManager>,
-    object_registry: Option<&'static SKSEObjectRegistry>,
-    persistent_object_storage: Option<&'static SKSEPersistentObjectStorage>,
+    pub object_interface: ObjectInterface,
+    pub delay_functor_manager: *mut SKSEDelayFunctorManager,
+    pub object_registry: *mut SKSEObjectRegistry,
+    pub persistent_object_storage: *mut SKSEPersistentObjectStorage,
 
-    api_init: bool,
-    api_init_regs: Vec<Box<dyn ApiInitRegFns>>,
+    // api_init: bool,
+    api_init_regs: Vec<Box<dyn ApiInitRegFn>>,
 }
 
-trait ApiInitRegFns: Fn() + Send + Sync + core::fmt::Debug {}
+pub trait ApiInitRegFn: Fn() + Send + Sync + core::fmt::Debug {}
 
 unsafe impl Send for APIStorage {}
 unsafe impl Sync for APIStorage {}
 
 impl APIStorage {
-    fn get() -> &'static RwLock<Self> {
-        static INSTANCE: OnceLock<RwLock<APIStorage>> = OnceLock::new();
-        INSTANCE.get_or_init(|| {
-            RwLock::new(Self {
-                plugin_name: None,
-                plugin_author: None,
-                plugin_version: None,
+    fn get() -> &'static RwLock<Option<Self>> {
+        static INSTANCE: OnceLock<RwLock<Option<APIStorage>>> = OnceLock::new();
+        INSTANCE.get_or_init(|| RwLock::new(None))
+    }
 
-                plugin_handle: INVALID_PLUGIN_HANDLE,
-                release_index: 0,
-
-                scaleform_interface: None,
-                papyrus_interface: None,
-                serialization_interface: None,
-                task_interface: None,
-                trampoline_interface: None,
-
-                messaging_interface: None,
-                mod_callback_event_source: None,
-                camera_event_source: None,
-                crosshair_ref_event_source: None,
-                action_event_source: None,
-                ni_node_update_event_source: None,
-
-                object_interface: None,
-                delay_functor_manager: None,
-                object_registry: None,
-                persistent_object_storage: None,
-
-                api_init: false,
-                api_init_regs: Vec::new(),
-            })
-        })
+    /// # Panics
+    fn map<F, V>(f: F) -> Option<V>
+    where
+        F: FnOnce(&Self) -> V,
+    {
+        Self::get()
+            .read()
+            .ok()
+            .and_then(|guard| guard.as_ref().map(f))
     }
 }
 
-/// # Safety
 /// # Panics
-#[allow(clippy::cognitive_complexity)]
-pub unsafe fn init(load_interface: *const LoadInterface) { unsafe {
-    let mut storage = APIStorage::get().write().unwrap();
-    if storage.api_init {
-        return;
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub fn init(load_interface: *const LoadInterface) {
+    let load_interface = unsafe { &*load_interface };
+
+    let plugin_handle = load_interface.get_plugin_handle();
+    let release_index = load_interface.get_release_index();
+
+    let scaleform_interface = ScaleformInterface::new(load_interface.query_interface());
+    let papyrus_interface = PapyrusInterface::new(load_interface.query_interface());
+    let serialization_interface = SerializationInterface::new(load_interface.query_interface());
+    let task_interface = TaskInterface::new(load_interface.query_interface());
+    let trampoline_interface = TrampolineInterface::new(load_interface.query_interface());
+    let messaging_interface = MessagingInterface::new(load_interface.query_interface());
+
+    let mod_callback_event_source =
+        messaging_interface.get_event_dispatcher(messaging::Dispatcher::ModEvent);
+
+    let camera_event_source =
+        messaging_interface.get_event_dispatcher(messaging::Dispatcher::CameraEvent);
+
+    let crosshair_ref_event_source =
+        messaging_interface.get_event_dispatcher(messaging::Dispatcher::CrosshairEvent);
+
+    let action_event_source =
+        messaging_interface.get_event_dispatcher(messaging::Dispatcher::ActionEvent);
+
+    let ni_node_update_event_source =
+        messaging_interface.get_event_dispatcher(messaging::Dispatcher::NiNodeUpdateEvent);
+
+    let object_interface = ObjectInterface::new(load_interface.query_interface());
+    let delay_functor_manager = object_interface.get_delay_functor_manager();
+    let object_registry = object_interface.get_object_registry();
+    let persistent_object_storage = object_interface.get_persistent_object_storage();
+
+    let mut guard = APIStorage::get().write().unwrap();
+
+    if let Some(storage) = &mut *guard {
+        for reg in storage.api_init_regs.drain(..) {
+            reg();
+        }
     }
 
-    let load_interface = &*load_interface;
+    *guard = Some(APIStorage {
+        plugin_name: String::new(),
+        plugin_author: String::new(),
+        plugin_version: Version::default_const(),
 
-    storage.plugin_handle = load_interface.get_plugin_handle();
-    storage.release_index = load_interface.get_release_index();
+        plugin_handle,
+        release_index,
 
-    let ptr = load_interface.query_interface(LoadInterfaceEnum::ScaleForm as u32);
-    storage.scaleform_interface = if ptr.is_null() {
-        #[cfg(feature = "tracing")]
-        tracing::error!("Failed to get ScaleformInterface");
-        None
-    } else {
-        Some(&*ptr.cast::<ScaleformInterface>())
-    };
+        scaleform_interface,
+        papyrus_interface,
+        serialization_interface,
+        task_interface,
+        trampoline_interface,
 
-    storage.papyrus_interface = {
-        let ptr = load_interface.query_interface(LoadInterfaceEnum::Papyrus as u32);
-        if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get PapyrusInterface");
-            None
-        } else {
-            Some(&*ptr.cast::<PapyrusInterface>())
-        }
-    };
+        messaging_interface,
+        mod_callback_event_source: mod_callback_event_source.cast(),
+        camera_event_source: camera_event_source.cast(),
+        crosshair_ref_event_source: crosshair_ref_event_source.cast(),
+        action_event_source: action_event_source.cast(),
+        ni_node_update_event_source: ni_node_update_event_source.cast(),
 
-    storage.serialization_interface = {
-        let ptr = load_interface.query_interface(LoadInterfaceEnum::Serialization as u32);
-        if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get SerializationInterface");
-            None
-        } else {
-            Some(&*ptr.cast::<SerializationInterface>())
-        }
-    };
+        object_interface,
+        delay_functor_manager,
+        object_registry,
+        persistent_object_storage,
 
-    storage.task_interface = {
-        let ptr = load_interface.query_interface(LoadInterfaceEnum::Task as u32);
-        if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get TaskInterface");
-            None
-        } else {
-            Some(&*ptr.cast::<TaskInterface>())
-        }
-    };
+        api_init_regs: Vec::new(),
+    });
+}
 
-    storage.trampoline_interface = {
-        let ptr = load_interface.query_interface(LoadInterfaceEnum::Trampoline as u32);
-        if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get TrampolineInterface");
-            None
-        } else {
-            Some(&*ptr.cast::<TrampolineInterface>())
-        }
-    };
+/// # Panics
+pub fn register_for_api_init_event<F: ApiInitRegFn + 'static>(f: F) {
+    let mut guard = APIStorage::get().write().unwrap();
 
-    let messaging_ptr = load_interface.query_interface(LoadInterfaceEnum::Messaging as u32);
-    if messaging_ptr.is_null() {
-        #[cfg(feature = "tracing")]
-        tracing::error!("Failed to get MessagingInterface");
-    } else {
-        let messaging_interface = &*messaging_ptr.cast::<MessagingInterface>();
-        storage.messaging_interface = Some(messaging_interface);
-
-        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::ModEvent);
-        storage.mod_callback_event_source = if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get BSTEventSource<ModCallbackEvent>");
-            None
-        } else {
-            Some(&*(ptr as *const _))
-        };
-
-        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::CameraEvent);
-        storage.camera_event_source = if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get BSTEventSource<CameraEvent>");
-            None
-        } else {
-            Some(&*(ptr as *const _))
-        };
-
-        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::CameraEvent);
-        storage.camera_event_source = if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get BSTEventSource<CameraEvent>");
-            None
-        } else {
-            Some(&*(ptr as *const _))
-        };
-
-        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::CrosshairEvent);
-        storage.crosshair_ref_event_source = if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get BSTEventSource<CrosshairEvent>");
-            None
-        } else {
-            Some(&*(ptr as *const _))
-        };
-
-        let ptr = messaging_interface.get_event_dispatcher(messaging::Dispatcher::ActionEvent);
-        storage.action_event_source = if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get BSTEventSource<ActionEvent>");
-            None
-        } else {
-            Some(&*(ptr as *const _))
-        };
-
-        let ptr =
-            messaging_interface.get_event_dispatcher(messaging::Dispatcher::NiNodeUpdateEvent);
-        storage.ni_node_update_event_source = if ptr.is_null() {
-            #[cfg(feature = "tracing")]
-            tracing::error!("Failed to get BSTEventSource<NiNodeUpdateEvent>");
-            None
-        } else {
-            Some(&*(ptr as *const _))
-        };
+    if let Some(storage) = &mut *guard {
+        storage.api_init_regs.push(Box::new(f));
     }
-
-    let object_ptr = load_interface.query_interface(LoadInterfaceEnum::Object as u32);
-    if object_ptr.is_null() {
-        #[cfg(feature = "tracing")]
-        tracing::error!("Failed to get ObjectInterface");
-    } else {
-        let object_interface = &*object_ptr.cast::<ObjectInterface>();
-        storage.object_interface = Some(object_interface);
-        storage.delay_functor_manager = {
-            let ptr = object_interface.get_delay_functor_manager();
-            if ptr.is_null() {
-                #[cfg(feature = "tracing")]
-                tracing::error!("Failed to get SKSEDelayFunctorManager");
-                None
-            } else {
-                Some(&*ptr)
-            }
-        };
-        storage.object_registry = {
-            let ptr = object_interface.get_object_registry();
-            if ptr.is_null() {
-                #[cfg(feature = "tracing")]
-                tracing::error!("Failed to get SKSEDelayFunctorManager");
-                None
-            } else {
-                Some(&*ptr)
-            }
-        };
-
-        storage.persistent_object_storage = {
-            let ptr = object_interface.get_persistent_object_storage();
-            if ptr.is_null() {
-                #[cfg(feature = "tracing")]
-                tracing::error!("Failed to get SKSEDelayFunctorManager");
-                None
-            } else {
-                Some(&*ptr)
-            }
-        };
-    }
-
-    storage.api_init = true;
-    for reg in storage.api_init_regs.drain(..) {
-        reg();
-    }
-}}
-
-pub fn register_for_api_init_event<F: Fn() + 'static>(_callback: F) {
-    // Register callback logic
 }
 
 /// # Panics
 pub fn get_plugin_name() -> Option<String> {
-    APIStorage::get().read().unwrap().plugin_name.clone()
+    APIStorage::get()
+        .read()
+        .unwrap()
+        .as_ref()
+        .map(|storage| storage.plugin_name.clone())
 }
 
 /// # Panics
 pub fn get_plugin_author() -> Option<String> {
-    APIStorage::get().read().unwrap().plugin_author.clone()
-}
-
-/// # Panics
-pub fn get_plugin_version() -> Option<Version> {
-    APIStorage::get().read().unwrap().plugin_version.clone()
-}
-
-/// # Panics
-pub fn get_plugin_handle() -> PluginHandle {
-    APIStorage::get().read().unwrap().plugin_handle.clone()
-}
-
-/// # Panics
-pub fn get_release_index() -> u32 {
-    APIStorage::get().read().unwrap().release_index
-}
-
-/// # Panics
-pub fn get_scaleform_interface() -> Option<&'static ScaleformInterface> {
-    APIStorage::get().read().unwrap().scaleform_interface
-}
-
-/// # Panics
-pub fn get_papyrus_interface() -> Option<&'static PapyrusInterface> {
-    APIStorage::get().read().unwrap().papyrus_interface
-}
-
-/// # Panics
-pub fn get_serialization_interface() -> Option<&'static SerializationInterface> {
-    APIStorage::get().read().unwrap().serialization_interface
-}
-
-/// # Panics
-pub fn get_task_interface() -> Option<&'static TaskInterface> {
-    APIStorage::get().read().unwrap().task_interface
-}
-
-/// # Panics
-pub fn get_trampoline_interface() -> Option<&'static TrampolineInterface> {
-    APIStorage::get().read().unwrap().trampoline_interface
-}
-
-/// # Panics
-pub fn get_messaging_interface() -> Option<&'static MessagingInterface> {
-    APIStorage::get().read().unwrap().messaging_interface
-}
-
-/// # Panics
-pub fn get_mod_callback_event_source() -> Option<&'static BSTEventSource<ModCallbackEvent>> {
-    APIStorage::get().read().unwrap().mod_callback_event_source
-}
-
-/// # Panics
-pub fn get_camera_event_source() -> Option<&'static BSTEventSource<CameraEvent>> {
-    APIStorage::get().read().unwrap().camera_event_source
-}
-
-/// # Panics
-pub fn get_crosshair_ref_event_source() -> Option<&'static BSTEventSource<CrosshairRefEvent>> {
-    APIStorage::get().read().unwrap().crosshair_ref_event_source
-}
-
-/// # Panics
-pub fn get_action_event_source() -> Option<&'static BSTEventSource<ActionEvent>> {
-    APIStorage::get().read().unwrap().action_event_source
-}
-
-/// # Panics
-pub fn get_ni_node_update_event_source() -> Option<&'static BSTEventSource<NiNodeUpdateEvent>> {
     APIStorage::get()
         .read()
         .unwrap()
-        .ni_node_update_event_source
+        .as_ref()
+        .map(|storage| storage.plugin_author.clone())
 }
 
-/// # Panics
-pub fn get_object_interface() -> Option<&'static ObjectInterface> {
-    APIStorage::get().read().unwrap().object_interface
-}
+// /// # Panics
+// pub fn get_plugin_version() -> Option<Version> {
+//     APIStorage::get().read().unwrap().plugin_version.clone()
+// }
 
 /// # Panics
-pub fn get_delay_functor_manager() -> Option<&'static SKSEDelayFunctorManager> {
-    APIStorage::get().read().unwrap().delay_functor_manager
+pub fn get_plugin_handle() -> PluginHandle {
+    APIStorage::get()
+        .read()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .plugin_handle
+        .clone()
 }
 
-/// # Panics
-pub fn get_object_registry() -> Option<&'static SKSEObjectRegistry> {
-    APIStorage::get().read().unwrap().object_registry
-}
+// /// # Panics
+// pub fn get_release_index() -> u32 {
+//     APIStorage::get().read().unwrap().release_index
+// }
 
-/// # Panics
-pub fn get_persistent_object_storage() -> Option<&'static SKSEPersistentObjectStorage> {
-    APIStorage::get().read().unwrap().persistent_object_storage
-}
+// /// # Panics
+// pub fn get_scaleform_interface() -> Option<&'static ScaleformInterface> {
+//     APIStorage::get().read().unwrap().scaleform_interface
+// }
+
+// /// # Panics
+// pub fn get_papyrus_interface() -> Option<&'static PapyrusInterface> {
+//     APIStorage::get().read().unwrap().papyrus_interface
+// }
+
+// /// # Panics
+// pub fn get_serialization_interface() -> Option<&'static SerializationInterface> {
+//     APIStorage::get().read().unwrap().serialization_interface
+// }
+
+// /// # Panics
+// pub fn get_task_interface() -> Option<&'static TaskInterface> {
+//     APIStorage::get().read().unwrap().task_interface
+// }
+
+// /// # Panics
+// pub fn get_messaging_interface() -> Option<&'static MessagingInterface> {
+//     APIStorage::get().read().unwrap().messaging_interface
+// }
+
+// /// # Panics
+// pub fn get_mod_callback_event_source() -> Option<&'static BSTEventSource<ModCallbackEvent>> {
+//     APIStorage::get().read().unwrap().mod_callback_event_source
+// }
+
+// /// # Panics
+// pub fn get_camera_event_source() -> Option<&'static BSTEventSource<CameraEvent>> {
+//     APIStorage::get().read().unwrap().camera_event_source
+// }
+
+// /// # Panics
+// pub fn get_crosshair_ref_event_source() -> Option<&'static BSTEventSource<CrosshairRefEvent>> {
+//     APIStorage::get().read().unwrap().crosshair_ref_event_source
+// }
+
+// /// # Panics
+// pub fn get_action_event_source() -> Option<&'static BSTEventSource<ActionEvent>> {
+//     APIStorage::get().read().unwrap().action_event_source
+// }
+
+// /// # Panics
+// pub fn get_ni_node_update_event_source() -> Option<&'static BSTEventSource<NiNodeUpdateEvent>> {
+//     APIStorage::get()
+//         .read()
+//         .unwrap()
+//         .ni_node_update_event_source
+// }
+
+// /// # Panics
+// pub fn get_object_interface() -> Option<&'static ObjectInterface> {
+//     APIStorage::get().read().unwrap().object_interface
+// }
+
+// /// # Panics
+// pub fn get_delay_functor_manager() -> Option<&'static SKSEDelayFunctorManager> {
+//     APIStorage::get().read().unwrap().delay_functor_manager
+// }
+
+// /// # Panics
+// pub fn get_object_registry() -> Option<&'static SKSEObjectRegistry> {
+//     APIStorage::get().read().unwrap().object_registry
+// }
+
+// /// # Panics
+// pub fn get_persistent_object_storage() -> Option<&'static SKSEPersistentObjectStorage> {
+//     APIStorage::get().read().unwrap().persistent_object_storage
+// }
 
 /// # Panics
 pub fn alloc_trampoline(size: usize, try_skse_reserve: bool) {
     let trampoline = get_trampoline();
 
     if try_skse_reserve {
-        let interface = get_trampoline_interface();
-        if let Some(interface) = interface {
-            let memory = interface.allocate_from_branch_pool(size);
+        let _ = APIStorage::map(|storage| {
+            let memory = storage.trampoline_interface.allocate_from_branch_pool(size);
             if memory.is_null() {
                 unsafe {
                     trampoline
@@ -406,7 +295,7 @@ pub fn alloc_trampoline(size: usize, try_skse_reserve: bool) {
                         .set_trampoline(memory.cast::<u8>(), size, None);
                 }
             }
-        }
+        });
 
         return;
     }

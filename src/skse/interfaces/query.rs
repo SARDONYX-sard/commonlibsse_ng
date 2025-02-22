@@ -9,22 +9,40 @@
 
 use crate::{rel::version::Version, skse::impls::stab::SKSEInterface};
 
-#[derive(Debug)]
-pub struct QueryInterface {
-    proxy: *const u8,
+/// Provides an interface to query various version-related information.
+///
+/// This trait is designed to be implemented for structures that contain
+/// versioning information, such as `SKSEInterface`. It allows querying the
+/// editor version, runtime version, and SKSE version, as well as determining
+/// whether the interface is running in an editor environment.
+pub trait QueryInterface {
+    /// Returns the editor version as a `u32`.
+    fn editor_version(&self) -> u32;
+
+    /// Returns `true` if the interface is running in the editor, otherwise `false`.
+    fn is_editor(&self) -> bool;
+
+    /// Returns the runtime version as a `Version` struct.
+    fn runtime_version(&self) -> Version;
+
+    /// Returns the SKSE (Skyrim Script Extender) version as a `u32`.
+    fn skse_version(&self) -> u32;
 }
 
-impl QueryInterface {
-    pub fn editor_version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).editor_version }
+impl QueryInterface for SKSEInterface {
+    #[inline]
+    fn editor_version(&self) -> u32 {
+        self.editorVersion
     }
 
-    pub fn is_editor(&self) -> bool {
-        unsafe { (*self.get_proxy()).is_editor != 0 }
+    #[inline]
+    fn is_editor(&self) -> bool {
+        self.isEditor != 0
     }
 
-    pub fn runtime_version(&self) -> Version {
-        let packed = unsafe { (*self.get_proxy()).runtime_version };
+    #[inline]
+    fn runtime_version(&self) -> Version {
+        let packed = self.runtimeVersion;
         let major = ((packed & 0xFF000000) >> 24) as u16;
         let minor = ((packed & 0x00FF0000) >> 16) as u16;
         let revision = ((packed & 0x0000FFF0) >> 4) as u16;
@@ -32,12 +50,8 @@ impl QueryInterface {
         Version::new(major, minor, revision, build)
     }
 
-    pub fn skse_version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).skse_version }
-    }
-
-    pub(crate) fn get_proxy(&self) -> *const SKSEInterface {
-        assert!(!self.proxy.is_null());
-        self.proxy.cast()
+    #[inline]
+    fn skse_version(&self) -> u32 {
+        self.skseVersion
     }
 }

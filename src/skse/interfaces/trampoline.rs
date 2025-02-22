@@ -3,27 +3,28 @@ use std::ffi::c_void;
 use crate::skse::{api::get_plugin_handle, impls::stab::SKSETrampolineInterface};
 
 #[derive(Debug)]
-pub struct TrampolineInterface {
-    address: *const u8,
-}
+pub struct TrampolineInterface(&'static SKSETrampolineInterface);
 
 impl TrampolineInterface {
     pub const VERSION: u32 = 1;
 
-    pub fn version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).interface_version }
+    #[inline]
+    pub(crate) const fn new(interface: &'static SKSETrampolineInterface) -> Self {
+        Self(interface)
     }
 
+    #[inline]
+    pub const fn version(&self) -> u32 {
+        self.0.interfaceVersion
+    }
+
+    #[inline]
     pub fn allocate_from_branch_pool(&self, size: usize) -> *mut c_void {
-        unsafe { ((*self.get_proxy()).allocate_from_branch_pool)(get_plugin_handle(), size) }
+        unsafe { (self.0.AllocateFromBranchPool)(get_plugin_handle(), size) }
     }
 
+    #[inline]
     pub fn allocate_from_local_pool(&self, size: usize) -> *mut c_void {
-        unsafe { ((*self.get_proxy()).allocate_from_local_pool)(get_plugin_handle(), size) }
-    }
-
-    fn get_proxy(&self) -> *const SKSETrampolineInterface {
-        assert!(!self.address.is_null());
-        self.address.cast()
+        unsafe { (self.0.AllocateFromLocalPool)(get_plugin_handle(), size) }
     }
 }

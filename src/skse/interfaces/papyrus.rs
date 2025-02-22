@@ -13,17 +13,22 @@ type RegFunction1 = fn(vm: *mut BSScript::Internal::VirtualMachine) -> bool;
 // type RegFunction2 = fn(vm: *mut BSScript::IVirtualMachine) -> bool;
 
 #[derive(Debug)]
-pub struct PapyrusInterface {
-    address: *const u8,
-}
+pub struct PapyrusInterface(&'static SKSEPapyrusInterface);
 
 impl PapyrusInterface {
     pub const VERSION: u32 = 1;
 
-    pub fn version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).interface_version }
+    #[inline]
+    pub(crate) const fn new(interface: &'static SKSEPapyrusInterface) -> Self {
+        Self(interface)
     }
 
+    #[inline]
+    pub const fn version(&self) -> u32 {
+        self.0.interfaceVersion
+    }
+
+    #[inline]
     pub fn register(&self, func: RegFunction1) -> bool {
         self.register_impl(func)
     }
@@ -43,8 +48,7 @@ impl PapyrusInterface {
             return true;
         }
 
-        let result =
-            unsafe { ((*self.get_proxy()).register)((&mut func as *mut RegFunction1).cast()) };
+        let result = unsafe { (self.0.Register)((&mut func as *mut RegFunction1).cast()) };
         if !result {
             #[cfg(feature = "tracing")]
             tracing::error!("Failed to register papyrus callback");
@@ -67,9 +71,4 @@ impl PapyrusInterface {
     //     };
     //     result
     // }
-
-    fn get_proxy(&self) -> *const SKSEPapyrusInterface {
-        assert!(!self.address.is_null());
-        self.address.cast()
-    }
 }

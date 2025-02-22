@@ -7,7 +7,7 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use std::ffi::{c_void, CStr};
+use std::ffi::{CStr, c_void};
 
 use crate::skse::{api::get_plugin_handle, impls::stab::SKSEMessagingInterface};
 
@@ -48,17 +48,23 @@ pub struct Message {
 }
 
 #[derive(Debug)]
-pub struct MessagingInterface {
-    address: *const SKSEMessagingInterface,
-}
+#[repr(transparent)]
+pub struct MessagingInterface(&'static SKSEMessagingInterface);
 
 impl MessagingInterface {
     pub const VERSION: u32 = 2;
 
-    pub fn version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).interface_version }
+    #[inline]
+    pub(crate) const fn new(interface: &'static SKSEMessagingInterface) -> Self {
+        Self(interface)
     }
 
+    #[inline]
+    pub const fn version(&self) -> u32 {
+        self.get_inner().interfaceVersion
+    }
+
+    #[inline]
     /// # Safety
     pub unsafe fn dispatch(
         &self,
@@ -68,7 +74,7 @@ impl MessagingInterface {
         receiver: &CStr,
     ) -> bool {
         let result = unsafe {
-            ((*self.get_proxy()).dispatch)(
+            (self.get_inner().Dispatch)(
                 get_plugin_handle(),
                 message_type as u32,
                 data,
@@ -89,10 +95,12 @@ impl MessagingInterface {
         result
     }
 
+    #[inline]
     pub fn get_event_dispatcher(&self, dispatcher_id: Dispatcher) -> *mut c_void {
-        unsafe { ((*self.get_proxy()).get_event_dispatcher)(dispatcher_id as u32) }
+        unsafe { (self.get_inner().GetEventDispatcher)(dispatcher_id as u32) }
     }
 
+    #[inline]
     pub fn register_listener(&self, callback: MessagingCallback) -> bool {
         self.register_listener2(c"SKSE", callback)
     }
@@ -101,11 +109,7 @@ impl MessagingInterface {
         #[allow(clippy::fn_to_numeric_cast_any)]
         let void_callback = (callback as *mut MessagingCallback).cast::<c_void>();
         let result = unsafe {
-            ((*self.get_proxy()).register_listener)(
-                get_plugin_handle(),
-                sender.as_ptr(),
-                void_callback,
-            )
+            (self.get_inner().RegisterListener)(get_plugin_handle(), sender.as_ptr(), void_callback)
         };
 
         if !result {
@@ -119,8 +123,8 @@ impl MessagingInterface {
         result
     }
 
-    fn get_proxy(&self) -> *const SKSEMessagingInterface {
-        assert!(!self.address.is_null());
-        self.address.cast()
+    #[inline]
+    const fn get_inner(&self) -> &'static SKSEMessagingInterface {
+        self.0
     }
 }

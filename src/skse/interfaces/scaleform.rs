@@ -9,28 +9,32 @@
 
 use crate::re::{GFxMovieView, GFxValue, InventoryEntryData};
 use crate::skse::impls::stab::SKSEScaleformInterface;
-use core::ffi::{c_void, CStr};
+use core::ffi::{CStr, c_void};
 
 type RegCallback = fn(a_view: *mut GFxMovieView, a_root: *mut GFxValue) -> bool;
 type RegInvCallback =
     fn(a_view: *mut GFxMovieView, a_object: *mut GFxValue, a_item: *mut InventoryEntryData);
 
 #[derive(Debug)]
-pub struct ScaleformInterface {
-    address: *const u8,
-}
+pub struct ScaleformInterface(&'static SKSEScaleformInterface);
 
 impl ScaleformInterface {
     pub const VERSION: u32 = 2;
 
-    pub fn version(&self) -> u32 {
-        unsafe { (*self.get_proxy()).interface_version }
+    #[inline]
+    pub(crate) const fn new(interface: &'static SKSEScaleformInterface) -> Self {
+        Self(interface)
+    }
+
+    #[inline]
+    pub const fn version(&self) -> u32 {
+        self.0.interfaceVersion
     }
 
     pub fn register(&self, callback: RegCallback, name: &CStr) -> bool {
         #[allow(clippy::fn_to_numeric_cast_any)]
         let void_callback = (callback as *mut RegInvCallback).cast::<c_void>();
-        let result = unsafe { ((*self.get_proxy()).register)(name.as_ptr(), void_callback) };
+        let result = unsafe { (self.0.Register)(name.as_ptr(), void_callback) };
 
         if !result {
             #[cfg(feature = "tracing")]
@@ -39,14 +43,10 @@ impl ScaleformInterface {
         result
     }
 
+    #[inline]
     pub fn register_for_inventory(&self, callback: RegInvCallback) {
         #[allow(clippy::fn_to_numeric_cast_any)]
         let void_callback = (callback as *mut RegInvCallback).cast::<c_void>();
-        unsafe { ((*self.get_proxy()).register_for_inventory)(void_callback) }
-    }
-
-    fn get_proxy(&self) -> *const SKSEScaleformInterface {
-        assert!(!self.address.is_null());
-        self.address.cast()
+        unsafe { (self.0.RegisterForInventory)(void_callback) }
     }
 }
