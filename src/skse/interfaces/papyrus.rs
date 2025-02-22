@@ -12,7 +12,7 @@ use crate::{re::BSScript, skse::impls::stab::SKSEPapyrusInterface};
 type RegFunction1 = fn(vm: *mut BSScript::Internal::VirtualMachine) -> bool;
 // type RegFunction2 = fn(vm: *mut BSScript::IVirtualMachine) -> bool;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PapyrusInterface(&'static SKSEPapyrusInterface);
 
 impl PapyrusInterface {

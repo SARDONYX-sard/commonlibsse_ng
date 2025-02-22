@@ -8,7 +8,7 @@ use commonlibsse_ng::skse::interfaces::{
     PluginDeclaration, PluginDeclarationInfo, RuntimeCompatibility, String252, String256,
     StructCompatibility, VersionNumber,
 };
-use commonlibsse_ng::skse::version::{RUNTIME_SSE_1_5_97, RUNTIME_SSE_LATEST};
+use commonlibsse_ng::skse::version::RUNTIME_SSE_LATEST;
 
 const fn to_cstr(s: &str) -> &core::ffi::CStr {
     unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(s.as_bytes()) }
@@ -61,7 +61,7 @@ pub static SKSEPlugin_Version: PluginDeclaration = {
                 structs_post_629: false,
                 compatible_versions,
             },
-            minimum_skse_version: VersionNumber::from_version(RUNTIME_SSE_1_5_97),
+            minimum_skse_version: VersionNumber::default_const(),
         },
     }
 };

@@ -14,7 +14,7 @@ use crate::skse::impls::stab::{SKSETaskInterface, TaskDelegate, UiDelegateV1};
 // https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/src/SKSE/Interfaces.cpp#L204
 type TaskFn = Box<dyn FnOnce() + Send + 'static>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TaskInterface(&'static SKSETaskInterface);
 
 impl TaskInterface {

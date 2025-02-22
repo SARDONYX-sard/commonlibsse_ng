@@ -11,7 +11,7 @@ use crate::skse::impls::stab::{
     SKSEDelayFunctorManager, SKSEObjectInterface, SKSEObjectRegistry, SKSEPersistentObjectStorage,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[repr(transparent)]
 pub struct ObjectInterface(&'static SKSEObjectInterface);
 

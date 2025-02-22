@@ -17,7 +17,7 @@ const U32_MAX: usize = u32::MAX as usize;
 type EventCallback = fn(a_intfc: &SerializationInterface);
 type FormDeleteCallback = fn(a_handle: VMHandle);
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SerializationInterface(&'static SKSESerializationInterface);
 
 impl SerializationInterface {

@@ -39,7 +39,7 @@ pub enum Dispatcher {
     Total,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Message {
     pub sender: &'static str,
     pub msg_type: u32,
@@ -47,7 +47,7 @@ pub struct Message {
     pub data: *mut c_void,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[repr(transparent)]
 pub struct MessagingInterface(&'static SKSEMessagingInterface);
 

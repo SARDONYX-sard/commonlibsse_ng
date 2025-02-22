@@ -2,7 +2,7 @@ use std::ffi::c_void;
 
 use crate::skse::{api::get_plugin_handle, impls::stab::SKSETrampolineInterface};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TrampolineInterface(&'static SKSETrampolineInterface);
 
 impl TrampolineInterface {

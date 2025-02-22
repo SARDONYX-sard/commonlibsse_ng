@@ -18,6 +18,8 @@ use crate::skse::interfaces::{
 };
 use crate::skse::trampoline::get_trampoline;
 
+use super::interfaces::PluginVersionData;
+
 // Placeholder for various SKSE interfaces
 
 // Event source stubs
@@ -34,8 +36,8 @@ pub struct NiNodeUpdateEvent;
 
 #[derive(Debug)]
 pub struct APIStorage {
-    plugin_name: String,
-    plugin_author: String,
+    plugin_name: &'static str,
+    plugin_author: &'static str,
     pub plugin_version: Version,
 
     plugin_handle: PluginHandle,
@@ -129,10 +131,19 @@ pub fn init(load_interface: *const LoadInterface) {
         }
     }
 
+    let (plugin_name, plugin_author, plugin_version) =
+        PluginVersionData::get_singleton().map_or(("", "", 0), |plugin_ver| {
+            (
+                plugin_ver.get_author_name(),
+                plugin_ver.get_author_name(),
+                plugin_ver.get_plugin_version(),
+            )
+        });
+
     *guard = Some(APIStorage {
-        plugin_name: String::new(),
-        plugin_author: String::new(),
-        plugin_version: Version::default_const(),
+        plugin_name,
+        plugin_author,
+        plugin_version: Version::unpack(plugin_version),
 
         plugin_handle,
         release_index,
@@ -168,117 +179,62 @@ pub fn register_for_api_init_event<F: ApiInitRegFn + 'static>(f: F) {
     }
 }
 
-/// # Panics
-pub fn get_plugin_name() -> Option<String> {
-    APIStorage::get()
-        .read()
-        .unwrap()
-        .as_ref()
-        .map(|storage| storage.plugin_name.clone())
+#[inline]
+pub fn get_plugin_name() -> Option<&'static str> {
+    APIStorage::map(|storage| storage.plugin_name)
+}
+
+#[inline]
+pub fn get_plugin_author() -> Option<&'static str> {
+    APIStorage::map(|storage| storage.plugin_author)
+}
+
+#[inline]
+pub fn get_plugin_version() -> Option<Version> {
+    APIStorage::map(|storage| storage.plugin_version.clone())
 }
 
 /// # Panics
-pub fn get_plugin_author() -> Option<String> {
-    APIStorage::get()
-        .read()
-        .unwrap()
-        .as_ref()
-        .map(|storage| storage.plugin_author.clone())
-}
-
-// /// # Panics
-// pub fn get_plugin_version() -> Option<Version> {
-//     APIStorage::get().read().unwrap().plugin_version.clone()
-// }
-
-/// # Panics
+#[inline]
 pub fn get_plugin_handle() -> PluginHandle {
-    APIStorage::get()
-        .read()
-        .unwrap()
-        .as_ref()
-        .unwrap()
-        .plugin_handle
-        .clone()
+    APIStorage::map(|storage| storage.plugin_handle.clone()).expect("Plugin handle not found")
 }
 
-// /// # Panics
-// pub fn get_release_index() -> u32 {
-//     APIStorage::get().read().unwrap().release_index
-// }
+/// # Panics
+#[inline]
+pub fn get_release_index() -> u32 {
+    APIStorage::map(|storage| storage.release_index).unwrap()
+}
 
-// /// # Panics
-// pub fn get_scaleform_interface() -> Option<&'static ScaleformInterface> {
-//     APIStorage::get().read().unwrap().scaleform_interface
-// }
+/// # Panics
+#[inline]
+pub fn get_scaleform_interface() -> Option<ScaleformInterface> {
+    APIStorage::map(|storage| storage.scaleform_interface.clone())
+}
 
-// /// # Panics
-// pub fn get_papyrus_interface() -> Option<&'static PapyrusInterface> {
-//     APIStorage::get().read().unwrap().papyrus_interface
-// }
+/// # Panics
+#[inline]
+pub fn get_papyrus_interface() -> Option<PapyrusInterface> {
+    APIStorage::map(|storage| storage.papyrus_interface.clone())
+}
 
-// /// # Panics
-// pub fn get_serialization_interface() -> Option<&'static SerializationInterface> {
-//     APIStorage::get().read().unwrap().serialization_interface
-// }
+/// # Panics
+#[inline]
+pub fn get_serialization_interface() -> Option<SerializationInterface> {
+    APIStorage::map(|storage| storage.serialization_interface.clone())
+}
 
-// /// # Panics
-// pub fn get_task_interface() -> Option<&'static TaskInterface> {
-//     APIStorage::get().read().unwrap().task_interface
-// }
+/// # Panics
+#[inline]
+pub fn get_task_interface() -> Option<TaskInterface> {
+    APIStorage::map(|storage| storage.task_interface.clone())
+}
 
-// /// # Panics
-// pub fn get_messaging_interface() -> Option<&'static MessagingInterface> {
-//     APIStorage::get().read().unwrap().messaging_interface
-// }
-
-// /// # Panics
-// pub fn get_mod_callback_event_source() -> Option<&'static BSTEventSource<ModCallbackEvent>> {
-//     APIStorage::get().read().unwrap().mod_callback_event_source
-// }
-
-// /// # Panics
-// pub fn get_camera_event_source() -> Option<&'static BSTEventSource<CameraEvent>> {
-//     APIStorage::get().read().unwrap().camera_event_source
-// }
-
-// /// # Panics
-// pub fn get_crosshair_ref_event_source() -> Option<&'static BSTEventSource<CrosshairRefEvent>> {
-//     APIStorage::get().read().unwrap().crosshair_ref_event_source
-// }
-
-// /// # Panics
-// pub fn get_action_event_source() -> Option<&'static BSTEventSource<ActionEvent>> {
-//     APIStorage::get().read().unwrap().action_event_source
-// }
-
-// /// # Panics
-// pub fn get_ni_node_update_event_source() -> Option<&'static BSTEventSource<NiNodeUpdateEvent>> {
-//     APIStorage::get()
-//         .read()
-//         .unwrap()
-//         .ni_node_update_event_source
-// }
-
-// /// # Panics
-// pub fn get_object_interface() -> Option<&'static ObjectInterface> {
-//     APIStorage::get().read().unwrap().object_interface
-// }
-
-// /// # Panics
-// pub fn get_delay_functor_manager() -> Option<&'static SKSEDelayFunctorManager> {
-//     APIStorage::get().read().unwrap().delay_functor_manager
-// }
-
-// /// # Panics
-// pub fn get_object_registry() -> Option<&'static SKSEObjectRegistry> {
-//     APIStorage::get().read().unwrap().object_registry
-// }
-
-// /// # Panics
-// pub fn get_persistent_object_storage() -> Option<&'static SKSEPersistentObjectStorage> {
-//     APIStorage::get().read().unwrap().persistent_object_storage
-// }
+/// # Panics
+#[inline]
+pub fn get_messaging_interface() -> Option<MessagingInterface> {
+    APIStorage::map(|storage| storage.messaging_interface.clone())
+}
 
 /// # Panics
 pub fn alloc_trampoline(size: usize, try_skse_reserve: bool) {
