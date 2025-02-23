@@ -7,7 +7,7 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use std::ffi::{CStr, c_void};
+use std::ffi::{CStr, c_char, c_void};
 
 use crate::skse::{api::get_plugin_handle, impls::stab::SKSEMessagingInterface};
 
@@ -42,8 +42,9 @@ pub enum Dispatcher {
 }
 
 #[derive(Debug, Clone)]
+#[repr(C)]
 pub struct Message {
-    pub sender: &'static str,
+    pub sender: *const c_char,
     pub msg_type: MessageType,
     pub data_len: u32,
     pub data: *mut c_void,
@@ -102,11 +103,13 @@ impl MessagingInterface {
         unsafe { (self.get_inner().GetEventDispatcher)(dispatcher_id as u32) }
     }
 
+    /// Listen to SKSE's in-game events(e.g. load save)
     #[inline]
     pub fn register_listener(&self, callback: MessagingCallback) -> bool {
         self.register_listener2(c"SKSE", callback)
     }
 
+    /// Listen to sender name in-game events(e.g. load save)
     pub fn register_listener2(&self, sender: &CStr, callback: MessagingCallback) -> bool {
         #[allow(clippy::fn_to_numeric_cast_any)]
         let void_callback = (callback as *mut MessagingCallback).cast::<c_void>();

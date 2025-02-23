@@ -1,4 +1,3 @@
-// Untested yet.
 use commonlibsse_ng::rel::version::Version;
 use commonlibsse_ng::skse;
 use commonlibsse_ng::skse::impls::stab::{PluginInfo, SKSEInterface};
@@ -75,19 +74,24 @@ pub extern "C" fn SKSEPlugin_Load(skse: &LoadInterface) -> bool {
 
         use commonlibsse_ng::skse::interfaces::messaging::MessageType;
         if let Some(messaging) = skse::api::get_messaging_interface() {
-            messaging.register_listener(|message| {
+            let result = messaging.register_listener(|message| {
+                #[cfg(feature = "tracing")]
+                tracing::info!("SKSE event: {message:?}");
                 if message.msg_type == MessageType::DataLoaded {
                     tracing::info!("Data loaded");
                 }
             });
+
+            if result {
+                #[cfg(feature = "tracing")]
+                tracing::info!("Listener has been registered.");
+            }
         }
-        #[cfg(feature = "tracing")]
-        tracing::info!("SKSE::init has been called.");
     });
 
     if let Err(err) = result {
         #[cfg(feature = "tracing")]
-        tracing::error!("{:?}", err);
+        tracing::error!("{err:?}");
     }
 
     true
