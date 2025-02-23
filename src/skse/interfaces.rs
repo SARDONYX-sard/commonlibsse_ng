@@ -120,8 +120,8 @@ impl PluginVersionData {
     }
 
     pub fn get_singleton() -> Option<&'static mut Self> {
-        use windows::core::s;
         use windows::Win32::System::LibraryLoader::GetProcAddress;
+        use windows::core::s;
 
         let f = unsafe { GetProcAddress(get_current_module(), s!("SKSEPlugin_Version")) };
         #[allow(clippy::fn_to_numeric_cast_any)]
@@ -171,7 +171,7 @@ impl VersionNumber {
     }
 }
 
-const fn to_fixed_str<const N: usize>(s: &str) -> [u8; N] {
+pub const fn to_fixed_str<const N: usize>(s: &str) -> [u8; N] {
     let bytes = s.as_bytes();
     let bytes_len = bytes.len();
 
@@ -328,8 +328,8 @@ const _: () = assert!(0x350 == core::mem::size_of::<PluginDeclaration>());
 
 impl PluginDeclaration {
     pub fn get_singleton() -> Option<&'static mut Self> {
-        use windows::core::s;
         use windows::Win32::System::LibraryLoader::GetProcAddress;
+        use windows::core::s;
 
         let f = unsafe { GetProcAddress(get_current_module(), s!("SKSEPlugin_Version")) };
 

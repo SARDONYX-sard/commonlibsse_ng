@@ -3,29 +3,25 @@ use commonlibsse_ng::rel::version::Version;
 use commonlibsse_ng::skse;
 use commonlibsse_ng::skse::impls::stab::{PluginInfo, SKSEInterface};
 use commonlibsse_ng::skse::interfaces::load::LoadInterface;
-use commonlibsse_ng::skse::interfaces::messaging::MessageType;
 use commonlibsse_ng::skse::interfaces::query::QueryInterface;
-use commonlibsse_ng::skse::interfaces::{
-    PluginDeclaration, PluginDeclarationInfo, RuntimeCompatibility, String252, String256,
-    StructCompatibility, VersionNumber,
-};
+use commonlibsse_ng::skse::interfaces::{PluginVersionData, VersionNumber, to_fixed_str};
 use commonlibsse_ng::skse::version::RUNTIME_SSE_LATEST;
 
 const fn to_cstr(s: &str) -> &core::ffi::CStr {
     unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(s.as_bytes()) }
 }
 
+const PKG_NAME: &str = "module_state";
 const PKG_VERSION: Version = Version::from_str_const(env!("CARGO_PKG_VERSION"));
 
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
-#[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub extern "C" fn SKSEPlugin_Query(skse: &SKSEInterface, info: &mut PluginInfo) -> bool {
     {
         *info = PluginInfo {
-            version: PKG_VERSION.pack(),
-            name: to_cstr(concat!(env!("CARGO_PKG_NAME"), "\0")).as_ptr(),
-            infoVersion: PKG_VERSION.major() as u32,
+            version: PKG_VERSION.major() as u32,
+            name: to_cstr(concat!("module_state", "\0")).as_ptr(),
+            infoVersion: 1,
         };
     };
 
@@ -40,50 +36,61 @@ pub extern "C" fn SKSEPlugin_Query(skse: &SKSEInterface, info: &mut PluginInfo) 
 
 #[unsafe(no_mangle)]
 #[allow(non_upper_case_globals)]
-pub static SKSEPlugin_Version: PluginDeclaration = {
-    const PKG_NAME: &str = env!("CARGO_PKG_NAME");
+pub static SKSEPlugin_Version: PluginVersionData = {
     const PKG_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
-    let mut compatible_versions = [VersionNumber::default_const(); 16];
-    compatible_versions[0] = VersionNumber::from_version(RUNTIME_SSE_LATEST);
+    let mut compatible_versions = [0; 16];
+    compatible_versions[0] = VersionNumber::from_version(RUNTIME_SSE_LATEST).to_packed();
 
-    PluginDeclaration {
+    PluginVersionData {
         data_version: PKG_VERSION.major() as u32,
-        data: PluginDeclarationInfo {
-            version: VersionNumber::from_version(PKG_VERSION),
-            name: String256::new(PKG_NAME),
-            author: String256::new(PKG_AUTHORS),
-            support_email: String252::default_const(),
-            struct_compatibility: StructCompatibility::Dependent,
-            runtime_compatibility: RuntimeCompatibility {
-                address_library: true,
-                signature_scanning: false,
-                structs_post_629: false,
-                compatible_versions,
-            },
-            minimum_skse_version: VersionNumber::default_const(),
-        },
+        plugin_version: VersionNumber::from_version(PKG_VERSION).to_packed(),
+        plugin_name: to_fixed_str(PKG_NAME),
+        author: to_fixed_str(PKG_AUTHORS),
+        support_email: [0; 252],
+        compatible_versions,
+        version_independence: 1,
+        version_independence_ex: 1,
+        xse_minimum: 0,
     }
 };
 
 #[unsafe(no_mangle)]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
-pub extern "C" fn SKSEPlugin_Load(skse: &LoadInterface) {
+pub extern "C" fn SKSEPlugin_Load(skse: &LoadInterface) -> bool {
     #[cfg(feature = "tracing")]
-    init_logger();
-
-    skse::init(skse);
-
-    if let Some(messaging) = skse::api::get_messaging_interface() {
-        messaging.register_listener(|message| {
-            if message.msg_type == MessageType::DataLoaded {
-                tracing::info!("Data loaded");
-            }
-        });
+    {
+        init_logger();
+        tracing::info!("SKSEPlugin_Load has been called.");
     }
 
-    #[cfg(feature = "tracing")]
-    tracing::info!("SKSE::init has been called.");
+    let result = std::panic::catch_unwind(|| {
+        if let Err(err) = commonlibsse_ng::rel::module::ModuleState::map_or_init(|module| {
+            tracing::info!("{module:?}");
+        }) {
+            tracing::error!("{err}");
+        };
+
+        skse::init(skse);
+
+        use commonlibsse_ng::skse::interfaces::messaging::MessageType;
+        if let Some(messaging) = skse::api::get_messaging_interface() {
+            messaging.register_listener(|message| {
+                if message.msg_type == MessageType::DataLoaded {
+                    tracing::info!("Data loaded");
+                }
+            });
+        }
+        #[cfg(feature = "tracing")]
+        tracing::info!("SKSE::init has been called.");
+    });
+
+    if let Err(err) = result {
+        #[cfg(feature = "tracing")]
+        tracing::error!("{:?}", err);
+    }
+
+    true
 }
 
 #[cfg(feature = "tracing")]
@@ -94,14 +101,18 @@ fn init_logger() {
     if let Err(err) = skse::logger::log_directory()
         .map(|log_dir| skse::logger::init(log_dir, LOG_NAME, LevelFilter::TRACE))
     {
-        tracing::error!("{:?}", err);
+        message_box("module_state Error", &err.to_string());
+        std::process::exit(1);
     };
     #[cfg(feature = "tracing")]
     tracing::info!("Logger has been initialized.");
+}
 
-    if let Err(err) = commonlibsse_ng::rel::module::ModuleState::map_or_init(|module| {
-        tracing::info!("{module:?}");
-    }) {
-        tracing::error!("{err}");
-    };
+fn message_box(title: &str, message: &str) {
+    use windows::Win32::UI::WindowsAndMessaging::{MB_OK, MessageBoxW};
+    use windows::core::HSTRING;
+
+    let title = HSTRING::from(title.to_string());
+    let message = HSTRING::from(message.to_string());
+    let _result = unsafe { MessageBoxW(None, &message, &title, MB_OK) };
 }

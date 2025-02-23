@@ -1,5 +1,8 @@
 use crate::{rel::module::ModuleState, rex::win32::document_dir};
-use std::{path::PathBuf, sync::OnceLock};
+use std::{
+    path::{Path, PathBuf},
+    sync::OnceLock,
+};
 use tracing_subscriber::{
     Registry,
     filter::LevelFilter,
@@ -26,8 +29,8 @@ pub fn log_directory() -> Result<PathBuf, Error> {
 
     if runtime.is_vr() {
         path.push("Skyrim VR");
-    } else if PathBuf::from("steam_api64.dll").exists() {
-        if PathBuf::from("openvr_api.dll").exists() {
+    } else if Path::new("steam_api64.dll").exists() {
+        if Path::new("openvr_api.dll").exists() {
             path.push("Skyrim VR");
         } else if version >= RUNTIME_SSE_1_6_1170 {
             path.push("Skyrim.INI");
@@ -43,6 +46,7 @@ pub fn log_directory() -> Result<PathBuf, Error> {
 
 /// Global variable to allow dynamic level changes in logger.
 static RELOAD_HANDLE: OnceLock<Handle<LevelFilter, Registry>> = OnceLock::new();
+static GUARD: OnceLock<tracing_appender::non_blocking::WorkerGuard> = OnceLock::new();
 
 /// Initializes logger.
 ///
@@ -56,7 +60,7 @@ where
     let log_path = log_dir.as_ref();
     // let log_dir = &resolver.app_log_dir().context(NotFoundLogDirSnafu)?;
     let file_appender = tracing_appender::rolling::never(log_path, file_name);
-    let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
+    let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
 
     // Unable `pretty()` & `with_ansi(false)` combination in `#[tracing::instrument]`
     // ref: https://github.com/tokio-rs/tracing/issues/1310
@@ -74,6 +78,7 @@ where
         .with(fmt_layer)
         .init();
 
+    GUARD.set(guard).map_err(|_e| Error::FailedInitLog)?;
     RELOAD_HANDLE
         .set(reload_handle)
         .map_err(|_e| Error::FailedInitLog)
