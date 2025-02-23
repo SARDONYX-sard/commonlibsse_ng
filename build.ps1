@@ -29,7 +29,7 @@ elseif ($NTest) {
 elseif ($Example) {
   Write-Host "Running example..." -ForegroundColor Green
   cargo build --example module_state --features "tracing,no_sys,win_api"
-  $dest_dir = "./build/mods/module_state_example/SKSE/plugins/";
+  $dest_dir = "./build/mods/module_state_example/SKSE/Plugins/";
   mkdir -p $dest_dir
   Copy-Item -Path "./target/debug/examples/module_state.dll" -Destination $dest_dir -Force
   Copy-Item -Path "./target/debug/examples/module_state.pdb" -Destination $dest_dir -Force
