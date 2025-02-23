@@ -5,6 +5,7 @@ use std::{
     path::{Path, PathBuf},
     sync::OnceLock,
 };
+#[cfg(feature = "tracing")]
 use tracing_subscriber::{
     Registry,
     filter::LevelFilter,
@@ -45,13 +46,16 @@ pub fn log_directory() -> Result<PathBuf, LogError> {
 }
 
 /// Global variable to allow dynamic level changes in logger.
+#[cfg(feature = "tracing")]
 static RELOAD_HANDLE: OnceLock<Handle<LevelFilter, Registry>> = OnceLock::new();
+#[cfg(feature = "tracing")]
 static GUARD: OnceLock<tracing_appender::non_blocking::WorkerGuard> = OnceLock::new();
 
 /// Initializes logger.
 ///
 /// # Errors
 /// Double init
+#[cfg(feature = "tracing")]
 pub fn init<P, D>(log_dir: P, file_name: D, level: LevelFilter) -> Result<(), LogError>
 where
     P: AsRef<std::path::Path>,
@@ -90,6 +94,7 @@ where
 ///
 /// # Errors
 /// If logger uninitialized.
+#[cfg(feature = "tracing")]
 pub fn change_level(log_level: &str) -> Result<(), LogError> {
     let new_filter =
         <LevelFilter as core::str::FromStr>::from_str(log_level).unwrap_or_else(|_e| {
