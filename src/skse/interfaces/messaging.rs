@@ -41,13 +41,27 @@ pub enum Dispatcher {
     Total,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 #[repr(C)]
 pub struct Message {
     pub sender: *const c_char,
     pub msg_type: MessageType,
     pub data_len: u32,
     pub data: *mut c_void,
+}
+
+// # Why does this struct need to implement Debug manually?
+// In the case of `*const c_char`, Debug is a memory address, **which is difficult to debug**.
+// Therefore, implement it manually and display the string.
+impl core::fmt::Debug for Message {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("Message")
+            .field("sender", &unsafe { CStr::from_ptr(self.sender) })
+            .field("msg_type", &self.msg_type)
+            .field("data_len", &self.data_len)
+            .field("data", &self.data)
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone)]
