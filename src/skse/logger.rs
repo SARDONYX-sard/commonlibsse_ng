@@ -48,7 +48,7 @@ static RELOAD_HANDLE: OnceLock<Handle<LevelFilter, Registry>> = OnceLock::new();
 ///
 /// # Errors
 /// Double init
-pub fn init<P, D>(log_dir: P, file_name: D) -> Result<(), Error>
+pub fn init<P, D>(log_dir: P, file_name: D, level: LevelFilter) -> Result<(), Error>
 where
     P: AsRef<std::path::Path>,
     D: AsRef<std::path::Path>,
@@ -68,7 +68,7 @@ where
         .with_target(false)
         .with_writer(non_blocking);
 
-    let (filter, reload_handle) = reload::Layer::new(LevelFilter::ERROR);
+    let (filter, reload_handle) = reload::Layer::new(level);
     tracing_subscriber::registry()
         .with(filter)
         .with(fmt_layer)

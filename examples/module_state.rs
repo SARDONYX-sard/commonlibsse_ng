@@ -3,6 +3,7 @@ use commonlibsse_ng::rel::version::Version;
 use commonlibsse_ng::skse;
 use commonlibsse_ng::skse::impls::stab::{PluginInfo, SKSEInterface};
 use commonlibsse_ng::skse::interfaces::load::LoadInterface;
+use commonlibsse_ng::skse::interfaces::messaging::MessageType;
 use commonlibsse_ng::skse::interfaces::query::QueryInterface;
 use commonlibsse_ng::skse::interfaces::{
     PluginDeclaration, PluginDeclarationInfo, RuntimeCompatibility, String252, String256,
@@ -21,7 +22,6 @@ const PKG_VERSION: Version = Version::from_str_const(env!("CARGO_PKG_VERSION"));
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub extern "C" fn SKSEPlugin_Query(skse: &SKSEInterface, info: &mut PluginInfo) -> bool {
     {
-        // let info = unsafe { &mut *info };
         *info = PluginInfo {
             version: PKG_VERSION.pack(),
             name: to_cstr(concat!(env!("CARGO_PKG_NAME"), "\0")).as_ptr(),
@@ -54,7 +54,7 @@ pub static SKSEPlugin_Version: PluginDeclaration = {
             name: String256::new(PKG_NAME),
             author: String256::new(PKG_AUTHORS),
             support_email: String252::default_const(),
-            struct_compatibility: StructCompatibility::Independent,
+            struct_compatibility: StructCompatibility::Dependent,
             runtime_compatibility: RuntimeCompatibility {
                 address_library: true,
                 signature_scanning: false,
@@ -70,18 +70,38 @@ pub static SKSEPlugin_Version: PluginDeclaration = {
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub extern "C" fn SKSEPlugin_Load(skse: &LoadInterface) {
     #[cfg(feature = "tracing")]
-    {
-        const LOG_NAME: &str = "module_state.log";
-        if let Err(err) =
-            skse::logger::log_directory().map(|log_dir| skse::logger::init(log_dir, LOG_NAME))
-        {
-            tracing::error!("{:?}", err);
-        };
+    init_logger();
 
-        let _ = commonlibsse_ng::rel::module::ModuleState::map_or_init(|module| {
-            tracing::info!("{module:?}");
+    skse::init(skse);
+
+    if let Some(messaging) = skse::api::get_messaging_interface() {
+        messaging.register_listener(|message| {
+            if message.msg_type == MessageType::DataLoaded {
+                tracing::info!("Data loaded");
+            }
         });
     }
 
-    skse::init(skse);
+    #[cfg(feature = "tracing")]
+    tracing::info!("SKSE::init has been called.");
+}
+
+#[cfg(feature = "tracing")]
+fn init_logger() {
+    use tracing::level_filters::LevelFilter;
+
+    const LOG_NAME: &str = "module_state.log";
+    if let Err(err) = skse::logger::log_directory()
+        .map(|log_dir| skse::logger::init(log_dir, LOG_NAME, LevelFilter::TRACE))
+    {
+        tracing::error!("{:?}", err);
+    };
+    #[cfg(feature = "tracing")]
+    tracing::info!("Logger has been initialized.");
+
+    if let Err(err) = commonlibsse_ng::rel::module::ModuleState::map_or_init(|module| {
+        tracing::info!("{module:?}");
+    }) {
+        tracing::error!("{err}");
+    };
 }
