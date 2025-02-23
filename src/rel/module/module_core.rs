@@ -11,7 +11,7 @@
 use super::module_handle::{ModuleHandle, ModuleHandleError};
 use super::runtime::Runtime;
 use super::segment::{Segment, SegmentName};
-use crate::rel::version::{get_file_version, FileVersionError, Version};
+use crate::rel::version::{FileVersionError, Version, get_file_version};
 use snafu::ResultExt as _;
 use windows::Win32::System::Diagnostics::Debug::{
     IMAGE_SCN_MEM_EXECUTE, IMAGE_SCN_MEM_WRITE, IMAGE_SECTION_CHARACTERISTICS,
@@ -67,8 +67,8 @@ impl Module {
     /// - Module version could not be obtained.
     #[cfg(not(feature = "debug"))]
     pub fn init() -> Result<Self, ModuleInitError> {
-        use windows::core::{h, HSTRING};
         use windows::Win32::System::Environment::GetEnvironmentVariableW;
+        use windows::core::{HSTRING, h};
 
         #[inline]
         fn get_module_name_from_skse() -> Option<(HSTRING, ModuleHandle)> {
@@ -90,7 +90,9 @@ impl Module {
         #[inline]
         fn get_module_handle_from_runtime() -> Option<(HSTRING, ModuleHandle)> {
             #[cfg(feature = "tracing")]
-            tracing::info!("Failed to read the `SKSE_RUNTIME` environment variable. Trying to get it from Runtime exe (e.g. `SkyrimSE.exe`) instead...");
+            tracing::info!(
+                "Failed to read the `SKSE_RUNTIME` environment variable. Trying to get it from Runtime exe (e.g. `SkyrimSE.exe`) instead..."
+            );
 
             const RUNTIMES: [&'static windows::core::HSTRING; 2] = [
                 windows::core::h!("SkyrimSE.exe"),
