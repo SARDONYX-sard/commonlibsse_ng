@@ -65,7 +65,7 @@ pub extern "C" fn SKSEPlugin_Load(skse: &LoadInterface) -> bool {
 
     let result = std::panic::catch_unwind(|| {
         if let Err(err) = commonlibsse_ng::rel::module::ModuleState::map_or_init(|module| {
-            tracing::info!("{module:?}");
+            tracing::info!("{module:#?}");
         }) {
             tracing::error!("{err}");
         };
