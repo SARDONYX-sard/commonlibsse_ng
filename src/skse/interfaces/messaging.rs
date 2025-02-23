@@ -14,6 +14,7 @@ use crate::skse::{api::get_plugin_handle, impls::stab::SKSEMessagingInterface};
 type MessagingCallback = fn(msg: &Message);
 
 #[repr(u32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum MessageType {
     PostLoad,
     PostPostLoad,
@@ -29,6 +30,7 @@ pub enum MessageType {
 }
 
 #[repr(u32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Dispatcher {
     ModEvent = 0,
     CameraEvent,
@@ -42,7 +44,7 @@ pub enum Dispatcher {
 #[derive(Debug, Clone)]
 pub struct Message {
     pub sender: &'static str,
-    pub msg_type: u32,
+    pub msg_type: MessageType,
     pub data_len: u32,
     pub data: *mut c_void,
 }

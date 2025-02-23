@@ -4,6 +4,7 @@ pub mod api;
 pub mod impls;
 pub mod input_map;
 pub mod interfaces;
+pub mod logger;
 pub mod trampoline;
 #[cfg(not(feature = "no_sys"))]
 mod translation;
