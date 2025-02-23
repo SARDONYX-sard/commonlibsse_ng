@@ -1,5 +1,11 @@
 [CmdletBinding()]
-Param([switch]$Build, [switch]$NTest, [switch]$Test, [switch]$Gen)
+Param(
+  [switch]$Build,
+  [switch]$NTest,
+  [switch]$Test,
+  [switch]$Gen,
+  [switch]$Example
+)
 
 $env:LIBCLANG_PATH = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\lib"
 
@@ -19,6 +25,14 @@ elseif ($Test) {
 elseif ($NTest) {
   Write-Host "Parallel Testing..." -ForegroundColor Green
   cargo nextest run --features debug --no-default-features
+}
+elseif ($Example) {
+  Write-Host "Running example..." -ForegroundColor Green
+  cargo build --example module_state --features "tracing,no_sys,win_api"
+  $dest_dir = "./build/mods/module_state_example/SKSE/plugins/";
+  mkdir -p $dest_dir
+  Copy-Item -Path "./target/debug/examples/module_state.dll" -Destination $dest_dir -Force
+  Copy-Item -Path "./target/debug/examples/module_state.pdb" -Destination $dest_dir -Force
 }
 else {
   build
