@@ -122,13 +122,14 @@ pub enum LogError {
     UninitLog,
 
     /// Failed to change the log level.
+    #[cfg(feature = "tracing")]
     #[snafu(transparent)]
     Reload {
         source: tracing_subscriber::reload::Error,
     },
 
     #[snafu(transparent)]
-    Module {
+    ModuleState {
         source: crate::rel::module::ModuleStateError,
     },
 }
