@@ -88,11 +88,13 @@ impl APIStorage {
     }
 }
 
+/// Stores a global reference to each Interface through the `QueryInterface` of `LoadInterface` (`SKSEInterface`) into a global variable.
+///
+/// If this is not done first, simple access to each interface will remain uninitialized and unusable.
+///
 /// # Panics
-#[allow(clippy::not_unsafe_ptr_arg_deref)]
-pub fn init(load_interface: *const LoadInterface) {
-    let load_interface = unsafe { &*load_interface };
-
+/// If the thread acquiring the lock panics.
+pub fn init(load_interface: &LoadInterface) {
     let plugin_handle = load_interface.get_plugin_handle();
     let release_index = load_interface.get_release_index();
 
