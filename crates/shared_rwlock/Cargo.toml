@@ -20,7 +20,7 @@ unique = { workspace = true }                   # Owned raw pointer(Used in std 
 
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.60.0", features = [
+windows = { workspace = true, features = [
   "Win32_Security",
   "Win32_System_Memory",
   "Win32_System_Threading",

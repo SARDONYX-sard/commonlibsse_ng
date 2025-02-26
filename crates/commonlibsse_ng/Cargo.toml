@@ -24,7 +24,7 @@ unique = "0.9.1"                                             # Owned raw pointer
 
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.60.0", features = [
+windows = { workspace = true, features = [
   "Win32_Devices_HumanInterfaceDevice",
   "Win32_Globalization",
   "Win32_Security",
