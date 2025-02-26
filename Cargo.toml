@@ -14,7 +14,7 @@ version = "0.1.0"
 
 
 [workspace]
-members = [ "crates/*" , "./crates/shared_rwlock" ]
+members = [ "crates/*" , "./crates/shared_rwlock" , "xtask" ]
 default-members = ["crates/commonlibsse_ng"]
 resolver = "3"
 

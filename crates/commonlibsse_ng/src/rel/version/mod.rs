@@ -10,12 +10,8 @@
 mod win_api;
 
 #[cfg(feature = "win_api")]
-pub use win_api::{get_file_version, FileVersionError};
+pub use win_api::{FileVersionError, get_file_version};
 
-#[cfg(not(feature = "no_sys"))]
-pub use crate::sys::REL::Version;
-
-#[cfg(feature = "no_sys")]
 /// Represents a 4-part version number.
 ///
 /// In binding, [`Copy`] is inherited, but it is omitted to avoid implicit copying in for loops, etc.
@@ -65,9 +61,7 @@ impl Version {
     /// ```
     #[inline]
     pub const fn new(major: u16, minor: u16, patch: u16, build: u16) -> Self {
-        Self {
-            _impl: [major, minor, patch, build],
-        }
+        Self { _impl: [major, minor, patch, build] }
     }
 
     /// Parses a version string at compile time.
@@ -278,9 +272,7 @@ impl core::str::FromStr for Version {
                 num = num * 10 + (b - b'0') as u16;
                 has_digit = true;
             } else {
-                return Err(VersionParseError::InvalidCharacter {
-                    character: b as char,
-                });
+                return Err(VersionParseError::InvalidCharacter { character: b as char });
             }
             i += 1;
         }
@@ -342,9 +334,6 @@ mod tests {
             Version::from_str("1.2.f.4.5"),
             Err(VersionParseError::InvalidCharacter { character: 'f' })
         );
-        assert_eq!(
-            Version::from_str("1.2."),
-            Err(VersionParseError::MissingNumber { part: 2 })
-        );
+        assert_eq!(Version::from_str("1.2."), Err(VersionParseError::MissingNumber { part: 2 }));
     }
 }

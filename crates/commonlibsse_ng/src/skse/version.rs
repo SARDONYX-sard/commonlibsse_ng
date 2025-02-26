@@ -6,10 +6,7 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#[cfg(feature = "no_sys")]
 use crate::rel::version::Version;
-#[cfg(not(feature = "no_sys"))]
-use crate::sys::REL::Version;
 
 pub const RUNTIME_SSE_1_1_47: Version = Version::new(1, 1, 47, 0);
 pub const RUNTIME_SSE_1_1_51: Version = Version::new(1, 1, 51, 0);

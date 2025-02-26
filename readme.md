@@ -1,4 +1,4 @@
-# CommonLibSSE-NG rust bindings
+# CommonLibSSE-NG rust
 
 It probably will crash if used it does not pass the layout test.
 
@@ -15,7 +15,7 @@ commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", re
 ## Example test
 
 ```shell
-cargo build --example module_state --features "tracing,no_sys"
+cargo xtask example --dest_mode build
 ```
 
 ## Licenses

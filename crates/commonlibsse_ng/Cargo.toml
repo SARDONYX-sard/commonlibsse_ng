@@ -54,10 +54,7 @@ win_api = ["dep:windows"]
 tracing = ["dep:tracing", "dep:tracing-subscriber", "dep:tracing-appender"]
 
 # For test and debugging.
-debug = ["win_api", "tracing", "no_sys"]
-
-# Non use C++ binding(For debugging)
-no_sys = []
+debug = ["win_api", "tracing"]
 
 
 [lints]

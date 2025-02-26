@@ -47,6 +47,7 @@
     "versionlib",
     "vfunc",
     "vtbl",
-    "waitable"
+    "waitable",
+    "xtask"
   ]
 }

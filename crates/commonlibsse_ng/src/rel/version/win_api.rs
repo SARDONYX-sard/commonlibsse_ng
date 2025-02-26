@@ -6,10 +6,7 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#[cfg(feature = "no_sys")]
 use crate::rel::version::Version;
-#[cfg(not(feature = "no_sys"))]
-use crate::sys::REL::Version;
 
 /// Retrieves the file version of the specified executable or DLL.
 ///
@@ -38,19 +35,14 @@ pub fn get_file_version(filename: &windows::core::HSTRING) -> Result<Version, Fi
     let mut dummy = 0;
     let size = unsafe { GetFileVersionInfoSizeW(filename, Some(&mut dummy)) };
     if size == 0 {
-        return Err(FileVersionError::VersionInfoSize {
-            filename: filename.to_string(),
-        });
+        return Err(FileVersionError::VersionInfoSize { filename: filename.to_string() });
     }
 
     let mut buf = vec![0_u8; size as usize];
 
     if let Err(err) = unsafe { GetFileVersionInfoW(filename, None, size, buf.as_mut_ptr().cast()) }
     {
-        return Err(FileVersionError::VersionInfoRetrieval {
-            filename: filename.to_string(),
-            err,
-        });
+        return Err(FileVersionError::VersionInfoRetrieval { filename: filename.to_string(), err });
     }
 
     let ver_str = {
@@ -61,9 +53,7 @@ pub fn get_file_version(filename: &windows::core::HSTRING) -> Result<Version, Fi
         if !unsafe { VerQueryValueW(buf_void_ptr, query_path, &mut ver_buf, &mut ver_len) }
             .as_bool()
         {
-            return Err(FileVersionError::VersionQuery {
-                filename: filename.to_string(),
-            });
+            return Err(FileVersionError::VersionQuery { filename: filename.to_string() });
         }
 
         let slice = unsafe { core::slice::from_raw_parts(ver_buf as *const u16, ver_len as usize) };
@@ -87,10 +77,7 @@ pub enum FileVersionError {
     VersionInfoSize { filename: String },
 
     /// Failed to retrieve file version info for '{filename}', err: {err}
-    VersionInfoRetrieval {
-        filename: String,
-        err: windows::core::Error,
-    },
+    VersionInfoRetrieval { filename: String, err: windows::core::Error },
 
     /// Failed to query product version for '{filename}'. (NOTE: If the target exe, dll exists, this error is probably due to the fact that it is not US English.)
     VersionQuery { filename: String },
@@ -114,9 +101,7 @@ mod tests {
         let target = h!("C:\\nonexistent_file.exe");
         let result = get_file_version(target);
 
-        let expected_err = Err(FileVersionError::VersionInfoSize {
-            filename: target.to_string(),
-        });
+        let expected_err = Err(FileVersionError::VersionInfoSize { filename: target.to_string() });
 
         assert_eq!(result, expected_err);
     }
