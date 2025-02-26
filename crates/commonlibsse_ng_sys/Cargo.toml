@@ -1,0 +1,26 @@
+[package]
+name = "commonlibsse_ng_sys"
+authors = ["SARDONYX"]
+description = "CommonLibSSE-NG Rust bindings"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+
+
+[build-dependencies]
+bindgen = { version = "0.69.5", optional = true }
+reqwest = { version = "0.12.12", features = ["blocking"], optional = true }
+zip-extract = { version = "0.2.1", optional = true }
+
+
+[features]
+# Default features for the project
+default = ["prebuilt"]
+
+# Get the pre-built header files and libs from the URL. (zip: 160MB, Extracted: 600MB, Timeout: 30mins)
+prebuilt = ["dep:reqwest", "dep:zip-extract"]
+# Use vcpkg to build C++ and get headers and libs
+vcpkg = []
+
+# Generate binding(For crate maintainer)
+generate = ["dep:bindgen"]

@@ -1,0 +1,36 @@
+[package]
+name = "shared_rwlock"
+edition = "2021"
+authors.workspace = true
+categories.workspace = true
+description = "Shared memory RwLock"
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version = "0.1.0"
+
+
+[dependencies]
+snafu = { workspace = true }                    # To define error types.
+static_assertions = { workspace = true }        # Compile tim assertions
+tracing = { workspace = true, optional = true }
+unique = { workspace = true }                   # Owned raw pointer(Used in std but not provided as API)
+
+
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = [
+  "Win32_Security",
+  "Win32_System_Memory",
+  "Win32_System_Threading",
+] }
+
+
+[features]
+# Enable tracing log support
+tracing = ["dep:tracing"]
+
+
+[lints]
+workspace = true

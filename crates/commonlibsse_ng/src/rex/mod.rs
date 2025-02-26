@@ -1,0 +1,3 @@
+//! Module related to Win32 API
+pub mod kernel32;
+pub mod win32;

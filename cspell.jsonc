@@ -1,5 +1,6 @@
 {
   "words": [
+    "appender",
     "ARMO",
     "bindgen",
     "Bitfield",
@@ -20,6 +21,7 @@
     "msvcrt",
     "nanos",
     "nextest",
+    "openvr",
     "PCWSTR",
     "pdata",
     "RAII",

@@ -33,7 +33,7 @@ jobs:
             vcpkg-windows-x64-${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}
 
       - name: Install
-        run: vcpkg install
+        run: cd ./crates/commonlibsse_ng_sys && vcpkg install
 
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
@@ -42,10 +42,10 @@ jobs:
         with:
           prefix-key: cargo-debug-x86_64-pc-windows-msvc--vcpkg
       - name: Build
-        run: cargo build --features vcpkg --no-default-features
+        run: cargo build -p commonlibsse_ng_sys --features vcpkg --no-default-features
 
       # - name: Upload a Build Artifact
-      #   uses: actions/upload-artifact@v4.6.0
+      #   uses: actions/upload-artifact@v4.6.1
       #   with:
       #     name: CommonLibSSE-NG
       #     path: |
@@ -59,6 +59,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
+
+      - name: Change package dir
+        run: cd ./crates/commonlibsse_ng_sys
 
       - name: Cache vcpkg
         uses: actions/cache@v4.2.1
@@ -76,4 +79,4 @@ jobs:
         with:
           prefix-key: cargo-debug-x86_64-pc-windows-msvc--prebuilt
       - name: Build
-        run: cargo build
+        run: cargo build -p commonlibsse_ng_sys
