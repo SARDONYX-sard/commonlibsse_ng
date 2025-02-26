@@ -5,7 +5,7 @@ It probably will crash if used it does not pass the layout test.
 See [test results](./test_results.txt)
 
 ```toml
-commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "7378d43" }
+commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "add4c16" }
 ```
 
 ## Manual implementation
