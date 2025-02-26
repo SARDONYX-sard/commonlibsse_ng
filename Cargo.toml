@@ -1,79 +1,34 @@
-[package]
-name = "commonlibsse_ng"
+[workspace.package]
 authors = ["SARDONYX"]
-description = "CommonLibSSE-NG Rust bindings"
-version = "0.1.0"
+categories = ["encoding"]
+description = "SKSE plugin creation library"
 edition = "2024"
+keywords = ["skyrim"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/SARDONYX-sard/commonlibsse_ng"
 rust-version = "1.85"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[[example]]
-name = "module_state"
-crate-type = ["cdylib"]
-path = "./examples/module_state.rs"
 
-[dependencies]
+[workspace]
+members = [ "crates/*" , "./crates/shared_rwlock" ]
+default-members = ["crates/commonlibsse_ng"]
+resolver = "3"
+
+
+[workspace.dependencies]
 snafu = { version = "0.8.5" }                     # To define error types.
 static_assertions = "1.1.0"                                    # Compile tim assertions
-tracing = { version = "0.1.41", optional = true }
-tracing-subscriber = { version = "0.3.19", optional = true }
-tracing-appender= {version = "0.2.3", optional = true}
+tracing = { version = "0.1.41" }
 unique = "0.9.1" # Owned raw pointer(Used in std but not provided as API)
 
-[target.'cfg(windows)'.dependencies]
-windows = { version = "0.60.0", features = [
-  "Win32_Devices_HumanInterfaceDevice",
-  "Win32_Globalization",
-  "Win32_Security",
-  "Win32_Storage_FileSystem",
-  "Win32_System_Com",
-  "Win32_System_Diagnostics_Debug",
-  "Win32_System_Environment",
-  "Win32_System_LibraryLoader",
-  "Win32_System_Memory",
-  "Win32_System_ProcessStatus",
-  "Win32_System_SystemInformation",
-  "Win32_System_SystemServices",
-  "Win32_System_Threading",
-  "Win32_UI_Input_KeyboardAndMouse",
-  "Win32_UI_Input_XboxController",
-  "Win32_UI_Shell",
-  "Win32_UI_WindowsAndMessaging",
-], optional = true }
+[workspace.target.'cfg(windows)'.dependencies]
+windows = { version = "0.60.0", default-features = false }
 
-[build-dependencies]
-bindgen = { version = "0.69.5", optional = true }
-reqwest = { version = "0.12.12", features = ["blocking"], optional = true }
-zip-extract = { version = "0.2.1", optional = true }
-
-[features]
-# Default features for the project
-default = ["prebuilt"]
-
-# Get the pre-built header files and libs from the URL. (zip: 160MB, Extracted: 600MB, Timeout: 30mins)
-prebuilt = ["dep:reqwest", "dep:zip-extract", "win_api"]
-# Use vcpkg to build C++ and get headers and libs
-vcpkg = ["win_api"]
-
-# Generate binding(For crate maintainer)
-generate = ["dep:bindgen"]
-
-# Enable functions that use the Windows API.
-# For example, functions to get file version information.
-win_api = ["dep:windows"]
-
-# Enable tracing log support
-tracing = ["dep:tracing", "dep:tracing-subscriber", "dep:tracing-appender"]
-
-
-# For test and debugging.
-debug = ["win_api", "tracing", "no_sys"]
-
-# Non use C++ binding(For debugging)
-no_sys = []
-
-[lints.clippy]
+[workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
 cargo = { level = "warn", priority = -1 }
 nursery = { level = "warn", priority = -1 }
