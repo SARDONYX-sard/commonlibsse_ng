@@ -46,11 +46,11 @@ impl ModuleHandle {
     /// use commonlibsse_ng::rel::module::ModuleHandle;
     /// use windows::core::h; // `h!` is utf-16 str macro.
     ///
-    /// let handle = ModuleHandle::new(h!("kernel32.dll"));
+    /// let handle = unsafe { ModuleHandle::new(h!("kernel32.dll")) };
     /// assert!(handle.is_ok());
     ///
     /// // If there is no extension, a `.dll` is automatically specified.(This is the behavior of `GetModuleHandleW` function.)
-    /// let handle = ModuleHandle::new(h!("kernel32"));
+    /// let handle = unsafe { ModuleHandle::new(h!("kernel32")) };
     /// assert!(handle.is_ok());
     /// ```
     ///

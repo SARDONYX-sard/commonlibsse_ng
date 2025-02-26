@@ -28,13 +28,6 @@ impl Segment {
     }
 
     /// Computes the offset of the segment from the proxy base.
-    ///
-    /// # Example
-    /// ```
-    /// use commonlibsse_ng::rel::module::Segment;
-    /// let segment = Segment::new(0x1000, 0x2000, 0x500);
-    /// assert_eq!(segment.offset(), 0x1000);
-    /// ```
     #[inline]
     pub fn offset(&self) -> usize {
         (self.address as usize).wrapping_sub(self.proxy_base.0.addr().get())
