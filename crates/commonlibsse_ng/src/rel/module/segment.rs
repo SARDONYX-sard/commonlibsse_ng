@@ -9,11 +9,13 @@
 
 //! Defines segment(e.g. `.text`) types.
 
+use super::ModuleHandle;
+
 /// Represents a memory segment in a module.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Segment {
     /// Base address of the proxy module.
-    pub proxy_base: usize,
+    pub proxy_base: ModuleHandle,
     /// Virtual address of the segment.
     pub address: u32,
     /// Size of the segment in bytes.
@@ -22,20 +24,7 @@ pub struct Segment {
 
 impl Segment {
     pub const fn const_default() -> Self {
-        Self { proxy_base: 0, address: 0, size: 0 }
-    }
-
-    /// Creates a new segment instance.
-    ///
-    /// # Example
-    /// ```
-    /// use commonlibsse_ng::rel::module::Segment;
-    /// let segment = Segment::new(0x1000, 0x2000, 0x500);
-    /// assert_eq!(segment.proxy_base, 0x1000);
-    /// ```
-    #[inline]
-    pub const fn new(proxy_base: usize, address: u32, size: u32) -> Self {
-        Self { proxy_base, address, size }
+        Self { proxy_base: ModuleHandle::const_default(), address: 0, size: 0 }
     }
 
     /// Computes the offset of the segment from the proxy base.
@@ -47,8 +36,8 @@ impl Segment {
     /// assert_eq!(segment.offset(), 0x1000);
     /// ```
     #[inline]
-    pub const fn offset(&self) -> usize {
-        (self.address as usize).wrapping_sub(self.proxy_base)
+    pub fn offset(&self) -> usize {
+        (self.address as usize).wrapping_sub(self.proxy_base.0.addr().get())
     }
 }
 
@@ -80,15 +69,4 @@ pub enum SegmentName {
 
     /// Global function identifiers section (typically `.gfids`).
     Gfids,
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_segment_offset() {
-        let segment = Segment::new(0x1000, 0x2000, 0x500);
-        assert_eq!(segment.offset(), 0x1000);
-    }
 }

@@ -48,10 +48,11 @@ impl Module {
 
     /// Method by which a dummy file(`msvcrt.dll`) is loaded for testing.
     #[cfg(feature = "debug")]
-    pub(crate) fn init() -> Result<Self, ModuleInitError> {
+    pub(crate) fn new_for_test() -> Result<Self, ModuleInitError> {
         let filename = windows::core::h!("msvcrt.dll");
-        let module_handle = ModuleHandle::new(filename)
-            .map_err(|_| ModuleInitError::ModuleNameAndHandleNotFound)?;
+        let module_handle = unsafe {
+            ModuleHandle::new(filename).map_err(|_| ModuleInitError::ModuleNameAndHandleNotFound)
+        }?;
 
         Self::init_inner(filename.clone(), module_handle)
     }
@@ -65,8 +66,7 @@ impl Module {
     /// An error occurs in the following cases
     /// - If the module handle could not be obtained.
     /// - Module version could not be obtained.
-    #[cfg(not(feature = "debug"))]
-    pub fn init() -> Result<Self, ModuleInitError> {
+    pub fn new() -> Result<Self, ModuleInitError> {
         use windows::Win32::System::Environment::GetEnvironmentVariableW;
         use windows::core::{HSTRING, h};
 
@@ -83,7 +83,8 @@ impl Module {
             }
 
             let filename = HSTRING::from_wide(&filename);
-            let new_handle = ModuleHandle::new(&filename).ok()?;
+            // Safety: The `SkyrimSE.exe` loaded by the SKSE runtime survives until the end of program execution.
+            let new_handle = unsafe { ModuleHandle::new(&filename).ok() }?;
             Some((filename, new_handle))
         }
 
@@ -94,12 +95,13 @@ impl Module {
                 "Failed to read the `SKSE_RUNTIME` environment variable. Trying to get it from Runtime exe (e.g. `SkyrimSE.exe`) instead..."
             );
 
-            const RUNTIMES: [&'static windows::core::HSTRING; 2] =
+            const RUNTIMES: [&windows::core::HSTRING; 2] =
                 [windows::core::h!("SkyrimSE.exe"), windows::core::h!("SkyrimVR.exe")];
 
             let mut ret = None;
             for runtime_name in RUNTIMES {
-                let module_handle = ModuleHandle::new(runtime_name);
+                // Safety: Loaded `SkyrimSE.exe` will survive until the end of program execution
+                let module_handle = unsafe { ModuleHandle::new(runtime_name) };
                 if let Ok(new_handle) = module_handle {
                     ret = Some((runtime_name.clone(), new_handle));
                     break;
@@ -173,11 +175,11 @@ impl Module {
             });
 
             if let Some((idx, _)) = maybe_found {
-                segments[idx] = Segment::new(
-                    module_handle.as_raw(),
-                    current_section.VirtualAddress,
-                    current_section.SizeOfRawData,
-                );
+                segments[idx] = Segment {
+                    proxy_base: *module_handle,
+                    address: current_section.VirtualAddress,
+                    size: current_section.SizeOfRawData,
+                };
             }
         }
         Ok(segments)
@@ -215,7 +217,7 @@ mod tests {
         // Use `msvcrt.dll` for testing since the dll is always US English and
         // always loaded in the msvc target when the test is run.
 
-        match dbg!(Module::init()) {
+        match dbg!(Module::new_for_test()) {
             Ok(module) => {
                 assert!(!module.file_path.is_empty());
                 assert!(!module.filename.is_empty());

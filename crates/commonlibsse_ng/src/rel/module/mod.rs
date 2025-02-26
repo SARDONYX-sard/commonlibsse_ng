@@ -21,7 +21,7 @@ pub use self::segment::{Segment, SegmentName};
 
 use std::sync::{LazyLock, RwLock};
 
-static MODULE: LazyLock<RwLock<ModuleState>> = LazyLock::new(|| RwLock::new(ModuleState::init()));
+static MODULE: LazyLock<RwLock<ModuleState>> = LazyLock::new(|| RwLock::new(ModuleState::new()));
 
 /// Represents the state of the module.
 ///
@@ -40,8 +40,12 @@ pub enum ModuleState {
 
 impl ModuleState {
     /// Initialize the module.
-    fn init() -> Self {
-        match Module::init() {
+    fn new() -> Self {
+        #[cfg(not(feature = "debug"))]
+        let module = Module::new();
+        #[cfg(feature = "debug")]
+        let module = Module::new().or_else(|_| Module::new_for_test());
+        match module {
             Ok(module) => Self::Active(module),
             Err(err) => Self::FailedInit(err),
         }
@@ -78,16 +82,14 @@ impl ModuleState {
     where
         F: FnOnce(&Module) -> T,
     {
-        let guard = MODULE
-            .read()
-            .map_err(|_| ModuleStateError::ModuleLockIsPoisoned)?;
+        let guard = MODULE.read().map_err(|_| ModuleStateError::ModuleLockIsPoisoned)?;
 
         match &*guard {
             Self::Active(module) => Ok(f(module)),
             Self::Cleared => Err(ModuleStateError::ModuleHasBeenCleared),
-            Self::FailedInit(module_init_error) => Err(ModuleStateError::FailedInit {
-                source: module_init_error.clone(),
-            }),
+            Self::FailedInit(module_init_error) => {
+                Err(ModuleStateError::FailedInit { source: module_init_error.clone() })
+            }
         }
     }
 
@@ -125,12 +127,10 @@ impl ModuleState {
         }
 
         // The fact that it was not `Active` means that it absolutely needs to be initialized.
-        let (ret, module_state) = match Module::init() {
+        let (ret, module_state) = match Module::new() {
             Ok(module) => (Ok(f(&module)), Self::Active(module)),
             Err(err) => {
-                let ret_err = ModuleStateError::FailedInit {
-                    source: err.clone(),
-                };
+                let ret_err = ModuleStateError::FailedInit { source: err.clone() };
                 (Err(ret_err), Self::FailedInit(err))
             }
         };
@@ -159,12 +159,10 @@ impl ModuleState {
     /// # Panics
     /// This function might panic when called if the lock is already held by the current thread.
     pub fn reset() -> Result<(), ModuleStateError> {
-        MODULE
-            .write()
-            .map_or(Err(ModuleStateError::ModuleLockIsPoisoned), |mut guard| {
-                *guard = Self::Cleared;
-                Ok(())
-            })
+        MODULE.write().map_or(Err(ModuleStateError::ModuleLockIsPoisoned), |mut guard| {
+            *guard = Self::Cleared;
+            Ok(())
+        })
     }
 }
 
@@ -180,9 +178,7 @@ pub enum ModuleStateError {
 
     /// Module initialization error
     #[snafu(display("Module initialization error: {source}"))]
-    FailedInit {
-        source: crate::rel::module::ModuleInitError,
-    },
+    FailedInit { source: crate::rel::module::ModuleInitError },
 }
 
 #[cfg(test)]

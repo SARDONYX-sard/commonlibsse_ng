@@ -7,6 +7,8 @@
 use core::ffi::{c_char, c_void};
 
 /// Represents a handle for a plugin, which is a 32-bit unsigned integer.
+///
+/// Internally implemented, this number represents the index of the order in which plugins are loaded.
 #[repr(transparent)]
 #[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PluginHandle(pub u32);
@@ -29,11 +31,7 @@ pub struct PluginInfo {
 impl Default for PluginInfo {
     /// Creates a new instance of `PluginInfo` with default values.
     fn default() -> Self {
-        Self {
-            infoVersion: 0,
-            name: c"".as_ptr(),
-            version: 0,
-        }
+        Self { infoVersion: 0, name: c"".as_ptr(), version: 0 }
     }
 }
 

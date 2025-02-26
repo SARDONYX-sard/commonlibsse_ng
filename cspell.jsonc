@@ -21,6 +21,7 @@
     "msvcrt",
     "nanos",
     "nextest",
+    "nonoverlapping",
     "openvr",
     "PCWSTR",
     "pdata",
@@ -44,6 +45,7 @@
     "unmaps",
     "vcpkg",
     "versionlib",
+    "vfunc",
     "vtbl",
     "waitable"
   ]
