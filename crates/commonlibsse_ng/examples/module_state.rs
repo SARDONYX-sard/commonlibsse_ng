@@ -6,10 +6,6 @@ use commonlibsse_ng::skse::interfaces::query::QueryInterface;
 use commonlibsse_ng::skse::interfaces::{PluginVersionData, VersionNumber, to_fixed_str};
 use commonlibsse_ng::skse::version::RUNTIME_SSE_LATEST;
 
-const fn to_cstr(s: &str) -> &core::ffi::CStr {
-    unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(s.as_bytes()) }
-}
-
 const PKG_NAME: &str = "module_state";
 const PKG_VERSION: Version = Version::from_str_const(env!("CARGO_PKG_VERSION"));
 
@@ -19,7 +15,7 @@ pub extern "C" fn SKSEPlugin_Query(skse: &SKSEInterface, info: &mut PluginInfo) 
     {
         *info = PluginInfo {
             version: PKG_VERSION.major() as u32,
-            name: to_cstr(concat!("module_state", "\0")).as_ptr(),
+            name: c"module_state".as_ptr(),
             infoVersion: 1,
         };
     };
@@ -64,12 +60,15 @@ pub extern "C" fn SKSEPlugin_Load(skse: &LoadInterface) -> bool {
     }
 
     let result = std::panic::catch_unwind(|| {
-        use commonlibsse_ng::rel::module::ModuleState;
-        if let Err(err) = ModuleState::map_or_init(|module| {
-            tracing::info!("{module:#?}");
-        }) {
-            tracing::error!("{err}");
-        };
+        #[cfg(feature = "tracing")]
+        {
+            use commonlibsse_ng::rel::module::ModuleState;
+            if let Err(err) = ModuleState::map_or_init(|module| {
+                tracing::info!("{module:#?}");
+            }) {
+                tracing::error!("{err}");
+            };
+        }
 
         skse::init(skse);
 
@@ -110,7 +109,6 @@ fn init_logger() {
         message_box("module_state Error", &err.to_string());
         std::process::exit(1);
     };
-    #[cfg(feature = "tracing")]
     tracing::info!("Logger has been initialized.");
 }
 
