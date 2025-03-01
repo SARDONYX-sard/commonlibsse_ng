@@ -8,6 +8,7 @@
     "commonlibsse",
     "ctypes",
     "declspec",
+    "deleter",
     "disp",
     "Futex",
     "Futexable",

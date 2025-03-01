@@ -92,7 +92,8 @@ unsafe fn safe_fill(dst: *mut c_void, value: u8, len: usize) -> windows::core::R
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Relocation {
     _impl: *mut c_void,
-    _marker: PhantomData<*mut c_void>,
+    // owned
+    _marker: PhantomData<c_void>,
 }
 
 impl Relocation {

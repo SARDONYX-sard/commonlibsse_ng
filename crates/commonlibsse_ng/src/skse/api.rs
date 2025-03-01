@@ -252,5 +252,5 @@ pub fn alloc_trampoline(size: usize, try_skse_reserve: bool) {
         return;
     }
 
-    trampoline.write().unwrap().create(size, ptr::null_mut());
+    trampoline.write().unwrap().create(size, ptr::null_mut()).unwrap();
 }
