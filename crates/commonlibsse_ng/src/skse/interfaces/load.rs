@@ -7,18 +7,14 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use crate::{
-    rel::version::Version,
-    skse::impls::stab::{
-        PluginHandle, PluginInfo, SKSEInterface, SKSEMessagingInterface, SKSEObjectInterface,
-        SKSEPapyrusInterface, SKSEScaleformInterface, SKSESerializationInterface,
-        SKSETaskInterface, SKSETrampolineInterface,
-    },
+use crate::rel::version::Version;
+use crate::skse::impls::stab::{
+    PluginHandle, PluginInfo, SKSEInterface, SKSEMessagingInterface, SKSEObjectInterface,
+    SKSEPapyrusInterface, SKSEScaleformInterface, SKSESerializationInterface, SKSETaskInterface,
+    SKSETrampolineInterface,
 };
-use core::ffi::c_void;
-use std::ffi::CStr;
-
-use super::query::QueryInterface;
+use crate::skse::interfaces::query::QueryInterface;
+use core::ffi::{CStr, c_void};
 
 /// Aimed at providing an API.
 ///
@@ -30,9 +26,11 @@ use super::query::QueryInterface;
 pub struct LoadInterface(SKSEInterface);
 
 /// # Safety
-/// This crate manually
+/// This can only be implemented by interfaces defined in SKSE.
 unsafe trait QueryTarget {
+    /// Cast to function table(struct)
     fn cast(ptr: *mut c_void) -> &'static Self;
+    /// Get this query id
     fn id() -> u32;
 }
 
@@ -90,7 +88,9 @@ impl LoadInterface {
     #[allow(private_bounds)]
     #[inline]
     pub fn query_interface<T: QueryTarget>(&self) -> &'static T {
-        T::cast(unsafe { (self.0.QueryInterface)(T::id()) })
+        let fn_table = unsafe { (self.0.QueryInterface)(T::id()) };
+        debug_assert!(!fn_table.is_null(), "SKSE interface query returned null");
+        T::cast(fn_table)
     }
 }
 
