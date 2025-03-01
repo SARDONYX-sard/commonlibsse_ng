@@ -2,7 +2,7 @@
 
 - FFI
 
-It probably will crash if used it does not pass the layout test. See [test results](./test_results.txt)
+It probably will crash if used it does not pass the layout test. See [test results](./crates/commonlibsse_ng_sys/test_results.txt)
 
 ```toml
 commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "488f9dd" }
