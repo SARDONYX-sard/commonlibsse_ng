@@ -8,17 +8,23 @@ It probably will crash if used it does not pass the layout test. See [test resul
 commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "488f9dd" }
 ```
 
-- Manual implementation
+## Manual implementation
+
+- [api docs](https://commonlibsse-ng-docs-rs.netlify.app/commonlibsse_ng/)
+
+Implementation progress
+
+- RE: 0%
+- REL: 80%
+- SKSE: 70%
 
 ```toml
 commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "488f9dd" }
 ```
 
-## Manual implementation
-
-- [api docs](https://commonlibsse-ng-docs-rs.netlify.app/commonlibsse_ng/)
-
 ## Example test
+
+[module_state.dll](./crates/commonlibsse_ng/examples/module_state.rs)
 
 ```shell
 cargo xtask example --dest_mode build
