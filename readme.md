@@ -1,11 +1,17 @@
 # CommonLibSSE-NG rust
 
-It probably will crash if used it does not pass the layout test.
+- FFI
 
-See [test results](./test_results.txt)
+It probably will crash if used it does not pass the layout test. See [test results](./test_results.txt)
 
 ```toml
-commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "add4c16" }
+commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "488f9dd" }
+```
+
+- Manual implementation
+
+```toml
+commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "488f9dd" }
 ```
 
 ## Manual implementation
