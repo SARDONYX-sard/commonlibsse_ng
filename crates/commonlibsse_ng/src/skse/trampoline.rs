@@ -62,8 +62,12 @@ pub struct Trampoline {
     data: *mut u8,
     capacity: usize,
     size: usize,
-    branches_5: HashMap<*mut u8, *mut u8>,
-    branches_6: HashMap<*mut u8, *mut u8>,
+    /// Maybe
+    /// - key: fn_ptr, value: data
+    branches_5: HashMap<*mut c_void, *mut u8>,
+    /// Maybe
+    /// - key: fn_ptr, value: data
+    branches_6: HashMap<*mut c_void, *mut u8>,
     deleter: Deleter,
 }
 
@@ -114,15 +118,21 @@ impl Trampoline {
     ///
     /// # Errors
     /// Returns `TrampolineError::FailedToAllocate` if memory allocation fails.
-    pub fn create(&mut self, size: usize, mut module: *mut u8) -> Result<(), TrampolineError> {
+    pub fn create(
+        &mut self,
+        size: usize,
+        module: Option<*mut c_void>,
+    ) -> Result<(), TrampolineError> {
         if size == 0 {
             return Err(TrampolineError::InvalidCreateZeroSize);
         }
 
-        if module.is_null() {
+        let module = if let Some(module) = module {
+            module
+        } else {
             let text = ModuleState::map_or_init(|module| module.segment(SegmentName::Textx))?;
-            module = module.with_addr((text.address + text.size) as usize);
-        }
+            text.proxy_base.0.as_ptr().with_addr((text.address + text.size) as usize)
+        };
 
         let mem = Self::do_create(size, module)?;
 
@@ -152,15 +162,16 @@ impl Trampoline {
         self.deleter = deleter;
     }
 
+    /// # Errors
     #[inline]
-    pub fn allocate_size_of<T>(&mut self) -> *mut u8 {
+    pub fn allocate_size_of<T>(&mut self) -> Result<*mut u8, TrampolineError> {
         self.allocate(size_of::<T>())
     }
 
-    /// C++: `do_allocate`
+    /// # Errors
     #[inline]
-    pub fn allocate(&mut self, size: usize) -> *mut u8 {
-        self.do_allocate(size).unwrap_or(ptr::null_mut()) // FIXME: unsafe
+    pub fn allocate(&mut self, size: usize) -> Result<*mut u8, TrampolineError> {
+        self.do_allocate(size)
     }
 
     #[inline]
@@ -186,32 +197,32 @@ impl Trampoline {
     /// # Errors
     /// # Safety
     #[inline]
-    pub unsafe fn write_branch<N>(
+    pub unsafe fn write_branch<B>(
         &mut self,
         src: *mut c_void,
-        dst: *mut u8,
+        dst: *mut c_void,
     ) -> Result<*mut c_void, TrampolineError>
     where
-        N: BranchKind,
+        B: BranchKind,
     {
-        unsafe { self.write_branch_with_data::<N>(src, dst, N::jmp_size()) }
+        unsafe { self.write_branch_with_data::<B>(src, dst, B::jmp_size()) }
     }
 
     /// # Errors
     /// # Safety
     #[inline]
-    pub unsafe fn write_call<N>(
+    pub unsafe fn write_call<B>(
         &mut self,
         src: *mut c_void,
-        dst: *mut u8,
+        dst: *mut c_void,
     ) -> Result<*mut c_void, TrampolineError>
     where
-        N: BranchKind,
+        B: BranchKind,
     {
-        unsafe { self.write_branch_with_data::<N>(src, dst, N::call_size()) }
+        unsafe { self.write_branch_with_data::<B>(src, dst, B::call_size()) }
     }
 
-    fn do_create(size: usize, address: *mut u8) -> Result<*mut u8, TrampolineError> {
+    fn do_create(size: usize, address: *mut c_void) -> Result<*mut u8, TrampolineError> {
         use std::mem::size_of;
         use windows::Win32::System::Memory::{
             MEM_COMMIT, MEM_RESERVE, MEMORY_BASIC_INFORMATION, PAGE_EXECUTE_READWRITE,
@@ -275,30 +286,29 @@ impl Trampoline {
         Err(TrampolineError::FailedToAllocate { source: windows::core::Error::from_win32() })
     }
 
-    fn do_allocate(&mut self, size: usize) -> Option<*mut u8> {
+    fn do_allocate(&mut self, size: usize) -> Result<*mut u8, TrampolineError> {
         if size > self.free_size() {
-            return None;
+            return Err(TrampolineError::NoMemorySpace);
             // panic!("Failed to handle allocation request");
         }
         let mem = unsafe { self.data.add(self.size) };
         self.size += size;
-        Some(mem)
+        Ok(mem)
     }
 
     unsafe fn write_5branch(
         &mut self,
         src: *mut SrcAssembly,
-        dst: *mut u8,
+        dst: *mut c_void,
         opcode: u8,
     ) -> Result<(), TrampolineError> {
-        let mem = self.branches_5.get(&dst).copied().map_or_else(
-            || {
-                let mem = self.allocate_size_of::<usize>();
-                self.branches_5.insert(dst, mem);
-                mem
-            },
-            |v| v,
-        );
+        let mem = if let Some(mem) = self.branches_5.get(&dst).copied() {
+            mem
+        } else {
+            let mem = self.allocate_size_of::<usize>()?;
+            self.branches_5.insert(dst, mem);
+            mem
+        };
 
         let disp = (mem.addr() as isize) - ((src.addr() + mem::size_of::<SrcAssembly>()) as isize);
         if !in_i32range(disp) {
@@ -310,7 +320,14 @@ impl Trampoline {
             .context(FailedToWriteMemorySnafu)?;
 
         let mem = mem.cast::<TrampolineAssembly>();
-        unsafe { *mem = TrampolineAssembly { jmp: 0xFF, modrm: 0x25, disp: 0, addr: dst as u64 } };
+        unsafe {
+            mem.write_unaligned(TrampolineAssembly {
+                jmp: 0xFF,
+                modrm: 0x25,
+                disp: 0,
+                addr: dst as u64,
+            });
+        }
 
         Ok(())
     }
@@ -318,19 +335,18 @@ impl Trampoline {
     unsafe fn write_6branch(
         &mut self,
         src: *mut Assembly,
-        dst: *mut u8,
+        dst: *mut c_void,
         modrm: u8,
     ) -> Result<(), TrampolineError> {
         use crate::rel::relocation::safe_write_value;
 
-        let mem = self.branches_6.get(&dst).copied().map_or_else(
-            || {
-                let mem = self.allocate_size_of::<usize>();
-                self.branches_6.insert(dst, mem);
-                mem
-            },
-            |v| v,
-        );
+        let mem = if let Some(mem) = self.branches_6.get(&dst).copied() {
+            mem
+        } else {
+            let mem = self.allocate_size_of::<usize>()?;
+            self.branches_6.insert(dst, mem);
+            mem
+        };
 
         let disp = (mem.addr() as isize) - ((src.addr() + mem::size_of::<Assembly>()) as isize);
         if !in_i32range(disp) {
@@ -341,7 +357,9 @@ impl Trampoline {
         unsafe { safe_write_value(src, &assembly) }.context(FailedToWriteMemorySnafu)?;
 
         let mem = mem.cast::<usize>();
-        unsafe { *mem = dst.addr() };
+        unsafe {
+            mem.write_unaligned(dst.addr());
+        }
 
         Ok(())
     }
@@ -354,23 +372,32 @@ impl Trampoline {
     pub unsafe fn write_branch_with_data<N>(
         &mut self,
         src: *mut c_void,
-        dst: *mut u8,
+        dst: *mut c_void,
         data: u8,
     ) -> Result<*mut c_void, TrampolineError>
     where
         N: BranchKind,
     {
         let kind = N::kind();
+        let fn_ptr = {
+            let kind = kind as usize;
+
+            let src = src.cast::<u8>();
+
+            dbg!(src as *const _);
+            let assembly = unsafe { ptr::read_unaligned(src.add(kind - 4) as *const Assembly) };
+            dbg!(&assembly);
+
+            let disp = src.map_addr(|addr| addr + kind - 4).cast::<i32>();
+            let next_op = src.wrapping_add(kind);
+            unsafe { next_op.add(ptr::read_unaligned(disp) as usize).cast() } // `func = nextOp + *disp`
+        };
+
         match kind {
             BranchKindValue::Branch5 => unsafe { self.write_5branch(src.cast(), dst, data) }?,
             BranchKindValue::Branch6 => unsafe { self.write_6branch(src.cast(), dst, data) }?,
         }
-        let kind = kind as usize;
 
-        let disp = src.map_addr(|addr| addr + kind - 4).cast::<usize>();
-        let next_op = unsafe { src.byte_add(kind) };
-
-        let fn_ptr = unsafe { next_op.byte_add(*disp).cast() };
         Ok(fn_ptr)
     }
 
@@ -396,7 +423,7 @@ impl Drop for Trampoline {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum BranchKindValue {
     Branch5 = 5,
     Branch6 = 6,
@@ -471,8 +498,8 @@ pub enum TrampolineError {
     /// Cannot create a trampoline with a size of zero
     InvalidCreateZeroSize,
 
-    /// Failed to allocate memory for trampoline
-    AllocationFailure,
+    /// No memory space available for trampoline
+    NoMemorySpace,
 
     /// Failed to acquire memory information immediately before allocating.
     FailedToGetMemInfo { source: windows::core::Error },
@@ -520,7 +547,7 @@ mod tests {
         };
 
         #[allow(clippy::fn_to_numeric_cast_any)]
-        let target_ptr = test_hook as *mut u8;
+        let target_ptr = test_hook as *mut c_void;
         unsafe { trampoline.write_call::<Branch6>(call.address().unwrap(), target_ptr).unwrap() };
     }
 
@@ -540,14 +567,15 @@ mod tests {
         }
 
         let mut trampoline = Trampoline::new("test_trampoline");
-        trampoline.create(32, ptr::null_mut()).unwrap_or_else(|err| panic!("{err}"));
+        trampoline.create(32, None).unwrap_or_else(|err| panic!("{err}"));
 
         let original_ret5: unsafe extern "C" fn() -> i32 = ret5;
 
         // Hook ret5 to point to ret10
-        let _next_fn_ptr =
-            unsafe { trampoline.write_branch::<Branch5>(ret5 as *mut c_void, ret10 as *mut u8) }
-                .unwrap_or_else(|err| panic!("{err}"));
+        let _next_fn_ptr = unsafe {
+            trampoline.write_branch::<Branch5>(ret5 as *mut c_void, ret10 as *mut c_void)
+        }
+        .unwrap_or_else(|err| panic!("{err}"));
 
         let new_ret5: unsafe extern "C" fn() -> i32 =
             unsafe { mem::transmute(ret5 as *mut c_void) };
@@ -556,5 +584,35 @@ mod tests {
         drop(trampoline); // Unhook and ensure original function works
 
         assert_eq!(unsafe { original_ret5() }, 5);
+    }
+
+    #[test]
+    #[allow(clippy::fn_to_numeric_cast_any)]
+    #[allow(clippy::missing_const_for_fn)]
+    fn raw() -> Result<(), retour::Error> {
+        use retour::GenericDetour;
+
+        fn add5(val: i32) -> i32 {
+            val + 5
+        }
+
+        fn add10(val: i32) -> i32 {
+            val + 10
+        }
+
+        let hook = unsafe { GenericDetour::<fn(i32) -> i32>::new(add5, add10)? };
+
+        assert_eq!(add5(5), 10);
+        assert_eq!(hook.call(5), 10);
+
+        unsafe { hook.enable()? };
+
+        assert_eq!(add5(5), 15);
+        assert_eq!(hook.call(5), 10);
+
+        unsafe { hook.disable()? };
+
+        assert_eq!(add5(5), 10);
+        Ok(())
     }
 }

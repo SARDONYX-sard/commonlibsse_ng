@@ -1,4 +1,3 @@
-use core::ptr;
 use std::sync::{OnceLock, RwLock};
 
 use crate::re::BSTEventSource;
@@ -7,6 +6,7 @@ use crate::skse::impls::stab::{
     PluginHandle, SKSEDelayFunctorManager, SKSEObjectRegistry, SKSEPersistentObjectStorage,
 };
 use crate::skse::interfaces::{
+    PluginVersionData,
     load::LoadInterface,
     messaging::{self, MessagingInterface},
     object::ObjectInterface,
@@ -17,8 +17,6 @@ use crate::skse::interfaces::{
     trampoline::TrampolineInterface,
 };
 use crate::skse::trampoline::get_trampoline;
-
-use super::interfaces::PluginVersionData;
 
 // Placeholder for various SKSE interfaces
 
@@ -260,7 +258,7 @@ pub fn alloc_trampoline(size: usize, try_skse_reserve: bool) -> Result<(), Alloc
     {
         let mut guard =
             trampoline.write().map_err(|_| AllocTrampolineError::TrampolineLockIsPoisoned)?;
-        guard.create(size, ptr::null_mut())?;
+        guard.create(size, None)?;
     }
 
     Ok(())
