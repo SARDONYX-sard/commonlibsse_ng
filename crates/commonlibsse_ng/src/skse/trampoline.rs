@@ -346,6 +346,8 @@ impl Trampoline {
         Ok(())
     }
 
+    /// Return next op function pointer.
+    ///
     /// # Errors
     /// # Safety
     #[inline]
@@ -365,7 +367,7 @@ impl Trampoline {
         }
         let kind = kind as usize;
 
-        let disp = src.map_addr(|addr| addr + kind - 4).cast::<usize>(); // Copy src
+        let disp = src.map_addr(|addr| addr + kind - 4).cast::<usize>();
         let next_op = unsafe { src.byte_add(kind) };
 
         let fn_ptr = unsafe { next_op.byte_add(*disp).cast() };
@@ -458,7 +460,12 @@ pub enum TrampolineError {
     /// Invalid branch size: {size}
     InvalidBranchSize { size: usize },
 
-    /// Displacement is out of range in i32: {displacement}
+    /// Expected `displacement` is i32 range: i32::MIN <= `displacement` <= i32::MAX, but got {displacement}
+    #[snafu(display(
+        "Expected `displacement` is i32 range: i32::MIN({})<= `displacement` <= i32::MAX({}), but got {displacement}",
+        i32::MIN,
+        i32::MAX
+    ))]
     OutOfRangeDisplacement { displacement: isize },
 
     /// Cannot create a trampoline with a size of zero
@@ -493,6 +500,7 @@ pub fn get_trampoline() -> &'static RwLock<Trampoline> {
 mod tests {
     use super::*;
     use crate::rel::{ResolvableAddress as _, id::VariantID, relocation::Relocation};
+    use core::mem;
     use std::sync::atomic::AtomicBool;
 
     #[ignore = "Still can't pass. `retour-rs`, `dll-syringe` is helpful"]
@@ -514,5 +522,39 @@ mod tests {
         #[allow(clippy::fn_to_numeric_cast_any)]
         let target_ptr = test_hook as *mut u8;
         unsafe { trampoline.write_call::<Branch6>(call.address().unwrap(), target_ptr).unwrap() };
+    }
+
+    #[ignore = "Still can't pass. `retour-rs`, `dll-syringe` is helpful"]
+    #[test]
+    #[allow(clippy::fn_to_numeric_cast_any)]
+    #[allow(clippy::missing_const_for_fn)]
+    fn test_trampoline_hook() {
+        #[inline(never)]
+        unsafe extern "C" fn ret5() -> i32 {
+            5
+        }
+
+        #[inline(never)]
+        unsafe extern "C" fn ret10() -> i32 {
+            10
+        }
+
+        let mut trampoline = Trampoline::new("test_trampoline");
+        trampoline.create(32, ptr::null_mut()).unwrap_or_else(|err| panic!("{err}"));
+
+        let original_ret5: unsafe extern "C" fn() -> i32 = ret5;
+
+        // Hook ret5 to point to ret10
+        let _next_fn_ptr =
+            unsafe { trampoline.write_branch::<Branch5>(ret5 as *mut c_void, ret10 as *mut u8) }
+                .unwrap_or_else(|err| panic!("{err}"));
+
+        let new_ret5: unsafe extern "C" fn() -> i32 =
+            unsafe { mem::transmute(ret5 as *mut c_void) };
+
+        assert_eq!(unsafe { new_ret5() }, 10); // Verify that calling ret5 now returns 10
+        drop(trampoline); // Unhook and ensure original function works
+
+        assert_eq!(unsafe { original_ret5() }, 5);
     }
 }

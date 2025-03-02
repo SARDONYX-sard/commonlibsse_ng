@@ -45,6 +45,10 @@ windows = { workspace = true, features = [
 ], optional = true }
 
 
+[dev-dependencies]
+pretty_assertions = "1.4.1"
+
+
 [features]
 # Enable functions that use the Windows API.
 # For example, functions to get file version information.

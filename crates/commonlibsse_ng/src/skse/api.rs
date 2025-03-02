@@ -76,10 +76,9 @@ impl APIStorage {
         INSTANCE.get_or_init(|| RwLock::new(None))
     }
 
-    /// # Panics
-    fn map<F, V>(f: F) -> Option<V>
+    fn map<F, R>(f: F) -> Option<R>
     where
-        F: FnOnce(&Self) -> V,
+        F: FnOnce(&Self) -> R,
     {
         Self::get().read().ok().and_then(|guard| guard.as_ref().map(f))
     }
@@ -235,22 +234,43 @@ pub fn get_messaging_interface() -> Option<MessagingInterface> {
     APIStorage::map(|storage| storage.messaging_interface.clone())
 }
 
-/// # Panics
-pub fn alloc_trampoline(size: usize, try_skse_reserve: bool) {
+/// # Errors
+pub fn alloc_trampoline(size: usize, try_skse_reserve: bool) -> Result<(), AllocTrampolineError> {
     let trampoline = get_trampoline();
 
     if try_skse_reserve {
-        let _ = APIStorage::map(|storage| {
+        let ret = APIStorage::map(|storage| {
             let memory = storage.trampoline_interface.allocate_from_branch_pool(size);
             if memory.is_null() {
-                unsafe {
-                    trampoline.write().unwrap().set_trampoline(memory.cast::<u8>(), size, None);
-                }
+                let mut guard = trampoline
+                    .write()
+                    .map_err(|_| AllocTrampolineError::TrampolineLockIsPoisoned)?;
+                unsafe { guard.set_trampoline(memory.cast::<u8>(), size, None) };
             }
+
+            Ok(())
         });
 
-        return;
+        if let Some(r) = ret {
+            return r;
+        }
+        return Ok(());
     }
 
-    trampoline.write().unwrap().create(size, ptr::null_mut()).unwrap();
+    {
+        let mut guard =
+            trampoline.write().map_err(|_| AllocTrampolineError::TrampolineLockIsPoisoned)?;
+        guard.create(size, ptr::null_mut())?;
+    }
+
+    Ok(())
+}
+
+#[derive(Debug, snafu::Snafu)]
+pub enum AllocTrampolineError {
+    /// The thread that was getting Trampoline's lock panicked.
+    TrampolineLockIsPoisoned,
+
+    #[snafu(transparent)]
+    TrampolineError { source: super::trampoline::TrampolineError },
 }

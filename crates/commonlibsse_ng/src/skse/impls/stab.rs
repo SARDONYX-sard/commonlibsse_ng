@@ -28,6 +28,11 @@ pub struct PluginInfo {
     pub version: u32,
 }
 
+impl PluginInfo {
+    /// Plugin information version.
+    pub const VERSION: u32 = 1;
+}
+
 impl Default for PluginInfo {
     /// Creates a new instance of `PluginInfo` with default values.
     fn default() -> Self {

@@ -56,7 +56,8 @@ static GUARD: OnceLock<tracing_appender::non_blocking::WorkerGuard> = OnceLock::
 /// Initializes logger.
 ///
 /// # Errors
-/// Double init
+/// - If the directory for logs is not found
+/// - Logger did not have permission to create files
 #[cfg(feature = "tracing")]
 pub fn init<P, D>(log_dir: P, file_name: D, level: LevelFilter) -> Result<(), LogInitError>
 where
@@ -64,6 +65,19 @@ where
     D: AsRef<Path>,
 {
     _init(log_dir.as_ref(), file_name.as_ref(), level)
+}
+
+/// Initializes logger with skse log directory.
+///
+/// # Errors
+/// - If the directory for logs is not found
+/// - Logger did not have permission to create files
+#[cfg(feature = "tracing")]
+pub fn init_with_log_dir<P>(file_name: P, level: LevelFilter) -> Result<(), LogInitError>
+where
+    P: AsRef<Path>,
+{
+    _init(&log_directory()?, file_name.as_ref(), level)
 }
 
 #[cfg(feature = "tracing")]

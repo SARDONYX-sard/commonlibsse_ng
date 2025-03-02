@@ -75,9 +75,6 @@ impl ModuleState {
     /// - The module state is [`ModuleState::Cleared`].
     /// - The module state is [`ModuleState::FailedInit`], in which case the initialization error is propagated.
     /// - The internal lock is poisoned.
-    ///
-    /// # Panics
-    /// This function might panic when called if the lock is already held by the current thread.
     pub fn map_active<F, T>(f: F) -> Result<T, ModuleStateError>
     where
         F: FnOnce(&Module) -> T,
@@ -95,7 +92,7 @@ impl ModuleState {
 
     /// Attempts to apply a function to the active module state, initializing it if necessary.
     ///
-    /// If the module state is `Cleared`, it will be initialized before applying the function `f`.
+    /// If the module state is `Cleared`/`FailedInit`, it will be initialized before applying the function `f`.
     /// This function also attempts a read lock first and falls back to initialization only if needed.
     ///
     /// # Example
@@ -113,9 +110,6 @@ impl ModuleState {
     /// Returns an error if:
     /// - The module state is [`ModuleState::FailedInit`], in which case the initialization error is propagated.
     /// - The internal lock is poisoned.
-    ///
-    /// # Panics
-    /// This function might panic when called if the lock is already held by the current thread.
     pub fn map_or_init<F, T>(f: F) -> Result<T, ModuleStateError>
     where
         F: FnOnce(&Module) -> T,
@@ -155,9 +149,6 @@ impl ModuleState {
     ///
     /// # Errors
     /// If the thread that had previously acquired a lock on the singleton instance panics, an error is returned.
-    ///
-    /// # Panics
-    /// This function might panic when called if the lock is already held by the current thread.
     pub fn reset() -> Result<(), ModuleStateError> {
         MODULE.write().map_or(Err(ModuleStateError::ModuleLockIsPoisoned), |mut guard| {
             *guard = Self::Cleared;
