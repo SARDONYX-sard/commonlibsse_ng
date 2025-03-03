@@ -16,7 +16,6 @@ use crate::skse::interfaces::{
     task::TaskInterface,
     trampoline::TrampolineInterface,
 };
-use crate::skse::trampoline::get_trampoline;
 
 // Placeholder for various SKSE interfaces
 
@@ -34,9 +33,9 @@ pub struct NiNodeUpdateEvent;
 
 #[derive(Debug)]
 pub struct APIStorage {
-    plugin_name: &'static str,
-    plugin_author: &'static str,
-    pub plugin_version: Version,
+    plugin_name: Option<&'static str>,
+    plugin_author: Option<&'static str>,
+    pub plugin_version: Option<Version>,
 
     plugin_handle: PluginHandle,
     pub release_index: u32,
@@ -45,7 +44,7 @@ pub struct APIStorage {
     pub papyrus_interface: PapyrusInterface,
     pub serialization_interface: SerializationInterface,
     pub task_interface: TaskInterface,
-    trampoline_interface: TrampolineInterface,
+    pub trampoline_interface: TrampolineInterface,
 
     pub messaging_interface: MessagingInterface,
     pub mod_callback_event_source: *mut BSTEventSource<ModCallbackEvent>,
@@ -69,16 +68,25 @@ unsafe impl Send for APIStorage {}
 unsafe impl Sync for APIStorage {}
 
 impl APIStorage {
-    fn get() -> &'static RwLock<Option<Self>> {
+    pub fn get() -> &'static RwLock<Option<Self>> {
         static INSTANCE: OnceLock<RwLock<Option<APIStorage>>> = OnceLock::new();
         INSTANCE.get_or_init(|| RwLock::new(None))
     }
 
-    fn map<F, R>(f: F) -> Option<R>
+    #[inline]
+    pub fn map<F, R>(f: F) -> Option<R>
     where
         F: FnOnce(&Self) -> R,
     {
         Self::get().read().ok().and_then(|guard| guard.as_ref().map(f))
+    }
+
+    #[inline]
+    pub fn and_then<F, R>(f: F) -> Option<R>
+    where
+        F: FnOnce(&Self) -> Option<R>,
+    {
+        Self::get().read().ok().and_then(|guard| guard.as_ref().and_then(f))
     }
 }
 
@@ -128,18 +136,18 @@ pub fn init(load_interface: &LoadInterface) {
     }
 
     let (plugin_name, plugin_author, plugin_version) =
-        PluginVersionData::get_singleton().map_or(("", "", 0), |plugin_ver| {
+        PluginVersionData::get_singleton().map_or((None, None, None), |plugin_ver| {
             (
-                plugin_ver.get_author_name(),
-                plugin_ver.get_author_name(),
-                plugin_ver.get_plugin_version(),
+                Some(plugin_ver.get_author_name()),
+                Some(plugin_ver.get_author_name()),
+                Some(Version::unpack(plugin_ver.get_plugin_version())),
             )
         });
 
     *guard = Some(APIStorage {
         plugin_name,
         plugin_author,
-        plugin_version: Version::unpack(plugin_version),
+        plugin_version,
 
         plugin_handle,
         release_index,
@@ -177,17 +185,26 @@ pub fn register_for_api_init_event<F: ApiInitRegFn + 'static>(f: F) {
 
 #[inline]
 pub fn get_plugin_name() -> Option<&'static str> {
-    APIStorage::map(|storage| storage.plugin_name)
+    APIStorage::get()
+        .read()
+        .ok()
+        .and_then(|guard| guard.as_ref().and_then(|storage| storage.plugin_name))
 }
 
 #[inline]
 pub fn get_plugin_author() -> Option<&'static str> {
-    APIStorage::map(|storage| storage.plugin_author)
+    APIStorage::get()
+        .read()
+        .ok()
+        .and_then(|guard| guard.as_ref().and_then(|storage| storage.plugin_author))
 }
 
 #[inline]
 pub fn get_plugin_version() -> Option<Version> {
-    APIStorage::map(|storage| storage.plugin_version.clone())
+    APIStorage::get()
+        .read()
+        .ok()
+        .and_then(|guard| guard.as_ref().and_then(|storage| storage.plugin_version.clone()))
 }
 
 /// # Panics
@@ -230,45 +247,4 @@ pub fn get_task_interface() -> Option<TaskInterface> {
 #[inline]
 pub fn get_messaging_interface() -> Option<MessagingInterface> {
     APIStorage::map(|storage| storage.messaging_interface.clone())
-}
-
-/// # Errors
-pub fn alloc_trampoline(size: usize, try_skse_reserve: bool) -> Result<(), AllocTrampolineError> {
-    let trampoline = get_trampoline();
-
-    if try_skse_reserve {
-        let ret = APIStorage::map(|storage| {
-            let memory = storage.trampoline_interface.allocate_from_branch_pool(size);
-            if memory.is_null() {
-                let mut guard = trampoline
-                    .write()
-                    .map_err(|_| AllocTrampolineError::TrampolineLockIsPoisoned)?;
-                unsafe { guard.set_trampoline(memory.cast::<u8>(), size, None) };
-            }
-
-            Ok(())
-        });
-
-        if let Some(r) = ret {
-            return r;
-        }
-        return Ok(());
-    }
-
-    {
-        let mut guard =
-            trampoline.write().map_err(|_| AllocTrampolineError::TrampolineLockIsPoisoned)?;
-        guard.create(size, None)?;
-    }
-
-    Ok(())
-}
-
-#[derive(Debug, snafu::Snafu)]
-pub enum AllocTrampolineError {
-    /// The thread that was getting Trampoline's lock panicked.
-    TrampolineLockIsPoisoned,
-
-    #[snafu(transparent)]
-    TrampolineError { source: super::trampoline::TrampolineError },
 }

@@ -71,7 +71,7 @@ unsafe fn safe_write<T>(dst: *mut T, src: *const T, len: usize) -> windows::core
     unsafe {
         let old_protection = enable_write_permission(dst as _, len)?;
         core::ptr::copy_nonoverlapping(src, dst, len);
-        restore_memory_protection(dst as _, len, old_protection)
+        restore_memory_protection(dst.cast(), len, old_protection)
     }
 }
 
