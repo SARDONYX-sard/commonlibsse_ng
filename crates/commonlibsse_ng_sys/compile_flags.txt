@@ -1,2 +1,4 @@
+-include./vcpkg_installed/x64-windows/include/SKSE/Impl/PCH.h
 -I./vcpkg_installed/x64-windows/include
 -std=c++20
+-xc++
