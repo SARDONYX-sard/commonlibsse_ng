@@ -1,4 +1,7 @@
--include./vcpkg_installed/x64-windows/include/SKSE/Impl/PCH.h
+-DENABLE_SKYRIM_AE
+-DENABLE_SKYRIM_SE
+-DENABLE_SKYRIM_VR
 -I./vcpkg_installed/x64-windows/include
+-include./vcpkg_installed/x64-windows/include/SKSE/Impl/PCH.h
 -std=c++20
 -xc++
