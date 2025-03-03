@@ -84,18 +84,18 @@ fn main() -> Result<()> {
                     "generate,vcpkg",
                     "--no-default-features",
                 ],
-                "./target/gen_results.txt",
+                Some("./target/gen_results.txt"),
             )
         }
         Some(Commands::Test) => run_command(
             "cargo",
             &["test", "--workspace", "--features", "debug", "--no-default-features"],
-            "./test_results.txt",
+            Some("./test_results.txt"),
         ),
         Some(Commands::NTest) => run_command(
             "cargo",
             &["nextest", "run", "--workspace", "--features", "debug", "--no-default-features"],
-            "./test_results.txt",
+            Some("./test_results.txt"),
         ),
         Some(Commands::Example(args)) => run_example(args),
     }
@@ -103,15 +103,22 @@ fn main() -> Result<()> {
 
 fn build() -> Result<()> {
     println!("Building...");
-    run_command("cargo", &["build"], "./target/build_results.txt")
+    run_command("cargo", &["build"], Some("./target/build_results.txt"))
 }
 
-fn run_command(cmd: &str, args: &[&str], output_file: &str) -> Result<()> {
+fn run_command(cmd: &str, args: &[&str], output_file: Option<&str>) -> Result<()> {
     println!("Running: {} {:?}", cmd, args);
     let output = Command::new(cmd).args(args).output().context(CommandExecutionSnafu)?;
 
-    fs::write(output_file, &output.stdout).context(FileWriteSnafu)?;
-    fs::write(output_file, &output.stderr).context(FileWriteSnafu)?;
+    if let Some(output_file) = output_file {
+        fs::write(output_file, &output.stdout).context(FileWriteSnafu)?;
+        fs::write(output_file, &output.stderr).context(FileWriteSnafu)?;
+    } else {
+        std::io::Write::write_all(&mut std::io::stdout(), &output.stdout)
+            .context(FileWriteSnafu)?;
+        std::io::Write::write_all(&mut std::io::stderr(), &output.stderr)
+            .context(FileWriteSnafu)?;
+    }
 
     if !output.status.success() {
         eprintln!("Command failed: {} {:?}", cmd, args);
@@ -124,19 +131,7 @@ fn run_example(args: ExampleArgs) -> Result<()> {
     println!("Running example...");
 
     let example_name = args.example_name;
-    run_command(
-        "cargo",
-        &[
-            "build",
-            "-p",
-            "commonlibsse_ng",
-            "--example",
-            &example_name,
-            "--features",
-            "tracing,win_api",
-        ],
-        "./target/example_results.txt",
-    )?;
+    run_command("cargo", &["build", "-p", "commonlibsse_ng", "--example", &example_name], None)?;
 
     let dest_dir = args.dest_mode.path();
 

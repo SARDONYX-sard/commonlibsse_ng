@@ -16,14 +16,6 @@ pub mod trampoline;
 use crate::{rel::version::Version, rex::kernel32::get_current_module};
 
 #[repr(C)]
-#[derive(Debug, Clone)]
-pub struct PluginInfo {
-    pub info_version: u32,
-    pub name: *const i8,
-    pub version: u32,
-}
-
-#[repr(C)]
 #[derive(Debug)]
 pub struct PluginVersionData {
     pub data_version: u32,

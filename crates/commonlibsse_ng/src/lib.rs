@@ -10,3 +10,6 @@ pub mod re;
 pub mod rel;
 pub mod rex;
 pub mod skse;
+
+#[cfg(feature = "derive")]
+pub use commonlibsse_ng_derive::skse_plugin_main;

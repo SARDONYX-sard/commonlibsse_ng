@@ -22,6 +22,16 @@ pub fn document_dir() -> windows::core::Result<PathBuf> {
     known_folder(windows::Win32::UI::Shell::FOLDERID_Documents)
 }
 
+/// Show message(For critical error)
+pub fn message_box(title: &str, message: &str) {
+    use windows::Win32::UI::WindowsAndMessaging::{MB_OK, MessageBoxW};
+    use windows::core::HSTRING;
+
+    let title = HSTRING::from(title.to_string());
+    let message = HSTRING::from(message.to_string());
+    let _result = unsafe { MessageBoxW(None, &message, &title, MB_OK) };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
