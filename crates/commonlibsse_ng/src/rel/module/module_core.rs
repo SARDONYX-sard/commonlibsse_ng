@@ -208,6 +208,7 @@ pub enum ModuleInitError {
     VersionLoadFailed { source: crate::rel::version::FileVersionError },
 }
 
+#[cfg(feature = "debug")]
 #[cfg(test)]
 mod tests {
     use super::*;
