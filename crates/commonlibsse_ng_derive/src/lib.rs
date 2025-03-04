@@ -4,7 +4,6 @@ use crate::gen_logger::{GeneratedCode, LogLevel, gen_logger_code};
 use darling::{Error, FromMeta, ast::NestedMeta};
 use proc_macro::TokenStream;
 use quote::quote;
-use std::{env, ffi::CString};
 use syn::{ItemFn, parse_macro_input};
 
 #[derive(Debug, FromMeta)]
@@ -55,9 +54,11 @@ fn ret_true() -> bool {
 /// # Example
 ///
 /// ```rust:no_compile
-/// #[cfg_attr(feature = "tracing", commonlibsse_ng::skse_plugin_main)]
-/// #[cfg_attr(not(feature = "tracing"), commonlibsse_ng::skse_plugin_main(logger = false))]
-/// fn plugin_entry() {
+/// use commonlibsse_ng::skse_plugin_main;
+///
+/// #[cfg_attr(feature = "tracing", skse_plugin_main)]
+/// #[cfg_attr(not(feature = "tracing"), skse_plugin_main(logger = false))]
+/// fn plugin_main() {
 ///     if let Some(messaging) = commonlibsse_ng::skse::api::get_messaging_interface() {
 ///         messaging.register_listener(|message| {
 ///             #[cfg(feature = "tracing")]
@@ -69,7 +70,7 @@ fn ret_true() -> bool {
 /// }
 /// ```
 ///
-/// This will generate the necessary SKSE functions and execute `plugin_entry`.
+/// This will generate the necessary SKSE functions and execute `plugin_main`.
 #[proc_macro_attribute]
 pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let attr_args = match NestedMeta::parse_meta_list(attrs.into()) {
@@ -88,40 +89,46 @@ pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
 
     let input = parse_macro_input!(item as ItemFn);
 
-    let plugin_name = args.plugin_name.as_deref().unwrap_or(env!("CARGO_PKG_NAME"));
-    let plugin_author = args.plugin_author.unwrap_or_else(|| env!("CARGO_PKG_AUTHORS").to_string());
-    let plugin_version = args.plugin_version.as_deref().unwrap_or(env!("CARGO_PKG_VERSION"));
+    let plugin_name = if let Some(plugin_name) = args.plugin_name.as_deref() {
+        quote! { #plugin_name }
+    } else {
+        quote! { env!("CARGO_PKG_NAME") }
+    };
+    let plugin_author = if let Some(plugin_author) = args.plugin_author.as_deref() {
+        quote! { #plugin_author }
+    } else {
+        quote! { env!("CARGO_PKG_AUTHORS")}
+    };
+    let plugin_version = if let Some(plugin_version) = args.plugin_version.as_deref() {
+        quote! { #plugin_version }
+    } else {
+        quote! { env!("CARGO_PKG_VERSION")}
+    };
 
-    let mut plugin_log_name = plugin_name.to_string();
-    plugin_log_name.push_str(".log");
+    let main_code = {
+        let fn_stmts = &input.block.stmts;
+        let ret_ty = &input.sig.output;
 
-    let plugin_name_c_str =
-        CString::new(args.plugin_name.as_deref().unwrap_or(env!("CARGO_PKG_NAME")))
-            .expect("Expected plugin name is valid ascii");
-
-    let fn_stmts = &input.block.stmts;
-    let ret_ty = &input.sig.output;
-
-    let GeneratedCode { init_logger, is_editor_log } =
-        gen_logger_code(args.logger, &plugin_log_name, args.log_level);
-
-    let main_code = if args.logger {
-        quote! {
+        if args.logger {
+            quote! {
                 if let Err(err) = std::panic::catch_unwind(|| #ret_ty {
                     commonlibsse_ng::skse::init(skse);
                     #(#fn_stmts)*
                 }) {
                     tracing::error!("{err:?}");
                 }
-        }
-    } else {
-        quote! {
-            let _ = std::panic::catch_unwind(|| #ret_ty {
-                commonlibsse_ng::skse::init(skse);
-                #(#fn_stmts)*
-            });
+            }
+        } else {
+            quote! {
+                let _ = std::panic::catch_unwind(|| #ret_ty {
+                    commonlibsse_ng::skse::init(skse);
+                    #(#fn_stmts)*
+                });
+            }
         }
     };
+    let GeneratedCode { init_logger, is_editor_log } =
+        gen_logger_code(args.logger, args.plugin_name.as_deref(), args.log_level);
 
     let expanded = quote! {
         #[unsafe(no_mangle)]
@@ -135,7 +142,7 @@ pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
             const PKG_VERSION: commonlibsse_ng::rel::version::Version = commonlibsse_ng::rel::version::Version::from_str_const(#plugin_version);
             *info = PluginInfo {
                 infoVersion: PluginInfo::VERSION,
-                name: #plugin_name_c_str.as_ptr(),
+                name: commonlibsse_ng::skse::interfaces::new_cstr(concat!(#plugin_name, "\0")).as_ptr(),
                 version: PKG_VERSION.pack(),
             };
 

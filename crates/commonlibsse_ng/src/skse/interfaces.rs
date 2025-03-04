@@ -175,6 +175,38 @@ pub const fn to_fixed_str<const N: usize>(s: &str) -> [u8; N] {
     buf
 }
 
+// SPDX-FileCopyrightText: (C) 2023 peelz
+// SPDX-License-Identifier: MIT
+// https://github.com/notpeelz/cstr-literal/blob/master/src/lib.rs#L11
+//
+/// Create str to Cstr at compile time.
+///
+/// # Example
+///
+/// ```rust
+/// const HELLO: &std::ffi::CStr = commonlibsse_ng::skse::interfaces::new_cstr(concat!("hello", "\0"));
+/// ```
+///
+/// # Panics
+///
+/// This function panics if:
+/// - The input string contains null bytes before the null terminator.
+/// - The input string is not null-terminated.
+pub const fn new_cstr(s: &'static str) -> &'static std::ffi::CStr {
+    let mut bytes = s.as_bytes();
+    loop {
+        match bytes {
+            [0, _, ..] => panic!("C strings cannot contain null bytes"),
+            [] => panic!("C strings must be null-terminated"),
+            [0] => break,
+            [_, remaining @ ..] => bytes = remaining,
+        }
+    }
+
+    // SAFETY: The input string is validated to be null-terminated and without interior null bytes.
+    unsafe { std::ffi::CStr::from_bytes_with_nul_unchecked(s.as_bytes()) }
+}
+
 #[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct String256([u8; 256]);

@@ -35,14 +35,27 @@ impl Default for GeneratedCode {
 
 pub(crate) fn gen_logger_code(
     enable_logger: bool,
-    plugin_log_name: &str,
+    plugin_name: Option<&str>,
     log_level: LogLevel,
 ) -> GeneratedCode {
     let mut code = GeneratedCode::default();
 
     if enable_logger {
         let log_level = log_level.as_str();
-        let err_title = format!("{plugin_log_name} Error");
+
+        let plugin_log_name = if let Some(plugin_name) = plugin_name {
+            quote! { #plugin_name }
+        } else {
+            quote! { env!("CARGO_PKG_NAME") }
+        };
+        let err_title = if let Some(plugin_name) = plugin_name {
+            let title = format!("{plugin_name} Error");
+            quote! { #title }
+        } else {
+            quote! {
+                concat!(env!("CARGO_PKG_NAME"), " Error")
+            }
+        };
 
         code.init_logger = quote! {
             if let Err(err) = commonlibsse_ng::skse::logger::init_with_log_dir(#plugin_log_name, #log_level.parse().unwrap()) {
