@@ -158,7 +158,7 @@ pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
             compatible_versions[0] = commonlibsse_ng::skse::version::RUNTIME_SSE_LATEST.pack();
 
             PluginVersionData {
-                data_version: PKG_VERSION.major() as u32,
+                data_version: PluginVersionData::VERSION,
                 plugin_version: PKG_VERSION.pack(),
                 plugin_name: to_fixed_str(#plugin_name),
                 author: to_fixed_str(#plugin_author),
