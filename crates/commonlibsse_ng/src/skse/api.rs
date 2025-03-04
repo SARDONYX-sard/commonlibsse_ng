@@ -241,7 +241,7 @@ pub fn get_plugin_author() -> Result<&'static str, ApiStorageError> {
 /// use commonlibsse_ng::skse::api::get_plugin_version;
 ///
 /// match get_plugin_version() {
-///     Ok(Some(version)) => println!("Plugin version: {:?}", version),
+///     Ok(version) => println!("Plugin version: {:?}", version),
 ///     Err(e) => println!("Error: {}", e),
 /// }
 /// ```
