@@ -15,34 +15,46 @@ use crate::skse::impls::stab::SKSESerializationInterface;
 
 const U32_MAX: usize = u32::MAX as usize;
 
+/// Interface for interacting with SKSE's serialization functions.
+///
+/// This struct provides methods for interacting with serialization operations
+/// such as setting unique IDs, handling callbacks for form deletions and loads,
+/// and reading/writing record data.
 #[derive(Debug, Clone)]
 pub struct SerializationInterface(&'static SKSESerializationInterface);
 
 impl SerializationInterface {
+    /// The version number of the serialization interface.
     pub const VERSION: u32 = 4;
 
+    /// Creates a new `SerializationInterface` instance.
     #[inline]
     pub(crate) const fn new(interface: &'static SKSESerializationInterface) -> Self {
         Self(interface)
     }
 
+    /// Returns the version of the serialization interface.
     #[inline]
     pub const fn version(&self) -> u32 {
         self.0.version
     }
 
+    /// Sets a unique identifier for the serialization interface.
     ///
     /// # Errors
-    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
+    /// Returns an error if the internal global API storage is uninitialized
+    /// (e.g., if `skse::init` has not been called).
     #[inline]
     pub fn set_unique_id(&self, uid: u32) -> Result<(), ApiStorageError> {
         unsafe { (self.0.SetUniqueId)(get_plugin_handle()?, uid) };
         Ok(())
     }
 
+    /// Sets a callback function that will be called when a form is deleted.
     ///
     /// # Errors
-    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
+    /// Returns an error if the internal global API storage is uninitialized
+    /// (e.g., if `skse::init` has not been called).
     #[inline]
     pub fn set_form_delete_callback(
         &self,
@@ -55,9 +67,11 @@ impl SerializationInterface {
         Ok(())
     }
 
+    /// Sets a callback function that will be called when the plugin is loaded.
     ///
     /// # Errors
-    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
+    /// Returns an error if the internal global API storage is uninitialized
+    /// (e.g., if `skse::init` has not been called).
     #[inline]
     pub fn set_load_callback(&self, callback: fn(&Self)) -> Result<(), ApiStorageError> {
         #[allow(clippy::fn_to_numeric_cast_any)]
@@ -66,9 +80,11 @@ impl SerializationInterface {
         Ok(())
     }
 
+    /// Sets a callback function that will be called when the plugin is reverted.
     ///
     /// # Errors
-    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
+    /// Returns an error if the internal global API storage is uninitialized
+    /// (e.g., if `skse::init` has not been called).
     #[inline]
     pub fn set_revert_callback(&self, callback: fn(&Self)) -> Result<(), ApiStorageError> {
         #[allow(clippy::fn_to_numeric_cast_any)]
@@ -77,9 +93,11 @@ impl SerializationInterface {
         Ok(())
     }
 
+    /// Sets a callback function that will be called when the plugin is saved.
     ///
     /// # Errors
-    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
+    /// Returns an error if the internal global API storage is uninitialized
+    /// (e.g., if `skse::init` has not been called).
     #[inline]
     pub fn set_save_callback(&self, callback: fn(&Self)) -> Result<(), ApiStorageError> {
         #[allow(clippy::fn_to_numeric_cast_any)]
@@ -88,17 +106,17 @@ impl SerializationInterface {
         Ok(())
     }
 
-    /// # Note
-    /// buf len <= [`u32::MAX`]
-    ///
-    /// [`u32::MAX`]: https://doc.rust-lang.org/nightly/core/primitive.u32.html#associatedconstant.MAX
+    /// Writes a record to the serialization interface.
     ///
     /// # Errors
-    /// If failed to write
+    /// Returns an error if the write operation fails or if the buffer length exceeds `u32::MAX`.
     #[inline]
     pub fn write_record<T>(&self, record_type: u32, version: u32, buf: &T) -> Result<(), Error> {
         let data_size: usize = core::mem::size_of::<T>();
-        debug_assert!(data_size <= U32_MAX, "Should be T size <= u32::MAX");
+
+        if data_size > U32_MAX {
+            return Err(Error::TooLargeWriteRecordData { actual: data_size });
+        }
 
         let void_buf = (buf as *const T).cast::<c_void>();
         let result =
@@ -107,8 +125,10 @@ impl SerializationInterface {
         if result { Ok(()) } else { Err(Error::WriteRecordError) }
     }
 
+    /// Opens a record for writing.
+    ///
     /// # Errors
-    /// If failed to open
+    /// Returns an error if the open operation fails.
     #[inline]
     pub fn open_recode(&self, record_type: u32, version: u32) -> Result<(), Error> {
         if unsafe { ((self.0).OpenRecord)(record_type, version) } {
@@ -118,8 +138,10 @@ impl SerializationInterface {
         }
     }
 
+    /// Writes record data to the serialization interface.
+    ///
     /// # Errors
-    /// If `buf.len()` >= `u32::MAX`
+    /// Returns an error if the write operation fails or if the buffer length exceeds `u32::MAX`.
     #[inline]
     pub fn write_record_data<T>(&self, buf: &[T]) -> Result<(), Error> {
         let buf_len = buf.len();
@@ -135,12 +157,19 @@ impl SerializationInterface {
         }
     }
 
+    /// Reads record data into the provided buffer.
+    ///
+    /// # Returns
+    /// The number of bytes read.
     #[inline]
     pub fn read_record_data<T>(&self, buf: &mut [T]) -> u32 {
         unsafe { (self.0.ReadRecordData)(buf.as_mut_ptr().cast(), buf.len() as u32) }
     }
 
+    /// Retrieves the next record's type, version, and length.
+    ///
     /// # Errors
+    /// Returns an error if the operation fails.
     #[inline]
     pub fn get_next_record_info(
         &self,
@@ -154,7 +183,10 @@ impl SerializationInterface {
         }
     }
 
+    /// Resolves the new form ID based on an old form ID.
+    ///
     /// # Errors
+    /// Returns an error if the form ID resolution fails.
     #[inline]
     pub fn resolve_form_id(&self, old: FormID, new: &mut FormID) -> Result<(), Error> {
         unsafe {
@@ -163,7 +195,10 @@ impl SerializationInterface {
         }
     }
 
+    /// Resolves the new handle based on an old handle.
+    ///
     /// # Errors
+    /// Returns an error if the handle resolution fails.
     #[inline]
     pub fn resolve_handle(&self, old: VMHandle, new: &mut VMHandle) -> Result<(), Error> {
         let result = unsafe { (self.0.ResolveHandle)(old.0, &mut new.0) };
@@ -171,30 +206,27 @@ impl SerializationInterface {
     }
 }
 
-// Define a custom error type to represent failure cases
+/// Custom error type for serialization-related failures.
 #[derive(Debug, snafu::Snafu)]
 pub enum Error {
-    /// Failed to write record
+    /// Failed to write record.
     WriteRecordError,
 
-    /// Failed to write record data
+    /// Failed to write record data.
     WriteRecordDataError,
 
-    /// The maximum length that can be written is `u32::MAX`, but what is indicated is the length of {actual}.
-    TooLargeWriteRecordData {
-        /// The actual length of the data
-        actual: usize,
-    },
+    /// The buffer size exceeds the maximum allowed (`u32::MAX`).
+    TooLargeWriteRecordData { actual: usize },
 
-    /// Failed to open record
+    /// Failed to open record.
     OpenRecordError,
 
-    /// Failed to get next record info
+    /// Failed to get next record info.
     GetNextRecordInfoError,
 
-    /// Failed to resolve form ID
+    /// Failed to resolve form ID.
     ResolveFormIdError,
 
-    /// Failed to resolve handle
+    /// Failed to resolve handle.
     ResolveHandleError,
 }
