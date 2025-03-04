@@ -44,9 +44,9 @@ pub(crate) fn gen_logger_code(
         let log_level = log_level.as_str();
 
         let plugin_log_name = if let Some(plugin_name) = plugin_name {
-            quote! { #plugin_name }
+            quote! { concat!(#plugin_name, ".log") }
         } else {
-            quote! { env!("CARGO_PKG_NAME") }
+            quote! { concat!(env!("CARGO_PKG_NAME"), ".log") }
         };
         let err_title = if let Some(plugin_name) = plugin_name {
             let title = format!("{plugin_name} Error");
