@@ -59,18 +59,31 @@ fn ret_true() -> bool {
 /// #[cfg_attr(feature = "tracing", skse_plugin_main)]
 /// #[cfg_attr(not(feature = "tracing"), skse_plugin_main(logger = false))]
 /// fn plugin_main() {
-///     if let Some(messaging) = commonlibsse_ng::skse::api::get_messaging_interface() {
-///         messaging.register_skse_listener(|message| {
+///     match commonlibsse_ng::skse::api::get_messaging_interface() {
+///         Ok(messaging) => {
+///             if let Err(err) = messaging.register_skse_listener(|message| {
+///                 #[cfg(feature = "tracing")]
+///                 tracing::info!("SKSE event: {message:#?}");
+///             }) {
+///                 #[cfg(feature = "tracing")]
+///                 tracing::error!("{err}");
+///             };
+///         }
+///         Err(err) => {
 ///             #[cfg(feature = "tracing")]
-///             tracing::info!("SKSE event: {message:#?}");
-///         });
+///             tracing::error!("Failed to skse::init: {err}");
+///         }
 ///     }
-///     #[cfg(feature = "tracing")]
-///     tracing::info!("MyPlugin has been loaded!");
 /// }
 /// ```
 ///
 /// This will generate the necessary SKSE functions and execute `plugin_main` in `SKSE_PluginLoad` function.
+///
+/// # NOTE
+/// It has been confirmed that `cfg_attr` does not work for the completion of rust_analyzer in the function.
+/// In that case, comment it out once and add
+///
+/// temporarily enable `#[commonlibsse_ng::skse_plugin_main]`.
 #[proc_macro_attribute]
 pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let attr_args = match NestedMeta::parse_meta_list(attrs.into()) {
