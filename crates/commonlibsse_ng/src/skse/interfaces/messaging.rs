@@ -81,7 +81,38 @@ pub struct Message {
     /// The length of the data buffer.
     pub data_len: u32,
     /// Pointer to the message data.
+    ///
+    /// # Note
+    /// The pointer may be invalid, even if `data_len` is non-zero.
+    /// Always use [`Message::get_valid_data`] to safely access the data.
     pub data: *mut c_void,
+}
+
+impl Message {
+    /// Returns a valid memory slice of the message data, if accessible.
+    ///
+    /// # Safety
+    /// - This function checks if the pointer is non-null and properly aligned.
+    /// - It also ensures that the memory range is valid before returning a reference.
+    ///
+    /// # When `None` is returned
+    /// - If `data_len` is 0.
+    /// - If the data pointer is null, unaligned, or invalid.
+    pub fn get_valid_data(&self) -> Option<&[u8]> {
+        use crate::rex::win32::is_valid_range;
+
+        if self.data_len == 0 {
+            return None;
+        }
+
+        let data = self.data.cast::<u8>();
+        if data.is_null() && !data.is_aligned() {
+            return None;
+        }
+
+        let len = self.data_len as usize;
+        is_valid_range(data, len).then_some(unsafe { core::slice::from_raw_parts(data, len) })
+    }
 }
 
 // # Why does this struct need to implement Debug manually?
@@ -201,8 +232,8 @@ impl MessagingInterface {
     ///
     /// # Example
     ///
-    /// ```rust:no_compile
-    /// if let Some(messaging) = commonlibsse_ng::skse::api::get_messaging_interface() {
+    /// ```rust
+    /// if let Ok(messaging) = commonlibsse_ng::skse::api::get_messaging_interface() {
     ///     messaging.register_skse_listener(|message| {
     ///         #[cfg(feature = "tracing")]
     ///         tracing::info!("SKSE event: {message:#?}");
