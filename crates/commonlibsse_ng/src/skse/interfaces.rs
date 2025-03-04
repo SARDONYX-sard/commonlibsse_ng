@@ -175,10 +175,6 @@ pub const fn to_fixed_str<const N: usize>(s: &str) -> [u8; N] {
     buf
 }
 
-// const fn to_cstr(s: &str) -> &core::ffi::CStr {
-//     unsafe { core::ffi::CStr::from_bytes_with_nul_unchecked(s.as_bytes()) }
-// }
-
 #[repr(transparent)]
 #[derive(Debug, Clone)]
 pub struct String256([u8; 256]);
