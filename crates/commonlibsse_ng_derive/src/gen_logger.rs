@@ -45,13 +45,11 @@ pub(crate) fn gen_logger_code(
         let err_title = format!("{plugin_log_name} Error");
 
         code.init_logger = quote! {
-            fn init_logger() {
-                if let Err(err) = commonlibsse_ng::skse::logger::init_with_log_dir(#plugin_log_name, #log_level.parse().unwrap()) {
-                    commonlibsse_ng::rex::win32::message_box(#err_title, &err.to_string());
-                    std::process::exit(1);
-                };
-                tracing::info!("Logger has been initialized.");
-            }
+            if let Err(err) = commonlibsse_ng::skse::logger::init_with_log_dir(#plugin_log_name, #log_level.parse().unwrap()) {
+                commonlibsse_ng::rex::win32::message_box(#err_title, &err.to_string());
+                std::process::exit(1);
+            };
+            tracing::info!("Logger has been initialized.");
         };
 
         code.is_editor_log = quote! {
