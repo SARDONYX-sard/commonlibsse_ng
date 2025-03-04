@@ -9,6 +9,7 @@ use crate::skse::{
 pub struct TrampolineInterface(&'static SKSETrampolineInterface);
 
 impl TrampolineInterface {
+    /// The version number of the trampoline interface.
     pub const VERSION: u32 = 1;
 
     #[inline]
@@ -16,6 +17,7 @@ impl TrampolineInterface {
         Self(interface)
     }
 
+    /// Returns the version number of the trampoline interface.
     #[inline]
     pub const fn version(&self) -> u32 {
         self.0.interfaceVersion
