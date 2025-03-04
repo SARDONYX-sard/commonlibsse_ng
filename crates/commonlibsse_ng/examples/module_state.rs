@@ -7,9 +7,9 @@ use commonlibsse_ng::skse_plugin_main;
 )]
 fn plugin_main() {
     if let Some(messaging) = commonlibsse_ng::skse::api::get_messaging_interface() {
-        messaging.register_listener(|message| {
+        messaging.register_skse_listener(|message| {
             #[cfg(feature = "tracing")]
-            tracing::info!("SKSE event: {message:?}");
+            tracing::info!("SKSE event: {message:#?}");
         });
     }
 }

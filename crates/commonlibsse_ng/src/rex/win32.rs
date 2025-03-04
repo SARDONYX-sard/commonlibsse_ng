@@ -32,6 +32,35 @@ pub fn message_box(title: &str, message: &str) {
     let _result = unsafe { MessageBoxW(None, &message, &title, MB_OK) };
 }
 
+/// Check memory page access permissions
+pub fn is_valid_range(ptr: *const u8, len: usize) -> bool {
+    use windows::Win32::System::Memory::{MEMORY_BASIC_INFORMATION, PAGE_NOACCESS, VirtualQuery};
+
+    unsafe {
+        let mut mbi = MEMORY_BASIC_INFORMATION::default();
+        let mut check_ptr = ptr;
+
+        while (check_ptr as usize) < (ptr as usize + len) {
+            let is_invalid = VirtualQuery(
+                Some(check_ptr.cast()),
+                &mut mbi,
+                std::mem::size_of::<MEMORY_BASIC_INFORMATION>(),
+            ) == 0;
+
+            if is_invalid {
+                return false;
+            }
+
+            if mbi.Protect == PAGE_NOACCESS {
+                return false;
+            }
+
+            check_ptr = check_ptr.add(mbi.RegionSize);
+        }
+        true
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -41,5 +70,15 @@ mod tests {
         if let Ok(dirs) = document_dir() {
             println!("{}", dirs.display());
         };
+    }
+
+    #[test]
+    fn test_is_valid_range() {
+        let valid_data = [42_u8; 16];
+        let valid_ptr = valid_data.as_ptr();
+        assert!(is_valid_range(valid_ptr, 16));
+
+        let invalid_ptr: *const u8 = core::ptr::null();
+        assert!(!is_valid_range(invalid_ptr, 16));
     }
 }

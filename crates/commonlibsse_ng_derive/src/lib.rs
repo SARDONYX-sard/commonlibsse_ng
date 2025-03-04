@@ -60,9 +60,9 @@ fn ret_true() -> bool {
 /// #[cfg_attr(not(feature = "tracing"), skse_plugin_main(logger = false))]
 /// fn plugin_main() {
 ///     if let Some(messaging) = commonlibsse_ng::skse::api::get_messaging_interface() {
-///         messaging.register_listener(|message| {
+///         messaging.register_skse_listener(|message| {
 ///             #[cfg(feature = "tracing")]
-///             tracing::info!("SKSE event: {message:?}");
+///             tracing::info!("SKSE event: {message:#?}");
 ///         });
 ///     }
 ///     #[cfg(feature = "tracing")]

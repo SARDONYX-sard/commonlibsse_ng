@@ -7,46 +7,77 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use std::ffi::{CStr, c_char, c_void};
-
+//! Rust bindings for the SKSE Messaging Interface
+//!
+//! This module provides Rust representations of the SKSE messaging system, which allows plugins to communicate with each other.
+//! It includes message types, dispatchers, and the main `MessagingInterface` wrapper.
+//!
+//! # References
+//! - [Original C++ Code](https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/include/SKSE/Interfaces.h)
+//! - [C++ Implementation](https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/src/SKSE/Interfaces.cpp)
 use crate::skse::{api::get_plugin_handle, impls::stab::SKSEMessagingInterface};
+use std::{
+    borrow::Cow,
+    ffi::{CStr, c_char, c_void},
+};
 
-type MessagingCallback = fn(msg: &Message);
-
+/// Represents the different types of messages that can be sent or received through SKSE's messaging system.
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum MessageType {
+    /// Fired after all plugins are loaded.
     PostLoad,
+    /// Fired after all `PostLoad` events have completed.
     PostPostLoad,
+    /// Fired before loading a game save.
     PreLoadGame,
+    /// Fired after loading a game save.
     PostLoadGame,
+    /// Fired before saving a game.
     SaveGame,
+    /// Fired before deleting a game save.
     DeleteGame,
+    /// Fired when the input system is loaded.
     InputLoaded,
+    /// Fired when starting a new game.
     NewGame,
+    /// Fired after all game data has loaded.
     DataLoaded,
 
+    /// Placeholder for the total number of message types.
     Total,
 }
 
+/// Represents the different event dispatchers that SKSE provides.
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Dispatcher {
+    /// Dispatcher for mod events.
     ModEvent = 0,
+    /// Dispatcher for camera events.
     CameraEvent,
+    /// Dispatcher for crosshair events.
     CrosshairEvent,
+    /// Dispatcher for action events.
     ActionEvent,
+    /// Dispatcher for NiNode update events.
     NiNodeUpdateEvent,
 
+    /// Placeholder for the total number of dispatchers.
     Total,
 }
 
+/// Represents a message sent through the SKSE messaging system.
 #[derive(Clone)]
 #[repr(C)]
 pub struct Message {
+    /// The name of the sender as a C string.
     pub sender: *const c_char,
+    /// The type of message.
     pub msg_type: MessageType,
+    /// The length of the data buffer.
     pub data_len: u32,
+    /// Pointer to the message data.
     pub data: *mut c_void,
 }
 
@@ -55,56 +86,89 @@ pub struct Message {
 // Therefore, implement it manually and display the string.
 impl core::fmt::Debug for Message {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let data: Cow<'static, str> = if self.data_len == 0 {
+            "".into()
+        } else if !self.data.is_null() && self.data.cast::<u8>().is_aligned() {
+            if crate::rex::win32::is_valid_range(self.data.cast::<u8>(), self.data_len as usize) {
+                String::from_utf8_lossy(unsafe {
+                    core::slice::from_raw_parts(self.data.cast::<u8>(), self.data_len as usize)
+                })
+            } else {
+                "inaccessible ptr".into()
+            }
+        } else {
+            "null/unaligned ptr".into()
+        };
+
         f.debug_struct("Message")
             .field("sender", &unsafe { CStr::from_ptr(self.sender) })
             .field("msg_type", &self.msg_type)
             .field("data_len", &self.data_len)
-            .field("data", &self.data)
+            .field("data_ptr", &self.data)
+            .field("data", &data)
             .finish()
     }
 }
 
+/// APIs that enable data to be sent and received between plugins.
 #[derive(Debug, Clone)]
 #[repr(transparent)]
 pub struct MessagingInterface(&'static SKSEMessagingInterface);
 
 impl MessagingInterface {
+    /// The version number of the messaging interface.
     pub const VERSION: u32 = 2;
 
+    /// Creates a new `MessagingInterface` instance from the raw SKSE interface.
     #[inline]
     pub(crate) const fn new(interface: &'static SKSEMessagingInterface) -> Self {
         Self(interface)
     }
 
+    /// Returns the version number of the messaging interface.
     #[inline]
     pub const fn version(&self) -> u32 {
-        self.get_inner().interfaceVersion
+        self.0.interfaceVersion
     }
 
+    /// Dispatches a message to SKSE listeners.
     #[inline]
+    pub fn dispatch<T>(
+        &self,
+        message_type: MessageType,
+        data: &mut T,
+        data_len: u32,
+        receiver: Option<&CStr>,
+    ) {
+        unsafe {
+            self.dispatch_raw(message_type, (data as *mut T).cast(), data_len, receiver);
+        }
+    }
+
+    /// Dispatches a message to SKSE listeners.
+    ///
     /// # Safety
-    pub unsafe fn dispatch(
+    /// If the reference to the pointer pointing to data is valid.
+    #[inline]
+    pub unsafe fn dispatch_raw(
         &self,
         message_type: MessageType,
         data: *mut c_void,
         data_len: u32,
-        receiver: &CStr,
+        receiver: Option<&CStr>,
     ) -> bool {
         let result = unsafe {
-            (self.get_inner().Dispatch)(
+            (self.0.Dispatch)(
                 get_plugin_handle(),
                 message_type as u32,
                 data,
                 data_len,
-                receiver.as_ptr(),
+                receiver.map_or(core::ptr::null_mut(), |cstr| cstr.as_ptr()),
             )
         };
         if !result {
-            let _receiver = if receiver.is_empty() {
-                "all listeners"
-            } else {
-                receiver.to_str().unwrap_or_default()
-            };
+            let _receiver =
+                receiver.map_or("all listeners", |receiver| receiver.to_str().unwrap_or_default());
             #[cfg(feature = "tracing")]
             tracing::warn!("Failed to dispatch message to {_receiver}");
         }
@@ -112,38 +176,46 @@ impl MessagingInterface {
         result
     }
 
+    /// Gets the event dispatcher for a specific dispatcher id.
     #[inline]
     pub fn get_event_dispatcher(&self, dispatcher_id: Dispatcher) -> *mut c_void {
-        unsafe { (self.get_inner().GetEventDispatcher)(dispatcher_id as u32) }
+        unsafe { (self.0.GetEventDispatcher)(dispatcher_id as u32) }
     }
 
-    /// Listen to SKSE's in-game events(e.g. load save)
+    /// Registers a listener for SKSE's in-game events (e.g., loading saves).
+    ///
+    /// # Example
+    ///
+    /// ```rust:no_compile
+    /// if let Some(messaging) = commonlibsse_ng::skse::api::get_messaging_interface() {
+    ///     messaging.register_skse_listener(|message| {
+    ///         #[cfg(feature = "tracing")]
+    ///         tracing::info!("SKSE event: {message:#?}");
+    ///     });
+    /// }
+    /// ```
+    ///
+    /// # Data(when listening for SKSE events)
+    /// - `PreLoadGame`:  The name of the save data tried to load.
+    /// - `PostLoadGame`: Invalid ptr with data length 1
     #[inline]
-    pub fn register_listener(&self, callback: MessagingCallback) -> bool {
-        self.register_listener2(c"SKSE", callback)
+    pub fn register_skse_listener(&self, callback: fn(msg: &Message)) -> bool {
+        self.register_listener(c"SKSE", callback)
     }
 
-    /// Listen to sender name in-game events(e.g. load save)
-    pub fn register_listener2(&self, sender: &CStr, callback: MessagingCallback) -> bool {
+    /// Registers a listener for a specific plugin's in-game events.
+    pub fn register_listener(&self, sender: &CStr, callback: fn(msg: &Message)) -> bool {
         #[allow(clippy::fn_to_numeric_cast_any)]
-        let void_callback = (callback as *mut MessagingCallback).cast::<c_void>();
+        let void_callback = (callback as *mut fn(msg: &Message)).cast::<c_void>();
         let result = unsafe {
-            (self.get_inner().RegisterListener)(get_plugin_handle(), sender.as_ptr(), void_callback)
+            (self.0.RegisterListener)(get_plugin_handle(), sender.as_ptr(), void_callback)
         };
 
         if !result {
             #[cfg(feature = "tracing")]
-            tracing::warn!(
-                "Failed to register listener for sender: {}",
-                sender.to_string_lossy()
-            );
+            tracing::warn!("Failed to register listener for sender: {}", sender.to_string_lossy());
         }
 
         result
-    }
-
-    #[inline]
-    const fn get_inner(&self) -> &'static SKSEMessagingInterface {
-        self.0
     }
 }
