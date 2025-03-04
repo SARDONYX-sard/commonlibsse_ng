@@ -23,7 +23,7 @@ fn ret_true() -> bool {
 
 /// This procedural macro is used to define the main entry point for an SKSE plugin.
 /// It generates the required `SKSEPlugin_Query`, `SKSEPlugin_Version`, and `SKSEPlugin_Load`
-/// functions, ensuring proper initialization and integration with the SKSE framework.
+/// functions, ensuring proper initialization(`skse::init`) and integration with the SKSE framework.
 ///
 /// # Attributes
 ///
@@ -70,7 +70,7 @@ fn ret_true() -> bool {
 /// }
 /// ```
 ///
-/// This will generate the necessary SKSE functions and execute `plugin_main`.
+/// This will generate the necessary SKSE functions and execute `plugin_main` in `SKSE_PluginLoad` function.
 #[proc_macro_attribute]
 pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let attr_args = match NestedMeta::parse_meta_list(attrs.into()) {

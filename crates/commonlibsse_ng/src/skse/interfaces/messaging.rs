@@ -15,7 +15,10 @@
 //! # References
 //! - [Original C++ Code](https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/include/SKSE/Interfaces.h)
 //! - [C++ Implementation](https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/src/SKSE/Interfaces.cpp)
-use crate::skse::{api::get_plugin_handle, impls::stab::SKSEMessagingInterface};
+use crate::skse::{
+    api::{ApiStorageError, get_plugin_handle},
+    impls::stab::SKSEMessagingInterface,
+};
 use std::{
     borrow::Cow,
     ffi::{CStr, c_char, c_void},
@@ -132,6 +135,9 @@ impl MessagingInterface {
     }
 
     /// Dispatches a message to SKSE listeners.
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
     #[inline]
     pub fn dispatch<T>(
         &self,
@@ -139,27 +145,27 @@ impl MessagingInterface {
         data: &mut T,
         data_len: u32,
         receiver: Option<&CStr>,
-    ) {
-        unsafe {
-            self.dispatch_raw(message_type, (data as *mut T).cast(), data_len, receiver);
-        }
+    ) -> Result<(), MessagingError> {
+        unsafe { self.dispatch_raw(message_type, (data as *mut T).cast(), data_len, receiver) }
     }
 
     /// Dispatches a message to SKSE listeners.
     ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
+    ///
     /// # Safety
     /// If the reference to the pointer pointing to data is valid.
-    #[inline]
     pub unsafe fn dispatch_raw(
         &self,
         message_type: MessageType,
         data: *mut c_void,
         data_len: u32,
         receiver: Option<&CStr>,
-    ) -> bool {
+    ) -> Result<(), MessagingError> {
         let result = unsafe {
             (self.0.Dispatch)(
-                get_plugin_handle(),
+                get_plugin_handle()?,
                 message_type as u32,
                 data,
                 data_len,
@@ -167,13 +173,15 @@ impl MessagingInterface {
             )
         };
         if !result {
-            let _receiver =
-                receiver.map_or("all listeners", |receiver| receiver.to_str().unwrap_or_default());
-            #[cfg(feature = "tracing")]
-            tracing::warn!("Failed to dispatch message to {_receiver}");
+            return Err(MessagingError::DispatchFailed {
+                message_type,
+                receiver: receiver
+                    .map_or("all listeners", |receiver| receiver.to_str().unwrap_or_default())
+                    .to_string(),
+            });
         }
 
-        result
+        Ok(())
     }
 
     /// Gets the event dispatcher for a specific dispatcher id.
@@ -183,6 +191,13 @@ impl MessagingInterface {
     }
 
     /// Registers a listener for SKSE's in-game events (e.g., loading saves).
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
+    ///
+    /// # Event Data
+    /// - `PreLoadGame`:  The name of the save data
+    /// - `PostLoadGame`: Invalid ptr(data length 1)
     ///
     /// # Example
     ///
@@ -194,28 +209,44 @@ impl MessagingInterface {
     ///     });
     /// }
     /// ```
-    ///
-    /// # Data(when listening for SKSE events)
-    /// - `PreLoadGame`:  The name of the save data tried to load.
-    /// - `PostLoadGame`: Invalid ptr with data length 1
     #[inline]
-    pub fn register_skse_listener(&self, callback: fn(msg: &Message)) -> bool {
-        self.register_listener(c"SKSE", callback)
+    pub fn register_skse_listener(&self, f: fn(msg: &Message)) -> Result<(), MessagingError> {
+        self.register_listener(c"SKSE", f)
     }
 
     /// Registers a listener for a specific plugin's in-game events.
-    pub fn register_listener(&self, sender: &CStr, callback: fn(msg: &Message)) -> bool {
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
+    pub fn register_listener(
+        &self,
+        sender: &CStr,
+        f: fn(msg: &Message),
+    ) -> Result<(), MessagingError> {
         #[allow(clippy::fn_to_numeric_cast_any)]
-        let void_callback = (callback as *mut fn(msg: &Message)).cast::<c_void>();
+        let void_callback = (f as *mut fn(msg: &Message)).cast::<c_void>();
         let result = unsafe {
-            (self.0.RegisterListener)(get_plugin_handle(), sender.as_ptr(), void_callback)
+            (self.0.RegisterListener)(get_plugin_handle()?, sender.as_ptr(), void_callback)
         };
 
         if !result {
-            #[cfg(feature = "tracing")]
-            tracing::warn!("Failed to register listener for sender: {}", sender.to_string_lossy());
+            return Err(MessagingError::RegisterListenerFailed {
+                sender_name: sender.to_string_lossy().to_string(),
+            });
         }
 
-        result
+        Ok(())
     }
+}
+
+#[derive(Debug, Clone, PartialEq, snafu::Snafu)]
+pub enum MessagingError {
+    /// Failed to dispatch message to {receiver}, kind: {message_type:?}
+    DispatchFailed { message_type: MessageType, receiver: String },
+
+    /// Failed to register listener for sender: {sender_name}
+    RegisterListenerFailed { sender_name: String },
+
+    #[snafu(transparent)]
+    ApiStorageError { source: ApiStorageError },
 }

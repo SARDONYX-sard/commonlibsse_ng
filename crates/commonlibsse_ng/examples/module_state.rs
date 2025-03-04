@@ -6,10 +6,19 @@ use commonlibsse_ng::skse_plugin_main;
     skse_plugin_main(plugin_name = "module_state", logger = false)
 )]
 fn plugin_main() {
-    if let Some(messaging) = commonlibsse_ng::skse::api::get_messaging_interface() {
-        messaging.register_skse_listener(|message| {
+    match commonlibsse_ng::skse::api::get_messaging_interface() {
+        Ok(messaging) => {
+            if let Err(err) = messaging.register_skse_listener(|message| {
+                #[cfg(feature = "tracing")]
+                tracing::info!("SKSE event: {message:#?}");
+            }) {
+                #[cfg(feature = "tracing")]
+                tracing::error!("{err}");
+            };
+        }
+        Err(err) => {
             #[cfg(feature = "tracing")]
-            tracing::info!("SKSE event: {message:#?}");
-        });
+            tracing::error!("Failed to skse::init: {err}");
+        }
     }
 }

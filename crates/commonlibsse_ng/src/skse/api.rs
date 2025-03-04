@@ -1,5 +1,3 @@
-use std::sync::{OnceLock, RwLock};
-
 use crate::re::BSTEventSource;
 use crate::rel::version::Version;
 use crate::skse::impls::stab::{
@@ -16,10 +14,18 @@ use crate::skse::interfaces::{
     task::TaskInterface,
     trampoline::TrampolineInterface,
 };
+use snafu::Snafu;
+use std::sync::OnceLock;
 
-// Placeholder for various SKSE interfaces
+#[derive(Debug, Clone, PartialEq, Snafu)]
+pub enum ApiStorageError {
+    /// Global API storage has not yet been initialized. We must call `skse::init` first in the `SKSE_PluginLoad` function.
+    Uninitialized,
 
-// Event source stubs
+    /// Could not find the definition of the `SKSEPlugin_Version` symbol in this SKSE plugin dll. Therefore, the plugin information could not be retrieved.
+    MissingSymbolSKSEPluginVersion,
+}
+
 #[derive(Debug)]
 pub struct ModCallbackEvent;
 #[derive(Debug)]
@@ -33,11 +39,21 @@ pub struct NiNodeUpdateEvent;
 
 #[derive(Debug)]
 pub struct APIStorage {
-    plugin_name: Option<&'static str>,
-    plugin_author: Option<&'static str>,
+    /// Your SKSE Plugin name
+    ///
+    /// If the `SKSEPlugin_Version` symbol is not defined, [`Option::None`] is always included.
+    pub plugin_name: Option<&'static str>,
+    /// Your SKSE Plugin author name
+    ///
+    /// If the `SKSEPlugin_Version` symbol is not defined, [`Option::None`] is always included.
+    pub plugin_author: Option<&'static str>,
+    /// Your SKSE Plugin version
+    ///
+    /// If the `SKSEPlugin_Version` symbol is not defined, [`Option::None`] is always included.
     pub plugin_version: Option<Version>,
 
-    plugin_handle: PluginHandle,
+    /// The plugin handle (index of how many dlls SKSE has loaded) of this SKSE plugin dll.
+    pub plugin_handle: PluginHandle,
     pub release_index: u32,
 
     pub scaleform_interface: ScaleformInterface,
@@ -57,45 +73,58 @@ pub struct APIStorage {
     pub delay_functor_manager: *mut SKSEDelayFunctorManager,
     pub object_registry: *mut SKSEObjectRegistry,
     pub persistent_object_storage: *mut SKSEPersistentObjectStorage,
-
-    // api_init: bool,
-    api_init_regs: Vec<Box<dyn ApiInitRegFn>>,
 }
-
-pub trait ApiInitRegFn: Fn() + Send + Sync + core::fmt::Debug {}
 
 unsafe impl Send for APIStorage {}
 unsafe impl Sync for APIStorage {}
 
+static INSTANCE: OnceLock<APIStorage> = OnceLock::new();
+
 impl APIStorage {
-    pub fn get() -> &'static RwLock<Option<Self>> {
-        static INSTANCE: OnceLock<RwLock<Option<APIStorage>>> = OnceLock::new();
-        INSTANCE.get_or_init(|| RwLock::new(None))
+    /// Returns a reference to the `APIStorage` instance.
+    ///
+    /// # Errors
+    /// Returns an error if the `APIStorage` is not initialized.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::skse::api::APIStorage;
+    /// let storage = APIStorage::get();
+    /// ```
+    #[inline]
+    pub fn get() -> Result<&'static Self, ApiStorageError> {
+        INSTANCE.get().ok_or(ApiStorageError::Uninitialized)
     }
 
-    #[inline]
-    pub fn map<F, R>(f: F) -> Option<R>
+    /// Maps over the `APIStorage` instance if it exists and returns a result of `Option<R>`.
+    ///
+    /// # Errors
+    /// Returns an error if the `APIStorage` is not initialized.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::skse::api::APIStorage;
+    /// let result = APIStorage::map(|storage| storage.plugin_version.clone());
+    /// ```
+    pub fn map<F, R>(f: F) -> Result<R, ApiStorageError>
     where
         F: FnOnce(&Self) -> R,
     {
-        Self::get().read().ok().and_then(|guard| guard.as_ref().map(f))
-    }
-
-    #[inline]
-    pub fn and_then<F, R>(f: F) -> Option<R>
-    where
-        F: FnOnce(&Self) -> Option<R>,
-    {
-        Self::get().read().ok().and_then(|guard| guard.as_ref().and_then(f))
+        Self::get().map(f)
     }
 }
 
-/// Stores a global reference to each Interface through the `QueryInterface` of `LoadInterface` (`SKSEInterface`) into a global variable.
+/// Initializes global API interfaces through the `QueryInterface` method of `LoadInterface`.
+/// Ensures all interfaces are initialized before use.
 ///
-/// If this is not done first, simple access to each interface will remain uninitialized and unusable.
-///
-/// # Panics
-/// If the thread acquiring the lock panics.
+/// # Example
+/// ```
+/// #[unsafe(no_mangle)]
+/// pub extern "C" fn SKSEPlugin_Load(skse: &commonlibsse_ng::skse::interfaces::load::LoadInterface) -> bool {
+///     commonlibsse_ng::skse::init(skse);
+///     true
+/// }
+/// ```
 pub fn init(load_interface: &LoadInterface) {
     let plugin_handle = load_interface.get_plugin_handle();
     let release_index = load_interface.get_release_index();
@@ -127,14 +156,6 @@ pub fn init(load_interface: &LoadInterface) {
     let object_registry = object_interface.get_object_registry();
     let persistent_object_storage = object_interface.get_persistent_object_storage();
 
-    let mut guard = APIStorage::get().write().unwrap();
-
-    if let Some(storage) = &mut *guard {
-        for reg in storage.api_init_regs.drain(..) {
-            reg();
-        }
-    }
-
     let (plugin_name, plugin_author, plugin_version) =
         PluginVersionData::get_singleton().map_or((None, None, None), |plugin_ver| {
             (
@@ -144,7 +165,8 @@ pub fn init(load_interface: &LoadInterface) {
             )
         });
 
-    *guard = Some(APIStorage {
+    // ignore double insert
+    let _ = INSTANCE.set(APIStorage {
         plugin_name,
         plugin_author,
         plugin_version,
@@ -169,82 +191,194 @@ pub fn init(load_interface: &LoadInterface) {
         delay_functor_manager,
         object_registry,
         persistent_object_storage,
-
-        api_init_regs: Vec::new(),
     });
 }
 
-/// # Panics
-pub fn register_for_api_init_event<F: ApiInitRegFn + 'static>(f: F) {
-    let mut guard = APIStorage::get().write().unwrap();
-
-    if let Some(storage) = &mut *guard {
-        storage.api_init_regs.push(Box::new(f));
-    }
+/// Get the plugin's name.
+///
+/// # Errors
+/// - If the internal global API storage is uninitialized because forgot to call `skse::init`
+/// - Returns an error if forgot to define the `SKSEPlugin_Version` symbol in this SKSE plugin dll
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::{get_plugin_name};
+/// match get_plugin_name() {
+///     Ok(name) => println!("Plugin name: {}", name),
+///     Err(e) => println!("Error: {}", e),
+/// }
+/// ```
+#[inline]
+pub fn get_plugin_name() -> Result<&'static str, ApiStorageError> {
+    APIStorage::get()?.plugin_name.ok_or(ApiStorageError::MissingSymbolSKSEPluginVersion)
 }
 
+/// Get the plugin's author.
+///
+/// # Errors
+/// - If the internal global API storage is uninitialized because forgot to call `skse::init`
+/// - Returns an error if forgot to define the `SKSEPlugin_Version` symbol in this SKSE plugin dll
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::{get_plugin_author, ApiStorageError};
+///
+/// assert_eq!(get_plugin_author(), Err(ApiStorageError::Uninitialized));
+/// ```
 #[inline]
-pub fn get_plugin_name() -> Option<&'static str> {
-    APIStorage::get()
-        .read()
-        .ok()
-        .and_then(|guard| guard.as_ref().and_then(|storage| storage.plugin_name))
+pub fn get_plugin_author() -> Result<&'static str, ApiStorageError> {
+    APIStorage::get()?.plugin_author.ok_or(ApiStorageError::MissingSymbolSKSEPluginVersion)
 }
 
+/// Get the plugin's version.
+///
+/// # Errors
+/// - If the internal global API storage is uninitialized because forgot to call `skse::init`
+/// - Returns an error if forgot to define the `SKSEPlugin_Version` symbol in this SKSE plugin dll
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::get_plugin_version;
+///
+/// match get_plugin_version() {
+///     Ok(Some(version)) => println!("Plugin version: {:?}", version),
+///     Err(e) => println!("Error: {}", e),
+/// }
+/// ```
 #[inline]
-pub fn get_plugin_author() -> Option<&'static str> {
-    APIStorage::get()
-        .read()
-        .ok()
-        .and_then(|guard| guard.as_ref().and_then(|storage| storage.plugin_author))
+pub fn get_plugin_version() -> Result<Version, ApiStorageError> {
+    APIStorage::get()?.plugin_version.clone().ok_or(ApiStorageError::MissingSymbolSKSEPluginVersion)
 }
 
+/// Get the plugin handle (index of how many dlls SKSE has loaded) of this SKSE plugin dll.
+///
+/// # Errors
+/// If the internal global API storage is uninitialized because forgot to call `skse::init`
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::get_plugin_handle;
+///
+/// match get_plugin_handle() {
+///     Ok(handle) => println!("Plugin handle(dll index): {:?}", handle),
+///     Err(e) => println!("Error: {}", e),
+/// }
+/// ```
 #[inline]
-pub fn get_plugin_version() -> Option<Version> {
-    APIStorage::get()
-        .read()
-        .ok()
-        .and_then(|guard| guard.as_ref().and_then(|storage| storage.plugin_version.clone()))
+pub fn get_plugin_handle() -> Result<PluginHandle, ApiStorageError> {
+    APIStorage::map(|storage| storage.plugin_handle.clone())
 }
 
-/// # Panics
+/// Retrieves the release index.
+///
+/// # Errors
+/// If the internal global API storage is uninitialized because forgot to call `skse::init`
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::get_release_index;
+///
+/// match get_release_index() {
+///     Ok(index) => println!("Release index: {}", index),
+///     Err(e) => println!("Error: {}", e),
+/// }
+/// ```
 #[inline]
-pub fn get_plugin_handle() -> PluginHandle {
-    APIStorage::map(|storage| storage.plugin_handle.clone()).expect("Plugin handle not found")
+pub fn get_release_index() -> Result<u32, ApiStorageError> {
+    APIStorage::map(|storage| storage.release_index)
 }
 
-/// # Panics
+/// Retrieves the `ScaleformInterface` instance.
+///
+/// # Errors
+/// If the internal global API storage is uninitialized because forgot to call `skse::init`
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::get_scaleform_interface;
+///
+/// match get_scaleform_interface() {
+///     Ok(interface) => println!("Scaleform Interface: {:?}", interface),
+///     Err(e) => println!("Error: {}", e),
+/// }
+/// ```
 #[inline]
-pub fn get_release_index() -> u32 {
-    APIStorage::map(|storage| storage.release_index).unwrap()
-}
-
-/// # Panics
-#[inline]
-pub fn get_scaleform_interface() -> Option<ScaleformInterface> {
+pub fn get_scaleform_interface() -> Result<ScaleformInterface, ApiStorageError> {
     APIStorage::map(|storage| storage.scaleform_interface.clone())
 }
 
-/// # Panics
+/// Retrieves the `PapyrusInterface` instance.
+///
+/// # Errors
+/// If the internal global API storage is uninitialized because forgot to call `skse::init`
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::get_papyrus_interface;
+///
+/// match get_papyrus_interface() {
+///     Ok(interface) => println!("Papyrus Interface: {:?}", interface),
+///     Err(e) => println!("Error: {}", e),
+/// }
+/// ```
 #[inline]
-pub fn get_papyrus_interface() -> Option<PapyrusInterface> {
+pub fn get_papyrus_interface() -> Result<PapyrusInterface, ApiStorageError> {
     APIStorage::map(|storage| storage.papyrus_interface.clone())
 }
 
-/// # Panics
+/// Retrieves the `SerializationInterface` instance.
+///
+/// # Errors
+/// If the internal global API storage is uninitialized because forgot to call `skse::init`
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::get_serialization_interface;
+///
+/// match get_serialization_interface() {
+///     Ok(interface) => println!("Serialization Interface: {:?}", interface),
+///     Err(e) => println!("Error: {}", e),
+/// }
+/// ```
 #[inline]
-pub fn get_serialization_interface() -> Option<SerializationInterface> {
+pub fn get_serialization_interface() -> Result<SerializationInterface, ApiStorageError> {
     APIStorage::map(|storage| storage.serialization_interface.clone())
 }
 
-/// # Panics
+/// Retrieves the `TaskInterface` instance.
+///
+/// # Errors
+/// If the internal global API storage is uninitialized because forgot to call `skse::init`
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::get_task_interface;
+///
+/// match get_task_interface() {
+///     Ok(interface) => println!("Task Interface: {:?}", interface),
+///     Err(e) => println!("Error: {}", e),
+/// }
+/// ```
 #[inline]
-pub fn get_task_interface() -> Option<TaskInterface> {
+pub fn get_task_interface() -> Result<TaskInterface, ApiStorageError> {
     APIStorage::map(|storage| storage.task_interface.clone())
 }
 
-/// # Panics
+/// Retrieves the `MessagingInterface` instance.
+///
+/// # Errors
+/// If the internal global API storage is uninitialized because forgot to call `skse::init`
+///
+/// # Example
+/// ```
+/// use commonlibsse_ng::skse::api::get_messaging_interface;
+///
+/// match get_messaging_interface() {
+///     Ok(interface) => println!("Messaging Interface: {:?}", interface),
+///     Err(e) => println!("Error: {}", e),
+/// }
+/// ```
 #[inline]
-pub fn get_messaging_interface() -> Option<MessagingInterface> {
+pub fn get_messaging_interface() -> Result<MessagingInterface, ApiStorageError> {
     APIStorage::map(|storage| storage.messaging_interface.clone())
 }

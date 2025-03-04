@@ -10,12 +10,10 @@
 use core::ffi::c_void;
 
 use crate::re::{FormID, VMHandle};
-use crate::skse::api::get_plugin_handle;
+use crate::skse::api::{ApiStorageError, get_plugin_handle};
 use crate::skse::impls::stab::SKSESerializationInterface;
 
 const U32_MAX: usize = u32::MAX as usize;
-type EventCallback = fn(a_intfc: &SerializationInterface);
-type FormDeleteCallback = fn(a_handle: VMHandle);
 
 #[derive(Debug, Clone)]
 pub struct SerializationInterface(&'static SKSESerializationInterface);
@@ -33,37 +31,61 @@ impl SerializationInterface {
         self.0.version
     }
 
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
     #[inline]
-    pub fn set_unique_id(&self, uid: u32) {
-        unsafe { (self.0.SetUniqueId)(get_plugin_handle(), uid) }
+    pub fn set_unique_id(&self, uid: u32) -> Result<(), ApiStorageError> {
+        unsafe { (self.0.SetUniqueId)(get_plugin_handle()?, uid) };
+        Ok(())
     }
 
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
     #[inline]
-    pub fn set_form_delete_callback(&self, callback: FormDeleteCallback) {
+    pub fn set_form_delete_callback(
+        &self,
+        callback: fn(handle: VMHandle),
+    ) -> Result<(), ApiStorageError> {
         #[allow(clippy::fn_to_numeric_cast_any)]
-        let callback = (callback as *mut FormDeleteCallback).cast();
-        unsafe { ((self.0).SetFormDeleteCallback)(get_plugin_handle(), callback) }
+        let void_f = (callback as *mut fn(handle: VMHandle)).cast();
+        unsafe { ((self.0).SetFormDeleteCallback)(get_plugin_handle()?, void_f) }
+
+        Ok(())
     }
 
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
     #[inline]
-    pub fn set_load_callback(&self, callback: EventCallback) {
+    pub fn set_load_callback(&self, callback: fn(&Self)) -> Result<(), ApiStorageError> {
         #[allow(clippy::fn_to_numeric_cast_any)]
-        let callback = (callback as *mut EventCallback).cast();
-        unsafe { ((self.0).SetLoadCallback)(get_plugin_handle(), callback) }
+        let void_f = (callback as *mut fn(&Self)).cast();
+        unsafe { ((self.0).SetLoadCallback)(get_plugin_handle()?, void_f) }
+        Ok(())
     }
 
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
     #[inline]
-    pub fn set_revert_callback(&self, callback: EventCallback) {
+    pub fn set_revert_callback(&self, callback: fn(&Self)) -> Result<(), ApiStorageError> {
         #[allow(clippy::fn_to_numeric_cast_any)]
-        let callback = (callback as *mut EventCallback).cast();
-        unsafe { ((self.0).SetRevertCallback)(get_plugin_handle(), callback) }
+        let void_f = (callback as *mut fn(&Self)).cast();
+        unsafe { ((self.0).SetRevertCallback)(get_plugin_handle()?, void_f) }
+        Ok(())
     }
 
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
     #[inline]
-    pub fn set_save_callback(&self, callback: EventCallback) {
+    pub fn set_save_callback(&self, callback: fn(&Self)) -> Result<(), ApiStorageError> {
         #[allow(clippy::fn_to_numeric_cast_any)]
-        let callback = (callback as *mut EventCallback).cast();
-        unsafe { ((self.0).SetSaveCallback)(get_plugin_handle(), callback) }
+        let callback = (callback as *mut fn(&Self)).cast();
+        unsafe { ((self.0).SetSaveCallback)(get_plugin_handle()?, callback) }
+        Ok(())
     }
 
     /// # Note
@@ -82,11 +104,7 @@ impl SerializationInterface {
         let result =
             unsafe { ((self.0).WriteRecord)(record_type, version, void_buf, data_size as u32) };
 
-        if result {
-            Ok(())
-        } else {
-            Err(Error::WriteRecordError)
-        }
+        if result { Ok(()) } else { Err(Error::WriteRecordError) }
     }
 
     /// # Errors
@@ -111,15 +129,9 @@ impl SerializationInterface {
             1..=U32_MAX => {
                 let result =
                     unsafe { ((self.0).WriteRecordData)(buf.as_ptr().cast(), buf_len as u32) };
-                if result {
-                    Ok(())
-                } else {
-                    Err(Error::WriteRecordDataError)
-                }
+                if result { Ok(()) } else { Err(Error::WriteRecordDataError) }
             }
-            too_large_size => Err(Error::TooLargeWriteRecordData {
-                actual: too_large_size,
-            }),
+            too_large_size => Err(Error::TooLargeWriteRecordData { actual: too_large_size }),
         }
     }
 
@@ -138,11 +150,7 @@ impl SerializationInterface {
     ) -> Result<(), Error> {
         unsafe {
             let result = (self.0.GetNextRecordInfo)(record_type, version, length);
-            if result {
-                Ok(())
-            } else {
-                Err(Error::GetNextRecordInfoError)
-            }
+            if result { Ok(()) } else { Err(Error::GetNextRecordInfoError) }
         }
     }
 
@@ -151,11 +159,7 @@ impl SerializationInterface {
     pub fn resolve_form_id(&self, old: FormID, new: &mut FormID) -> Result<(), Error> {
         unsafe {
             let result = (self.0.ResolveFormId)(old.0, &mut new.0);
-            if result {
-                Ok(())
-            } else {
-                Err(Error::ResolveFormIdError)
-            }
+            if result { Ok(()) } else { Err(Error::ResolveFormIdError) }
         }
     }
 
@@ -163,11 +167,7 @@ impl SerializationInterface {
     #[inline]
     pub fn resolve_handle(&self, old: VMHandle, new: &mut VMHandle) -> Result<(), Error> {
         let result = unsafe { (self.0.ResolveHandle)(old.0, &mut new.0) };
-        if result {
-            Ok(())
-        } else {
-            Err(Error::ResolveHandleError)
-        }
+        if result { Ok(()) } else { Err(Error::ResolveHandleError) }
     }
 }
 

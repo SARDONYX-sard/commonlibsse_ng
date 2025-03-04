@@ -64,7 +64,7 @@ impl_query_target!(
 );
 
 impl LoadInterface {
-    /// Retrieves the handle of the currently loaded plugin.
+    /// Get the plugin handle (index of how many dlls SKSE has loaded) of this SKSE plugin dll.
     #[inline]
     pub fn get_plugin_handle(&self) -> PluginHandle {
         unsafe { (self.0.GetPluginHandle)() }

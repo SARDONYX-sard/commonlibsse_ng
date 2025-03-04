@@ -1,6 +1,9 @@
 use std::ffi::c_void;
 
-use crate::skse::{api::get_plugin_handle, impls::stab::SKSETrampolineInterface};
+use crate::skse::{
+    api::{ApiStorageError, get_plugin_handle},
+    impls::stab::SKSETrampolineInterface,
+};
 
 #[derive(Debug, Clone)]
 pub struct TrampolineInterface(&'static SKSETrampolineInterface);
@@ -18,13 +21,21 @@ impl TrampolineInterface {
         self.0.interfaceVersion
     }
 
+    /// Allocates memory from the branch pool.
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
     #[inline]
-    pub fn allocate_from_branch_pool(&self, size: usize) -> *mut c_void {
-        unsafe { (self.0.AllocateFromBranchPool)(get_plugin_handle(), size) }
+    pub fn allocate_from_branch_pool(&self, size: usize) -> Result<*mut c_void, ApiStorageError> {
+        Ok(unsafe { (self.0.AllocateFromBranchPool)(get_plugin_handle()?, size) })
     }
 
+    /// Allocates memory from the local pool.
+    ///
+    /// # Errors
+    /// If the internal global API storage is uninitialized because forgot to call `skse::init`
     #[inline]
-    pub fn allocate_from_local_pool(&self, size: usize) -> *mut c_void {
-        unsafe { (self.0.AllocateFromLocalPool)(get_plugin_handle(), size) }
+    pub fn allocate_from_local_pool(&self, size: usize) -> Result<*mut c_void, ApiStorageError> {
+        Ok(unsafe { (self.0.AllocateFromLocalPool)(get_plugin_handle()?, size) })
     }
 }

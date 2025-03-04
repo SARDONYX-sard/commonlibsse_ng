@@ -100,13 +100,13 @@ impl PluginVersionData {
         core::str::from_utf8(&buffer[..end]).unwrap_or("")
     }
 
-    pub fn get_singleton() -> Option<&'static mut Self> {
+    pub fn get_singleton() -> Option<&'static Self> {
         use windows::Win32::System::LibraryLoader::GetProcAddress;
         use windows::core::s;
 
         let f = unsafe { GetProcAddress(get_current_module(), s!("SKSEPlugin_Version")) };
         #[allow(clippy::fn_to_numeric_cast_any)]
-        f.map(|f| unsafe { &mut *(f as *mut Self) })
+        f.map(|f| unsafe { &*(f as *const Self) })
     }
 }
 
