@@ -100,23 +100,23 @@ pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
             .expect("Expected plugin name is valid ascii");
 
     let fn_stmts = &input.block.stmts;
+    let ret_ty = &input.sig.output;
 
     let GeneratedCode { init_logger, is_editor_log } =
         gen_logger_code(args.logger, &plugin_log_name, args.log_level);
 
     let main_code = if args.logger {
         quote! {
-                if let Err(err) = std::panic::catch_unwind(|| {
+                if let Err(err) = std::panic::catch_unwind(|| #ret_ty {
                     commonlibsse_ng::skse::init(skse);
                     #(#fn_stmts)*
                 }) {
-                    #[cfg(feature = "tracing")]
                     tracing::error!("{err:?}");
                 }
         }
     } else {
         quote! {
-            let _ = std::panic::catch_unwind(|| {
+            let _ = std::panic::catch_unwind(|| #ret_ty {
                 commonlibsse_ng::skse::init(skse);
                 #(#fn_stmts)*
             });
