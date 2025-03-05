@@ -5,7 +5,7 @@
 It probably will crash if used it does not pass the layout test. See [test results](./crates/commonlibsse_ng_sys/test_results.txt)
 
 ```toml
-commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "488f9dd" }
+commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "b118ea6" }
 ```
 
 ## Manual implementation
@@ -19,7 +19,7 @@ Implementation progress
 - SKSE: 70%
 
 ```toml
-commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "488f9dd" }
+commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "b118ea6" }
 ```
 
 ## Example test
@@ -32,7 +32,7 @@ cargo xtask example --dest_mode build
 
 ## Licenses
 
-- [SkyrimOutfitSystemSE](https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE): `commonlibsse_ng` Rust code
+- [SkyrimOutfitSystemSE](https://gitlab.com/metricexpansion/SkyrimOutfitSystemSE): `commonlibsse_ng_sys` Rust code
 
   This code was originally under the CC-BY-NC-SA-4.0 license, but the author gave us permission to use the Rust parts they wrote under the MIT license as well.
 
@@ -47,8 +47,6 @@ cargo xtask example --dest_mode build
   - [License: MIT](https://github.com/CharmedBaryon/CommonLibSSE-NG/blob/main/LICENSE)
 
 - Other code: [MIT License](./LICENSE-MIT)
-
-The code I wrote, such as `build.ps1`, is licensed under .
 
 ```rust
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
