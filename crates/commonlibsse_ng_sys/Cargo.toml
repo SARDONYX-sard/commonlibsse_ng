@@ -3,7 +3,7 @@ name = "commonlibsse_ng_sys"
 authors = ["SARDONYX"]
 description = "CommonLibSSE-NG Rust bindings"
 version = "0.1.0"
-edition.workspace = true
+edition = "2021"
 rust-version.workspace = true
 
 

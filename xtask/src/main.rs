@@ -85,6 +85,18 @@ fn main() -> Result<()> {
                     "--no-default-features",
                 ],
                 Some("./target/gen_results.txt"),
+            )?;
+            run_command(
+                "cargo",
+                &[
+                    "fix",
+                    "--edition",
+                    "--allow-dirty",
+                    "--allow-staged",
+                    "-p",
+                    "commonlibsse_ng_sys",
+                ],
+                None,
             )
         }
         Some(Commands::Test) => run_command(

@@ -18,10 +18,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         fetch_libs(&crate_root);
 
         #[cfg(feature = "vcpkg")]
-        std::process::Command::new("vcpkg")
-            .arg("install")
-            .output()
-            .expect("install by vcpkg");
+        std::process::Command::new("vcpkg").arg("install").output().expect("install by vcpkg");
     }
 
     #[cfg(feature = "generate")]
@@ -47,13 +44,14 @@ where
         include_dir.display().to_string()
     };
 
-    let mut bindings = bindgen::Builder::default()
+    let mut bindings = bindgen::builder()
         // Fail calculation values
         // - vcpkg_installed\x64-windows\include\SKSE\Impl\Stubs.h:kInvalidPluginHandle = u32::MAX,
         // - vcpkg_installed\x64-windows\include\RE\G\GString.h:kFullFlag = 2147483648, (1 << 31)
         .allowlist_item("RE::.*")
         .allowlist_item("REL::.*")
         .allowlist_item("SKSE::.*")
+        // .allowlist_item("std::map") // Unfortunately, now it's forced to be opaque.
         .blocklist_function("RE::BSTSmallArrayHeapAllocator.*") // rust-bindgen does not support generics.
         .blocklist_function("RE::FxResponseArgsEx.*") // The same `#[link_name = "<name>"]` is generated (e.g. `front`) and crashes, so stop generating it.
         .opaque_type("const_pointer") // It had to be an opaque type or it would have generated the wrong type.
@@ -74,11 +72,15 @@ where
         .header(header.display().to_string())
         .clang_arg("-D_CRT_USE_BUILTIN_OFFSETOF") // Ensure Clang uses its built-in offsetof for better compatibility with Windows code.
         .clang_arg("-DENABLE_COMMONLIBSSE_TESTING")
+        .clang_arg("-xc++")
         .clang_arg("-std=c++20") // This is necessary because CommonLibSSE-NG depends on C++20.
         .clang_arg("-fms-compatibility") // Enable MSVC compatibility for MS-specific features (e.g., inline assembly).
         .clang_arg("-fms-extensions") // Allow MSVC-specific extensions like #pragma once and __declspec.
         .clang_arg("-fdelayed-template-parsing") // Delay template parsing to match MSVC's behavior.
         .clang_arg(format!("-I{include_dir}"))
+        .clang_arg(format!("-include{include_dir}/SKSE/Impl/PCH.h"))
+        // .clang_arg("-Xclang") // For debugging
+        // .clang_arg("-fdump-record-layouts") // NOTE: Cannot dump unless the class has been used at least once.
         .default_enum_style(bindgen::EnumVariation::Rust {
             // By default, C enum is a single number, but since it is difficult to use and induces the type difference bug,
             // we will have it transformed into a Rust enum.
@@ -88,6 +90,7 @@ where
         .derive_eq(true)
         .derive_hash(true)
         .derive_ord(true)
+        .generate_cstr(true)
         .enable_cxx_namespaces() // Have the C++ namespace reproduced in Rust for ease of use.
         // .generate_inline_functions(true) // The inline function cannot be called because it does not exist in the .lib file.
         // .layout_tests(false)
@@ -99,9 +102,7 @@ where
 
     let mut writer: Vec<u8> = Vec::new();
     let bindings = bindings.generate().expect("Unable to generate bindings");
-    bindings
-        .write(Box::new(&mut writer))
-        .expect("Couldn't write bindings!");
+    bindings.write(Box::new(&mut writer)).expect("Couldn't write bindings!");
 
     {
         let out_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -109,20 +110,18 @@ where
         let string = String::from_utf8_lossy(&writer)
             .replace("\r\n", "\n")
             // Fix incorrect `kInvalidPluginHandle` and `kFullFlag`(1 << 31) values.
-            .replace(
-                "kInvalidPluginHandle = -1",
-                "kInvalidPluginHandle = u32::MAX",
-            )
+            .replace("kInvalidPluginHandle = -1", "kInvalidPluginHandle = u32::MAX")
             .replace("kFullFlag = -9223372036854775808", "kFullFlag = 2147483648");
         std::fs::write(output, string.as_bytes()).unwrap();
     }
 }
 
 #[cfg(feature = "generate")]
+#[rustfmt::skip]
 const DEFINES: &[(&str, &str)] = &[
     ("ENABLE_SKYRIM_SE", "ON"),
-    // ("ENABLE_SKYRIM_AE", "ON"),
-    // ("ENABLE_SKYRIM_VR", "ON"),
+    ("ENABLE_SKYRIM_AE", "ON"),
+    ("ENABLE_SKYRIM_VR", "ON"),
 ];
 
 #[cfg(feature = "prebuilt")]
