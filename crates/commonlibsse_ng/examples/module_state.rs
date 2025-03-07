@@ -1,11 +1,4 @@
-use commonlibsse_ng::skse_plugin_main;
-
-#[cfg_attr(feature = "tracing", skse_plugin_main(plugin_name = "module_state"))]
-#[cfg_attr(
-    not(feature = "tracing"),
-    skse_plugin_main(plugin_name = "module_state", logger = false)
-)]
-// #[skse_plugin_main] // To avoid lsp compilation bug
+#[commonlibsse_ng::skse_plugin_main]
 fn plugin_main() {
     match commonlibsse_ng::skse::api::get_messaging_interface() {
         Ok(messaging) => {

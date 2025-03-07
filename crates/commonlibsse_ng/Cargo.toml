@@ -61,7 +61,12 @@ default = ["full"]
 win_api = ["dep:windows"]
 
 # Enable tracing log support
-tracing = ["dep:tracing", "dep:tracing-subscriber", "dep:tracing-appender"]
+tracing = [
+  "dep:tracing",
+  "dep:tracing-subscriber",
+  "dep:tracing-appender",
+  "commonlibsse_ng_derive/tracing",
+]
 
 # For test and debugging.
 debug = ["win_api", "tracing"]
