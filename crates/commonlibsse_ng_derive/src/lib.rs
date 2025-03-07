@@ -32,7 +32,7 @@ use proc_macro::TokenStream;
 /// If the logger fails to initialize, an error message is displayed via a Windows message box,
 /// and the process terminates.
 ///
-/// And need `tracing` feature. e.g. `commonlibsse_ng = { version = "*", features = ["tracing"] }`
+/// And need `tracing` feature.
 ///
 /// # Example
 ///
