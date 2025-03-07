@@ -25,9 +25,13 @@ use core::ffi::{CStr, c_void};
 #[repr(transparent)]
 pub struct LoadInterface(SKSEInterface);
 
+/// Type conversion trait implemented for types searchable by `query_interface`.
+///
+/// This trait is sealed and cannot be implemented for types outside of `commonlibsse_ng`.
+///
 /// # Safety
 /// This can only be implemented by interfaces defined in SKSE.
-unsafe trait QueryTarget {
+pub unsafe trait QueryTarget: private::Sealed {
     /// Cast to function table(struct)
     fn cast(ptr: *mut c_void) -> &'static Self;
     /// Get this query id
@@ -51,6 +55,20 @@ macro_rules! impl_query_target {
             }
         )*
     };
+}
+
+// Prevent users from implementing the `QueryTarget` trait.
+mod private {
+    use super::*;
+
+    pub trait Sealed {}
+    impl Sealed for SKSEScaleformInterface {}
+    impl Sealed for SKSEPapyrusInterface {}
+    impl Sealed for SKSESerializationInterface {}
+    impl Sealed for SKSETaskInterface {}
+    impl Sealed for SKSEMessagingInterface {}
+    impl Sealed for SKSEObjectInterface {}
+    impl Sealed for SKSETrampolineInterface {}
 }
 
 impl_query_target!(
@@ -85,7 +103,6 @@ impl LoadInterface {
     }
 
     /// Get a reference to the global variables for each interface.
-    #[allow(private_bounds)]
     #[inline]
     pub fn query_interface<T: QueryTarget>(&self) -> &'static T {
         let fn_table = unsafe { (self.0.QueryInterface)(T::id()) };
