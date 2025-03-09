@@ -1,6 +1,8 @@
-pub(crate) mod args;
-mod logger;
-pub(crate) mod plugin_entry;
+//! `commonlibsse_ng` macro to automatically generate commonly used code patterns for crate use.
+//!
+
+mod relocate_fn;
+mod skse_plugin_main;
 
 use proc_macro::TokenStream;
 
@@ -60,22 +62,50 @@ use proc_macro::TokenStream;
 /// This will generate the necessary SKSE functions and execute `plugin_main` in `SKSE_PluginLoad` function.
 #[proc_macro_attribute]
 pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
-    let args = {
-        let attr_args = match darling::ast::NestedMeta::parse_meta_list(attrs.into()) {
-            Ok(v) => v,
-            Err(e) => {
-                return TokenStream::from(darling::Error::from(e).write_errors());
-            }
-        };
+    skse_plugin_main::gen_skse_plugin_main(attrs, item)
+}
 
-        match <args::MacroArgs as darling::FromMeta>::from_list(&attr_args) {
-            Ok(v) => v,
-            Err(e) => {
-                return TokenStream::from(e.write_errors());
-            }
-        }
-    };
-    let item_fn = syn::parse_macro_input!(item as syn::ItemFn);
-
-    plugin_entry::generate_plugin_code(args, item_fn)
+/// `relocate_fn` is a procedural macro used to generate a relocated function in Rust.
+/// It allows you to specify function relocation IDs (`se_id`, `ae_id`, and `vr_id`) to relocate a function at runtime.
+/// This macro generates code that attempts to resolve a function's address based on the provided IDs,
+/// and calls the relocated function if the address is valid.
+///
+/// # Attributes
+/// The macro accepts the following arguments:
+///
+/// | Attribute | Description                                        |
+/// |-----------|----------------------------------------------------|
+/// | `se_id`   | The ID of the source environment (mandatory)       |
+/// | `ae_id`   | The ID of the architecture environment (mandatory) |
+/// | `vr_id`   | The ID of the virtual region (optional, defaults to `se_id` if not provided) |
+///
+/// The macro generates code that will dynamically resolve the address of the function using these IDs.
+/// If the resolution is successful and the address is valid (non-null and aligned),
+/// the relocated function will be called with the same arguments as the original function.
+/// Otherwise, an error will be logged(`tracing` feature is required), and the program will panic.
+///
+/// # Example
+/// ```rust:no_compile
+/// #[commonlibsse_ng::relocate_fn(se_id = 1, ae_id = 2, vr_id = 3)]
+/// fn my_function(arg1: usize, arg2: usize) -> bool {
+///     tracing::info("arg1 = {arg1}, arg2 = {arg2}"); // We can sandwich the process before that.
+///
+///     // macro is expanded from here.
+///     // 1. id to address
+///     // 2. Execute function with the argument as it is.
+/// }
+/// ```
+///
+/// This will generate a function that attempts to resolve its address using the provided IDs and
+/// call it safely with `arg1` and `arg2` passed as arguments.
+///
+/// # Notes
+/// - The relocation IDs are used for dynamically finding the target function address.
+/// - If no `vr_id` is provided, the `se_id` is used as the default value.
+///
+/// # Panics
+/// - The macro generates code that checks the validity of the resolved address, logging an error and panicking if invalid.
+#[proc_macro_attribute]
+pub fn relocate_fn(attrs: TokenStream, item: TokenStream) -> TokenStream {
+    relocate_fn::gen_relocate_fn(attrs, item)
 }

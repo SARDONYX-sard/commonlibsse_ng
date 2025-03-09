@@ -9,7 +9,7 @@ pub(crate) struct MacroArgs {
     pub logger: bool,
     #[cfg(feature = "tracing")]
     #[darling(default)]
-    pub log_level: crate::logger::LogLevel,
+    pub log_level: super::logger::LogLevel,
 }
 
 #[cfg(feature = "tracing")]

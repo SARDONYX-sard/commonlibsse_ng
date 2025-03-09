@@ -1,5 +1,5 @@
-use crate::args::MacroArgs;
-use crate::logger::LoggerTokenStream;
+use super::attr_args::MacroArgs;
+use super::logger::LoggerTokenStream;
 use proc_macro::TokenStream;
 use quote::quote;
 
@@ -50,7 +50,7 @@ fn generate_main_code(enable_logger: bool, item_fn: syn::ItemFn) -> proc_macro2:
     }
 }
 
-pub fn generate_plugin_code(args: MacroArgs, item_fn: syn::ItemFn) -> TokenStream {
+pub(crate) fn generate_plugin_code(args: MacroArgs, item_fn: syn::ItemFn) -> TokenStream {
     #[cfg(feature = "tracing")]
     let main_code = generate_main_code(true, item_fn);
     #[cfg(not(feature = "tracing"))]
@@ -59,7 +59,7 @@ pub fn generate_plugin_code(args: MacroArgs, item_fn: syn::ItemFn) -> TokenStrea
     let PluginMetadata { name, author, version } = PluginMetadata::from_args(&args);
     let LoggerTokenStream { init_logger, is_editor_log } = {
         #[cfg(feature = "tracing")]
-        let tokens = crate::logger::gen_logger_code(
+        let tokens = super::logger::gen_logger_code(
             args.logger,
             args.plugin_name.as_deref(),
             args.log_level,

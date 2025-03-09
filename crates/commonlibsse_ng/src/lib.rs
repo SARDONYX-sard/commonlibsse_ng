@@ -12,7 +12,7 @@ pub mod rex;
 pub mod skse;
 
 #[cfg(feature = "derive")]
-pub use commonlibsse_ng_derive::skse_plugin_main;
+pub use commonlibsse_ng_derive::{relocate_fn, skse_plugin_main};
 
 // Used by generated code and doc tests. Not public API.(For derive)
 #[doc(hidden)]
