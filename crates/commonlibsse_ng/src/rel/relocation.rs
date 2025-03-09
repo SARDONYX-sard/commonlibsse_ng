@@ -93,13 +93,13 @@ unsafe fn safe_fill(dst: *mut c_void, value: u8, len: usize) -> windows::core::R
 pub struct Relocation {
     _impl: *mut c_void,
     // owned
-    _marker: PhantomData<c_void>,
+    _cast_target: PhantomData<c_void>,
 }
 
 impl Relocation {
     #[inline]
     pub const fn new(address: *mut c_void) -> Self {
-        Self { _impl: address, _marker: PhantomData }
+        Self { _impl: address, _cast_target: PhantomData }
     }
 
     /// Creates an instance from two resolvable addresses.
@@ -114,15 +114,19 @@ impl Relocation {
     {
         Ok(Self {
             _impl: unsafe { id.address()?.byte_add(offset.offset()?) },
-            _marker: PhantomData,
+            _cast_target: PhantomData,
         })
     }
 
-    /// # Panics
+    /// Cast to any type.
+    ///
+    /// Equivalent to C++'s `REL::Relocation::get`.
+    ///
+    /// # Note
+    /// Null ptr to `Option::None`
     #[inline]
-    pub fn get(&self) -> *mut core::ffi::c_void {
-        assert!(!self._impl.is_null());
-        self._impl
+    pub const fn cast<U>(&self) -> Option<*mut U> {
+        if self._impl.is_null() { None } else { Some(self._impl.cast()) }
     }
 
     #[inline]
@@ -185,7 +189,7 @@ impl TryFrom<Offset> for Relocation {
 
     #[inline]
     fn try_from(offset: Offset) -> Result<Self, Self::Error> {
-        Ok(Self { _impl: offset.address()?, _marker: PhantomData })
+        Ok(Self { _impl: offset.address()?, _cast_target: PhantomData })
     }
 }
 
@@ -194,7 +198,7 @@ impl TryFrom<VariantOffset> for Relocation {
 
     #[inline]
     fn try_from(offset: VariantOffset) -> Result<Self, Self::Error> {
-        Ok(Self { _impl: offset.address()?, _marker: PhantomData })
+        Ok(Self { _impl: offset.address()?, _cast_target: PhantomData })
     }
 }
 
@@ -203,7 +207,7 @@ impl TryFrom<ID> for Relocation {
 
     #[inline]
     fn try_from(id: ID) -> Result<Self, Self::Error> {
-        Ok(Self { _impl: id.address()?, _marker: PhantomData })
+        Ok(Self { _impl: id.address()?, _cast_target: PhantomData })
     }
 }
 
@@ -212,6 +216,6 @@ impl TryFrom<RelocationID> for Relocation {
 
     #[inline]
     fn try_from(id: RelocationID) -> Result<Self, Self::Error> {
-        Ok(Self { _impl: id.address()?, _marker: PhantomData })
+        Ok(Self { _impl: id.address()?, _cast_target: PhantomData })
     }
 }

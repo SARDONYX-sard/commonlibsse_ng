@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 
 mod b;
+pub mod rtti;
 
 pub use b::*;
 

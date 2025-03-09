@@ -15,6 +15,7 @@ required-features = ["full"]
 
 
 [dependencies]
+bitflags = { version = "2.9.0" }
 dashmap = { version = "6.1.0" }
 retour = { version = "0.3.1", default-features = false }                         # fn ptr hook
 shared_rwlock = { path = "../shared_rwlock" }
