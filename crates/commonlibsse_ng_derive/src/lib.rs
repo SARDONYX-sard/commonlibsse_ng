@@ -75,9 +75,9 @@ pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// | Attribute | Description                                        |
 /// |-----------|----------------------------------------------------|
-/// | `se_id`   | The ID of the source environment (mandatory)       |
-/// | `ae_id`   | The ID of the architecture environment (mandatory) |
-/// | `vr_id`   | The ID of the virtual region (optional, defaults to `se_id` if not provided) |
+/// | `se_id`   | The ID of the Skyrim Special Edition (mandatory)       |
+/// | `ae_id`   | The ID of the Skyrim Anniversary Edition (mandatory) |
+/// | `vr_id`   | The ID of the Skyrim VR (optional, defaults to `se_id` if not provided) |
 ///
 /// The macro generates code that will dynamically resolve the address of the function using these IDs.
 /// If the resolution is successful and the address is valid (non-null and aligned),
