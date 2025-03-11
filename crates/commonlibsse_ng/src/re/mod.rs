@@ -3,6 +3,17 @@
 mod b;
 pub mod rtti;
 
+#[doc(hidden)]
+#[rustfmt::skip]
+pub mod offsets_rtti;
+#[doc(hidden)]
+#[rustfmt::skip]
+pub mod offsets_ni_rtti;
+#[doc(hidden)]
+#[rustfmt::skip]
+pub mod offsets_vtable;
+
+
 pub use b::*;
 
 // dummy

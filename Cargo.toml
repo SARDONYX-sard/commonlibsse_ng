@@ -20,11 +20,14 @@ resolver = "3"
 
 
 [workspace.dependencies]
+serde = {version = "1.0.219"}
+serde_json = {version = "1.0.140"}
 snafu = { version = "0.8.5" }                     # To define error types.
 static_assertions = "1.1.0"                                    # Compile tim assertions
 tracing = { version = "0.1.41" }
 unique = "0.9.1" # Owned raw pointer(Used in std but not provided as API)
 windows = { version = "0.60.0" }
+winnow = {version = "0.7.3"} # Parser combinator
 
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }

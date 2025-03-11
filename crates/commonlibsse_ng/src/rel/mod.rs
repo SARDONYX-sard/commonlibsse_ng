@@ -32,7 +32,7 @@ pub trait ResolvableAddress {
 
     /// Computes the absolute address by adding the offset to the module's base address.
     ///
-    /// If the offset is `0`, the function returns `0` as well.
+    /// If the offset is `0`, the function returns `ptr::null_mut` as well.
     ///
     /// # Errors
     /// - Returns `DataBaseError` if the offset cannot be determined.

@@ -14,9 +14,13 @@ version.workspace = true
 
 [dependencies]
 clap = { version = "4.5.31", features = ["derive"] }
+serde = {workspace = true , features = ["derive"] }
+serde_json = {workspace=  true }
 snafu = { workspace = true }                         # To define error types.
-tracing = { workspace = true, optional = true }
+winnow = { workspace = true }
 
+[dev-dependencies]
+pretty_assertions = { version = "1.4.1" }
 
 [lints]
 workspace = true
