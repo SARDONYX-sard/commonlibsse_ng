@@ -1,3 +1,8 @@
+mod offsets_rtti_gen;
+mod offsets_vtable_gen;
+
+pub use self::offsets_rtti_gen::{VariantGenError, generate_variant_ids};
+pub use self::offsets_vtable_gen::generate_variant_vtables;
 use clap::{Parser, Subcommand};
 use snafu::{ResultExt, Snafu};
 use std::{fs, path::Path, process::Command};

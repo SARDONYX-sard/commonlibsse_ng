@@ -41,6 +41,7 @@
     "rtti",
     "rwlock",
     "Scaleform",
+    "serde",
     "SIGV",
     "SKSE",
     "Skyrim",
@@ -58,6 +59,8 @@
     "vftable",
     "vfunc",
     "virt",
+    "VTABLE",
+    "vtables",
     "vtbl",
     "waitable",
     "xtask"
