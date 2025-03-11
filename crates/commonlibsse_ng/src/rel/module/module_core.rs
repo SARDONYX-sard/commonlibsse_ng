@@ -156,8 +156,9 @@ impl Module {
             optional_header_offset + nt_header.FileHeader.SizeOfOptionalHeader as usize
         };
 
-        let section = ((nt_header as *const _ as usize) + section_header_offset)
-            as *const IMAGE_SECTION_HEADER;
+        let section =
+            unsafe { (nt_header as *const IMAGE_NT_HEADERS64).byte_add(section_header_offset) }
+                .cast::<IMAGE_SECTION_HEADER>();
         let section_len =
             core::cmp::min(nt_header.FileHeader.NumberOfSections as usize, Self::SEGMENTS.len());
 
