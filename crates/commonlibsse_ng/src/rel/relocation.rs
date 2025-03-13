@@ -11,7 +11,9 @@ use crate::rel::module::{ModuleState, ModuleStateError};
 use crate::rel::offset::{Offset, VariantOffset};
 use core::ffi::c_void;
 use core::marker::PhantomData;
-use core::{mem, ptr};
+use core::mem;
+use core::num::NonZeroUsize;
+use core::ptr::NonNull;
 
 pub const NOP: u8 = 0x90;
 pub const NOP2: [u8; 2] = [0x66, 0x90];
@@ -91,14 +93,14 @@ unsafe fn safe_fill(dst: *mut c_void, value: u8, len: usize) -> windows::core::R
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Relocation {
-    _impl: *mut c_void,
+    _impl: NonNull<c_void>,
     // owned
     _cast_target: PhantomData<c_void>,
 }
 
 impl Relocation {
     #[inline]
-    pub const fn new(address: *mut c_void) -> Self {
+    pub const fn new(address: NonNull<c_void>) -> Self {
         Self { _impl: address, _cast_target: PhantomData }
     }
 
@@ -113,7 +115,7 @@ impl Relocation {
         A2: ResolvableAddress,
     {
         Ok(Self {
-            _impl: unsafe { id.address()?.byte_add(offset.offset()?) },
+            _impl: unsafe { id.address()?.byte_add(offset.offset()?.get()) },
             _cast_target: PhantomData,
         })
     }
@@ -121,38 +123,34 @@ impl Relocation {
     /// Cast to any type.
     ///
     /// Equivalent to C++'s `REL::Relocation::get`.
-    ///
-    /// # Note
-    /// Null ptr to `Option::None`
     #[inline]
-    pub const fn cast<U>(&self) -> Option<*mut U> {
-        if self._impl.is_null() { None } else { Some(self._impl.cast()) }
+    pub const fn cast<U>(&self) -> NonNull<U> {
+        self._impl.cast()
     }
 
     #[inline]
     pub fn write<U>(&self, data: &U) {
-        let _ = unsafe { safe_write_value(self._impl.cast::<U>(), data) };
+        let _ = unsafe { safe_write_value(self._impl.cast::<U>().as_mut(), data) };
     }
 
     #[inline]
     pub fn write_bytes(&self, data: &[u8]) {
-        let _ = unsafe { safe_write(self._impl.cast::<u8>(), data.as_ptr(), data.len()) };
+        let _ = unsafe { safe_write(self._impl.cast::<u8>().as_mut(), data.as_ptr(), data.len()) };
     }
 
     #[inline]
-    pub fn write_vfunc(&self, idx: usize, new_func: usize) -> usize {
+    pub fn swap_as_vfn<T>(&mut self, idx: usize, new_fn: *const ()) -> NonNull<c_void> {
         const PTR_SIZE: usize = mem::size_of::<usize>();
 
-        let addr = unsafe { self._impl.byte_add(PTR_SIZE * idx) };
-        let old_func = unsafe { ptr::read(addr as *const usize) };
-        let _ = unsafe { safe_write_value(addr.cast::<usize>(), &new_func) };
-        old_func
+        let mut old_fn = unsafe { self._impl.byte_add(PTR_SIZE * idx) };
+        let _ = unsafe { safe_write(old_fn.as_mut(), new_fn.cast(), PTR_SIZE) };
+        old_fn
     }
 
     #[inline]
-    pub fn write_fill(&self, value: u8, count: usize) {
+    pub fn write_fill(&mut self, value: u8, count: usize) {
         unsafe {
-            let _ = safe_fill(self._impl, value, count);
+            let _ = safe_fill(self._impl.as_mut(), value, count);
         }
     }
 }
@@ -160,13 +158,14 @@ impl Relocation {
 impl ResolvableAddress for Relocation {
     /// Get the address.(No error returned)
     #[inline]
-    fn address(&self) -> Result<*mut c_void, DataBaseError> {
+    fn address(&self) -> Result<NonNull<c_void>, DataBaseError> {
         Ok(self._impl)
     }
 
     #[inline]
-    fn offset(&self) -> Result<usize, DataBaseError> {
-        Ok(unsafe { self._impl.byte_offset_from(Self::base()?.as_ptr()) as usize })
+    fn offset(&self) -> Result<NonZeroUsize, DataBaseError> {
+        let offset = unsafe { self._impl.byte_offset_from(Self::base()?) as usize };
+        NonZeroUsize::new(offset).ok_or(DataBaseError::SpecifiedZeroOffset)
     }
 }
 
@@ -175,13 +174,6 @@ impl ResolvableAddress for Relocation {
 pub fn relocate<T>(se_and_vr: T, ae: T) -> Result<T, ModuleStateError> {
     let is_ae = ModuleState::map_or_init(|module| module.runtime.is_ae())?;
     Ok(if is_ae { ae } else { se_and_vr })
-}
-
-impl<T> From<*mut T> for Relocation {
-    #[inline]
-    fn from(address: *mut T) -> Self {
-        Self::new(address.cast())
-    }
 }
 
 impl TryFrom<Offset> for Relocation {

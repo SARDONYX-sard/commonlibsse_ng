@@ -3,6 +3,8 @@ mod offset_to_id;
 mod relocation_id;
 mod variant_id;
 
+use std::num::NonZeroUsize;
+
 pub use self::id_database::DataBaseError;
 pub use self::offset_to_id::OffsetToID;
 pub use self::relocation_id::RelocationID;
@@ -62,7 +64,7 @@ impl ResolvableAddress for ID {
     /// # Errors
     /// Returns an error if the ID is not found in the database.
     #[inline]
-    fn offset(&self) -> Result<usize, DataBaseError> {
+    fn offset(&self) -> Result<NonZeroUsize, DataBaseError> {
         ID_DATABASE.id_to_offset(self.0)
     }
 }

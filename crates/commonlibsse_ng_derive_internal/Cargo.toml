@@ -1,6 +1,6 @@
 [package]
-name = "commonlibsse_ng_derive"
-description = "Useful attribute macros for commonlibsse_ng"
+name = "commonlibsse_ng_derive_internal"
+description = "Change the root crate name `commonlibsse_ng` to `crate` to allow the library itself to use the proc macro. This is not intended for user use."
 version = "0.1.0"
 
 authors.workspace = true
@@ -25,3 +25,7 @@ quote = { version = "1.0.39" }
 
 [features]
 tracing = []
+
+# Change the root crate name `commonlibsse_ng` to `crate` to allow the library itself
+# to use the proc macro. This is not intended for user use.
+internal = []

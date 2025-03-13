@@ -1,6 +1,5 @@
 use super::attr_args::MacroArgs;
 use super::logger::LoggerTokenStream;
-use proc_macro::TokenStream;
 use quote::quote;
 
 struct PluginMetadata {
@@ -50,7 +49,7 @@ fn generate_main_code(enable_logger: bool, item_fn: syn::ItemFn) -> proc_macro2:
     }
 }
 
-pub(crate) fn generate_plugin_code(args: MacroArgs, item_fn: syn::ItemFn) -> TokenStream {
+pub(crate) fn generate_plugin_code(args: MacroArgs, item_fn: syn::ItemFn) -> proc_macro2::TokenStream {
     #[cfg(feature = "tracing")]
     let main_code = generate_main_code(true, item_fn);
     #[cfg(not(feature = "tracing"))]
@@ -126,5 +125,5 @@ pub(crate) fn generate_plugin_code(args: MacroArgs, item_fn: syn::ItemFn) -> Tok
         }
     };
 
-    TokenStream::from(expanded)
+    expanded
 }

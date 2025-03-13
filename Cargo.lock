@@ -311,6 +311,7 @@ version = "0.1.0"
 dependencies = [
  "bitflags 2.9.0",
  "commonlibsse_ng_derive",
+ "commonlibsse_ng_derive_internal",
  "dashmap",
  "pretty_assertions",
  "retour",
@@ -326,6 +327,24 @@ dependencies = [
 
 [[package]]
 name = "commonlibsse_ng_derive"
+version = "0.1.0"
+dependencies = [
+ "commonlibsse_ng_proc_macro_common",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "commonlibsse_ng_derive_internal"
+version = "0.1.0"
+dependencies = [
+ "commonlibsse_ng_proc_macro_common",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "commonlibsse_ng_proc_macro_common"
 version = "0.1.0"
 dependencies = [
  "darling",

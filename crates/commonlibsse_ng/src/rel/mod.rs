@@ -10,7 +10,8 @@ pub mod version;
 use self::id::DataBaseError;
 use self::module::{ModuleState, ModuleStateError};
 use core::ffi::c_void;
-use std::ptr::NonNull;
+use core::num::NonZeroUsize;
+use core::ptr::NonNull;
 
 /// A trait for resolving an absolute address based on an offset.
 ///
@@ -28,7 +29,7 @@ pub trait ResolvableAddress {
     ///
     /// # Errors
     /// Returns an error if the offset cannot be determined.
-    fn offset(&self) -> Result<usize, DataBaseError>;
+    fn offset(&self) -> Result<NonZeroUsize, DataBaseError>;
 
     /// Computes the absolute address by adding the offset to the module's base address.
     ///
@@ -38,13 +39,9 @@ pub trait ResolvableAddress {
     /// - Returns `DataBaseError` if the offset cannot be determined.
     /// - Returns `ModuleStateError` if the base address is unavailable.
     #[inline]
-    fn address(&self) -> Result<*mut c_void, DataBaseError> {
+    fn address(&self) -> Result<NonNull<c_void>, DataBaseError> {
         let offset = self.offset()?;
-        Ok(if offset == 0 {
-            core::ptr::null_mut()
-        } else {
-            unsafe { Self::base()?.byte_add(offset).as_ptr() }
-        })
+        Ok(unsafe { Self::base()?.byte_add(offset.get()) })
     }
 
     /// Retrieves the base address of the module.

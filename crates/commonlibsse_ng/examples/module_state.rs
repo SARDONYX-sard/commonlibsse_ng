@@ -18,4 +18,6 @@ fn plugin_main() {
 }
 
 #[commonlibsse_ng::relocate_fn(se_id = "100", ae_id = "100")]
-fn init_extra_data_list(enable: bool) -> bool {}
+fn init_extra_data_list(enable: bool) -> bool {
+    type S = SelfSignature;
+}

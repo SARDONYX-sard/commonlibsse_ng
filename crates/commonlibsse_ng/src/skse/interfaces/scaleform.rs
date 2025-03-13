@@ -7,7 +7,7 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use crate::re::{GFxMovieView, GFxValue, InventoryEntryData};
+use crate::re::{GFxMovieView, GFxValue, InventoryEntryData::InventoryEntryData};
 use crate::skse::impls::stab::SKSEScaleformInterface;
 use core::ffi::{CStr, c_void};
 

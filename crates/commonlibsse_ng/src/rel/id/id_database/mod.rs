@@ -20,7 +20,7 @@ mod unpack;
 use super::Mapping;
 use crate::rel::version::Version;
 use shared_rwlock::SharedRwLock;
-use std::sync::LazyLock;
+use std::{num::NonZeroUsize, sync::LazyLock};
 
 /// Global static instance of `IdDatabase` initialized lazily.
 /// This ensures the database is only loaded when needed.
@@ -78,13 +78,19 @@ impl IDDatabase {
     /// Retrieves the offset corresponding to the given ID.
     ///
     /// # Errors
-    /// Returns an error if the ID is not found in the database.
-    pub(crate) fn id_to_offset(&self, id: u64) -> Result<usize, DataBaseError> {
+    /// Returns an error under the following conditions.
+    /// - If the offset corresponding to the ID is not found.
+    /// - If the offset corresponding to the ID is found, but it is 0.
+    pub(crate) fn id_to_offset(&self, id: u64) -> Result<NonZeroUsize, DataBaseError> {
         let slice = self.mem_map.read().map_err(|_| DataBaseError::MappingCreationFailed)?;
 
-        slice.binary_search_by(|m| m.id.cmp(&id)).map_or_else(
-            |_| Err(DataBaseError::NotFoundId { id }),
-            |index| Ok(slice[index].offset as usize),
+        slice.binary_search_by(|m| m.id.cmp(&id)).map_or(
+            Err(DataBaseError::NotFoundId { id }),
+            |index| {
+                let offset = slice[index].offset as usize;
+                drop(slice);
+                NonZeroUsize::new(offset).ok_or(DataBaseError::ZeroOffset { id })
+            },
         )
     }
 }
@@ -92,11 +98,14 @@ impl IDDatabase {
 /// Errors that can occur during the file loading process.
 #[derive(Debug, Clone, snafu::Snafu)]
 pub enum DataBaseError {
-    /// Failed to find the id within the address library: {id}. This means this script extender plugin is incompatible.,
-    #[snafu(display(
-        "Failed to find the id within the address library: {id}\nThis means this script extender plugin is incompatible."
-    ))]
+    /// Could not find this ID({id}) in AddressLibrary. Possible reasons are: wrong ID specification, This plugin is incompatible, etc.
     NotFoundId { id: u64 },
+
+    /// The offset for this ID({id}) in AddressLibrary was 0. That's an invalid offset.
+    ZeroOffset { id: u64 },
+
+    /// For an offset for which no ID is provided, 0 is specified, which is an invalid offset.
+    SpecifiedZeroOffset,
 
     /// Version mismatch
     #[snafu(display("Version mismatch: expected {}, got {}", expected, actual))]

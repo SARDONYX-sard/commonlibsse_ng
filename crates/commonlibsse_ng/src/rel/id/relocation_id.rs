@@ -1,3 +1,5 @@
+use core::num::NonZeroUsize;
+
 use crate::rel::{ResolvableAddress, id::id_database::DataBaseError};
 
 /// Represents an ID that varies based on runtime format.
@@ -30,11 +32,27 @@ impl RelocationID {
             Runtime::Vr => self.vr_id,
         })
     }
+
+    // /// # Safety
+    // /// Safe transmute pattern
+    // /// - valid: ptr to ptr
+    // ///
+    // /// # Undefined behavior
+    // /// usize to ptr
+    // pub unsafe fn transmute<T>(&self) -> Result<T, DataBaseError> {
+    //     use crate::rel::ResolvableAddress as _;
+    //     use crate::rel::id::RelocationID;
+
+    //     const SE_ID: u64 = 15800;
+    //     const AE_ID: u64 = 16038;
+    //     let addr = RelocationID::new(SE_ID, AE_ID, SE_ID).address()?;
+    //     Ok(unsafe { core::mem::transmute(addr) })
+    // }
 }
 
 impl ResolvableAddress for RelocationID {
     #[inline]
-    fn offset(&self) -> Result<usize, DataBaseError> {
+    fn offset(&self) -> Result<NonZeroUsize, DataBaseError> {
         use crate::rel::id::id_database::ID_DATABASE;
         ID_DATABASE.id_to_offset(self.id()?)
     }

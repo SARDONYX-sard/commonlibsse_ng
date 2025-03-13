@@ -3,9 +3,11 @@
 // SPDX-FileCopyrightText: (C) 2018 Ryan-rsm-McKenzie
 // SPDX-License-Identifier: MIT
 
+use core::num::NonZeroUsize;
+
+use crate::rel::ResolvableAddress;
 use crate::rel::id::DataBaseError;
 use crate::rel::module::ModuleState;
-use crate::rel::ResolvableAddress;
 
 /// Represents an offset that can be used to compute an absolute address.
 ///
@@ -18,14 +20,14 @@ use crate::rel::ResolvableAddress;
 /// let offset = Offset::new(0x1000);
 /// assert_eq!(offset.offset().unwrap(), 0x1000);
 /// ```
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
-pub struct Offset(usize);
+pub struct Offset(NonZeroUsize);
 
 impl Offset {
     /// Creates a new `Offset` instance with the given value.
     #[inline]
-    pub const fn new(offset: usize) -> Self {
+    pub const fn new(offset: NonZeroUsize) -> Self {
         Self(offset)
     }
 }
@@ -35,7 +37,7 @@ impl ResolvableAddress for Offset {
     ///
     /// This implementation absolutely returns [`Result::Ok`].
     #[inline]
-    fn offset(&self) -> Result<usize, DataBaseError> {
+    fn offset(&self) -> Result<NonZeroUsize, DataBaseError> {
         Ok(self.0)
     }
 }
@@ -65,13 +67,12 @@ pub struct VariantOffset {
 
 impl VariantOffset {
     /// Creates a new `VariantOffset` instance with specified offsets for each runtime.
+    ///
+    /// # Note
+    /// Return an error when trying to get the offset and it is 0
     #[inline]
     pub const fn new(se_offset: u64, ae_offset: u64, vr_offset: u64) -> Self {
-        Self {
-            se_offset,
-            ae_offset,
-            vr_offset,
-        }
+        Self { se_offset, ae_offset, vr_offset }
     }
 }
 
@@ -81,15 +82,16 @@ impl ResolvableAddress for VariantOffset {
     /// # Errors
     /// Returns an error if the module state is invalid or the runtime is unknown.
     #[inline]
-    fn offset(&self) -> Result<usize, DataBaseError> {
+    fn offset(&self) -> Result<NonZeroUsize, DataBaseError> {
         use crate::rel::module::Runtime;
 
         let runtime = ModuleState::map_or_init(|module| module.runtime)?; // Derived Copy
-
-        Ok(match runtime {
+        let offset = match runtime {
             Runtime::Ae => self.ae_offset,
             Runtime::Se => self.se_offset,
             Runtime::Vr => self.vr_offset,
-        } as usize)
+        } as usize;
+
+        NonZeroUsize::new(offset).ok_or(DataBaseError::SpecifiedZeroOffset)
     }
 }

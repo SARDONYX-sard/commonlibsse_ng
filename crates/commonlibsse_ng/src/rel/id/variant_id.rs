@@ -1,3 +1,5 @@
+use core::num::NonZeroUsize;
+
 use crate::rel::{ResolvableAddress, id::id_database::DataBaseError};
 
 /// Represents an ID with a possible VR-specific offset.
@@ -17,7 +19,7 @@ impl VariantID {
 }
 
 impl ResolvableAddress for VariantID {
-    fn offset(&self) -> Result<usize, DataBaseError> {
+    fn offset(&self) -> Result<NonZeroUsize, DataBaseError> {
         use crate::rel::id::id_database::ID_DATABASE;
         use crate::rel::module::{ModuleState, Runtime};
 

@@ -78,7 +78,10 @@
 //! ```
 
 use crate::rel::ResolvableAddress as _;
-use core::{ffi::c_void, marker::PhantomData, ptr};
+use core::ffi::c_void;
+use core::marker::PhantomData;
+use core::num::NonZeroUsize;
+use core::ptr::NonNull;
 
 pub mod msvc {
     use core::ffi::c_char;
@@ -129,12 +132,12 @@ impl<T> RVA<T> {
         Self { _rva: rva, _maker: PhantomData::<T> }
     }
 
-    pub fn get(&self) -> Option<*mut T> {
+    pub fn get(&self) -> Option<NonNull<T>> {
         use crate::rel::offset::Offset;
-        use crate::rel::relocation::Relocation;
 
         if self.is_good() {
-            Relocation::try_from(Offset::new(self._rva as usize)).ok()?.cast()
+            let offset = NonZeroUsize::new(self._rva as usize)?;
+            Some(Offset::new(offset).address().ok()?.cast())
         } else {
             None
         }
@@ -262,12 +265,12 @@ pub unsafe fn rt_dynamic_cast(
     src_type: *mut c_void,
     target_type: *mut c_void,
     is_reference: i32,
-) -> Result<Option<*mut c_void>, crate::rel::id::DataBaseError> {
+) -> Result<*mut c_void, crate::rel::id::DataBaseError> {
     /// `rt_dynamic_cast`(myself) signature
     type MySelf = unsafe fn(
         in_ptr: *mut c_void,
-        vfdelta: i32,
-        srctype: *mut c_void,
+        vf_delta: i32,
+        src_type: *mut c_void,
         target_type: *mut c_void,
         is_reference: i32,
     ) -> *mut c_void;
@@ -277,7 +280,7 @@ pub unsafe fn rt_dynamic_cast(
 
     let func =
         Relocation::new(RelocationID::new(102238, 109689, 102238).address()?).cast::<MySelf>();
-    Ok(func.map(|func| unsafe { (*func)(in_ptr, vf_delta, src_type, target_type, is_reference) }))
+    Ok(unsafe { (*(func.as_ptr()))(in_ptr, vf_delta, src_type, target_type, is_reference) })
 }
 
 // TODO: Write tests
@@ -294,12 +297,7 @@ where
     let from_rtti = Relocation::new(From::rtti().address().unwrap()).cast::<c_void>();
     let to_rtti = Relocation::new(To::rtti().address().unwrap()).cast::<c_void>();
 
-    if from_rtti.is_none() || to_rtti.is_none() {
-        return ptr::null_mut();
-    }
-
-    unsafe { rt_dynamic_cast(from.cast::<c_void>(), 0, from_rtti.unwrap(), to_rtti.unwrap(), 0) }
-        .unwrap()
+    unsafe { rt_dynamic_cast(from.cast::<c_void>(), 0, from_rtti.as_ptr(), to_rtti.as_ptr(), 0) }
         .unwrap()
         .cast()
 }

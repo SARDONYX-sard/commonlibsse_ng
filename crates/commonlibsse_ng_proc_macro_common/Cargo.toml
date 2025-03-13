@@ -1,5 +1,5 @@
 [package]
-name = "commonlibsse_ng_derive"
+name = "commonlibsse_ng_proc_macro_common"
 description = "Useful attribute macros for commonlibsse_ng"
 version = "0.1.0"
 
@@ -14,14 +14,11 @@ rust-version.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[lib]
-proc-macro = true
-
-
 [dependencies]
-commonlibsse_ng_proc_macro_common = { path = "../commonlibsse_ng_proc_macro_common" }
-syn = { version = "2.0.99" }
+darling = "0.20.10"
+proc-macro2 = { version = "1.0.94" }
 quote = { version = "1.0.39" }
+syn = { version = "2.0.99" }
 
 [features]
 tracing = []

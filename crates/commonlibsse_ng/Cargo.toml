@@ -17,14 +17,15 @@ required-features = ["full"]
 [dependencies]
 bitflags = { version = "2.9.0" }
 dashmap = { version = "6.1.0" }
-retour = { version = "0.3.1", default-features = false }                         # fn ptr hook
+retour = { version = "0.3.1", default-features = false }                          # fn ptr hook
 shared_rwlock = { path = "../shared_rwlock" }
-snafu = { workspace = true }                                                     # To define error types.
-static_assertions = { workspace = true }                                         # Compile tim assertions
+snafu = { workspace = true }                                                      # To define error types.
+static_assertions = { workspace = true }                                          # Compile tim assertions
 tracing = { workspace = true, optional = true }
 tracing-appender = { version = "0.2.3", optional = true }
 tracing-subscriber = { version = "0.3.19", optional = true }
-unique = "0.9.1"                                                                 # Owned raw pointer(Used in std but not provided as API)
+unique = "0.9.1"                                                                  # Owned raw pointer(Used in std but not provided as API)
+commonlibsse_ng_derive_internal = { path = "../commonlibsse_ng_derive_internal" }
 commonlibsse_ng_derive = { path = "../commonlibsse_ng_derive", optional = true }
 
 
@@ -66,7 +67,8 @@ tracing = [
   "dep:tracing",
   "dep:tracing-subscriber",
   "dep:tracing-appender",
-  "commonlibsse_ng_derive/tracing",
+  "commonlibsse_ng_derive_internal/tracing",
+  "commonlibsse_ng_derive?/tracing",
 ]
 
 # For test and debugging.

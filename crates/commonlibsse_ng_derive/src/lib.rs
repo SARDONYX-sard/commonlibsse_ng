@@ -1,9 +1,6 @@
 //! `commonlibsse_ng` macro to automatically generate commonly used code patterns for crate use.
 //!
 
-mod relocate_fn;
-mod skse_plugin_main;
-
 use proc_macro::TokenStream;
 
 /// This procedural macro is used to define the main entry point for an SKSE plugin.
@@ -62,7 +59,9 @@ use proc_macro::TokenStream;
 /// This will generate the necessary SKSE functions and execute `plugin_main` in `SKSE_PluginLoad` function.
 #[proc_macro_attribute]
 pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
-    skse_plugin_main::gen_skse_plugin_main(attrs, item)
+    let item_fn = syn::parse_macro_input!(item as syn::ItemFn);
+    commonlibsse_ng_proc_macro_common::skse_plugin_main::gen_skse_plugin_main(attrs.into(), item_fn)
+        .into()
 }
 
 /// `relocate_fn` is a procedural macro used to generate a relocated function in Rust.
@@ -102,10 +101,19 @@ pub fn skse_plugin_main(attrs: TokenStream, item: TokenStream) -> TokenStream {
 /// # Notes
 /// - The relocation IDs are used for dynamically finding the target function address.
 /// - If no `vr_id` is provided, the `se_id` is used as the default value.
+/// - `SelfSignature`: Function signature for self. like C++ `decltype(T)`
 ///
 /// # Panics
 /// - The macro generates code that checks the validity of the resolved address, logging an error and panicking if invalid.
 #[proc_macro_attribute]
 pub fn relocate_fn(attrs: TokenStream, item: TokenStream) -> TokenStream {
-    relocate_fn::gen_relocate_fn(attrs, item)
+    let item_fn = syn::parse_macro_input!(item as syn::ItemFn);
+    let crate_root_name = quote::quote! { commonlibsse_ng };
+
+    commonlibsse_ng_proc_macro_common::relocate_fn::gen_relocate_fn(
+        attrs.into(),
+        item_fn,
+        crate_root_name,
+    )
+    .into()
 }
