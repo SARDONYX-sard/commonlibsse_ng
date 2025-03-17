@@ -80,7 +80,6 @@
 use crate::rel::ResolvableAddress as _;
 use core::ffi::c_void;
 use core::marker::PhantomData;
-use core::num::NonZeroUsize;
 use core::ptr::NonNull;
 
 pub mod msvc {
@@ -136,8 +135,7 @@ impl<T> RVA<T> {
         use crate::rel::offset::Offset;
 
         if self.is_good() {
-            let offset = NonZeroUsize::new(self._rva as usize)?;
-            Some(Offset::new(offset).address().ok()?.cast())
+            Some(Offset::new(self._rva as usize).address().ok()?.cast())
         } else {
             None
         }

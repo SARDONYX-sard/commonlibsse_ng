@@ -22,23 +22,27 @@ use crate::rel::module::ModuleState;
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
-pub struct Offset(NonZeroUsize);
+pub struct Offset(usize);
 
 impl Offset {
     /// Creates a new `Offset` instance with the given value.
+    ///
+    /// # Note
+    /// Return an error when trying to get the offset and it is 0
     #[inline]
-    pub const fn new(offset: NonZeroUsize) -> Self {
+    pub const fn new(offset: usize) -> Self {
         Self(offset)
     }
 }
 
 impl ResolvableAddress for Offset {
-    /// Returns the stored offset value.
+    /// Get the offset.
     ///
-    /// This implementation absolutely returns [`Result::Ok`].
+    /// # Errors
+    /// Returns an error if the offset is 0.
     #[inline]
     fn offset(&self) -> Result<NonZeroUsize, DataBaseError> {
-        Ok(self.0)
+        NonZeroUsize::new(self.0).ok_or(DataBaseError::SpecifiedZeroOffset)
     }
 }
 
@@ -77,10 +81,11 @@ impl VariantOffset {
 }
 
 impl ResolvableAddress for VariantOffset {
-    /// Retrieves the offset based on the current runtime.
+    /// Get the offset based on the current runtime.
     ///
     /// # Errors
-    /// Returns an error if the module state is invalid or the runtime is unknown.
+    /// - Returns an error if the module state is invalid or the runtime is unknown.
+    /// - Returns an error if the offset is 0.
     #[inline]
     fn offset(&self) -> Result<NonZeroUsize, DataBaseError> {
         use crate::rel::module::Runtime;
