@@ -18,6 +18,7 @@ impl NiPoint3 {
     ///
     /// # Example
     /// ```
+    /// # use commonlibsse_ng::re::NiPoint3::NiPoint3;
     /// let point = NiPoint3::new(1.0, 2.0, 3.0);
     /// assert_eq!(point.x, 1.0);
     /// ```
@@ -30,19 +31,21 @@ impl NiPoint3 {
     ///
     /// # Example
     /// ```
+    /// # use commonlibsse_ng::re::NiPoint3::NiPoint3;
     /// let a = NiPoint3::new(1.0, 2.0, 3.0);
     /// let b = NiPoint3::new(4.0, 5.0, 6.0);
     /// assert_eq!(a.dot(&b), 32.0);
     /// ```
     #[inline]
     pub fn dot(&self, other: &Self) -> f32 {
-        self.x * other.x + self.y * other.y + self.z * other.z
+        self.z.mul_add(other.z, self.x.mul_add(other.x, self.y * other.y))
     }
 
     /// Computes the cross product with another `NiPoint3`.
     ///
     /// # Example
     /// ```
+    /// # use commonlibsse_ng::re::NiPoint3::NiPoint3;
     /// let a = NiPoint3::new(1.0, 0.0, 0.0);
     /// let b = NiPoint3::new(0.0, 1.0, 0.0);
     /// let cross = a.cross(&b);
@@ -51,9 +54,9 @@ impl NiPoint3 {
     #[inline]
     pub fn cross(&self, other: &Self) -> Self {
         Self {
-            x: self.y * other.z - self.z * other.y,
-            y: self.z * other.x - self.x * other.z,
-            z: self.x * other.y - self.y * other.x,
+            x: self.y.mul_add(other.z, -(self.z * other.y)),
+            y: self.z.mul_add(other.x, -(self.x * other.z)),
+            z: self.x.mul_add(other.y, -(self.y * other.x)),
         }
     }
 
@@ -61,6 +64,7 @@ impl NiPoint3 {
     ///
     /// # Example
     /// ```
+    /// # use commonlibsse_ng::re::NiPoint3::NiPoint3;
     /// let v = NiPoint3::new(3.0, 4.0, 0.0);
     /// assert_eq!(v.length(), 5.0);
     /// ```
@@ -79,6 +83,7 @@ impl NiPoint3 {
     ///
     /// # Example
     /// ```
+    /// # use commonlibsse_ng::re::NiPoint3::NiPoint3;
     /// let a = NiPoint3::new(1.0, 2.0, 3.0);
     /// let b = NiPoint3::new(4.0, 6.0, 3.0);
     /// assert_eq!(a.distance(&b), 5.0);
@@ -98,6 +103,7 @@ impl NiPoint3 {
     ///
     /// # Example
     /// ```
+    /// # use commonlibsse_ng::re::NiPoint3::NiPoint3;
     /// let mut v = NiPoint3::new(3.0, 4.0, 0.0);
     /// let len = v.unitize();
     /// assert_eq!(len, 5.0);
@@ -116,6 +122,7 @@ impl NiPoint3 {
     ///
     /// # Example
     /// ```
+    /// # use commonlibsse_ng::re::NiPoint3::NiPoint3;
     /// let a = NiPoint3::new(1.0, 0.0, 0.0);
     /// let b = NiPoint3::new(0.0, 1.0, 0.0);
     /// let unit_cross = a.unit_cross(&b);
@@ -132,6 +139,7 @@ impl NiPoint3 {
     ///
     /// # Example
     /// ```
+    /// # use commonlibsse_ng::re::NiPoint3::NiPoint3;
     /// let zero = NiPoint3::zero();
     /// assert_eq!(zero, NiPoint3::new(0.0, 0.0, 0.0));
     /// ```
