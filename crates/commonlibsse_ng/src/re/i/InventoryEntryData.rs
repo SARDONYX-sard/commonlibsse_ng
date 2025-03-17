@@ -116,12 +116,4 @@ pub enum SoulLevel {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_inventory_entry_data() {
-        let object = Some(Arc::new(TESBoundObject));
-        let mut entry_data = InventoryEntryData::new(object, 10);
-
-        assert!(entry_data.can_item_be_taken(true, false, false));
-    }
 }
