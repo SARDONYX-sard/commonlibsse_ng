@@ -3,6 +3,7 @@
 
 mod b;
 mod e;
+mod f;
 mod i;
 mod n;
 mod t;
@@ -21,6 +22,7 @@ pub mod offsets_vtable;
 
 pub use b::*;
 pub use e::*;
+pub use f::*;
 pub use i::*;
 pub use n::*;
 pub use t::*;
@@ -31,6 +33,3 @@ pub struct GFxValue;
 
 pub struct VMHandle(pub u64);
 pub struct FormID(pub u32);
-
-#[derive(Debug)]
-pub struct BSTEventSource<T: core::fmt::Debug>(std::marker::PhantomData<T>);

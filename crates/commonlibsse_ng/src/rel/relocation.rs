@@ -211,3 +211,57 @@ impl TryFrom<RelocationID> for Relocation {
         Ok(Self { _impl: id.address()?, _cast_target: PhantomData })
     }
 }
+
+pub(crate) fn relocate_virtual<F>(
+    se_ae_vtable_offset: isize,
+    vr_vtable_offset: isize,
+    se_ae_vtable_index: isize,
+    vr_vtable_index: isize,
+    this: NonNull<u8>,
+) -> Result<F, ModuleStateError>
+where
+    F: Copy,
+{
+    let is_vr = ModuleState::map_active(|module| module.runtime.is_vr())?;
+
+    unsafe {
+        let vtable_ptr = *(this.as_ptr() as *const *const F).offset(if is_vr {
+            vr_vtable_offset
+        } else {
+            se_ae_vtable_offset
+        });
+        let func_ptr = *vtable_ptr.offset(if is_vr { vr_vtable_index } else { se_ae_vtable_index });
+
+        Ok(func_ptr)
+    }
+}
+
+/// # Errors
+pub(crate) fn relocate_member<T>(
+    this: *mut u8,
+    se_ae_offset: isize,
+    vr_offset: isize,
+) -> Result<*mut T, ModuleStateError> {
+    let is_vr = ModuleState::map_active(|module| module.runtime.is_vr())?;
+    unsafe { Ok(this.offset(if is_vr { vr_offset } else { se_ae_offset }).cast::<T>()) }
+}
+
+pub(crate) const fn relocate_member_if<T>(
+    condition: bool,
+    this: *mut u8,
+    a: isize,
+    b: isize,
+) -> *mut T {
+    unsafe { this.offset(if condition { a } else { b }).cast::<T>() }
+}
+
+/// # Errors
+pub(crate) fn relocate_member_if_newer<T>(
+    version: crate::rel::version::Version,
+    this: *mut u8,
+    older: isize,
+    newer: isize,
+) -> Result<*mut T, ModuleStateError> {
+    let current_version = ModuleState::map_active(|module| module.version.clone())?;
+    unsafe { Ok(this.offset(if current_version < version { older } else { newer }).cast::<T>()) }
+}

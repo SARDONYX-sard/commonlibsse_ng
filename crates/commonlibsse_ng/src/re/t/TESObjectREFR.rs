@@ -2,35 +2,22 @@ use core::ffi::c_void;
 use core::ptr::NonNull;
 use std::collections::HashMap;
 
+use crate::re::BSTArray::BSTSmallArray;
 use crate::re::ExtraDataList::ExtraDataList;
+use crate::re::InventoryChanges::InventoryChanges;
 use crate::re::InventoryEntryData::InventoryEntryData;
 use crate::re::NiPoint3::NiPoint3;
+
+use super::TESForm::TESForm;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // dummy
 struct TESBoundObject;
-struct InventoryChanges;
-impl InventoryChanges {
-    pub fn init_leveled_items(&self) {
-        todo!()
-    }
-    pub fn init_from_container_extra(&self) {
-        todo!()
-    }
-    pub fn init_scripts(&self) {
-        todo!()
-    }
-}
 
 struct ExtraContainerChanges {
     changes: *mut InventoryChanges,
 }
 
-struct BSTSmallArray<T> {
-    pub data: *mut T,
-    pub size: usize,
-    pub capacity: usize,
-}
 struct TesWaterForm;
 struct NiPointer<T> {
     pub ptr: NonNull<T>,
@@ -38,7 +25,6 @@ struct NiPointer<T> {
 struct NiAVObject;
 
 struct TESObjectCELL;
-struct TESForm;
 struct BSHandleRefObject;
 struct BSTEventSink<T> {
     maker: core::marker::PhantomData<T>,
@@ -70,7 +56,7 @@ const _: () = {
 #[repr(C)]
 pub struct LOADED_REF_DATA {
     pub unk00: BSTSmallArray<*mut c_void>, // handleList?
-    pub current_water_type: Option<NonNull<TesWaterForm>>,
+    pub current_water_type: *mut TesWaterForm,
     pub relevant_water_height: f32,
     pub cached_radius: f32,
     pub flags: u16,
@@ -83,10 +69,10 @@ pub struct LOADED_REF_DATA {
     pub unk58: u64,
     pub unk60: u64,
     pub data_3d: NiPointer<NiAVObject>,
-    pub unk70: Option<NonNull<c_void>>, // smart ptr
+    pub unk70: *mut c_void, // smart ptr
 }
 
-struct TESObjectREFR {
+pub struct TESObjectREFR {
     _base: TESForm,                              // 00
     _base1: BSHandleRefObject,                   // 20
     _base2: BSTEventSink<BSAnimationGraphEvent>, // 30
@@ -307,11 +293,9 @@ impl TESObjectREFR {
     }
 
     /// # Panics
-    /// If failed to resolve this method's address.
+    /// Returns an error if address resolution fails.
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 15800, ae_id = 16038)]
-    pub fn init_inventory_if_required(&self, ignore_container_extra_data: bool) -> bool {
-        type S = SelfSignature;
-    }
+    pub fn init_inventory_if_required(&self, ignore_container_extra_data: bool) -> bool {}
 
     pub fn force_init_inventory_changes(&self) -> *mut InventoryChanges {
         let changes = self.make_inventory_changes();

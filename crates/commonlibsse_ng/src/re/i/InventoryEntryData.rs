@@ -2,6 +2,7 @@ use std::option::Option;
 use std::sync::Arc;
 
 use crate::re::ExtraDataList::ExtraDataList;
+use crate::re::TESForm::TESForm;
 
 #[derive(Debug, Clone)]
 pub struct TESBoundObject; // Placeholder for TESBoundObject
@@ -11,8 +12,6 @@ pub struct EnchantmentItem; // Placeholder for EnchantmentItem
 pub struct Actor; // Placeholder for Actor
 #[derive(Debug, Clone)]
 pub struct AlchemyItem; // Placeholder for AlchemyItem
-#[derive(Debug, Clone)]
-pub struct TESForm; // Placeholder for TESForm
 
 #[derive(Debug, Clone)]
 pub struct InventoryEntryData {
