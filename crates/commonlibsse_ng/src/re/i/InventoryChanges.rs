@@ -1,21 +1,14 @@
 use core::ffi::c_void;
 
+use crate::re::BSTList::BSSimpleList;
 use crate::re::ExtraDataList::ExtraDataList;
-use crate::re::InventoryEntryData::{InventoryEntryData, TESBoundObject};
+use crate::re::InventoryEntryData::InventoryEntryData;
+use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
 use crate::re::TESObjectREFR::TESObjectREFR;
 use crate::re::offsets_rtti::RTTI_InventoryChanges__IItemChangeVisitor;
 use crate::re::offsets_vtable::VTABLE_InventoryChanges__IItemChangeVisitor;
 use crate::rel::id::VariantID;
-
-struct BSSimpleList<T> {
-    dummy: std::collections::VecDeque<T>,
-}
-impl<T> BSSimpleList<T> {
-    pub fn push_front(&mut self, entry: T) {
-        self.dummy.push_front(entry);
-    }
-}
 
 struct TESObjectARMO;
 struct BGSOutfit;

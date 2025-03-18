@@ -7,12 +7,10 @@ use crate::re::ExtraDataList::ExtraDataList;
 use crate::re::InventoryChanges::InventoryChanges;
 use crate::re::InventoryEntryData::InventoryEntryData;
 use crate::re::NiPoint3::NiPoint3;
-
-use super::TESForm::TESForm;
+use crate::re::TESBoundObject::TESBoundObject;
+use crate::re::TESForm::TESForm;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// dummy
-struct TESBoundObject;
 
 struct ExtraContainerChanges {
     changes: *mut InventoryChanges,
@@ -84,8 +82,8 @@ pub struct TESObjectREFR {
 }
 
 type Count = i32;
-pub type InventoryItemMap = HashMap<*mut TESBoundObject, Count>;
-pub type InventoryCountMap = HashMap<*mut TESBoundObject, (Count, Box<InventoryEntryData>)>;
+pub type InventoryCountMap = HashMap<*mut TESBoundObject, Count>;
+pub type InventoryItemMap = HashMap<*mut TESBoundObject, (Count, Box<InventoryEntryData>)>;
 pub type InventoryDropMap = HashMap<*mut TESBoundObject, (Count, Vec<ObjectHandle>)>;
 
 impl TESObjectREFR {
@@ -209,8 +207,10 @@ impl TESObjectREFR {
     //     unimplemented!()
     // }
 
-    // fn get_container(&self) -> Option<&TESContainer> {
-    //     unimplemented!()
+    // pub fn get_container(&self) -> Option<&TESContainer> {
+    //     let obj = self.get_object_reference();
+
+    //     obj.as_ref()?.
     // }
 
     // fn get_current_location(&self) -> Option<&BGSLocation> {
@@ -262,19 +262,35 @@ impl TESObjectREFR {
     //     unimplemented!()
     // }
 
-    fn get_inventory_filter<F>(&self, filter: F, no_init: bool) -> InventoryItemMap
+    pub fn get_inventory_filter<F>(&self, filter: F, no_init: bool) -> Option<InventoryItemMap>
     where
-        F: Fn(&mut TESBoundObject) -> bool,
+        F: Fn(&TESBoundObject) -> bool,
     {
         let inventory_changed = self.get_inventory_changes(no_init);
-        unimplemented!()
+        let inventory_changed = inventory_changed?;
+        let inventory_changed = unsafe { &*inventory_changed };
+
+        let mut inventory = InventoryItemMap::new();
+        for entry in unsafe { inventory_changed.entry_list.as_ref()?.iter() } {
+            if entry.is_null() {
+                continue;
+            }
+
+            let entry_ref = unsafe { entry.as_ref()? };
+            let object = entry_ref.object;
+            if filter(unsafe { object.as_ref()? }) {
+                inventory.insert(object, (entry_ref.count_delta, Box::new(entry_ref.clone())));
+            }
+        }
+
+        Some(inventory)
     }
 
     // fn get_inventory_counts(&self) -> InventoryCountMap {
     //     unimplemented!()
     // }
 
-    fn get_inventory_changes(&self, no_init: bool) -> Option<*mut InventoryChanges> {
+    pub fn get_inventory_changes(&self, no_init: bool) -> Option<*mut InventoryChanges> {
         if !self.extraList.has_type::<ExtraContainerChanges>() {
             if no_init {
                 return None;
@@ -290,6 +306,11 @@ impl TESObjectREFR {
         };
 
         None
+    }
+
+    #[inline]
+    pub const fn get_object_reference(&self) -> *mut TESBoundObject {
+        self.data.objectReference
     }
 
     /// # Panics

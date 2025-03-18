@@ -131,7 +131,7 @@ impl BSSpinLock {
         if self.owning_thread.load(Ordering::Acquire) == my_thread_id {
             if self.lock_count.load(Ordering::Acquire) == 1 {
                 self.owning_thread.store(0, Ordering::Release);
-                self.lock_count.compare_exchange(0, 1, Ordering::AcqRel, Ordering::Relaxed);
+                let _ = self.lock_count.compare_exchange(0, 1, Ordering::AcqRel, Ordering::Relaxed);
             } else {
                 self.lock_count.fetch_sub(1, Ordering::Release);
             }

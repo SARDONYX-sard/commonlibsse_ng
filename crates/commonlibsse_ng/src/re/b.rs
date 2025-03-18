@@ -1,7 +1,10 @@
 pub mod BGSSaveFormBuffer;
 pub mod BGSSaveGameBuffer;
 pub mod BSAtomic;
+pub mod BSCoreTypes;
 pub mod BSScript;
+pub mod BSString;
 pub mod BSTArray;
 pub mod BSTEventSource;
+pub mod BSTList;
 pub mod BaseFormComponent;

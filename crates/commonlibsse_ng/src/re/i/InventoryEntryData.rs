@@ -1,11 +1,11 @@
 use std::option::Option;
 use std::sync::Arc;
 
+use crate::re::BSTList::BSSimpleList;
 use crate::re::ExtraDataList::ExtraDataList;
+use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
 
-#[derive(Debug, Clone)]
-pub struct TESBoundObject; // Placeholder for TESBoundObject
 #[derive(Debug, Clone)]
 pub struct EnchantmentItem; // Placeholder for EnchantmentItem
 #[derive(Debug, Clone)]
@@ -15,22 +15,25 @@ pub struct AlchemyItem; // Placeholder for AlchemyItem
 
 #[derive(Debug, Clone)]
 pub struct InventoryEntryData {
-    object: Option<Arc<TESBoundObject>>,
-    extra_lists: Option<Vec<Arc<ExtraDataList>>>,
-    count_delta: i32,
+    pub object: *mut TESBoundObject,
+    pub extra_lists: *mut BSSimpleList<ExtraDataList>,
+    pub count_delta: i32,
+    #[allow(unused)]
+    pad14: u32,
 }
 
+const_assert_eq!(core::mem::size_of::<InventoryEntryData>(), 0x18);
+
 impl InventoryEntryData {
-    pub const fn new(object: Option<Arc<TESBoundObject>>, count_delta: i32) -> Self {
-        Self { object, extra_lists: None, count_delta }
+    pub const fn new(object: *mut TESBoundObject, count_delta: i32) -> Self {
+        Self { object, extra_lists: core::ptr::null_mut(), count_delta, pad14: 0 }
     }
 
-    pub fn add_extra_list(&mut self, extra: Arc<ExtraDataList>) {
-        if let Some(list) = &mut self.extra_lists {
-            list.push(extra);
-        } else {
-            self.extra_lists = Some(vec![extra]);
+    pub fn add_extra_list(&mut self, extra: ExtraDataList) {
+        if self.extra_lists.is_null() {
+            self.extra_lists = Box::into_raw(Box::new(BSSimpleList::new()));
         }
+        unsafe { self.extra_lists.as_mut().map(|list| list.push_front(extra)) };
     }
 
     pub fn can_item_be_taken(
@@ -55,7 +58,7 @@ impl InventoryEntryData {
     }
 
     pub fn get_object(&self) -> Option<&TESBoundObject> {
-        self.object.as_ref().map(|obj| obj.as_ref())
+        unsafe { self.object.as_ref().map(|obj| obj) }
     }
 
     pub fn get_owner(&self) -> Option<&TESForm> {
@@ -111,9 +114,4 @@ impl InventoryEntryData {
 #[derive(Debug, Clone, Copy)]
 pub enum SoulLevel {
     // Placeholder for SoulLevel enum
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
 }

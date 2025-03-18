@@ -210,6 +210,7 @@ impl<T> Drop for BSTArray<T> {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct BSStaticArray<T> {
     data: NonNull<T>,
     size: u32,
