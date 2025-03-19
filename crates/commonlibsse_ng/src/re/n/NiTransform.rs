@@ -82,8 +82,8 @@ mod tests {
 
         let inverted = transform.invert();
         let expected = NiTransform {
-            rotate: NiMatrix3::new(),
-            translate: NiPoint3::new(-1.0, -2.0, -3.0),
+            rotate: NiMatrix3 { entry: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]] },
+            translate: NiPoint3 { x: -0.5, y: -1.0, z: -1.5 },
             scale: 0.5,
         };
         assert_eq!(inverted, expected);

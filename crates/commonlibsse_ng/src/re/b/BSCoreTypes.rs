@@ -57,7 +57,7 @@ define_transparent_type!(
     ///
     /// # Examples
     /// ```
-    /// # use commonlibsse_ng::re::BSCoreTypes::RE::;
+    /// # use commonlibsse_ng::re::BSCoreTypes::RefHandle;
     /// let ref_handle = RefHandle::new(98765);
     /// assert_eq!(ref_handle.get(), 98765);
     /// ```
@@ -70,7 +70,7 @@ define_transparent_type!(
     ///
     /// # Examples
     /// ```
-    /// # use commonlibsse_ng::re::BSCoreTypes::RefHandle;
+    /// # use commonlibsse_ng::re::BSCoreTypes::VMHandle;
     /// let vm_handle = RE::VMHandle::new(1234567890123456);
     /// ```
 ,
@@ -78,7 +78,7 @@ define_transparent_type!(
     ///
     /// # Examples
     /// ```
-    /// # use commonlibsse_ng::re::BSCoreTypes::RE::VMHandle;
+    /// # use commonlibsse_ng::re::BSCoreTypes::VMHandle;
     /// let vm_handle = VMHandle::new(1234567890123456);
     /// assert_eq!(vm_handle.get(), 1234567890123456);
     /// ```
@@ -99,8 +99,8 @@ define_transparent_type!(
     ///
     /// # Examples
     /// ```
-    /// # use commonlibsse_ng::re::BSCoreTypes::RE::VMStackID;
-    /// let vm_stack_id = RE::VMStackID::new(1234);
+    /// # use commonlibsse_ng::re::BSCoreTypes::VMStackID;
+    /// let vm_stack_id = VMStackID::new(1234);
     /// assert_eq!(vm_stack_id.get(), 1234);
     /// ```
 );
@@ -113,15 +113,15 @@ define_transparent_type!(
     /// # Examples
     /// ```
     /// # use commonlibsse_ng::re::BSCoreTypes::VMTypeID;
-    /// let vm_type_id = RE::VMTypeID::new(5678);
+    /// let vm_type_id = VMTypeID::new(5678);
     /// ```
 ,
     /// Returns the contained value as a `u32` type.
     ///
     /// # Examples
     /// ```
-    /// # use commonlibsse_ng::re::BSCoreTypes::RE::VMTypeID;
-    /// let vm_type_id = RE::VMTypeID::new(5678);
+    /// # use commonlibsse_ng::re::BSCoreTypes::VMTypeID;
+    /// let vm_type_id = VMTypeID::new(5678);
     /// assert_eq!(vm_type_id.get(), 5678);
     /// ```
 );
