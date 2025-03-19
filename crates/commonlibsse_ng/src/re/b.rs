@@ -1,9 +1,13 @@
+pub mod BGSLoadFormBuffer;
 pub mod BGSSaveFormBuffer;
 pub mod BGSSaveGameBuffer;
 pub mod BSAtomic;
 pub mod BSCoreTypes;
+pub mod BSFile;
+pub mod BSFixedString;
 pub mod BSScript;
 pub mod BSString;
+pub mod BSStringPool;
 pub mod BSTArray;
 pub mod BSTEventSource;
 pub mod BSTList;

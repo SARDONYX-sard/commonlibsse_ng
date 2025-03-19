@@ -27,18 +27,18 @@ pub struct IItemChangeVisitor {
 }
 
 impl IItemChangeVisitor {
-    const RTTI: VariantID = RTTI_InventoryChanges__IItemChangeVisitor;
-    const VTABLE: [VariantID; 1] = VTABLE_InventoryChanges__IItemChangeVisitor;
+    pub const RTTI: VariantID = RTTI_InventoryChanges__IItemChangeVisitor;
+    pub const VTABLE: [VariantID; 1] = VTABLE_InventoryChanges__IItemChangeVisitor;
 }
 
 pub struct IItemChangeVisitorVtbl {
     /// C++ virtual destructor
-    _drop: fn(this: *mut c_void),
+    pub _drop: fn(this: *mut c_void),
 
-    visit: fn(this: *mut c_void, entry_data: &mut InventoryEntryData) -> VisitResult,
-    should_visit:
+    pub visit: fn(this: *mut c_void, entry_data: &mut InventoryEntryData) -> VisitResult,
+    pub should_visit:
         fn(this: *const c_void, entry_data: &InventoryEntryData, object: &TESBoundObject) -> bool,
-    unk_03: fn(
+    pub unk_03: fn(
         this: *mut c_void,
         entry_data: &mut InventoryEntryData,
         arg2: *mut c_void,
@@ -70,6 +70,7 @@ impl InventoryChanges {
 
     pub fn add_entry_data(&mut self, entry: *mut InventoryEntryData) {
         // self.entry_list.push_front(entry); // move take?
+        let _ = entry;
         self.changed = true;
     }
 

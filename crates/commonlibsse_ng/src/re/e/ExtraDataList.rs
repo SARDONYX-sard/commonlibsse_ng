@@ -1,6 +1,3 @@
-use std::ops::{Deref, DerefMut};
-use std::ptr;
-
 #[derive(Debug, Clone, Default)]
 pub struct BSExtraData;
 
@@ -12,17 +9,18 @@ pub struct BaseExtraList {
 
 #[derive(Debug, Clone, Default)]
 pub struct PresenceBitfield {
-    bits: [u8; 0x18], // size: 24
+    pub bits: [u8; 0x18], // size: 24
 }
 
 impl PresenceBitfield {
-    pub fn has_type(&self, a_type: u32) -> bool {
-        // Implement the actual check based on `a_type` and `self.bits`
+    pub fn has_type(&self, type_: u32) -> bool {
+        let _ = type_;
         todo!()
     }
 
-    pub fn mark_type(&mut self, a_type: u32, a_cleared: bool) {
-        // Implement the marking logic based on `a_type` and `a_cleared`
+    pub fn mark_type(&mut self, type_: u32, cleared: bool) {
+        let _ = type_;
+        let _ = cleared;
         todo!()
     }
 }
@@ -49,9 +47,16 @@ pub struct ExtraDataList {
     extra_data: BaseExtraList,
 }
 
+impl Default for ExtraDataList {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ExtraDataList {
     pub const fn new() -> Self {
-        ExtraDataList { extra_data: BaseExtraList { data: None, presence: None } }
+        Self { extra_data: BaseExtraList { data: None, presence: None } }
     }
 
     pub fn begin(&mut self) -> Option<&mut BSExtraData> {
@@ -63,8 +68,8 @@ impl ExtraDataList {
         todo!()
     }
 
-    pub fn get_by_type(&self, a_type: u32) -> Option<&BSExtraData> {
-        // Find data based on `a_type`
+    pub fn get_by_type(&self, type_: u32) -> Option<&BSExtraData> {
+        let _ = type_;
         todo!()
     }
 
@@ -76,13 +81,13 @@ impl ExtraDataList {
         todo!()
     }
 
-    pub fn remove_by_type(&mut self, a_type: u32) -> bool {
-        // Implement remove logic based on `a_type`
+    pub fn remove_by_type(&mut self, type_: u32) -> bool {
+        let _ = type_;
         todo!()
     }
 
-    pub fn add(&mut self, a_to_add: BSExtraData) {
-        // Add extra data to the list
+    pub fn add(&mut self, to_add: BSExtraData) {
+        let _ = to_add;
         todo!()
     }
 

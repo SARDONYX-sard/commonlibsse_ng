@@ -1,22 +1,11 @@
-use core::ffi::c_void;
-
-use windows::Win32::{Foundation::FILETIME, Storage::FileSystem::WIN32_FIND_DATAA};
-
+use crate::re::BSFile::BSFile;
 use crate::re::BSString::BSString;
 use crate::re::BSTList::BSSimpleList;
 use crate::re::FORM::FORM;
-
-#[repr(C)]
-#[derive(Debug)]
-struct BSFile;
-
-#[repr(C)]
-#[derive(Debug)]
-struct TESBitArrayFile;
-
-#[repr(C)]
-#[derive(Debug)]
-struct TESObjectCELL;
+use crate::re::TESObjectCELL::TESObjectCELL;
+use crate::re::TESBitArrayFile::TESBitArrayFile;
+use core::ffi::c_void;
+use windows::Win32::{Foundation::FILETIME, Storage::FileSystem::WIN32_FIND_DATAA};
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

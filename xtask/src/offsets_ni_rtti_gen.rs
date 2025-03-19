@@ -1,9 +1,11 @@
 use winnow::{
     ModalResult, Parser,
-    ascii::{digit1, hex_digit1, multispace0, space0},
-    combinator::{delimited, opt, preceded, repeat, seq, terminated},
+    ascii::{digit1, multispace0, space0},
+    combinator::{delimited, opt, repeat, seq, terminated},
     token::take_until,
 };
+
+use crate::offsets_rtti_gen::hex;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -19,22 +21,16 @@ impl core::fmt::Display for VariantID<'_> {
         let Self { ident, se_id, ae_id, vr_offset } = self;
         write!(
             f,
-            "pub const RTTI_{ident}: VariantID = VariantID::new({se_id}, {ae_id}, {vr_offset:#x});"
+            "pub const NiRTTI_{ident}: VariantID = VariantID::new({se_id}, {ae_id}, {vr_offset:#x});"
         )
     }
-}
-
-/// # Errors
-/// If parse is failed, then return an error.
-pub fn hex(input: &mut &str) -> ModalResult<u64> {
-    preceded("0x", hex_digit1).try_map(|hex| u64::from_str_radix(hex, 16)).parse_next(input)
 }
 
 fn variant_id<'a>(input: &mut &'a str) -> ModalResult<VariantID<'a>> {
     seq! {
         VariantID {
-            _: take_until(0.., "RTTI_"),
-            _: "RTTI_",
+            _: take_until(0.., "NiRTTI_"),
+            _: "NiRTTI_",
             ident: terminated(take_until(0.., "("), "("), // ident after `RTTI_`  (e.g.: `ConcreteFormFactory_AlchemyItem_46_`)
             _: space0,
             se_id: terminated(digit1, ", ").parse_to(),
@@ -101,40 +97,11 @@ mod tests {
     // use pretty_assertions::assert_eq; // To debug
 
     #[test]
-    fn test_hex() {
-        let input = "0x12345678";
-        match hex.parse(input) {
-            Ok(number) => assert_eq!(number, 0x12345678),
-            Err(err) => panic!("Error: \n{err}"),
-        }
-    }
-
-    #[test]
     fn test_offset_id() {
-        let input = r#"constexpr REL::VariantID RTTI_ConcreteFormFactory_AlchemyItem_46_(684591, 392213, 0x1ed7000);"#;
-        match variant_id.parse(input) {
-            Ok(variant) => {
-                assert_eq!(
-                    variant,
-                    VariantID {
-                        ident: "ConcreteFormFactory_AlchemyItem_46_",
-                        se_id: 684591,
-                        ae_id: 392213,
-                        vr_offset: 0x1ed7000,
-                    }
-                );
-            }
-            Err(err) => panic!("Error: \n{err}"),
-        }
-    }
-
-    #[test]
-    fn main() {
         let input = r#"
-        constexpr REL::VariantID RTTI_ConcreteFormFactory_AlchemyItem_46_(684591, 392213, 0x1ed7000);
-        constexpr REL::VariantID RTTI_IFormFactory(684588, 392214, 0x1ed6cf8);
-        constexpr REL::VariantID RTTI_ConcreteObjectFormFactory_AlchemyItem_46_17_2_(684590, 392212, 0x1ed6fb0);
-        constexpr REL::VariantID RTTI_BaseFormComponent(513847, 392215, 0x1ed6cd0);
+            constexpr REL::VariantID NiRTTI_BGSAddonNodeSoundHandleExtra(514633, 400793, 0x2f8a838);
+            constexpr REL::VariantID NiRTTI_BGSDecalNode(514417, 400564, 0x1f891a0);
+            constexpr REL::VariantID NiRTTI_BSAnimGroupSequence(514462, 400606, 0x1f89358);
     "#;
 
         match variant_ids.parse(input) {
@@ -143,29 +110,23 @@ mod tests {
                     variants,
                     vec![
                         VariantID {
-                            ident: "ConcreteFormFactory_AlchemyItem_46_",
-                            se_id: 684591,
-                            ae_id: 392213,
-                            vr_offset: 0x1ed7000,
+                            ident: "BGSAddonNodeSoundHandleExtra",
+                            se_id: 514633,
+                            ae_id: 400793,
+                            vr_offset: 0x2f8a838,
                         },
                         VariantID {
-                            ident: "IFormFactory",
-                            se_id: 684588,
-                            ae_id: 392214,
-                            vr_offset: 0x1ed6cf8,
+                            ident: "BGSDecalNode",
+                            se_id: 514417,
+                            ae_id: 400564,
+                            vr_offset: 0x1f891a0,
                         },
                         VariantID {
-                            ident: "ConcreteObjectFormFactory_AlchemyItem_46_17_2_",
-                            se_id: 684590,
-                            ae_id: 392212,
-                            vr_offset: 0x1ed6fb0,
+                            ident: "BSAnimGroupSequence",
+                            se_id: 514462,
+                            ae_id: 400606,
+                            vr_offset: 0x1f89358,
                         },
-                        VariantID {
-                            ident: "BaseFormComponent",
-                            se_id: 513847,
-                            ae_id: 392215,
-                            vr_offset: 0x1ed6cd0,
-                        }
                     ]
                 );
             }
@@ -175,9 +136,9 @@ mod tests {
 
     #[ignore = "need C++ src (from generate manually)"]
     #[test]
-    fn test_de_rtti() {
-        let input = include_str!("D:/Programming/cpp/CommonLibVR/include/RE/Offsets_RTTI.h");
-        crate::offsets_rtti_gen::generate_variant_ids(input, "./gen/offsets_rtti.json")
+    fn test_de_ni_rtti() {
+        let input = include_str!("D:/Programming/cpp/CommonLibVR/include/RE/Offsets_NiRTTI.h");
+        crate::offsets_ni_rtti_gen::generate_variant_ids(input, "./gen/offsets_ni_rtti.json")
             .unwrap_or_else(|err| panic!("{err}"));
     }
 
@@ -189,7 +150,6 @@ mod tests {
             .join(file_name);
 
         let imports = "// C++ Original code
-// - ref: https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/include/RE/Offsets_NiRTTI.h
 // - ref: https://github.com/SARDONYX-forks/CommonLibVR/blob/ng/include/RE/Offsets_RTTI.h
 // SPDX-FileCopyrightText: (C) 2018 Ryan-rsm-McKenzie
 // SPDX-License-Identifier: MIT
@@ -202,10 +162,10 @@ use crate::rel::id::VariantID;";
         std::fs::write(path, format!("{imports}\n\n{code}\n")).unwrap();
     }
 
-    #[ignore = "need offsets_rtti.json (from generate manually)"]
+    #[ignore = "need offsets_ni_rtti.json (from generate manually)"]
     #[test]
     fn test_gen_code() {
-        let input = ::std::fs::read_to_string("./gen/offsets_rtti.json").unwrap();
-        gen_code(&input, "offsets_rtti.rs");
+        let input = ::std::fs::read_to_string("./gen/offsets_ni_rtti.json").unwrap();
+        gen_code(&input, "offsets_ni_rtti.rs");
     }
 }

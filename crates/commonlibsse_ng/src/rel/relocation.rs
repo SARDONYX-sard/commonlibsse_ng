@@ -212,7 +212,9 @@ impl TryFrom<RelocationID> for Relocation {
     }
 }
 
-pub(crate) fn relocate_virtual<F>(
+/// # Safety
+/// # Errors
+pub unsafe fn relocate_virtual<F>(
     se_ae_vtable_offset: isize,
     vr_vtable_offset: isize,
     se_ae_vtable_index: isize,
@@ -236,8 +238,9 @@ where
     }
 }
 
+/// # Safety
 /// # Errors
-pub(crate) fn relocate_member<T>(
+pub unsafe fn relocate_member<T>(
     this: *mut u8,
     se_ae_offset: isize,
     vr_offset: isize,
@@ -246,7 +249,8 @@ pub(crate) fn relocate_member<T>(
     unsafe { Ok(this.offset(if is_vr { vr_offset } else { se_ae_offset }).cast::<T>()) }
 }
 
-pub(crate) const fn relocate_member_if<T>(
+/// # Safety
+pub const unsafe fn relocate_member_if<T>(
     condition: bool,
     this: *mut u8,
     a: isize,
@@ -255,8 +259,9 @@ pub(crate) const fn relocate_member_if<T>(
     unsafe { this.offset(if condition { a } else { b }).cast::<T>() }
 }
 
+/// # Safety
 /// # Errors
-pub(crate) fn relocate_member_if_newer<T>(
+pub unsafe fn relocate_member_if_newer<T>(
     version: crate::rel::version::Version,
     this: *mut u8,
     older: isize,

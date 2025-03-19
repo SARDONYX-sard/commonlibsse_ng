@@ -1,3 +1,4 @@
+#[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum FormType {
     None = 0,                   //	00 NONE TESForm

@@ -36,6 +36,13 @@ pub struct BSTEventSource<Event> {
 }
 const_assert_eq!(core::mem::size_of::<BSTEventSource<()>>(), 0x58);
 
+impl<Event> Default for BSTEventSource<Event> {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<Event> BSTEventSource<Event> {
     pub const fn new() -> Self {
         Self {
@@ -52,16 +59,19 @@ impl<Event> BSTEventSource<Event> {
 
     /// # Panics
     pub fn add_event_sink(&mut self, event_sink: *mut Sink<Event>) {
+        let _ = event_sink;
         todo!()
     }
 
     /// # Panics
     pub fn remove_event_sink(&mut self, event_sink: *mut Sink<Event>) {
+        let _ = event_sink;
         todo!()
     }
 
     /// # Panics
     pub fn send_event(&mut self, event: &Event) {
+        let _ = event;
         todo!()
     }
 }

@@ -61,7 +61,7 @@ fn variant_tables<'a>(input: &mut &'a str) -> ModalResult<VTables<'a>> {
 /// # Example
 /// ```no_run
 /// let input = include_str!("D:/Programming/cpp/CommonLibVR/include/RE/Offsets_VTABLE.h");
-/// xtask::offsets_vtable_gen::generate_variant_vtables(input, "./offsets_vtable.json")
+/// xtask::offsets_vtable_gen::generate_variant_vtables(input, "./gen/offsets_vtable.json")
 ///     .unwrap_or_else(|err| panic!("{err}"));
 /// ```
 pub fn generate_variant_vtables(
@@ -156,10 +156,18 @@ mod tests {
         }
     }
 
+    #[ignore = "need C++ src (from generate manually)"]
+    #[test]
+    fn test_de_vtable() {
+        let input = include_str!("D:/Programming/cpp/CommonLibVR/include/RE/Offsets_VTABLE.h");
+        crate::offsets_vtable_gen::generate_variant_vtables(input, "./gen/offsets_vtable.json")
+            .unwrap_or_else(|err| panic!("{err}"));
+    }
+
     #[ignore = "need offsets_vtable.json (from generate manually)"]
     #[test]
     fn test_gen_code() {
-        let input = ::std::fs::read_to_string("./offsets_vtable.json").unwrap();
+        let input = ::std::fs::read_to_string("./gen/offsets_vtable.json").unwrap();
         let vtables: VTables = serde_json::from_str(&input).unwrap();
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../crates/commonlibsse_ng/src/re")

@@ -6,45 +6,23 @@ use crate::re::BSTArray::BSTSmallArray;
 use crate::re::ExtraDataList::ExtraDataList;
 use crate::re::InventoryChanges::InventoryChanges;
 use crate::re::InventoryEntryData::InventoryEntryData;
+use crate::re::NiAVObject::NiAVObject;
 use crate::re::NiPoint3::NiPoint3;
+use crate::re::NiSmartPointer::NiPointer;
 use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
+use crate::re::TESObjectCELL::TESObjectCELL;
+use crate::re::{
+    BSAnimationGraphEvent, BSHandleRefObject, BSTEventSink, ExtraContainerChanges,
+    IAnimationGraphManagerHolder, ObjectHandle, TesWaterForm,
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct ExtraContainerChanges {
-    changes: *mut InventoryChanges,
-}
-
-struct TesWaterForm;
-struct NiPointer<T> {
-    pub ptr: NonNull<T>,
-}
-struct NiAVObject;
-
-struct TESObjectCELL;
-struct BSHandleRefObject;
-struct BSTEventSink<T> {
-    maker: core::marker::PhantomData<T>,
-}
-struct BSAnimationGraphEvent;
-struct IAnimationGraphManagerHolder;
-
-enum ItemRemoveReason {
-    Remove,
-    Steal,
-    Selling,
-    Dropping,
-    StoreInContainer,
-    StoreInTeammate,
-}
-struct ObjectHandle;
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct OBJ_REFR {
-    objectReference: *mut TESBoundObject, // 00
-    angle: NiPoint3,                      // 08
-    location: NiPoint3,                   // 14
+pub struct OBJ_REFR {
+    pub objectReference: *mut TESBoundObject, // 00
+    pub angle: NiPoint3,                      // 08
+    pub location: NiPoint3,                   // 14
 }
 
 const _: () = {
@@ -71,15 +49,16 @@ pub struct LOADED_REF_DATA {
 }
 
 pub struct TESObjectREFR {
-    _base: TESForm,                              // 00
-    _base1: BSHandleRefObject,                   // 20
-    _base2: BSTEventSink<BSAnimationGraphEvent>, // 30
-    _base3: IAnimationGraphManagerHolder,        // 38
-    data: OBJ_REFR,                              // 40
-    parentCell: *mut TESObjectCELL,              // 60
-    loadedData: *mut LOADED_REF_DATA,            // 68
-    extraList: ExtraDataList,                    // 70
+    pub _base: TESForm,                              // 00
+    pub _base1: BSHandleRefObject,                   // 20
+    pub _base2: BSTEventSink<BSAnimationGraphEvent>, // 30
+    pub _base3: IAnimationGraphManagerHolder,        // 38
+    pub data: OBJ_REFR,                              // 40
+    pub parentCell: *mut TESObjectCELL,              // 60
+    pub loadedData: *mut LOADED_REF_DATA,            // 68
+    pub extraList: ExtraDataList,                    // 70
 }
+const _: [(); core::mem::size_of::<TESObjectREFR>()] = [(); 0x78];
 
 type Count = i32;
 pub type InventoryCountMap = HashMap<*mut TESBoundObject, Count>;

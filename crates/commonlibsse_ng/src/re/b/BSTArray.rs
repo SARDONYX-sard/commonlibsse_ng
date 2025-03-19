@@ -9,7 +9,7 @@ use crate::re::offsets_vtable::VTABLE_BSTArrayBase__IAllocatorFunctor;
 use crate::rel::id::VariantID;
 
 #[repr(C)]
-struct BSTArrayBase {
+pub struct BSTArrayBase {
     pub size: u32,
 }
 const_assert_eq!(core::mem::size_of::<BSTArrayBase>(), 0x4);
@@ -22,7 +22,7 @@ impl BSTArrayBase {
 }
 
 #[repr(C)]
-struct IAllocatorFunctor {
+pub struct IAllocatorFunctor {
     vtable_: *const IAllocatorFunctorVtbl,
 }
 const_assert_eq!(core::mem::size_of::<IAllocatorFunctor>(), 0x8);
@@ -32,16 +32,16 @@ impl IAllocatorFunctor {
     pub const VTABLE: [VariantID; 1] = VTABLE_BSTArrayBase__IAllocatorFunctor;
 }
 
-struct IAllocatorFunctorVtbl {
-    allocate: fn(this: *mut c_void, num: u32, elem_size: u32) -> bool,
-    reallocate: fn(
+pub struct IAllocatorFunctorVtbl {
+    pub allocate: fn(this: *mut c_void, num: u32, elem_size: u32) -> bool,
+    pub reallocate: fn(
         this: *mut c_void,
         min_new_size_items: u32,
         front_copy_count: u32,
         back_copy_count: u32,
         elem_size: u32,
     ) -> bool,
-    deallocate: fn(this: *mut c_void) -> c_void,
+    pub deallocate: fn(this: *mut c_void) -> c_void,
 }
 
 #[repr(C)]

@@ -97,7 +97,7 @@ impl BSSpinLock {
             self.lock_count.fetch_add(1, Ordering::SeqCst);
         } else {
             let mut attempts = 0;
-            if self.lock_count.compare_and_swap(0, 1, Ordering::SeqCst) == 0 {
+            if self.lock_count.compare_exchange(0, 1, Ordering::AcqRel, Ordering::Relaxed).is_ok() {
                 loop {
                     attempts += 1;
                     // Equivalent to _mm_pause() (processor-specific hint to reduce contention).
@@ -106,7 +106,11 @@ impl BSSpinLock {
 
                     if attempts >= pause_attempts {
                         let mut spin_count = 0;
-                        while self.lock_count.compare_and_swap(0, 1, Ordering::SeqCst) != 0 {
+                        while self
+                            .lock_count
+                            .compare_exchange(0, 1, Ordering::AcqRel, Ordering::Relaxed)
+                            .is_ok()
+                        {
                             // Simulate Sleep and Spin Threshold
                             if spin_count < 10 {
                                 spin_count += 1;

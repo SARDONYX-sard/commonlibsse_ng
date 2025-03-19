@@ -27,9 +27,60 @@ pub use i::*;
 pub use n::*;
 pub use t::*;
 
-// dummy
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// dummies
+
 pub struct GFxMovieView;
 pub struct GFxValue;
 
 pub struct VMHandle(pub u64);
 pub struct FormID(pub u32);
+
+pub struct ExtraContainerChanges {
+    changes: *mut InventoryChanges::InventoryChanges,
+}
+
+pub struct TesWaterForm;
+
+pub struct BSHandleRefObject {
+    pub opaque: [u8; 10],
+}
+pub struct BSTEventSink<T> {
+    maker: core::marker::PhantomData<T>,
+}
+pub struct BSAnimationGraphEvent;
+pub struct IAnimationGraphManagerHolder;
+
+pub enum ItemRemoveReason {
+    Remove,
+    Steal,
+    Selling,
+    Dropping,
+    StoreInContainer,
+    StoreInTeammate,
+}
+pub struct ObjectHandle;
+pub struct NiExtraData;
+pub struct NiTimeController;
+
+impl NiSmartPointer::RefCountable for NiTimeController {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&self) {
+        todo!()
+    }
+}
+pub struct NiNode;
+pub struct NiCollisionObject;
+
+impl crate::re::NiSmartPointer::RefCountable for NiCollisionObject {
+    fn inc_ref_count(&self) {
+        unimplemented!()
+    }
+
+    fn dec_ref_count(&self) {
+        unimplemented!()
+    }
+}

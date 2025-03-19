@@ -42,6 +42,9 @@ impl InventoryEntryData {
         no_favorited: bool,
         no_quest_item: bool,
     ) -> bool {
+        let _ = no_equipped;
+        let _ = no_favorited;
+        let _ = no_quest_item;
         todo!()
     }
 
@@ -57,8 +60,8 @@ impl InventoryEntryData {
         todo!()
     }
 
-    pub fn get_object(&self) -> Option<&TESBoundObject> {
-        unsafe { self.object.as_ref().map(|obj| obj) }
+    pub const fn get_object(&self) -> Option<&TESBoundObject> {
+        unsafe { self.object.as_ref() }
     }
 
     pub fn get_owner(&self) -> Option<&TESForm> {
@@ -98,16 +101,19 @@ impl InventoryEntryData {
     }
 
     pub fn is_owned_by(&self, test_owner: Option<Arc<Actor>>, default_to: bool) -> bool {
-        // Placeholder for ownership check
-        default_to
+        let _ = test_owner;
+        let _ = default_to;
+        todo!()
     }
 
     pub fn is_quest_object(&self) -> bool {
         todo!()
     }
 
-    pub fn poison_object(&mut self, alch_item: Option<Arc<AlchemyItem>>, count: u32) {
-        // Placeholder for poisoning object
+    pub fn poison_object(&mut self, alchemy_item: Option<Arc<AlchemyItem>>, count: u32) {
+        let _ = alchemy_item;
+        let _ = count;
+        todo!()
     }
 }
 

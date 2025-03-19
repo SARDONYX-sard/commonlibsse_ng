@@ -4,7 +4,7 @@ use core::ptr::NonNull;
 use std::ffi::{CStr, CString};
 
 pub struct BSString {
-    data: NonNull<u8>,
+    data: NonNull<u8>, // FIXME: data coming from ffi should be *mut c_char because it could be null
     size: u16,
     capacity: u16,
     _pad0C: u32,
