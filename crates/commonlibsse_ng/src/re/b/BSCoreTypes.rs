@@ -71,7 +71,7 @@ define_transparent_type!(
     /// # Examples
     /// ```
     /// # use commonlibsse_ng::re::BSCoreTypes::VMHandle;
-    /// let vm_handle = RE::VMHandle::new(1234567890123456);
+    /// let vm_handle = VMHandle::new(1234567890123456);
     /// ```
 ,
     /// Returns the contained value as a `u64` type.
