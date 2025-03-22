@@ -242,7 +242,7 @@ pub fn nearly_equal(a: f32, b: f32, options: ComparisonOptions) -> bool {
     }
 
     let diff = (a - b).abs();
-    let norm = (a.abs() + b.abs()).min(f32::MAX);
+    let norm = (a + b).abs().min(f32::MAX);
     diff < f32::max(options.abs_th, options.epsilon * norm)
 }
 
