@@ -1,9 +1,10 @@
 pub mod NiAVObject;
 pub mod NiBound;
+pub mod NiMath;
 pub mod NiMatrix3;
 pub mod NiObject;
+pub mod NiObjectNET;
 pub mod NiPoint3;
 pub mod NiRefObject;
 pub mod NiSmartPointer;
-pub mod NiObjectNET;
 pub mod NiTransform;
