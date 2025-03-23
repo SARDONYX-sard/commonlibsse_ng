@@ -5,7 +5,7 @@ use crate::re::{NiExtraData, NiTimeController};
 
 #[repr(C)]
 pub struct NiObjectNET {
-    pub _base: NiObject, // Inherit from NiObject
+    pub __base: NiObject, // Inherit from NiObject
     pub name: BSFixedString,
     pub controllers: NiPointer<NiTimeController>,
     pub extra: *mut *mut NiExtraData,

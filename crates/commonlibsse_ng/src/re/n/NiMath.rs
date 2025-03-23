@@ -41,6 +41,8 @@ pub fn rad_to_deg(radians: f32) -> f32 {
 
 /// Normalizes an angle in radians to the range `[-π, π]`.
 ///
+/// - Test with C++: [See Compiler Explorer](https://godbolt.org/z/j56qT1KP5)
+///
 /// # Examples
 /// ```
 /// # use commonlibsse_ng::re::NiMath::normalize_angle;

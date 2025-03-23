@@ -9,6 +9,7 @@ use crate::rel::ResolvableAddress;
 use crate::rel::id::{DataBaseError, ID, RelocationID};
 use crate::rel::module::{ModuleState, ModuleStateError};
 use crate::rel::offset::{Offset, VariantOffset};
+use crate::rel::version::Version;
 use core::ffi::c_void;
 use core::marker::PhantomData;
 use core::mem;
@@ -238,10 +239,17 @@ where
     }
 }
 
+/// Relocates a member based on the runtime state, returning a pointer to the new location.
+///
 /// # Safety
+/// This function requires that the caller ensure the provided pointer `this` is valid, meaning it should point to a valid memory location.
+/// The `se_ae_offset` and `vr_offset` must be safe offsets for the given pointer type.
+///
 /// # Errors
+/// This function may return an error if the module's runtime is not available or if any error occurs while fetching the runtime state.
+/// Specifically, it calls `ModuleState::map_active`, which could result in an error.
 pub unsafe fn relocate_member<T>(
-    this: *mut u8,
+    this: *mut c_void,
     se_ae_offset: isize,
     vr_offset: isize,
 ) -> Result<*mut T, ModuleStateError> {
@@ -249,7 +257,10 @@ pub unsafe fn relocate_member<T>(
     unsafe { Ok(this.offset(if is_vr { vr_offset } else { se_ae_offset }).cast::<T>()) }
 }
 
+/// Relocates a member based on a condition, using either offset `a` or `b` depending on the condition.
+///
 /// # Safety
+/// This function is unsafe because it involves pointer manipulation, requiring the caller to ensure the pointer `this` is valid and the offsets `a` and `b` are correct for the type `T`.
 pub const unsafe fn relocate_member_if<T>(
     condition: bool,
     this: *mut u8,
@@ -259,14 +270,20 @@ pub const unsafe fn relocate_member_if<T>(
     unsafe { this.offset(if condition { a } else { b }).cast::<T>() }
 }
 
+/// Relocates a member based on the version comparison, using either `older` or `newer` offset depending on the current version.
+///
 /// # Safety
+/// This function requires that the caller ensures the pointer `this` is valid and the offsets `older` and `newer` are valid for the type `T`.
+/// The `version` parameter must be compared to the current version obtained from the `ModuleState`.
+///
 /// # Errors
+/// This function may return an error if the module's state cannot be accessed, or if the `map_active` call fails when fetching the current version.
 pub unsafe fn relocate_member_if_newer<T>(
-    version: crate::rel::version::Version,
+    version: Version,
     this: *mut u8,
     older: isize,
     newer: isize,
 ) -> Result<*mut T, ModuleStateError> {
-    let current_version = ModuleState::map_active(|module| module.version.clone())?;
-    unsafe { Ok(this.offset(if current_version < version { older } else { newer }).cast::<T>()) }
+    let is_old = ModuleState::map_active(|module| module.version < version)?;
+    unsafe { Ok(this.offset(if is_old { older } else { newer }).cast::<T>()) }
 }

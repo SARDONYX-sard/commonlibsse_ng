@@ -1,23 +1,25 @@
-use std::sync::atomic::{AtomicU32, Ordering};
-
 use crate::re::offsets_rtti::RTTI_NiRefObject;
 use crate::re::offsets_vtable::VTABLE_NiRefObject;
 use crate::rel::id::VariantID;
+use core::sync::atomic::{AtomicU32, Ordering};
 
 #[repr(C)]
 pub struct NiRefObject {
-    vtbl: *const Vtbl,
-    _ref_count: AtomicU32,
+    pub vtbl: *const NiRefObjectVtbl,
+    pub _ref_count: AtomicU32,
     _pad: u32,
 }
+const _: () = assert!(core::mem::size_of::<NiRefObject>() == 0x10);
 
 #[repr(C)]
-pub struct Vtbl {
-    /// C++ virtual destructor
-    _drop: unsafe extern "C" fn(*mut NiRefObject),
-
-    delete_this: unsafe extern "C" fn(*mut NiRefObject),
+pub struct NiRefObjectVtbl {
+    /// C++ virtual class Destructor equivalent
+    /// - override: `NiRefObject`
+    pub CxxDrop: unsafe extern "C" fn(this: *mut NiRefObject), // 0x00
+    /// `NiRefObject` virtual member function
+    pub DeleteThis: unsafe extern "C" fn(this: *mut NiRefObject), // 0x01
 }
+const _: () = assert!(core::mem::size_of::<NiRefObjectVtbl>() == 0x10);
 
 impl NiRefObject {
     pub const RTTI: VariantID = RTTI_NiRefObject;
@@ -25,10 +27,7 @@ impl NiRefObject {
 
     // Destructor
     pub fn delete_this(&self) {
-        unsafe {
-            let delete_fn = (*self.vtbl).delete_this;
-            delete_fn(self as *const _ as *mut _);
-        }
+        unsafe { ((*self.vtbl).DeleteThis)(self as *const _ as *mut _) };
     }
 
     // Increment ref count
@@ -55,10 +54,3 @@ impl NiRefObject {
         &TOTAL_OBJECT_COUNT
     }
 }
-
-// Ensure the size of NiRefObject matches C++ equivalent size
-#[cfg(target_arch = "x86_64")]
-const _: () = assert!(std::mem::size_of::<NiRefObject>() == 0x10);
-
-#[cfg(target_arch = "x86_64")]
-const _: () = assert!(std::mem::size_of::<Vtbl>() == 0x10); // Size of vtable

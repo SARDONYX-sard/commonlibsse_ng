@@ -1,5 +1,7 @@
 pub mod NiAVObject;
 pub mod NiBound;
+pub mod NiColor;
+pub mod NiLight;
 pub mod NiMath;
 pub mod NiMatrix3;
 pub mod NiObject;
