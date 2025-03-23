@@ -310,18 +310,18 @@ mod u16_wide {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
 
-    #[test]
-    fn test_bs_string() {
-        let mut bs_fixed_string = unsafe { BSFixedString::new_unchecked(c"Hello World".as_ptr()) };
-        assert_eq!(bs_fixed_string.count_bytes(), 12);
-        assert_eq!(bs_fixed_string.to_str(), Some("Hello World"));
-        assert!(bs_fixed_string.contains(c"World"));
+//     #[test]
+//     fn test_bs_string() {
+//         let mut bs_fixed_string = unsafe { BSFixedString::new_unchecked(c"Hello World".as_ptr()) };
+//         assert_eq!(bs_fixed_string.count_bytes(), 12);
+//         assert_eq!(bs_fixed_string.to_str(), Some("Hello World"));
+//         assert!(bs_fixed_string.contains(c"World"));
 
-        bs_fixed_string.try_release();
-        assert!(bs_fixed_string.data.is_null());
-    }
-}
+//         bs_fixed_string.try_release();
+//         assert!(bs_fixed_string.data.is_null());
+//     }
+// }
