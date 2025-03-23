@@ -1,7 +1,15 @@
+use crate::re::NiRTTI::NiRTTI;
 use crate::re::NiRefObject::NiRefObject;
 use crate::re::offsets_ni_rtti::NiRTTI_NiObject;
 use crate::re::offsets_rtti::RTTI_NiObject;
 use crate::re::offsets_vtable::VTABLE_NiObject;
+use crate::re::{
+    BSDynamicTriShape, BSFadeNode, BSGeometry, BSLines, BSMultiBoundNode, BSSegmentedTriShape,
+    BSSubIndexTriShape, BSTriShape, NiCloningProcess, NiControllerManager, NiGeometry, NiNode,
+    NiObjectGroup, NiParticles, NiStream, NiSwitchNode, NiTriBasedGeom, NiTriShape, NiTriStrips,
+    bhkAttachmentCollisionObject, bhkBlendCollisionObject, bhkLimitedHingeConstraint,
+    bhkNiCollisionObject, bhkRigidBody,
+};
 use crate::rel::id::VariantID;
 
 use super::NiRefObject::NiRefObjectVtbl;
@@ -19,81 +27,19 @@ impl NiObject {
     pub const VTABLE: [VariantID; 1] = VTABLE_NiObject;
 }
 
+impl crate::re::NiSmartPointer::RefCountable for NiObject {
+    #[inline]
+    fn inc_ref_count(&self) {
+        self.__base.inc_ref_count();
+    }
+
+    #[inline]
+    fn dec_ref_count(&self) {
+        self.__base.dec_ref_count();
+    }
+}
+
 // Dummy structs for missing classes
-#[repr(C)]
-pub struct NiRTTI;
-
-#[repr(C)]
-pub struct NiNode;
-
-#[repr(C)]
-pub struct NiSwitchNode;
-
-#[repr(C)]
-pub struct BSFadeNode;
-
-#[repr(C)]
-pub struct BSMultiBoundNode;
-
-#[repr(C)]
-pub struct BSGeometry;
-
-#[repr(C)]
-pub struct NiTriStrips;
-
-#[repr(C)]
-pub struct BSTriShape;
-
-#[repr(C)]
-pub struct BSSegmentedTriShape;
-
-#[repr(C)]
-pub struct BSSubIndexTriShape;
-
-#[repr(C)]
-pub struct BSDynamicTriShape;
-
-#[repr(C)]
-pub struct NiGeometry;
-
-#[repr(C)]
-pub struct NiTriBasedGeom;
-
-#[repr(C)]
-pub struct NiTriShape;
-
-#[repr(C)]
-pub struct NiParticles;
-
-#[repr(C)]
-pub struct BSLines;
-
-#[repr(C)]
-pub struct bhkNiCollisionObject;
-
-#[repr(C)]
-pub struct bhkBlendCollisionObject;
-
-#[repr(C)]
-pub struct bhkAttachmentCollisionObject;
-
-#[repr(C)]
-pub struct bhkRigidBody;
-
-#[repr(C)]
-pub struct bhkLimitedHingeConstraint;
-
-#[repr(C)]
-pub struct NiCloningProcess;
-
-#[repr(C)]
-pub struct NiStream;
-
-#[repr(C)]
-pub struct NiObjectGroup;
-
-#[repr(C)]
-pub struct NiControllerManager;
 
 /// # Virtual member functions info
 /// - fn count: 37

@@ -72,6 +72,8 @@ impl NiSmartPointer::RefCountable for NiTimeController {
         todo!()
     }
 }
+
+#[repr(C)]
 pub struct NiNode;
 pub struct NiCollisionObject;
 
@@ -84,3 +86,72 @@ impl crate::re::NiSmartPointer::RefCountable for NiCollisionObject {
         unimplemented!()
     }
 }
+
+#[repr(C)]
+pub struct NiSwitchNode;
+
+#[repr(C)]
+pub struct BSFadeNode;
+
+#[repr(C)]
+pub struct BSMultiBoundNode;
+
+#[repr(C)]
+pub struct BSGeometry;
+
+#[repr(C)]
+pub struct NiTriStrips;
+
+#[repr(C)]
+pub struct BSTriShape;
+
+#[repr(C)]
+pub struct BSSegmentedTriShape;
+
+#[repr(C)]
+pub struct BSSubIndexTriShape;
+
+#[repr(C)]
+pub struct BSDynamicTriShape;
+
+#[repr(C)]
+pub struct NiGeometry;
+
+#[repr(C)]
+pub struct NiTriBasedGeom;
+
+#[repr(C)]
+pub struct NiTriShape;
+
+#[repr(C)]
+pub struct NiParticles;
+
+#[repr(C)]
+pub struct BSLines;
+
+#[repr(C)]
+pub struct bhkNiCollisionObject;
+
+#[repr(C)]
+pub struct bhkBlendCollisionObject;
+
+#[repr(C)]
+pub struct bhkAttachmentCollisionObject;
+
+#[repr(C)]
+pub struct bhkRigidBody;
+
+#[repr(C)]
+pub struct bhkLimitedHingeConstraint;
+
+#[repr(C)]
+pub struct NiCloningProcess;
+
+#[repr(C)]
+pub struct NiStream;
+
+#[repr(C)]
+pub struct NiObjectGroup;
+
+#[repr(C)]
+pub struct NiControllerManager;

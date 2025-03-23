@@ -7,6 +7,7 @@ pub mod NiMatrix3;
 pub mod NiObject;
 pub mod NiObjectNET;
 pub mod NiPoint3;
+pub mod NiRTTI;
 pub mod NiRefObject;
 pub mod NiSmartPointer;
 pub mod NiTransform;

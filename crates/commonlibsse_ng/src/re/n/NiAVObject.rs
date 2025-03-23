@@ -1,9 +1,18 @@
-use crate::re::NiCollisionObject;
+use crate::re::NiBound::NiBound;
+use crate::re::NiObject::NiObject;
 use crate::re::NiObjectNET::NiObjectNET;
+use crate::re::NiRTTI::NiRTTI;
 use crate::re::NiSmartPointer::NiPointer;
 use crate::re::NiTransform::NiTransform;
-use crate::re::{NiBound::NiBound, NiNode};
-use core::ffi::{c_float, c_void};
+use crate::re::offsets_ni_rtti::NiRTTI_NiObject;
+use crate::re::offsets_rtti::RTTI_NiObject;
+use crate::re::offsets_vtable::VTABLE_NiObject;
+use crate::re::{NiCloningProcess, NiCollisionObject, NiNode};
+use crate::rel::ResolvableAddress as _;
+use crate::rel::id::{DataBaseError, VariantID};
+use crate::rel::relocation::Relocation;
+use core::ffi::{CStr, c_float, c_void};
+use core::ptr::NonNull;
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy)]
@@ -70,6 +79,60 @@ const _: () = {
     assert!(core::mem::size_of::<NiAVObject>() == 0x110);
 };
 
+impl NiAVObject {
+    pub const RTTI: VariantID = RTTI_NiObject;
+    pub const NI_RTTI: VariantID = NiRTTI_NiObject;
+    pub const VTABLE: [VariantID; 1] = VTABLE_NiObject;
+
+    /// # Errors
+    pub fn get_rtti(&self) -> Result<NonNull<NiRTTI>, DataBaseError> {
+        let rel = Relocation::new(Self::NI_RTTI.address()?);
+        Ok(rel.cast::<NiRTTI>())
+    }
+
+    /// # Safety
+    pub unsafe fn is_equal(&self, other: *mut Self) -> bool {
+        if other.is_null() {};
+
+        let name = match self.get_rtti() {
+            Ok(rtti) => unsafe { rtti.as_ref().get_name() },
+            Err(_) => return false,
+        };
+
+        match unsafe { other.as_ref() } {
+            Some(rtti) => {
+                let rtti = match rtti.get_rtti() {
+                    Ok(rtti) => rtti,
+                    Err(_) => return false,
+                };
+                let other_name = unsafe { rtti.as_ref().get_name() };
+                let self_name = unsafe { CStr::from_ptr(name) };
+                let other_name = unsafe { CStr::from_ptr(other_name) };
+                self_name == other_name
+            }
+            None => false,
+        }
+    }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 68838, ae_id = 70190)]
+    pub unsafe fn process_clone(&self, cloning: &NiCloningProcess) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 68839, ae_id = 70191)]
+    pub unsafe fn create_deep_copy(&self, cloning: &NiPointer<NiObject>) {}
+}
+
+impl crate::re::NiSmartPointer::RefCountable for NiAVObject {
+    #[inline]
+    fn inc_ref_count(&self) {
+        self.__base.__base.__base.inc_ref_count();
+    }
+
+    #[inline]
+    fn dec_ref_count(&self) {
+        self.__base.__base.__base.dec_ref_count();
+    }
+}
+
 #[repr(C)]
 pub struct NiAVObjectVtbl {
     /// C++ class Destructor equivalent
@@ -77,26 +140,25 @@ pub struct NiAVObjectVtbl {
 
     // override (NiObjectNET)
     pub GetRTTI: unsafe extern "C" fn(this: *const c_void) -> *const c_void, // 02
-    pub LoadBinary: unsafe extern "C" fn(this: *mut c_void, a_stream: *mut c_void), // 18
-    pub LinkObject: unsafe extern "C" fn(this: *mut c_void, a_stream: *mut c_void), // 19
-    pub RegisterStreamables: unsafe extern "C" fn(this: *mut c_void, a_stream: *mut c_void) -> bool, // 1A
-    pub SaveBinary: unsafe extern "C" fn(this: *mut c_void, a_stream: *mut c_void), // 1B
-    pub IsEqual: unsafe extern "C" fn(this: *mut c_void, a_object: *mut c_void) -> bool, // 1C
-    pub ProcessClone: unsafe extern "C" fn(this: *mut c_void, a_cloning: *mut c_void), // 1D
+    pub LoadBinary: unsafe extern "C" fn(this: *mut c_void, stream: *mut c_void), // 18
+    pub LinkObject: unsafe extern "C" fn(this: *mut c_void, stream: *mut c_void), // 19
+    pub RegisterStreamables: unsafe extern "C" fn(this: *mut c_void, stream: *mut c_void) -> bool, // 1A
+    pub SaveBinary: unsafe extern "C" fn(this: *mut c_void, stream: *mut c_void), // 1B
+    pub IsEqual: unsafe extern "C" fn(this: *mut c_void, object: *mut c_void) -> bool, // 1C
+    pub ProcessClone: unsafe extern "C" fn(this: *mut c_void, cloning: *mut c_void), // 1D
 
     // Custom add-ons
-    pub UpdateControllers: unsafe extern "C" fn(this: *mut c_void, a_data: *mut c_void), // 25
+    pub UpdateControllers: unsafe extern "C" fn(this: *mut c_void, data: *mut c_void), // 25
 
     // VR
     pub ApplyLocalTransformToWorld: Option<unsafe extern "C" fn(this: *mut c_void)>, // Optional, for VR-specific functionality
-    pub PerformOp: Option<unsafe extern "C" fn(this: *mut c_void, a_func: *mut c_void)>, // 26
-    pub AttachProperty: Option<unsafe extern "C" fn(this: *mut c_void, a_property: *mut c_void)>, // 27
-    pub SetMaterialNeedsUpdate:
-        Option<unsafe extern "C" fn(this: *mut c_void, a_needs_update: bool)>, // 28
+    pub PerformOp: Option<unsafe extern "C" fn(this: *mut c_void, func: *mut c_void)>, // 26
+    pub AttachProperty: Option<unsafe extern "C" fn(this: *mut c_void, property: *mut c_void)>, // 27
+    pub SetMaterialNeedsUpdate: Option<unsafe extern "C" fn(this: *mut c_void, needs_update: bool)>, // 28
     pub SetDefaultMaterialNeedsUpdateFlag:
-        Option<unsafe extern "C" fn(this: *mut c_void, a_flag: bool)>, // 29
+        Option<unsafe extern "C" fn(this: *mut c_void, flag: bool)>, // 29
     pub GetObjectByName:
-        Option<unsafe extern "C" fn(this: *mut c_void, a_name: *mut c_void) -> *mut c_void>, // 2A
+        Option<unsafe extern "C" fn(this: *mut c_void, name: *mut c_void) -> *mut c_void>, // 2A
     pub SetSelectiveUpdateFlags: Option<
         unsafe extern "C" fn(
             this: *mut c_void,
@@ -106,19 +168,19 @@ pub struct NiAVObjectVtbl {
         ),
     >, // 2B
     pub UpdateDownwardPass:
-        Option<unsafe extern "C" fn(this: *mut c_void, a_data: *mut c_void, a_arg2: u32)>, // 2C
+        Option<unsafe extern "C" fn(this: *mut c_void, data: *mut c_void, arg2: u32)>, // 2C
     pub UpdateSelectedDownwardPass:
-        Option<unsafe extern "C" fn(this: *mut c_void, a_data: *mut c_void, a_arg2: u32)>, // 2D
+        Option<unsafe extern "C" fn(this: *mut c_void, data: *mut c_void, arg2: u32)>, // 2D
     pub UpdateRigidDownwardPass:
-        Option<unsafe extern "C" fn(this: *mut c_void, a_data: *mut c_void, a_arg2: u32)>, // 2E
+        Option<unsafe extern "C" fn(this: *mut c_void, data: *mut c_void, arg2: u32)>, // 2E
     pub UpdateWorldBound: Option<unsafe extern "C" fn(this: *mut c_void)>, // 2F
-    pub UpdateWorldData: Option<unsafe extern "C" fn(this: *mut c_void, a_data: *mut c_void)>, // 30
+    pub UpdateWorldData: Option<unsafe extern "C" fn(this: *mut c_void, data: *mut c_void)>, // 30
     pub UpdateTransformAndBounds:
-        Option<unsafe extern "C" fn(this: *mut c_void, a_data: *mut c_void)>, // 31
+        Option<unsafe extern "C" fn(this: *mut c_void, data: *mut c_void)>, // 31
     pub PreAttachUpdate:
-        Option<unsafe extern "C" fn(this: *mut c_void, a_parent: *mut c_void, a_data: *mut c_void)>, // 32
+        Option<unsafe extern "C" fn(this: *mut c_void, parent: *mut c_void, data: *mut c_void)>, // 32
     pub PostAttachUpdate: Option<unsafe extern "C" fn(this: *mut c_void)>, // 33
-    pub OnVisible: Option<unsafe extern "C" fn(this: *mut c_void, a_process: *mut c_void)>, // 34
+    pub OnVisible: Option<unsafe extern "C" fn(this: *mut c_void, process: *mut c_void)>, // 34
 }
 
 #[repr(C)]
@@ -151,16 +213,4 @@ pub enum NiAVObject_Flag {
     HighDetail = 1 << 24,
     ForceUpdate = 1 << 25,
     PreProcessedNode = 1 << 26,
-}
-
-impl crate::re::NiSmartPointer::RefCountable for NiAVObject {
-    #[inline]
-    fn inc_ref_count(&self) {
-        self.__base.__base.__base.inc_ref_count();
-    }
-
-    #[inline]
-    fn dec_ref_count(&self) {
-        self.__base.__base.__base.dec_ref_count();
-    }
 }
