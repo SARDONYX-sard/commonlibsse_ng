@@ -2,6 +2,7 @@
 #![allow(non_snake_case)]
 
 mod b;
+mod c;
 mod e;
 mod f;
 mod i;
@@ -21,11 +22,22 @@ pub mod offsets_ni_rtti;
 pub mod offsets_vtable;
 
 pub use b::*;
+pub use c::*;
 pub use e::*;
 pub use f::*;
 pub use i::*;
 pub use n::*;
 pub use t::*;
+
+use crate::rel::id::VariantID;
+
+/// C++ Virtual Class RTTI & Vtable accessor
+pub trait CxxVirtClass {
+    /// Gets the runtime information address ID reference.
+    fn rtti() -> &'static VariantID;
+    /// Gets the virtual function table address reference.
+    fn vtable() -> &'static [VariantID];
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // dummies
@@ -36,20 +48,14 @@ pub struct GFxValue;
 pub struct VMHandle(pub u64);
 pub struct FormID(pub u32);
 
-pub struct ExtraContainerChanges {
-    changes: *mut InventoryChanges::InventoryChanges,
-}
-
 pub struct TesWaterForm;
 
-pub struct BSHandleRefObject {
-    pub opaque: [u8; 10],
-}
-pub struct BSTEventSink<T> {
-    maker: core::marker::PhantomData<T>,
-}
+#[derive(Debug)]
 pub struct BSAnimationGraphEvent;
-pub struct IAnimationGraphManagerHolder;
+#[derive(Debug)]
+pub struct IAnimationGraphManagerHolder {
+    pub opaque: [u8; 2],
+}
 
 pub enum ItemRemoveReason {
     Remove,
@@ -68,24 +74,13 @@ impl NiSmartPointer::RefCountable for NiTimeController {
         todo!()
     }
 
-    fn dec_ref_count(&self) {
+    fn dec_ref_count(&mut self) {
         todo!()
     }
 }
 
 #[repr(C)]
 pub struct NiNode;
-pub struct NiCollisionObject;
-
-impl crate::re::NiSmartPointer::RefCountable for NiCollisionObject {
-    fn inc_ref_count(&self) {
-        unimplemented!()
-    }
-
-    fn dec_ref_count(&self) {
-        unimplemented!()
-    }
-}
 
 #[repr(C)]
 pub struct NiSwitchNode;
@@ -146,12 +141,7 @@ pub struct bhkLimitedHingeConstraint;
 
 #[repr(C)]
 pub struct NiCloningProcess;
-
-#[repr(C)]
 pub struct NiStream;
-
-#[repr(C)]
 pub struct NiObjectGroup;
-
-#[repr(C)]
 pub struct NiControllerManager;
+pub struct bhkCollisionObject;

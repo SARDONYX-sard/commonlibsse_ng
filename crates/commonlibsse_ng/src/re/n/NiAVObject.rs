@@ -1,18 +1,15 @@
 use crate::re::NiBound::NiBound;
-use crate::re::NiObject::NiObject;
+use crate::re::NiCollisionObject::NiCollisionObject;
 use crate::re::NiObjectNET::NiObjectNET;
-use crate::re::NiRTTI::NiRTTI;
 use crate::re::NiSmartPointer::NiPointer;
 use crate::re::NiTransform::NiTransform;
 use crate::re::offsets_ni_rtti::NiRTTI_NiObject;
 use crate::re::offsets_rtti::RTTI_NiObject;
 use crate::re::offsets_vtable::VTABLE_NiObject;
-use crate::re::{NiCloningProcess, NiCollisionObject, NiNode};
-use crate::rel::ResolvableAddress as _;
-use crate::rel::id::{DataBaseError, VariantID};
-use crate::rel::relocation::Relocation;
-use core::ffi::{CStr, c_float, c_void};
-use core::ptr::NonNull;
+use crate::re::{NiNode, bhkCollisionObject};
+use crate::rel::id::VariantID;
+use crate::rel::relocation::{RelocationError, relocate_member, relocate_member_mut};
+use core::ffi::{c_float, c_void};
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy)]
@@ -32,10 +29,9 @@ pub struct NiUpdateData {
 #[repr(C)]
 pub struct PerformOpFuncVtbl {
     /// C++ class Destructor equivalent
-    pub cxx_drop: unsafe extern "C" fn(this: *mut c_void), // 00
-
+    pub CxxDrop: unsafe extern "C" fn(this: *mut c_void), // 00
     /// C++ operator()
-    pub op_call: unsafe extern "C" fn(*mut c_void, *mut NiAVObject) -> bool, // 01 (operator())
+    pub CxxOperatorCall: unsafe extern "C" fn(*mut c_void, *mut NiAVObject) -> bool, // 01
 }
 
 #[repr(C)]
@@ -84,41 +80,163 @@ impl NiAVObject {
     pub const NI_RTTI: VariantID = NiRTTI_NiObject;
     pub const VTABLE: [VariantID; 1] = VTABLE_NiObject;
 
+    #[must_use]
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 68835, ae_id = 70187)]
+    pub fn clone(&self) -> *mut NiAVObject {}
+
+    // pub fn cull_geometry(&mut self, cull: bool) {
+    //     todo!()
+    // }
+
+    // pub fn cull_node(&mut self, cull: bool) {
+    //     todo!()
+    // }
+
+    /// Returns whether the object is culled (hidden) in the application.
+    ///
+    /// This function checks the visibility status of the object based on its flags.
+    /// If the object has the [`Flag::Hidden`] set, it is considered culled (i.e., hidden) and will
+    /// not be rendered or processed for certain operations.
+    ///
+    /// The `get_app_culled` function essentially checks if the object is flagged as "hidden" by
+    /// returning a boolean indicating whether the object is culled or not. This is commonly
+    /// used for optimizing rendering performance by excluding objects that should not be visible.
+    ///
+    /// # Returns
+    /// * `true` if the object is culled (i.e., hidden).
+    /// * `false` if the object is not culled (i.e., visible).
+    #[inline]
+    pub fn get_app_culled(&self) -> bool {
+        self.get_flags().is_ok_and(|flag_member| flag_member.contains(Flag::Hidden))
+    }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 25482, ae_id = 26022)]
+    pub fn get_collision_object(&self) -> *mut bhkCollisionObject {}
+
+    // pub fn get_collision_layer(&self) -> COL_LAYER {
+    //     self.collision_object.is_some()
+    // }
+
+    // #[must_use]
+    // pub fn get_first_geometry_of_shader_type(
+    //     &self,
+    //     shader_type: BSShaderMaterialFeature,
+    // ) -> Option<NonNull<BSGeometry>> {
+    //     todo!()
+    // }
+
+    // #[must_use]
+    // pub fn get_mass(&self) -> f32 {
+    //     todo!()
+    // }
+
+    // #[must_use]
+    // pub fn get_user_data(&self) -> Option<NonNull<TESObjectREFR>> {
+    //     todo!()
+    // }
+
+    // pub fn set_user_data(&mut self, ref_obj: Option<NonNull<TESObjectREFR>>) {
+    //     todo!()
+    // }
+
+    // #[must_use]
+    // pub fn has_animation(&self) -> bool {
+    //     todo!()
+    // }
+
+    // #[must_use]
+    // pub fn has_shader_type(&self, shader_type: BSShaderMaterialFeature) -> bool {
+    //     todo!()
+    // }
+
+    // pub fn remove_decals(&mut self) {
+    //     todo!()
+    // }
+
+    // pub fn set_app_culled(&mut self, cull: bool) {
+    //     todo!()
+    // }
+
+    // pub fn set_collision_layer(&mut self, layer: COL_LAYER) {
+    //     todo!()
+    // }
+
+    // pub fn set_collision_layer_and_group(&mut self, layer: COL_LAYER, group: u32) {
+    //     todo!()
+    // }
+
+    // #[must_use]
+    // pub fn set_motion_type(
+    //     &mut self,
+    //     motion_type: hkpMotionType,
+    //     recurse: bool,
+    //     force: bool,
+    //     allow_activate: bool,
+    // ) -> bool {
+    //     todo!()
+    // }
+
+    // #[must_use]
+    // pub fn set_projected_uv_data(
+    //     &mut self,
+    //     uv_params: &NiColorA,
+    //     uv_color: &NiColor,
+    //     is_snow: bool,
+    // ) -> bool {
+    //     todo!()
+    // }
+
+    // pub fn tint_scenegraph(&mut self, color: &NiColorA) {
+    //     todo!()
+    // }
+
+    // pub fn update(&mut self, data: &mut NiUpdateData) {
+    //     todo!()
+    // }
+
+    // pub fn update_body_tint(&mut self, color: &NiColor) {
+    //     todo!()
+    // }
+
+    // pub fn update_hair_color(&mut self, color: &NiColor) {
+    //     todo!()
+    // }
+
+    // pub fn update_material_alpha(&mut self, alpha: f32, do_only_skin: bool) {
+    //     todo!()
+    // }
+
+    // pub fn update_rigid_constraints(&mut self, enable: bool, arg2: u8, arg3: u32) {
+    //     todo!()
+    // }
+
+    // #[must_use]
+    // pub fn get_flags_mut(&mut self) -> &mut stl::Enumeration<Flag, u32> {
+    //     unsafe {
+    //         std::mem::transmute(
+    //             ((self as *mut Self).cast::<u8>().add(0x0F4)) as *mut stl::Enumeration<Flag, u32>,
+    //         )
+    //     }
+    // }
+
     /// # Errors
-    pub fn get_rtti(&self) -> Result<NonNull<NiRTTI>, DataBaseError> {
-        let rel = Relocation::new(Self::NI_RTTI.address()?);
-        Ok(rel.cast::<NiRTTI>())
+    #[inline]
+    pub fn get_flags(&self) -> Result<&Flag, RelocationError> {
+        relocate_member(self, 0x0F4, 0x10C)
     }
 
-    /// # Safety
-    pub unsafe fn is_equal(&self, other: *mut Self) -> bool {
-        if other.is_null() {};
-
-        let name = match self.get_rtti() {
-            Ok(rtti) => unsafe { rtti.as_ref().get_name() },
-            Err(_) => return false,
-        };
-
-        match unsafe { other.as_ref() } {
-            Some(rtti) => {
-                let rtti = match rtti.get_rtti() {
-                    Ok(rtti) => rtti,
-                    Err(_) => return false,
-                };
-                let other_name = unsafe { rtti.as_ref().get_name() };
-                let self_name = unsafe { CStr::from_ptr(name) };
-                let other_name = unsafe { CStr::from_ptr(other_name) };
-                self_name == other_name
-            }
-            None => false,
-        }
+    /// # Errors
+    #[inline]
+    pub fn get_flags_mut(&mut self) -> Result<&mut Flag, RelocationError> {
+        relocate_member_mut(self, 0x0F4, 0x10C)
     }
 
-    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 68838, ae_id = 70190)]
-    pub unsafe fn process_clone(&self, cloning: &NiCloningProcess) {}
-
-    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 68839, ae_id = 70191)]
-    pub unsafe fn create_deep_copy(&self, cloning: &NiPointer<NiObject>) {}
+    // pub fn temp_nicast(
+    //     &mut self,
+    //     geometry: &mut BSGeometry,
+    // ) -> Option<NonNull<BSLightingShaderProperty>> {
+    //     todo!()
+    // }
 }
 
 impl crate::re::NiSmartPointer::RefCountable for NiAVObject {
@@ -128,7 +246,7 @@ impl crate::re::NiSmartPointer::RefCountable for NiAVObject {
     }
 
     #[inline]
-    fn dec_ref_count(&self) {
+    fn dec_ref_count(&mut self) {
         self.__base.__base.__base.dec_ref_count();
     }
 }
@@ -183,34 +301,36 @@ pub struct NiAVObjectVtbl {
     pub OnVisible: Option<unsafe extern "C" fn(this: *mut c_void, process: *mut c_void)>, // 34
 }
 
-#[repr(C)]
-#[derive(Debug)]
-pub enum NiAVObject_Flag {
-    None = 0,
-    Hidden = 1 << 0,
-    SelectiveUpdate = 1 << 1,
-    SelectiveUpdateTransforms = 1 << 2,
-    SelectiveUpdateController = 1 << 3,
-    SelectiveUpdateRigid = 1 << 4,
-    DisplayObject = 1 << 5,
-    DisableSorting = 1 << 6,
-    SelectiveUpdateTransformsOverride = 1 << 7,
-    SaveExternalGeometryData = 1 << 9,
-    NoDecals = 1 << 10,
-    AlwaysDraw = 1 << 11,
-    MeshLOD = 1 << 12,
-    FixedBound = 1 << 13,
-    TopFadeNode = 1 << 14,
-    IgnoreFade = 1 << 15,
-    NoAnimSyncX = 1 << 16,
-    NoAnimSyncY = 1 << 17,
-    NoAnimSyncZ = 1 << 18,
-    NoAnimSyncS = 1 << 19,
-    NoDismember = 1 << 20,
-    NoDismemberValidity = 1 << 21,
-    RenderUse = 1 << 22,
-    MaterialsApplied = 1 << 23,
-    HighDetail = 1 << 24,
-    ForceUpdate = 1 << 25,
-    PreProcessedNode = 1 << 26,
+bitflags::bitflags! {
+    /// NiAVObject Flags
+    #[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord)]
+    pub struct Flag: u32 {
+        const None = 0;
+        const Hidden = 1 << 0;
+        const SelectiveUpdate = 1 << 1;
+        const SelectiveUpdateTransforms = 1 << 2;
+        const SelectiveUpdateController = 1 << 3;
+        const SelectiveUpdateRigid = 1 << 4;
+        const DisplayObject = 1 << 5;
+        const DisableSorting = 1 << 6;
+        const SelectiveUpdateTransformsOverride = 1 << 7;
+        const SaveExternalGeometryData = 1 << 9;
+        const NoDecals = 1 << 10;
+        const AlwaysDraw = 1 << 11;
+        const MeshLOD = 1 << 12;
+        const FixedBound = 1 << 13;
+        const TopFadeNode = 1 << 14;
+        const IgnoreFade = 1 << 15;
+        const NoAnimSyncX = 1 << 16;
+        const NoAnimSyncY = 1 << 17;
+        const NoAnimSyncZ = 1 << 18;
+        const NoAnimSyncS = 1 << 19;
+        const NoDismember = 1 << 20;
+        const NoDismemberValidity = 1 << 21;
+        const RenderUse = 1 << 22;
+        const MaterialsApplied = 1 << 23;
+        const HighDetail = 1 << 24;
+        const ForceUpdate = 1 << 25;
+        const PreProcessedNode = 1 << 26;
+    }
 }

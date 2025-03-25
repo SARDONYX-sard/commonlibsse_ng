@@ -14,13 +14,14 @@ use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 /// # use commonlibsse_ng::re::NiColor::NiColor;
 /// let color = NiColor::new(0.5, 0.3, 0.8);
 /// ```
+#[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct NiColor {
-    /// Red component (0.0 - 1.0)
+    /// Red component (range: 0.0..=1.0)
     pub red: f32,
-    /// Green component (0.0 - 1.0)
+    /// Green component (range: 0.0..=1.0)
     pub green: f32,
-    /// Blue component (0.0 - 1.0)
+    /// Blue component (range: 0.0..=1.0)
     pub blue: f32,
 }
 
@@ -168,6 +169,7 @@ impl fmt::Display for NiColor {
 }
 
 /// Represents an RGBA color with `f32` components for red, green, blue, and alpha.
+#[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct NiColorA {
     pub red: f32,

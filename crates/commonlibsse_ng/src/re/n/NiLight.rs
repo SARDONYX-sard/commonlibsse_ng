@@ -5,8 +5,7 @@ use crate::re::offsets_ni_rtti::NiRTTI_NiLight;
 use crate::re::offsets_rtti::RTTI_NiLight;
 use crate::re::offsets_vtable::VTABLE_NiLight;
 use crate::rel::id::VariantID;
-use crate::rel::module::ModuleStateError;
-use core::ffi::c_void;
+use crate::rel::relocation::{RelocationError, relocate_member, relocate_member_mut};
 
 #[repr(C)]
 pub struct NiLight {
@@ -20,31 +19,17 @@ impl NiLight {
     pub const VTABLE: [VariantID; 1] = VTABLE_NiLight;
 
     /// # Errors
-    pub fn get_light_runtime_data(&self) -> Result<&'static LIGHT_RUNTIME_DATA, ModuleStateError> {
-        use crate::rel::relocation::relocate_member;
-
-        let this = self as *const Self as *mut c_void;
-        let data = unsafe { relocate_member::<LIGHT_RUNTIME_DATA>(this, 0x110, 0x138) }?;
-        if data.is_null() || !data.is_aligned() {
-            todo!()
-        };
-
-        Ok(unsafe { &*data })
+    #[inline]
+    pub fn get_light_runtime_data(&self) -> Result<&LIGHT_RUNTIME_DATA, RelocationError> {
+        relocate_member(self, 0x110, 0x138)
     }
 
     /// # Errors
+    #[inline]
     pub fn get_light_runtime_data_mut(
         &mut self,
-    ) -> Result<&'static mut LIGHT_RUNTIME_DATA, ModuleStateError> {
-        use crate::rel::relocation::relocate_member;
-
-        let this = (self as *mut Self).cast::<c_void>();
-        let data = unsafe { relocate_member::<LIGHT_RUNTIME_DATA>(this, 0x110, 0x138) }?;
-        if data.is_null() || !data.is_aligned() {
-            todo!()
-        };
-
-        Ok(unsafe { &mut *data })
+    ) -> Result<&mut LIGHT_RUNTIME_DATA, RelocationError> {
+        relocate_member_mut(self, 0x110, 0x138)
     }
 }
 

@@ -62,6 +62,7 @@ fn generate_code(
 
     quote::quote! {
         #(#attrs)*
+        #[allow(clippy::use_self)]
         #fn_sig {
             #(#stmts)*
 

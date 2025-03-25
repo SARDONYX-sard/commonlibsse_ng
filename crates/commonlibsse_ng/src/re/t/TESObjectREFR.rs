@@ -2,7 +2,11 @@ use core::ffi::c_void;
 use core::ptr::NonNull;
 use std::collections::HashMap;
 
+use crate::re::BSExtraData::BSExtraData;
+use crate::re::BSHandleRefObject::BSHandleRefObject;
 use crate::re::BSTArray::BSTSmallArray;
+use crate::re::BSTEventSource::BSTEventSink;
+use crate::re::ExtraContainerChanges::ExtraContainerChanges;
 use crate::re::ExtraDataList::ExtraDataList;
 use crate::re::InventoryChanges::InventoryChanges;
 use crate::re::InventoryEntryData::InventoryEntryData;
@@ -12,13 +16,11 @@ use crate::re::NiSmartPointer::NiPointer;
 use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
 use crate::re::TESObjectCELL::TESObjectCELL;
-use crate::re::{
-    BSAnimationGraphEvent, BSHandleRefObject, BSTEventSink, ExtraContainerChanges,
-    IAnimationGraphManagerHolder, ObjectHandle, TesWaterForm,
-};
+use crate::re::{BSAnimationGraphEvent, IAnimationGraphManagerHolder, ObjectHandle, TesWaterForm};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#[derive(Debug)]
 pub struct OBJ_REFR {
     pub objectReference: *mut TESBoundObject, // 00
     pub angle: NiPoint3,                      // 08
@@ -48,17 +50,19 @@ pub struct LOADED_REF_DATA {
     pub unk70: *mut c_void, // smart ptr
 }
 
+#[repr(C)]
+#[derive(Debug)]
 pub struct TESObjectREFR {
-    pub _base: TESForm,                              // 00
-    pub _base1: BSHandleRefObject,                   // 20
-    pub _base2: BSTEventSink<BSAnimationGraphEvent>, // 30
-    pub _base3: IAnimationGraphManagerHolder,        // 38
-    pub data: OBJ_REFR,                              // 40
-    pub parentCell: *mut TESObjectCELL,              // 60
-    pub loadedData: *mut LOADED_REF_DATA,            // 68
-    pub extraList: ExtraDataList,                    // 70
+    pub __base: TESForm,                              // 00
+    pub __base1: BSHandleRefObject,                   // 20
+    pub __base2: BSTEventSink<BSAnimationGraphEvent>, // 30
+    pub __base3: IAnimationGraphManagerHolder,        // 38
+    pub data: OBJ_REFR,                               // 40
+    pub parentCell: *mut TESObjectCELL,               // 60
+    pub loadedData: *mut LOADED_REF_DATA,             // 68
+    pub extraList: ExtraDataList,                     // 70
 }
-const _: [(); core::mem::size_of::<TESObjectREFR>()] = [(); 0x78];
+const _: () = assert!(core::mem::size_of::<TESObjectREFR>() == 0x78);
 
 type Count = i32;
 pub type InventoryCountMap = HashMap<*mut TESBoundObject, Count>;
@@ -245,8 +249,7 @@ impl TESObjectREFR {
     where
         F: Fn(&TESBoundObject) -> bool,
     {
-        let inventory_changed = self.get_inventory_changes(no_init);
-        let inventory_changed = inventory_changed?;
+        let inventory_changed = self.get_inventory_changes(no_init)?;
         let inventory_changed = unsafe { &*inventory_changed };
 
         let mut inventory = InventoryItemMap::new();
@@ -270,7 +273,7 @@ impl TESObjectREFR {
     // }
 
     pub fn get_inventory_changes(&self, no_init: bool) -> Option<*mut InventoryChanges> {
-        if !self.extraList.has_type::<ExtraContainerChanges>() {
+        if !self.extraList.has_type(ExtraContainerChanges::EXTRA_DATA_TYPE) {
             if no_init {
                 return None;
             };
@@ -279,12 +282,8 @@ impl TESObjectREFR {
                 self.force_init_inventory_changes();
             }
         }
-        let x_count_changes = self.extraList.get_by_type2::<ExtraContainerChanges>();
-        if !x_count_changes.is_null() {
-            return Some(unsafe { &*x_count_changes }.changes);
-        };
-
-        None
+        let base = self.extraList.get_by_type(ExtraContainerChanges::EXTRA_DATA_TYPE)?;
+        Some(unsafe { &*(base as *const BSExtraData).cast::<ExtraContainerChanges>() }.changes)
     }
 
     #[inline]

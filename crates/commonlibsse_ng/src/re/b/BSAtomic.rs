@@ -144,6 +144,7 @@ impl BSSpinLock {
 }
 
 #[repr(C)]
+#[derive(Debug, Default)]
 pub struct BSReadWriteLock {
     writer_thread: AtomicU32,
     lock: AtomicU32,
@@ -155,16 +156,20 @@ impl BSReadWriteLock {
     pub const LOCK_COUNT_MASK: usize = 0xFFFFFFF;
 
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 66976, ae_id = 68233)]
-    fn lock_for_read(&self) {}
+    pub unsafe fn lock_for_read(&self) {}
 
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 66982, ae_id = 68239)]
-    fn unlock_for_read(&self) {}
+    pub unsafe fn unlock_for_read(&self) {}
 
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 66977, ae_id = 68234)]
-    fn lock_for_write(&self) {}
+    pub unsafe fn lock_for_write(&self) {}
 
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 66983, ae_id = 68240)]
-    fn unlock_for_write(&self) {}
+    pub unsafe fn unlock_for_write(&self) {}
+
+    pub fn write(&mut self) -> BSWriteLockGuard<'_> {
+        BSWriteLockGuard { lock: self }
+    }
 }
 
 #[repr(C)]
@@ -193,14 +198,14 @@ pub struct BSReadLockGuard<'a> {
 
 impl<'a> BSReadLockGuard<'a> {
     pub fn new(lock: &'a BSReadWriteLock) -> Self {
-        lock.lock_for_read();
+        unsafe { lock.lock_for_read() };
         Self { lock }
     }
 }
 
 impl Drop for BSReadLockGuard<'_> {
     fn drop(&mut self) {
-        self.lock.unlock_for_read();
+        unsafe { self.lock.unlock_for_read() };
     }
 }
 
@@ -211,13 +216,13 @@ pub struct BSWriteLockGuard<'a> {
 
 impl<'a> BSWriteLockGuard<'a> {
     pub fn new(lock: &'a BSReadWriteLock) -> Self {
-        lock.lock_for_write();
+        unsafe { lock.lock_for_write() };
         Self { lock }
     }
 }
 
 impl Drop for BSWriteLockGuard<'_> {
     fn drop(&mut self) {
-        self.lock.unlock_for_write();
+        unsafe { self.lock.unlock_for_write() };
     }
 }

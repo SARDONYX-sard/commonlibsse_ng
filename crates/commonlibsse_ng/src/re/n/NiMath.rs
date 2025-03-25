@@ -12,7 +12,9 @@ pub const NI_PI: f32 = core::f32::consts::PI;
 pub const NI_HALF_PI: f32 = core::f32::consts::FRAC_PI_2;
 
 /// 2π
-pub const NI_TWO_PI: f32 = 2.0 * NI_PI;
+pub const NI_TWO_PI: f32 = core::f32::consts::TAU;
+#[allow(clippy::float_cmp_const)]
+const _: () = debug_assert!(NI_TWO_PI == 2.0 * NI_PI);
 
 /// Converts degrees to radians.
 ///
@@ -22,7 +24,7 @@ pub const NI_TWO_PI: f32 = 2.0 * NI_PI;
 /// assert_eq!(deg_to_rad(180.0), core::f32::consts::PI);
 /// ```
 #[inline]
-pub fn deg_to_rad(degrees: f32) -> f32 {
+pub const fn deg_to_rad(degrees: f32) -> f32 {
     degrees * (NI_PI / 180.0)
 }
 
@@ -35,7 +37,7 @@ pub fn deg_to_rad(degrees: f32) -> f32 {
 /// assert_eq!(rad_to_deg(core::f32::consts::PI * 2.0), 360.0);
 /// ```
 #[inline]
-pub fn rad_to_deg(radians: f32) -> f32 {
+pub const fn rad_to_deg(radians: f32) -> f32 {
     radians * (180.0 / NI_PI)
 }
 
@@ -45,20 +47,22 @@ pub fn rad_to_deg(radians: f32) -> f32 {
 ///
 /// # Examples
 /// ```
-/// # use commonlibsse_ng::re::NiMath::normalize_angle;
-/// // It is usually a mistake to rely on the equivalence of any float,
-/// // but we use `assert_eq` in our tests because the same output is expected for the same input.
-/// assert_eq!(normalize_angle(4.0), -2.283_185_2);
-/// assert_eq!(normalize_angle(-5.0), 1.283_185_5);
-/// assert_eq!(normalize_angle(7.0), 0.716_814_76);
+/// // Note: 450° causes a rounding error, but 540° does not, so there is no problem using `assert`.
+/// # use commonlibsse_ng::re::NiMath::{normalize_angle, rad_to_deg};
+/// use core::f32::consts::{TAU, PI};
+/// const _: () = assert!(TAU == 2.0 * PI);
+///
+/// const RAD_OF_540DEG: f32 = TAU + PI;
+/// assert!(rad_to_deg(RAD_OF_540DEG) == 540.0);
+/// assert!(normalize_angle(RAD_OF_540DEG) == -PI);
 /// ```
 #[inline]
-pub fn normalize_angle(radians: f32) -> f32 {
-    // mod(%) 2π: rounds the angle from 0..=2π
-    match (radians + NI_PI) % NI_TWO_PI {
-        n if n >= 0.0 => n - NI_PI,
-        n => n + NI_PI,
-    }
+pub const fn normalize_angle(radians: f32) -> f32 {
+    use core::f32::consts::{PI, TAU};
+
+    // Expand `(radians + PI).rem_euclid(TAU) - PI` for compile time evaluation.
+    let r = (radians + PI) % TAU;
+    (if r < 0.0 { r + TAU.abs() } else { r }) - PI
 }
 
 /// Returns the absolute value of a float.
@@ -74,7 +78,7 @@ pub const fn ni_abs(value: f32) -> f32 {
     value.abs()
 }
 
-/// Computes the arcsine of a value with clamping to `[-1, 1]`.
+/// Computes the arcsine(tilt to angle) of a value with clamping to `[-1, 1]`.
 ///
 /// - Special cases:
 ///     - `value >= 1.0` -> returns `π/2`
@@ -88,15 +92,14 @@ pub const fn ni_abs(value: f32) -> f32 {
 ///
 /// ```
 /// # use commonlibsse_ng::re::NiMath::ni_asin;
-/// assert_eq!(ni_asin(core::f32::consts::FRAC_PI_2.sin()), core::f32::consts::FRAC_PI_2);
-/// // overflow -> `π/2`
-/// assert_eq!(ni_asin(1.0), core::f32::consts::PI * 0.5);
-/// // underflow -> `-π/2`
-/// assert_eq!(ni_asin(-1.1), -core::f32::consts::PI * 0.5);
+/// use core::f32::consts::FRAC_PI_2;
+/// assert_eq!(ni_asin(FRAC_PI_2.sin()), FRAC_PI_2);
+/// assert_eq!(ni_asin(1.0), FRAC_PI_2);   // overflow -> `π/2`
+/// assert_eq!(ni_asin(-1.1), -FRAC_PI_2); // underflow -> `-π/2`
 /// ```
 #[inline]
-pub fn ni_asin(value: f32) -> f32 {
-    match value {
+pub fn ni_asin(tilt: f32) -> f32 {
+    match tilt {
         v if (-1.0..1.0).contains(&v) => v.asin(),
         v if v >= 1.0 => NI_HALF_PI,
         _ => -NI_HALF_PI,
@@ -106,9 +109,9 @@ pub fn ni_asin(value: f32) -> f32 {
 /// Approximates the arctangent of `y/x` using a fast polynomial expansion.
 ///
 /// - Special cases:
-///     - `atan2(0, 0)` → `0.0`
-///     - `atan2(1, 0)` → `π/2`
-///     - `atan2(0, -1)` → `π`
+///     - `atan2(0, 0)` → `0.0` rad
+///     - `atan2(1, 0)` → `π/2` rad
+///     - `atan2(0, -1)` → `π` rad
 ///
 /// # Examples
 ///
@@ -134,7 +137,7 @@ pub fn ni_asin(value: f32) -> f32 {
 ///
 /// [`Horner's method`]: https://en.wikipedia.org/wiki/Horner%27s_method
 #[inline]
-pub fn ni_fast_atan2(y: f32, x: f32) -> f32 {
+pub const fn ni_fast_atan2(y: f32, x: f32) -> f32 {
     if x == 0.0 && y == 0.0 {
         return 0.0;
     }
@@ -234,7 +237,7 @@ impl Default for ComparisonOptions {
 /// - It should not be smaller than the smallest representable float (`FLT_EPSILON`)
 /// - It should not be equal to or greater than 1.0 to avoid overly lenient comparisons
 #[inline]
-pub fn nearly_equal(a: f32, b: f32, options: ComparisonOptions) -> bool {
+pub const fn nearly_equal(a: f32, b: f32, options: ComparisonOptions) -> bool {
     assert!(f32::EPSILON <= options.epsilon, "epsilon must be >= FLT_EPSILON");
     assert!(options.epsilon < 1.0, "epsilon must be < 1.0");
 
@@ -250,45 +253,65 @@ pub fn nearly_equal(a: f32, b: f32, options: ComparisonOptions) -> bool {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::float_cmp)]
+    #![allow(clippy::float_cmp_const)]
+    #![allow(clippy::missing_const_for_fn)]
     use super::*;
     use crate::assert_nearly_eq;
+    use core::f32::consts::{FRAC_PI_2, PI, TAU};
 
     #[test]
-    fn test_deg_to_rad() {
-        assert_nearly_eq!(deg_to_rad(180.0), core::f32::consts::PI, epsilon = 1e-6);
-        assert_nearly_eq!(deg_to_rad(90.0), core::f32::consts::FRAC_PI_2, epsilon = 1e-6);
+    const fn test_deg_to_rad() {
+        assert!(deg_to_rad(180.0) == PI);
+        assert!(deg_to_rad(90.0) == FRAC_PI_2);
     }
 
     #[test]
-    fn test_rad_to_deg() {
-        assert_nearly_eq!(rad_to_deg(core::f32::consts::PI), 180.0, epsilon = 1e-6);
-        assert_nearly_eq!(rad_to_deg(core::f32::consts::FRAC_PI_2), 90.0, epsilon = 1e-6);
+    const fn test_rad_to_deg() {
+        assert!(rad_to_deg(PI) == 180.0);
+        assert!(rad_to_deg(FRAC_PI_2) == 90.0);
     }
 
     #[test]
     fn test_normalize_angle() {
-        assert_nearly_eq!(normalize_angle(4.0), -2.283_185_2, epsilon = 1e-6);
-        assert_nearly_eq!(normalize_angle(-5.0), 1.283_185_5, epsilon = 1e-6);
-        assert_nearly_eq!(normalize_angle(7.0), 0.716_814_76, epsilon = 1e-6);
+        // 450 - 360 = 90 degrees
+        const _: () = {
+            const RAD_OF_90DEG: f32 = FRAC_PI_2;
+            assert!(rad_to_deg(RAD_OF_90DEG) == 90.0);
+
+            const RAD_OF_450DEG: f32 = (5.0 * PI) / 2.0;
+            assert!(rad_to_deg(RAD_OF_450DEG) == 450.0);
+
+            const EPSILON: f32 = 4.0 * 1e-7;
+            assert!(EPSILON == 0.0000004);
+
+            assert!(normalize_angle(RAD_OF_450DEG) == RAD_OF_90DEG + EPSILON);
+        };
+
+        const _: () = {
+            const RAD_OF_540DEG: f32 = TAU + PI;
+            assert!(TAU == 2.0 * PI);
+            assert!(rad_to_deg(RAD_OF_540DEG) == 540.0);
+            assert!(normalize_angle(RAD_OF_540DEG) == -PI);
+        };
     }
 
     #[test]
     fn test_ni_abs() {
-        assert_nearly_eq!(ni_abs(-5.0), 5.0, epsilon = 1e-6);
-        assert_nearly_eq!(ni_abs(5.0), 5.0, epsilon = 1e-6);
+        assert!(ni_abs(-5.0) == 5.0);
+        assert!(ni_abs(5.0) == 5.0);
     }
 
     #[test]
-    #[allow(clippy::float_cmp)]
     fn test_ni_asin() {
-        assert_eq!(ni_asin(1.0), core::f32::consts::FRAC_PI_2);
-        assert_eq!(ni_asin(-1.0), -core::f32::consts::FRAC_PI_2);
+        assert_eq!(ni_asin(1.0), FRAC_PI_2);
+        assert_eq!(ni_asin(-1.0), -FRAC_PI_2);
         assert_eq!(ni_asin(0.0), 0.0);
     }
 
     #[test]
     fn test_ni_fast_atan2() {
-        assert_nearly_eq!(ni_fast_atan2(1.0, 0.0), core::f32::consts::FRAC_PI_2);
-        assert_nearly_eq!(ni_fast_atan2(0.0, -1.0), core::f32::consts::PI);
+        assert_nearly_eq!(ni_fast_atan2(1.0, 0.0), FRAC_PI_2);
+        assert_nearly_eq!(ni_fast_atan2(0.0, -1.0), PI);
     }
 }

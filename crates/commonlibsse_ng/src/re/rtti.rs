@@ -77,7 +77,9 @@
 //!                                                                                                +------------------------------------+
 //! ```
 
+use crate::re::CxxVirtClass;
 use crate::rel::ResolvableAddress as _;
+use crate::rel::id::DataBaseError;
 use core::ffi::c_void;
 use core::marker::PhantomData;
 use core::ptr::NonNull;
@@ -201,10 +203,10 @@ const _: () = {
 bitflags::bitflags! {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
     struct ClassHierarchyDescriptorAttribute: u32 {
-        const NO_INHERITANCE = 0;
-        const MULTIPLE_INHERITANCE= 1 << 0;
-        const VIRTUAL_INHERITANCE= 1 << 1;
-        const AMBIGUOUS_INHERITANCE= 1 << 2;
+        const NO_INHERITANCE        = 0;
+        const MULTIPLE_INHERITANCE  = 1 << 0;
+        const VIRTUAL_INHERITANCE   = 1 << 1;
+        const AMBIGUOUS_INHERITANCE = 1 << 2;
     }
 }
 
@@ -257,28 +259,14 @@ const _: () = {
 ///
 /// # Safety
 /// # Errors
+#[commonlibsse_ng_derive_internal::relocate_fn(se_id = 102238, ae_id = 109689, vr_id = 102238)]
 pub unsafe fn rt_dynamic_cast(
     in_ptr: *mut c_void,
     vf_delta: i32,
     src_type: *mut c_void,
     target_type: *mut c_void,
     is_reference: i32,
-) -> Result<*mut c_void, crate::rel::id::DataBaseError> {
-    /// `rt_dynamic_cast`(myself) signature
-    type MySelf = unsafe fn(
-        in_ptr: *mut c_void,
-        vf_delta: i32,
-        src_type: *mut c_void,
-        target_type: *mut c_void,
-        is_reference: i32,
-    ) -> *mut c_void;
-
-    use crate::rel::id::RelocationID;
-    use crate::rel::relocation::Relocation;
-
-    let func =
-        Relocation::new(RelocationID::new(102238, 109689, 102238).address()?).cast::<MySelf>();
-    Ok(unsafe { (*(func.as_ptr()))(in_ptr, vf_delta, src_type, target_type, is_reference) })
+) -> *mut c_void {
 }
 
 // TODO: Write tests
@@ -286,20 +274,17 @@ pub unsafe fn rt_dynamic_cast(
 /// # Safety
 /// # Errors
 /// # Panics
-pub unsafe fn skyrim_cast<To, From>(from: *mut From) -> *mut To
+pub unsafe fn skyrim_cast<To, From>(from: *mut From) -> Result<*mut To, DataBaseError>
 where
-    From: 'static + VirtualTableInfo,
-    To: 'static + VirtualTableInfo,
+    From: 'static + CxxVirtClass,
+    To: 'static + CxxVirtClass,
 {
     use crate::rel::relocation::Relocation;
-    let from_rtti = Relocation::new(From::rtti().address().unwrap()).cast::<c_void>();
-    let to_rtti = Relocation::new(To::rtti().address().unwrap()).cast::<c_void>();
+    let from_rtti = Relocation::new(From::rtti().address()?).cast::<c_void>();
+    let to_rtti = Relocation::new(To::rtti().address()?).cast::<c_void>();
 
-    unsafe { rt_dynamic_cast(from.cast::<c_void>(), 0, from_rtti.as_ptr(), to_rtti.as_ptr(), 0) }
-        .unwrap()
-        .cast()
-}
-
-pub trait VirtualTableInfo {
-    fn rtti() -> crate::rel::id::VariantID;
+    Ok(unsafe {
+        rt_dynamic_cast(from.cast::<c_void>(), 0, from_rtti.as_ptr(), to_rtti.as_ptr(), 0)
+    }
+    .cast())
 }

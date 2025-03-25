@@ -1,5 +1,7 @@
 use crate::re::NiRTTI::NiRTTI;
 use crate::re::NiRefObject::NiRefObject;
+use crate::re::NiRefObject::NiRefObjectVtbl;
+use crate::re::NiSmartPointer::NiPointer;
 use crate::re::offsets_ni_rtti::NiRTTI_NiObject;
 use crate::re::offsets_rtti::RTTI_NiObject;
 use crate::re::offsets_vtable::VTABLE_NiObject;
@@ -10,14 +12,15 @@ use crate::re::{
     bhkAttachmentCollisionObject, bhkBlendCollisionObject, bhkLimitedHingeConstraint,
     bhkNiCollisionObject, bhkRigidBody,
 };
-use crate::rel::id::VariantID;
-
-use super::NiRefObject::NiRefObjectVtbl;
+use crate::rel::ResolvableAddress as _;
+use crate::rel::id::{DataBaseError, VariantID};
+use crate::rel::relocation::Relocation;
+use core::ffi::CStr;
+use core::ptr::NonNull;
 
 #[repr(C)]
 pub struct NiObject {
     pub __base: NiRefObject,
-    // pub vtable: *const NiObjectVtbl, // default virtual doesn't have vtable.
 }
 const _: () = assert!(core::mem::size_of::<NiObject>() == 0x10);
 
@@ -25,6 +28,41 @@ impl NiObject {
     pub const RTTI: VariantID = RTTI_NiObject;
     pub const NI_RTTI: VariantID = NiRTTI_NiObject;
     pub const VTABLE: [VariantID; 1] = VTABLE_NiObject;
+
+    /// # Errors
+    pub fn get_rtti(&self) -> Result<NonNull<NiRTTI>, DataBaseError> {
+        let rel = Relocation::new(Self::NI_RTTI.address()?);
+        Ok(rel.cast::<NiRTTI>())
+    }
+
+    /// # Safety
+    pub unsafe fn is_equal(&self, other: *mut Self) -> bool {
+        if other.is_null() {};
+
+        let name = match self.get_rtti() {
+            Ok(rtti) => unsafe { rtti.as_ref().get_name() },
+            Err(_) => return false,
+        };
+        let rtti = match unsafe { other.as_ref() } {
+            Some(rtti) => rtti,
+            None => return false,
+        };
+
+        let rtti = match rtti.get_rtti() {
+            Ok(rtti) => rtti,
+            Err(_) => return false,
+        };
+        let other_name = unsafe { rtti.as_ref().get_name() };
+        let self_name = unsafe { CStr::from_ptr(name) };
+        let other_name = unsafe { CStr::from_ptr(other_name) };
+        self_name == other_name
+    }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 68838, ae_id = 70190)]
+    pub unsafe fn process_clone(&self, cloning: &NiCloningProcess) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 68839, ae_id = 70191)]
+    pub unsafe fn create_deep_copy(&self, cloning: &NiPointer<NiObject>) {}
 }
 
 impl crate::re::NiSmartPointer::RefCountable for NiObject {
@@ -34,12 +72,10 @@ impl crate::re::NiSmartPointer::RefCountable for NiObject {
     }
 
     #[inline]
-    fn dec_ref_count(&self) {
+    fn dec_ref_count(&mut self) {
         self.__base.dec_ref_count();
     }
 }
-
-// Dummy structs for missing classes
 
 /// # Virtual member functions info
 /// - fn count: 37
@@ -49,7 +85,7 @@ pub struct NiObjectVtbl {
     //                                                                                                  | Method count |
     /// - overrides
     ///  - destructor
-    pub _base: NiRefObjectVtbl,
+    pub __base: NiRefObjectVtbl,
 
     // additional methods
     pub GetRtti: unsafe extern "C" fn(this: *const NiObject) -> *const NiRTTI, // 0x02
