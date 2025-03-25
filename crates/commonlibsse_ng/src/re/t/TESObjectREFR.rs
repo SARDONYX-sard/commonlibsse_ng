@@ -2,7 +2,6 @@ use core::ffi::c_void;
 use core::ptr::NonNull;
 use std::collections::HashMap;
 
-use crate::re::BSExtraData::BSExtraData;
 use crate::re::BSHandleRefObject::BSHandleRefObject;
 use crate::re::BSTArray::BSTSmallArray;
 use crate::re::BSTEventSource::BSTEventSink;
@@ -282,8 +281,8 @@ impl TESObjectREFR {
                 self.force_init_inventory_changes();
             }
         }
-        let base = self.extraList.get_by_type(ExtraContainerChanges::EXTRA_DATA_TYPE)?;
-        Some(unsafe { &*(base as *const BSExtraData).cast::<ExtraContainerChanges>() }.changes)
+        let x_container = self.extraList.get_by_type_as::<ExtraContainerChanges>()?;
+        Some(unsafe { x_container.as_ref() }.changes)
     }
 
     #[inline]

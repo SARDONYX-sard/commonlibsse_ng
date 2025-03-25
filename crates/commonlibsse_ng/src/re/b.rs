@@ -1,5 +1,6 @@
 pub mod BGSDirectionalAmbientLightingColors;
 pub mod BGSLoadFormBuffer;
+pub mod BGSMessage;
 pub mod BGSSaveFormBuffer;
 pub mod BGSSaveGameBuffer;
 pub mod BSAtomic;
@@ -8,6 +9,7 @@ pub mod BSExtraData;
 pub mod BSFile;
 pub mod BSFixedString;
 pub mod BSHandleRefObject;
+pub mod BSPointerHandle;
 pub mod BSScript;
 pub mod BSString;
 pub mod BSStringPool;

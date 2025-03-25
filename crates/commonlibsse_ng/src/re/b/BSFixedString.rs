@@ -126,9 +126,18 @@ mod u8_bytes {
     #[allow(clippy::use_self)]
     pub unsafe fn ctor8(data: *const c_char) -> BSFixedString {}
 
+    /// A constant pointer to an empty string.
+    pub const EMPTY_C_CHAR: *const c_char = c"".as_ptr();
+
     impl BSFixedString {
-        /// A constant pointer to an empty string.
-        pub const EMPTY: *const c_char = c"".as_ptr();
+        /// const default
+        pub const DEFAULT: Self = Self { data: EMPTY_C_CHAR, marker: PhantomData };
+
+        /// Creates a new `BSFixedString` from a `&CStr`.
+        #[inline]
+        pub fn new(data: &CStr) -> Self {
+            unsafe { Self::new_unchecked(data.as_ptr()) }
+        }
 
         /// Creates a new `BSFixedString` from a raw pointer.
         ///
@@ -136,9 +145,6 @@ mod u8_bytes {
         /// - `data` must be a valid null-terminated `char` string.
         #[inline]
         pub unsafe fn new_unchecked(data: *const c_char) -> Self {
-            if data.is_null() {
-                return Self { data: Self::EMPTY, marker: PhantomData };
-            }
             unsafe { ctor8(data) }
         }
 
@@ -153,7 +159,7 @@ mod u8_bytes {
                     return CStr::from_ptr(proxy.as_raw());
                 }
             }
-            unsafe { CStr::from_ptr(Self::EMPTY) }
+            unsafe { CStr::from_ptr(EMPTY_C_CHAR) }
         }
 
         /// Converts this C string as a byte slice.
@@ -199,7 +205,7 @@ mod u8_bytes {
     impl Default for BSFixedString {
         #[inline]
         fn default() -> Self {
-            Self { data: Self::EMPTY, marker: PhantomData }
+            Self { data: EMPTY_C_CHAR, marker: PhantomData }
         }
     }
 

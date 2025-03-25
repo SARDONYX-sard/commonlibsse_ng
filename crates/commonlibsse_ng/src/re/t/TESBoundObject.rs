@@ -21,7 +21,7 @@ const _: () = assert!(std::mem::size_of::<BOUND_DATA>() == 0xC);
 
 #[repr(C)]
 pub struct TESBoundObject {
-    _base: TESObject,
+    pub __base: TESObject,
     pub bound_data: BOUND_DATA,
     pub pad2C: u32,
 }

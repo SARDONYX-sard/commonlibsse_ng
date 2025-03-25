@@ -1,7 +1,17 @@
-use core::ptr;
+use core::ffi::c_char;
+use core::ptr::{self, NonNull};
 
-use crate::re::BSExtraData::{BSExtraDataIter, BSExtraDataIterMut};
+use crate::re::BSExtraData::{
+    BSExtraDataIter, BSExtraDataIterMut, DerivedBSExtraData, downcast_as,
+};
+use crate::re::BSPointerHandle::ObjectRefHandle;
+use crate::re::ExtraAshPileRef::ExtraAshPileRef;
+use crate::re::ExtraCount::ExtraCount;
 use crate::re::ExtraDataType::ExtraDataType;
+use crate::re::ExtraHealth::ExtraHealth;
+use crate::re::ExtraReferenceHandle::ExtraReferenceHandle;
+use crate::re::ExtraTextDisplayData::ExtraTextDisplayData;
+use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::{BSAtomic::BSReadWriteLock, BSExtraData::BSExtraData};
 use crate::rel::relocation::PhantomMember;
 
@@ -105,6 +115,77 @@ impl ExtraDataList {
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 12176, ae_id = 12315)]
     pub fn add(&mut self, to_add: *mut BSExtraData) -> *mut BSExtraData {}
 
+    pub fn get_ash_pile_ref(&mut self) -> ObjectRefHandle {
+        let ash_ref = self.get_by_type_as::<ExtraAshPileRef>();
+        ash_ref
+            // NOTE: This is unchecked dangerous downcasing.
+            .map(|ash_ref| unsafe { ash_ref.as_ref() })
+            .map_or_else(ObjectRefHandle::default, |ash_ref| ash_ref.ash_pile_ref.clone())
+    }
+
+    pub fn get_count(&self) -> i32 {
+        let x_count = self.get_by_type_as::<ExtraCount>();
+        x_count.map_or(1, |x_count| unsafe { x_count.as_ref().count as i32 })
+    }
+
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
+    pub fn get_display_name(&mut self, base_object: *mut TESBoundObject) -> *const c_char {
+        let mut result = ptr::null();
+
+        let health = self
+            .get_by_type_as::<ExtraHealth>()
+            .map_or(1.0, |x_health| unsafe { x_health.as_ref().health });
+
+        let df_health = if health <= 1.0 { (1.0 - health) < 0.001 } else { (health - 1.0) < 0.001 };
+        let mut x_text = self.get_extra_text_display_data();
+        if x_text.is_none() && !df_health {
+            x_text = Some(unsafe {
+                NonNull::new_unchecked(Box::into_raw(Box::new(ExtraTextDisplayData::new())))
+            });
+            if let Some(x_text) = x_text {
+                self.add(x_text.as_ptr().cast());
+            }
+        }
+
+        match x_text {
+            Some(mut x_text) => {
+                result = unsafe { x_text.as_mut().get_display_name(base_object, health) };
+            }
+            None => {
+                if let Some(name) =
+                    unsafe { base_object.as_ref() }.map(|o| o.__base.__base.get_name())
+                {
+                    result = name;
+                };
+            }
+        }
+
+        // if result.is_null() || unsafe { result.read() } == 0 {}
+
+        result
+    }
+
+    pub fn get_extra_text_display_data(&self) -> Option<NonNull<ExtraTextDisplayData>> {
+        let tes_ref = self
+            .get_by_type_as::<ExtraReferenceHandle>()
+            .map(|x_ref| unsafe { x_ref.as_ref().get_original_reference() });
+
+        tes_ref.as_ref().map_or_else(
+            || self.get_by_type_as::<ExtraTextDisplayData>(),
+            |tes_ref| {
+                if tes_ref.__base.is_deleted() {
+                    tes_ref
+                        .extraList
+                        .get_by_type_as::<ExtraTextDisplayData>()
+                        .map_or_else(|| self.get_by_type_as::<ExtraTextDisplayData>(), Some)
+                } else {
+                    self.get_by_type_as::<ExtraTextDisplayData>()
+                }
+            },
+        )
+    }
+
+    /// Gets the pointer to the matched type of data from the linked list.
     /// - calc cost: O(n)
     #[inline]
     pub fn get_by_type(&self, type_: ExtraDataType) -> Option<*mut BSExtraData> {
@@ -115,14 +196,17 @@ impl ExtraDataList {
             .find(|data| unsafe { data.as_ref() }.is_some_and(|data| data.get_type() == type_))
     }
 
+    /// Gets the pointer to the matched type of data from the linked list.
+    ///
+    /// Then downcast to the specified one.
+    /// If the type T does not inherit from `BSExtraData`, it will be UB.
     /// - calc cost: O(n)
     #[inline]
-    pub fn get_by_type_mut(&mut self, type_: ExtraDataType) -> Option<*mut BSExtraData> {
-        let _lock = self.lock.get_mut();
-        self.extra_data
-            .data
-            .iter_mut()
-            .find(|data| unsafe { data.as_ref() }.is_some_and(|data| data.get_type() == type_))
+    pub fn get_by_type_as<T>(&self) -> Option<NonNull<T>>
+    where
+        T: DerivedBSExtraData,
+    {
+        downcast_as(self.get_by_type(T::get_extra_data_type())?)
     }
 }
 

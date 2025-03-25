@@ -7,7 +7,7 @@ use crate::{
 
 #[repr(C)]
 pub struct TESObject {
-    _base: TESForm,
+    pub __base: TESForm,
 }
 const _: () = assert!(core::mem::size_of::<TESObject>() == 0x20);
 

@@ -31,7 +31,7 @@ const_assert_eq!(core::mem::size_of::<TESFileContainer>(), 0x8);
 #[repr(C)]
 #[derive(Debug)]
 pub struct TESForm {
-    pub _base: BaseFormComponent,
+    pub __base: BaseFormComponent,
     pub sourceFiles: TESFileContainer,
     pub formFlags: u32,
     pub formID: FormID,
@@ -45,6 +45,18 @@ const_assert_eq!(core::mem::size_of::<TESForm>(), 0x20);
 impl TESForm {
     pub const RTTI: VariantID = RTTI_TESForm;
     pub const VTABLE: [VariantID; 1] = VTABLE_TESForm;
+
+    /// Dummy yet.
+    #[allow(clippy::missing_const_for_fn)]
+    pub fn get_name(&self) -> *const c_char {
+        c"".as_ptr()
+    }
+
+    /// Dummy yet.
+    #[allow(clippy::missing_const_for_fn)]
+    pub fn is_deleted(&self) -> bool {
+        false
+    }
 }
 
 #[repr(C)]

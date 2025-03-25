@@ -10,7 +10,7 @@ use core::ptr::{self, NonNull};
 
 /// Represents the base structure for extra data nodes in a singly linked list.
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BSExtraData {
     /// Pointer to the virtual function table (vtable).
     pub vtbl: *const BSExtraDataVtbl,
@@ -102,6 +102,40 @@ impl BSExtraData {
 
             Some(memory.cast())
         }
+    }
+}
+
+#[inline]
+pub fn downcast_as<T>(extra_data: *mut BSExtraData) -> Option<NonNull<T>> {
+    if extra_data.is_null() || !extra_data.is_aligned() {
+        return None;
+    }
+
+    if crate::rex::win32::is_valid_range(extra_data.cast(), core::mem::size_of::<T>()) {
+        return Some(unsafe { NonNull::new_unchecked(extra_data.cast::<T>()) });
+    };
+    None
+}
+
+/// Trait indicating whether or not `BSExtraData` is inherited in the C++ sense.
+///
+/// Used for downcast availability and linked list traversal.
+pub trait DerivedBSExtraData {
+    /// Type used for downcast-ing availability and linked list search.
+    fn get_extra_data(&self) -> &BSExtraData;
+    /// Function for testing whether `BSExtraData` is really inherited. It will not be called in practice.
+    fn get_extra_data_type() -> ExtraDataType;
+}
+
+impl DerivedBSExtraData for BSExtraData {
+    #[inline]
+    fn get_extra_data(&self) -> &BSExtraData {
+        self
+    }
+
+    #[inline]
+    fn get_extra_data_type() -> ExtraDataType {
+        Self::EXTRA_DATA_TYPE
     }
 }
 
