@@ -6,6 +6,9 @@
 //! - rex: Module related to Win32 API
 //! - skse: Module related to SKSE.exe (version information of SkyrimSE.exe, etc.)
 
+#[macro_use]
+mod macros;
+
 pub mod re;
 pub mod rel;
 pub mod rex;

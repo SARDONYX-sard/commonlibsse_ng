@@ -18,7 +18,7 @@ use crate::rel::module::ModuleState;
 /// use commonlibsse_ng::rel::ResolvableAddress as _;
 ///
 /// let offset = Offset::new(0x1000);
-/// assert_eq!(offset.offset().unwrap(), 0x1000);
+/// assert_eq!(offset.offset().unwrap(), core::num::NonZero::new(0x1000).unwrap());
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]

@@ -1,3 +1,5 @@
 **/target/
 **/vcpkg_installed/
 **/build/
+
+./xtask/gen/

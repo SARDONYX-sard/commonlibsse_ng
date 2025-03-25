@@ -3,15 +3,23 @@ use crate::re::offsets_vtable::VTABLE_BaseFormComponent;
 use crate::rel::id::VariantID;
 use core::ffi::c_void;
 
+#[repr(C)]
+#[derive(Debug)]
 pub struct BaseFormComponent {
     pub vtbl: *const BaseFormComponentVtbl,
 }
 
+#[repr(C)]
+#[derive(Debug)]
 pub struct BaseFormComponentVtbl {
     /// C++ destructor
     pub delete: extern "C" fn(this: *mut c_void),
+
+    /// - `BaseFormComponent`: pure virtual
     pub initialize_data_component: extern "C" fn(this: *mut c_void),
+    /// - `BaseFormComponent`: pure virtual
     pub clear_data_component: extern "C" fn(this: *mut c_void),
+    /// - `BaseFormComponent`: always return `c_void`
     pub copy_component: extern "C" fn(this: *mut c_void, _rhs: *mut c_void),
 }
 

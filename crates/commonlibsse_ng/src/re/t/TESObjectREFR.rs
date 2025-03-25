@@ -2,65 +2,29 @@ use core::ffi::c_void;
 use core::ptr::NonNull;
 use std::collections::HashMap;
 
+use crate::re::BSExtraData::BSExtraData;
+use crate::re::BSHandleRefObject::BSHandleRefObject;
+use crate::re::BSTArray::BSTSmallArray;
+use crate::re::BSTEventSource::BSTEventSink;
+use crate::re::ExtraContainerChanges::ExtraContainerChanges;
 use crate::re::ExtraDataList::ExtraDataList;
+use crate::re::InventoryChanges::InventoryChanges;
 use crate::re::InventoryEntryData::InventoryEntryData;
+use crate::re::NiAVObject::NiAVObject;
 use crate::re::NiPoint3::NiPoint3;
+use crate::re::NiSmartPointer::NiPointer;
+use crate::re::TESBoundObject::TESBoundObject;
+use crate::re::TESForm::TESForm;
+use crate::re::TESObjectCELL::TESObjectCELL;
+use crate::re::{BSAnimationGraphEvent, IAnimationGraphManagerHolder, ObjectHandle, TesWaterForm};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// dummy
-struct TESBoundObject;
-struct InventoryChanges;
-impl InventoryChanges {
-    pub fn init_leveled_items(&self) {
-        todo!()
-    }
-    pub fn init_from_container_extra(&self) {
-        todo!()
-    }
-    pub fn init_scripts(&self) {
-        todo!()
-    }
-}
 
-struct ExtraContainerChanges {
-    changes: *mut InventoryChanges,
-}
-
-struct BSTSmallArray<T> {
-    pub data: *mut T,
-    pub size: usize,
-    pub capacity: usize,
-}
-struct TesWaterForm;
-struct NiPointer<T> {
-    pub ptr: NonNull<T>,
-}
-struct NiAVObject;
-
-struct TESObjectCELL;
-struct TESForm;
-struct BSHandleRefObject;
-struct BSTEventSink<T> {
-    maker: core::marker::PhantomData<T>,
-}
-struct BSAnimationGraphEvent;
-struct IAnimationGraphManagerHolder;
-
-enum ItemRemoveReason {
-    Remove,
-    Steal,
-    Selling,
-    Dropping,
-    StoreInContainer,
-    StoreInTeammate,
-}
-struct ObjectHandle;
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct OBJ_REFR {
-    objectReference: *mut TESBoundObject, // 00
-    angle: NiPoint3,                      // 08
-    location: NiPoint3,                   // 14
+#[derive(Debug)]
+pub struct OBJ_REFR {
+    pub objectReference: *mut TESBoundObject, // 00
+    pub angle: NiPoint3,                      // 08
+    pub location: NiPoint3,                   // 14
 }
 
 const _: () = {
@@ -70,7 +34,7 @@ const _: () = {
 #[repr(C)]
 pub struct LOADED_REF_DATA {
     pub unk00: BSTSmallArray<*mut c_void>, // handleList?
-    pub current_water_type: Option<NonNull<TesWaterForm>>,
+    pub current_water_type: *mut TesWaterForm,
     pub relevant_water_height: f32,
     pub cached_radius: f32,
     pub flags: u16,
@@ -83,23 +47,26 @@ pub struct LOADED_REF_DATA {
     pub unk58: u64,
     pub unk60: u64,
     pub data_3d: NiPointer<NiAVObject>,
-    pub unk70: Option<NonNull<c_void>>, // smart ptr
+    pub unk70: *mut c_void, // smart ptr
 }
 
-struct TESObjectREFR {
-    _base: TESForm,                              // 00
-    _base1: BSHandleRefObject,                   // 20
-    _base2: BSTEventSink<BSAnimationGraphEvent>, // 30
-    _base3: IAnimationGraphManagerHolder,        // 38
-    data: OBJ_REFR,                              // 40
-    parentCell: *mut TESObjectCELL,              // 60
-    loadedData: *mut LOADED_REF_DATA,            // 68
-    extraList: ExtraDataList,                    // 70
+#[repr(C)]
+#[derive(Debug)]
+pub struct TESObjectREFR {
+    pub __base: TESForm,                              // 00
+    pub __base1: BSHandleRefObject,                   // 20
+    pub __base2: BSTEventSink<BSAnimationGraphEvent>, // 30
+    pub __base3: IAnimationGraphManagerHolder,        // 38
+    pub data: OBJ_REFR,                               // 40
+    pub parentCell: *mut TESObjectCELL,               // 60
+    pub loadedData: *mut LOADED_REF_DATA,             // 68
+    pub extraList: ExtraDataList,                     // 70
 }
+const _: () = assert!(core::mem::size_of::<TESObjectREFR>() == 0x78);
 
 type Count = i32;
-pub type InventoryItemMap = HashMap<*mut TESBoundObject, Count>;
-pub type InventoryCountMap = HashMap<*mut TESBoundObject, (Count, Box<InventoryEntryData>)>;
+pub type InventoryCountMap = HashMap<*mut TESBoundObject, Count>;
+pub type InventoryItemMap = HashMap<*mut TESBoundObject, (Count, Box<InventoryEntryData>)>;
 pub type InventoryDropMap = HashMap<*mut TESBoundObject, (Count, Vec<ObjectHandle>)>;
 
 impl TESObjectREFR {
@@ -223,8 +190,10 @@ impl TESObjectREFR {
     //     unimplemented!()
     // }
 
-    // fn get_container(&self) -> Option<&TESContainer> {
-    //     unimplemented!()
+    // pub fn get_container(&self) -> Option<&TESContainer> {
+    //     let obj = self.get_object_reference();
+
+    //     obj.as_ref()?.
     // }
 
     // fn get_current_location(&self) -> Option<&BGSLocation> {
@@ -276,20 +245,35 @@ impl TESObjectREFR {
     //     unimplemented!()
     // }
 
-    fn get_inventory_filter<F>(&self, filter: F, no_init: bool) -> InventoryItemMap
+    pub fn get_inventory_filter<F>(&self, filter: F, no_init: bool) -> Option<InventoryItemMap>
     where
-        F: Fn(&mut TESBoundObject) -> bool,
+        F: Fn(&TESBoundObject) -> bool,
     {
-        let inventory_changed = self.get_inventory_changes(no_init);
-        unimplemented!()
+        let inventory_changed = self.get_inventory_changes(no_init)?;
+        let inventory_changed = unsafe { &*inventory_changed };
+
+        let mut inventory = InventoryItemMap::new();
+        for entry in unsafe { inventory_changed.entry_list.as_ref()?.iter() } {
+            if entry.is_null() {
+                continue;
+            }
+
+            let entry_ref = unsafe { entry.as_ref()? };
+            let object = entry_ref.object;
+            if filter(unsafe { object.as_ref()? }) {
+                inventory.insert(object, (entry_ref.count_delta, Box::new(entry_ref.clone())));
+            }
+        }
+
+        Some(inventory)
     }
 
     // fn get_inventory_counts(&self) -> InventoryCountMap {
     //     unimplemented!()
     // }
 
-    fn get_inventory_changes(&self, no_init: bool) -> Option<*mut InventoryChanges> {
-        if !self.extraList.has_type::<ExtraContainerChanges>() {
+    pub fn get_inventory_changes(&self, no_init: bool) -> Option<*mut InventoryChanges> {
+        if !self.extraList.has_type(ExtraContainerChanges::EXTRA_DATA_TYPE) {
             if no_init {
                 return None;
             };
@@ -298,20 +282,19 @@ impl TESObjectREFR {
                 self.force_init_inventory_changes();
             }
         }
-        let x_count_changes = self.extraList.get_by_type2::<ExtraContainerChanges>();
-        if !x_count_changes.is_null() {
-            return Some(unsafe { &*x_count_changes }.changes);
-        };
+        let base = self.extraList.get_by_type(ExtraContainerChanges::EXTRA_DATA_TYPE)?;
+        Some(unsafe { &*(base as *const BSExtraData).cast::<ExtraContainerChanges>() }.changes)
+    }
 
-        None
+    #[inline]
+    pub const fn get_object_reference(&self) -> *mut TESBoundObject {
+        self.data.objectReference
     }
 
     /// # Panics
-    /// If failed to resolve this method's address.
+    /// Returns an error if address resolution fails.
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 15800, ae_id = 16038)]
-    pub fn init_inventory_if_required(&self, ignore_container_extra_data: bool) -> bool {
-        type S = SelfSignature;
-    }
+    pub fn init_inventory_if_required(&self, ignore_container_extra_data: bool) -> bool {}
 
     pub fn force_init_inventory_changes(&self) -> *mut InventoryChanges {
         let changes = self.make_inventory_changes();

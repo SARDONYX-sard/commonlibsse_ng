@@ -4,11 +4,15 @@
 //
 // SPDX-FileCopyrightText: (C) 2018 Ryan-rsm-McKenzie
 // SPDX-License-Identifier: MIT
+mod phantom_member;
+
+pub use phantom_member::PhantomMember;
 
 use crate::rel::ResolvableAddress;
 use crate::rel::id::{DataBaseError, ID, RelocationID};
 use crate::rel::module::{ModuleState, ModuleStateError};
 use crate::rel::offset::{Offset, VariantOffset};
+use crate::rel::version::Version;
 use core::ffi::c_void;
 use core::marker::PhantomData;
 use core::mem;
@@ -28,13 +32,6 @@ pub const JMP8: u8 = 0xEB;
 pub const JMP32: u8 = 0xE9;
 pub const RET: u8 = 0xC3;
 pub const INT3: u8 = 0xCC;
-
-pub fn invoke<F, Args, R>(func: F, args: Args) -> R
-where
-    F: FnOnce(Args) -> R,
-{
-    func(args)
-}
 
 #[inline]
 unsafe fn enable_write_permission(
@@ -210,4 +207,213 @@ impl TryFrom<RelocationID> for Relocation {
     fn try_from(id: RelocationID) -> Result<Self, Self::Error> {
         Ok(Self { _impl: id.address()?, _cast_target: PhantomData })
     }
+}
+
+/// # Safety
+/// # Errors
+#[inline]
+pub unsafe fn relocate_virtual<F>(
+    se_ae_vtable_offset: isize,
+    vr_vtable_offset: isize,
+    se_ae_vtable_index: isize,
+    vr_vtable_index: isize,
+    this: NonNull<u8>,
+) -> Result<F, ModuleStateError>
+where
+    F: Copy,
+{
+    let is_vr = ModuleState::map_active(|module| module.runtime.is_vr())?;
+
+    unsafe {
+        let vtable_ptr = *(this.as_ptr() as *const *const F).offset(if is_vr {
+            vr_vtable_offset
+        } else {
+            se_ae_vtable_offset
+        });
+        let func_ptr = *vtable_ptr.offset(if is_vr { vr_vtable_index } else { se_ae_vtable_index });
+
+        Ok(func_ptr)
+    }
+}
+
+/// Relocates a member based on the runtime state, returning a pointer to the new location.
+///
+/// # Safety
+/// This function requires that the caller ensure the provided pointer `this` is valid, meaning it should point to a valid memory location.
+/// The `se_ae_offset` and `vr_offset` must be safe offsets for the given pointer type.
+///
+/// # Errors
+/// This function may return an error if the module's runtime is not available or if any error occurs while fetching the runtime state.
+/// Specifically, it calls `ModuleState::map_active`, which could result in an error.
+pub fn relocate_member<THIS, T>(
+    this: &THIS,
+    se_ae_offset: isize,
+    vr_offset: isize,
+) -> Result<&T, RelocationError> {
+    let member_ptr = {
+        let is_vr = ModuleState::map_active(|module| module.runtime.is_vr())?;
+        let this = this as *const THIS;
+        let offset = if is_vr { vr_offset } else { se_ae_offset };
+        this.wrapping_offset(offset).cast::<T>()
+    };
+
+    Ok(unsafe { raw_pointer_as_ref(member_ptr) }?)
+}
+
+/// Relocates a member based on the runtime state, returning a pointer to the new location.
+///
+/// # Safety
+/// This function requires that the caller ensure the provided pointer `this` is valid, meaning it should point to a valid memory location.
+/// The `se_ae_offset` and `vr_offset` must be safe offsets for the given pointer type.
+///
+/// # Errors
+/// This function may return an error if the module's runtime is not available or if any error occurs while fetching the runtime state.
+/// Specifically, it calls `ModuleState::map_active`, which could result in an error.
+pub fn relocate_member_mut<THIS, T>(
+    this: &mut THIS,
+    se_ae_offset: isize,
+    vr_offset: isize,
+) -> Result<&mut T, RelocationError> {
+    let member_ptr = {
+        let is_vr = ModuleState::map_active(|module| module.runtime.is_vr())?;
+        let this = this as *mut THIS;
+        let offset = if is_vr { vr_offset } else { se_ae_offset };
+        this.wrapping_offset(offset).cast::<T>()
+    };
+
+    Ok(unsafe { raw_pointer_as_mut(member_ptr) }?)
+}
+
+/// Relocates a member based on a condition, using either offset `a` or `b` depending on the condition.
+///
+/// # Safety
+/// It is safe as long as the following are observed.
+/// - ptr of added offset never exceeds `isize::MAX`
+/// - All memory from this to offset is valid.
+pub const unsafe fn relocate_member_if<T>(
+    condition: bool,
+    this: *mut u8,
+    a: isize,
+    b: isize,
+) -> *mut T {
+    unsafe { this.offset(if condition { a } else { b }).cast::<T>() }
+}
+
+/// Relocates a member based on the version comparison, using either `older` or `newer` offset depending on the current version.
+///
+/// # Safety
+/// It is safe as long as the following are observed.
+/// - ptr of offset added is valid
+/// - ptr of added offset never exceeds `isize::MAX`
+/// - All memory from this to offset is valid.
+///
+/// # Errors
+/// - This function may return an error if the module's state cannot be accessed, or if the `map_active` call fails when fetching the current version.
+/// - If the pointer is null
+/// - If the pointer is unaligned
+pub unsafe fn relocate_member_if_newer<THIS, T>(
+    version: Version,
+    this: &THIS,
+    older: isize,
+    newer: isize,
+) -> Result<&T, RelocationError> {
+    let is_old = ModuleState::map_active(|module| module.version < version)?;
+    let this = this as *const THIS;
+    let offset = if is_old { older } else { newer };
+    let member_ptr = unsafe { this.offset(offset).cast::<T>() };
+    Ok(unsafe { raw_pointer_as_ref(member_ptr) }?)
+}
+
+/// Relocates a member based on the version comparison, using either `older` or `newer` offset depending on the current version.
+///
+/// # Safety
+/// It is safe as long as the following are observed.
+/// - ptr of offset added is valid
+/// - ptr of added offset never exceeds `isize::MAX`
+/// - All memory from this to offset is valid.
+///
+/// # Errors
+/// This function may return an error if the module's state cannot be accessed, or if the `map_active` call fails when fetching the current version.
+pub unsafe fn relocate_member_if_newer_mut<THIS, T>(
+    version: Version,
+    this: &mut THIS,
+    older: isize,
+    newer: isize,
+) -> Result<&mut T, RelocationError> {
+    let is_old = ModuleState::map_active(|module| module.version < version)?;
+    let this = this as *mut THIS;
+    let offset = if is_old { older } else { newer };
+    let member_ptr = unsafe { this.offset(offset).cast::<T>() };
+    Ok(unsafe { raw_pointer_as_mut(member_ptr) }?)
+}
+
+/// Converts a raw pointer to an immutable reference.
+///
+/// # Safety
+/// - The caller must guarantee that the pointer is valid.
+/// - The lifetime of the reference must not outlive the pointer's validity.
+///
+/// # Errors
+/// - If the pointer is null
+/// - If the pointer is unaligned
+#[inline]
+pub unsafe fn raw_pointer_as_ref<'a, T>(ptr: *const T) -> Result<&'a T, RawPointerError> {
+    if ptr.is_null() {
+        return Err(RawPointerError::NullPointer);
+    }
+
+    if !ptr.is_aligned() {
+        return Err(RawPointerError::MisalignedPointer {
+            misaligned_type: core::any::type_name::<T>(),
+        });
+    };
+
+    Ok(unsafe { &*ptr })
+}
+
+/// Converts a raw pointer to a mutable reference.
+///
+/// # Safety
+/// - The caller must guarantee that the pointer is valid.
+/// - The lifetime of the reference must not outlive the pointer's validity.
+///
+/// # Errors
+/// - If the pointer is null
+/// - If the pointer is unaligned
+#[inline]
+pub unsafe fn raw_pointer_as_mut<'a, T>(ptr: *mut T) -> Result<&'a mut T, RawPointerError> {
+    if ptr.is_null() {
+        return Err(RawPointerError::NullPointer);
+    }
+
+    if !ptr.is_aligned() {
+        return Err(RawPointerError::MisalignedPointer {
+            misaligned_type: core::any::type_name::<T>(),
+        });
+    }
+
+    Ok(unsafe { &mut *ptr })
+}
+
+/// Represents errors that may occur during member relocation.
+#[derive(Debug, snafu::Snafu)]
+pub enum RelocationError {
+    /// Error indicating issues with raw pointer conversion.
+    #[snafu(transparent)]
+    PointerConversion { source: RawPointerError },
+
+    /// Error indicating that the module state could not be accessed.
+    #[snafu(transparent)]
+    ModuleState { source: ModuleStateError },
+}
+
+/// Represents errors that may occur when converting raw pointers to references.
+#[derive(Debug, snafu::Snafu)]
+pub enum RawPointerError {
+    /// Null pointer encountered during conversion.
+    NullPointer,
+
+    /// Misaligned pointer.
+    #[snafu(display("Pointer is misaligned for type {misaligned_type}."))]
+    MisalignedPointer { misaligned_type: &'static str },
 }

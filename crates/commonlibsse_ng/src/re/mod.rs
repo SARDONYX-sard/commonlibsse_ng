@@ -2,7 +2,9 @@
 #![allow(non_snake_case)]
 
 mod b;
+mod c;
 mod e;
+mod f;
 mod i;
 mod n;
 mod t;
@@ -20,17 +22,126 @@ pub mod offsets_ni_rtti;
 pub mod offsets_vtable;
 
 pub use b::*;
+pub use c::*;
 pub use e::*;
+pub use f::*;
 pub use i::*;
 pub use n::*;
 pub use t::*;
 
-// dummy
+use crate::rel::id::VariantID;
+
+/// C++ Virtual Class RTTI & Vtable accessor
+pub trait CxxVirtClass {
+    /// Gets the runtime information address ID reference.
+    fn rtti() -> &'static VariantID;
+    /// Gets the virtual function table address reference.
+    fn vtable() -> &'static [VariantID];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// dummies
+
 pub struct GFxMovieView;
 pub struct GFxValue;
 
 pub struct VMHandle(pub u64);
 pub struct FormID(pub u32);
 
+pub struct TesWaterForm;
+
 #[derive(Debug)]
-pub struct BSTEventSource<T: core::fmt::Debug>(std::marker::PhantomData<T>);
+pub struct BSAnimationGraphEvent;
+#[derive(Debug)]
+pub struct IAnimationGraphManagerHolder {
+    pub opaque: [u8; 2],
+}
+
+pub enum ItemRemoveReason {
+    Remove,
+    Steal,
+    Selling,
+    Dropping,
+    StoreInContainer,
+    StoreInTeammate,
+}
+pub struct ObjectHandle;
+pub struct NiExtraData;
+pub struct NiTimeController;
+
+impl NiSmartPointer::RefCountable for NiTimeController {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
+
+#[repr(C)]
+pub struct NiNode;
+
+#[repr(C)]
+pub struct NiSwitchNode;
+
+#[repr(C)]
+pub struct BSFadeNode;
+
+#[repr(C)]
+pub struct BSMultiBoundNode;
+
+#[repr(C)]
+pub struct BSGeometry;
+
+#[repr(C)]
+pub struct NiTriStrips;
+
+#[repr(C)]
+pub struct BSTriShape;
+
+#[repr(C)]
+pub struct BSSegmentedTriShape;
+
+#[repr(C)]
+pub struct BSSubIndexTriShape;
+
+#[repr(C)]
+pub struct BSDynamicTriShape;
+
+#[repr(C)]
+pub struct NiGeometry;
+
+#[repr(C)]
+pub struct NiTriBasedGeom;
+
+#[repr(C)]
+pub struct NiTriShape;
+
+#[repr(C)]
+pub struct NiParticles;
+
+#[repr(C)]
+pub struct BSLines;
+
+#[repr(C)]
+pub struct bhkNiCollisionObject;
+
+#[repr(C)]
+pub struct bhkBlendCollisionObject;
+
+#[repr(C)]
+pub struct bhkAttachmentCollisionObject;
+
+#[repr(C)]
+pub struct bhkRigidBody;
+
+#[repr(C)]
+pub struct bhkLimitedHingeConstraint;
+
+#[repr(C)]
+pub struct NiCloningProcess;
+pub struct NiStream;
+pub struct NiObjectGroup;
+pub struct NiControllerManager;
+pub struct bhkCollisionObject;

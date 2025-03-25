@@ -24,6 +24,8 @@ impl core::fmt::Display for VariantID<'_> {
     }
 }
 
+/// # Errors
+/// If parse is failed, then return an error.
 pub fn hex(input: &mut &str) -> ModalResult<u64> {
     preceded("0x", hex_digit1).try_map(|hex| u64::from_str_radix(hex, 16)).parse_next(input)
 }
@@ -173,9 +175,9 @@ mod tests {
 
     #[ignore = "need C++ src (from generate manually)"]
     #[test]
-    fn test_de_ni_rtti() {
-        let input = include_str!("D:/Programming/cpp/CommonLibVR/include/RE/Offsets_NiRTTI.h");
-        crate::offsets_rtti_gen::generate_variant_ids(input, "./offsets_ni_rtti.json")
+    fn test_de_rtti() {
+        let input = include_str!("D:/Programming/cpp/CommonLibVR/include/RE/Offsets_RTTI.h");
+        crate::offsets_rtti_gen::generate_variant_ids(input, "./gen/offsets_rtti.json")
             .unwrap_or_else(|err| panic!("{err}"));
     }
 
@@ -200,13 +202,10 @@ use crate::rel::id::VariantID;";
         std::fs::write(path, format!("{imports}\n\n{code}\n")).unwrap();
     }
 
-    #[ignore = "need offsets_ni_rtti.json (from generate manually)"]
+    #[ignore = "need offsets_rtti.json (from generate manually)"]
     #[test]
     fn test_gen_code() {
-        let input = ::std::fs::read_to_string("./offsets_rtti.json").unwrap();
+        let input = ::std::fs::read_to_string("./gen/offsets_rtti.json").unwrap();
         gen_code(&input, "offsets_rtti.rs");
-
-        let input = ::std::fs::read_to_string("./offsets_ni_rtti.json").unwrap();
-        gen_code(&input, "offsets_ni_rtti.rs");
     }
 }

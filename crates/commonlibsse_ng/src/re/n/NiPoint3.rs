@@ -2,19 +2,17 @@ use core::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+/// 3D vector representation.
+#[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd)]
 pub struct NiPoint3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
 }
-
-const _: () = {
-    assert!(core::mem::size_of::<NiPoint3>() == 0xc);
-};
+const _: () = assert!(core::mem::size_of::<NiPoint3>() == 0xc);
 
 impl NiPoint3 {
-    /// Creates a new `NiPoint3`.
+    /// Creates a new `NiPoint3` from x, y, and z coordinates.
     ///
     /// # Example
     /// ```
