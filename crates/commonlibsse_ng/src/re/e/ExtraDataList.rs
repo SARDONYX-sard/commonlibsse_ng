@@ -1,18 +1,20 @@
 use core::ffi::c_char;
 use core::ptr::{self, NonNull};
 
+use crate::re::BGSEncounterZone::BGSEncounterZone;
+use crate::re::BSAtomic::BSReadWriteLock;
 use crate::re::BSExtraData::{
-    BSExtraDataIter, BSExtraDataIterMut, DerivedBSExtraData, downcast_as,
+    BSExtraData, BSExtraDataIter, BSExtraDataIterMut, DerivedBSExtraData, downcast_as,
 };
 use crate::re::BSPointerHandle::ObjectRefHandle;
 use crate::re::ExtraAshPileRef::ExtraAshPileRef;
 use crate::re::ExtraCount::ExtraCount;
 use crate::re::ExtraDataType::ExtraDataType;
+use crate::re::ExtraEncounterZone::ExtraEncounterZone;
 use crate::re::ExtraHealth::ExtraHealth;
 use crate::re::ExtraReferenceHandle::ExtraReferenceHandle;
 use crate::re::ExtraTextDisplayData::ExtraTextDisplayData;
 use crate::re::TESBoundObject::TESBoundObject;
-use crate::re::{BSAtomic::BSReadWriteLock, BSExtraData::BSExtraData};
 use crate::rel::relocation::PhantomMember;
 
 #[repr(C)]
@@ -118,7 +120,6 @@ impl ExtraDataList {
     pub fn get_ash_pile_ref(&mut self) -> ObjectRefHandle {
         let ash_ref = self.get_by_type_as::<ExtraAshPileRef>();
         ash_ref
-            // NOTE: This is unchecked dangerous downcasing.
             .map(|ash_ref| unsafe { ash_ref.as_ref() })
             .map_or_else(ObjectRefHandle::default, |ash_ref| ash_ref.ash_pile_ref.clone())
     }
@@ -163,6 +164,12 @@ impl ExtraDataList {
         // if result.is_null() || unsafe { result.read() } == 0 {}
 
         result
+    }
+
+    #[inline]
+    pub fn get_encounter_zone(&self) -> Option<NonNull<BGSEncounterZone>> {
+        self.get_by_type_as::<ExtraEncounterZone>()
+            .and_then(|x_ref| unsafe { NonNull::new(x_ref.as_ref().zone) })
     }
 
     pub fn get_extra_text_display_data(&self) -> Option<NonNull<ExtraTextDisplayData>> {

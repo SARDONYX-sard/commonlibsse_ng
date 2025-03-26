@@ -1,4 +1,5 @@
 pub mod BGSDirectionalAmbientLightingColors;
+pub mod BGSEncounterZone;
 pub mod BGSLoadFormBuffer;
 pub mod BGSMessage;
 pub mod BGSSaveFormBuffer;
@@ -15,5 +16,6 @@ pub mod BSString;
 pub mod BSStringPool;
 pub mod BSTArray;
 pub mod BSTEventSource;
+pub mod BSTHashMap;
 pub mod BSTList;
 pub mod BaseFormComponent;

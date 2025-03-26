@@ -167,8 +167,9 @@ impl BSReadWriteLock {
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 66983, ae_id = 68240)]
     pub unsafe fn unlock_for_write(&self) {}
 
-    pub fn write(&mut self) -> BSWriteLockGuard<'_> {
-        BSWriteLockGuard { lock: self }
+    #[inline]
+    pub fn write(&self) -> BSWriteLockGuard<'_> {
+        BSWriteLockGuard::new(self)
     }
 }
 

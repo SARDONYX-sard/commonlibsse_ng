@@ -17,6 +17,14 @@ impl RelocationID {
         Self { se_id, ae_id, vr_id }
     }
 
+    /// Creates a new RelocationID instance.
+    ///
+    /// Used when vr and se take the same ID.
+    #[inline]
+    pub const fn from_se_ae_id(se_vr_id: u64, ae_id: u64) -> Self {
+        Self { se_id: se_vr_id, ae_id, vr_id: se_vr_id }
+    }
+
     /// Retrieves the appropriate ID based on the runtime format.
     ///
     /// # Errors

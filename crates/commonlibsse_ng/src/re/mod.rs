@@ -145,3 +145,6 @@ pub struct NiStream;
 pub struct NiObjectGroup;
 pub struct NiControllerManager;
 pub struct bhkCollisionObject;
+
+pub struct BGSLocation;
+pub struct TESFaction;

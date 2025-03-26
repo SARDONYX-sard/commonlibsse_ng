@@ -1,18 +1,25 @@
-use crate::re::BGSLoadFormBuffer::BGSLoadFormBuffer;
-use crate::re::BGSSaveFormBuffer::BGSSaveFormBuffer;
+mod flags;
+mod vtable;
+
+pub use self::flags::{InGameFormFlag, RecordFlag};
+pub use self::vtable::TESFormVtbl;
+
+use crate::re::BSAtomic::BSReadWriteLock;
 use crate::re::BSCoreTypes::FormID;
 use crate::re::BSFixedString::BSFixedString;
 use crate::re::BSTArray::BSStaticArray;
+use crate::re::BSTHashMap::BSTHashMap;
 use crate::re::BaseFormComponent::BaseFormComponent;
-use crate::re::FORM::{FORM, FORM_GROUP};
 use crate::re::FormTypes::FormType;
-use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESFile::TESFile;
-use crate::re::TESObjectREFR::TESObjectREFR;
 use crate::re::offsets_rtti::RTTI_TESForm;
 use crate::re::offsets_vtable::VTABLE_TESForm;
-use crate::rel::id::VariantID;
+use crate::rel::ResolvableAddress as _;
+use crate::rel::id::RelocationID;
+use crate::rel::id::{DataBaseError, VariantID};
 use core::ffi::c_char;
+use core::ptr::NonNull;
+use std::sync::LazyLock;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -42,9 +49,57 @@ pub struct TESForm {
 }
 const_assert_eq!(core::mem::size_of::<TESForm>(), 0x20);
 
+pub struct FormsLock<K> {
+    pub map: NonNull<*mut BSTHashMap<K, *mut TESForm>>,
+    pub lock: NonNull<BSReadWriteLock>,
+}
+unsafe impl<K> Send for FormsLock<K> {}
+unsafe impl<K> Sync for FormsLock<K> {}
+
+/// Pointer of `BSTHashMap<FormID, *mut TESForm>` & Pointer of `BSReadWriteLock`
+type AllFormsIDLock = FormsLock<FormID>;
+
+/// Pointer of `BSTHashMap<BSFixedString, *mut TESForm>` & Pointer of `BSReadWriteLock`
+type AllFormsStringLock = FormsLock<BSFixedString>;
+
 impl TESForm {
     pub const RTTI: VariantID = RTTI_TESForm;
     pub const VTABLE: [VariantID; 1] = VTABLE_TESForm;
+    pub const FORM_TYPE: FormType = FormType::None;
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 14509, ae_id = 14667)]
+    pub unsafe fn add_compile_index(id: FormID, file: TESFile) {}
+
+    pub fn get_all_forms() -> &'static Result<AllFormsIDLock, DataBaseError> {
+        static PTR_LOCK: LazyLock<Result<AllFormsIDLock, DataBaseError>> = LazyLock::new(|| {
+            let map = RelocationID::from_se_ae_id(514351, 400507).address()?.cast();
+            let lock = RelocationID::from_se_ae_id(514360, 400517).address()?.cast();
+            Ok(AllFormsIDLock { map, lock })
+        });
+        &PTR_LOCK
+    }
+
+    pub fn get_all_by_editor_id() -> &'static Result<AllFormsStringLock, DataBaseError> {
+        static PTR_LOCK: LazyLock<Result<AllFormsStringLock, DataBaseError>> =
+            LazyLock::new(|| {
+                let map = RelocationID::from_se_ae_id(514352, 400509).address()?.cast();
+                let lock = RelocationID::from_se_ae_id(514361, 400518).address()?.cast();
+                Ok(AllFormsStringLock { map, lock })
+            });
+        &PTR_LOCK
+    }
+
+    /// Search for TESForm based on FormID
+    pub fn lookup_by_id(&self, form_id: FormID) -> Option<*mut Self> {
+        let AllFormsIDLock { map, lock: _lock } = Self::get_all_forms().as_ref().ok()?;
+
+        if let Some(map) = unsafe { map.as_ref().as_ref() } {
+            if let Some(entry) = map.get(&form_id) {
+                return Some(*entry);
+            }
+        }
+        None
+    }
 
     /// Dummy yet.
     #[allow(clippy::missing_const_for_fn)]
@@ -59,108 +114,19 @@ impl TESForm {
     }
 }
 
-#[repr(C)]
-#[derive(Debug)]
-pub struct TESFormVtbl {
-    pub destructor: unsafe extern "C" fn(this: *mut TESForm),
+pub trait DerivedTESForm {
+    fn get_form(&self) -> &TESForm;
+    fn get_form_type() -> FormType;
+}
 
-    // BaseFormComponent methods
-    pub initialize_data_component: unsafe extern "C" fn(this: *mut TESForm),
-    pub clear_data_component: unsafe extern "C" fn(this: *mut TESForm),
-    pub copy_component: unsafe extern "C" fn(this: *mut TESForm, rhs: *const TESForm),
+impl DerivedTESForm for TESForm {
+    #[inline]
+    fn get_form(&self) -> &TESForm {
+        self
+    }
 
-    // TESForm-specific methods
-    pub initialize_data: unsafe extern "C" fn(this: *mut TESForm),
-    pub clear_data: unsafe extern "C" fn(this: *mut TESForm),
-    pub load: unsafe extern "C" fn(this: *mut TESForm, mod_: *mut TESFile) -> bool,
-    pub load_partial: unsafe extern "C" fn(this: *mut TESForm, mod_: *mut TESFile) -> bool,
-    pub load_edit: unsafe extern "C" fn(this: *mut TESForm, mod_: *mut TESFile) -> bool,
-    pub create_duplicate_form: unsafe extern "C" fn(
-        this: *mut TESForm,
-        create_editor_id: bool,
-        arg2: *mut std::ffi::c_void,
-    ) -> *mut TESForm,
-
-    pub add_change: unsafe extern "C" fn(this: *mut TESForm, change_flags: u32) -> bool,
-    pub remove_change: unsafe extern "C" fn(this: *mut TESForm, change_flags: u32),
-
-    pub find_in_file_fast: unsafe extern "C" fn(this: *mut TESForm, mod_: *mut TESFile) -> bool,
-    pub check_save_game:
-        unsafe extern "C" fn(this: *mut TESForm, buf: *mut BGSSaveFormBuffer) -> bool,
-    pub save_game: unsafe extern "C" fn(this: *mut TESForm, buf: *mut BGSSaveFormBuffer),
-    pub load_game: unsafe extern "C" fn(this: *mut TESForm, buf: *mut BGSLoadFormBuffer),
-
-    pub init_load_game: unsafe extern "C" fn(this: *mut TESForm, buf: *mut BGSLoadFormBuffer),
-    pub finish_load_game: unsafe extern "C" fn(this: *mut TESForm, buf: *mut BGSLoadFormBuffer),
-    pub revert: unsafe extern "C" fn(this: *mut TESForm, buf: *mut BGSLoadFormBuffer),
-
-    pub init_item_impl: unsafe extern "C" fn(this: *mut TESForm),
-
-    pub get_description_owner_file: unsafe extern "C" fn(this: *const TESForm) -> *mut TESFile,
-    pub get_saved_form_type: unsafe extern "C" fn(this: *const TESForm) -> FormType,
-    pub get_form_detailed_string:
-        unsafe extern "C" fn(this: *const TESForm, buf: *mut c_char, buf_len: u32),
-
-    pub get_known: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub get_random_anim: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub get_playable: unsafe extern "C" fn(this: *const TESForm) -> bool,
-
-    pub is_heading_marker: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub get_dangerous: unsafe extern "C" fn(this: *const TESForm) -> bool,
-
-    pub q_has_currents: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub get_obstacle: unsafe extern "C" fn(this: *const TESForm) -> bool,
-
-    pub q_is_lod_land_object: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub get_on_local_map: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub get_must_update: unsafe extern "C" fn(this: *const TESForm) -> bool,
-
-    pub set_on_local_map: unsafe extern "C" fn(this: *mut TESForm, set: bool),
-
-    pub get_ignored_by_sandbox: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub set_delete: unsafe extern "C" fn(this: *mut TESForm, set: bool),
-    pub set_altered: unsafe extern "C" fn(this: *mut TESForm, set: bool),
-
-    pub save_object_bound: unsafe extern "C" fn(this: *mut TESForm),
-    pub load_object_bound: unsafe extern "C" fn(this: *mut TESForm, mod_: *mut TESFile),
-
-    pub is_bound_object: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub is_object: unsafe extern "C" fn(this: *const TESForm) -> bool,
-
-    pub is_magic_item: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub is_water: unsafe extern "C" fn(this: *const TESForm) -> bool,
-
-    pub as_reference1: unsafe extern "C" fn(this: *mut TESForm) -> *mut TESObjectREFR,
-    pub as_reference2: unsafe extern "C" fn(this: *const TESForm) -> *const TESObjectREFR,
-
-    pub get_ref_count: unsafe extern "C" fn(this: *const TESForm) -> u32,
-
-    pub get_text_for_parsed_sub_tag:
-        unsafe extern "C" fn(this: *const TESForm, tag: *const BSFixedString) -> *const c_char,
-
-    pub copy: unsafe extern "C" fn(this: *mut TESForm, src: *const TESForm),
-
-    pub belongs_in_group: unsafe extern "C" fn(
-        this: *mut TESForm,
-        form: *mut FORM,
-        allow_parent_groups: bool,
-        current_only: bool,
-    ) -> bool,
-    pub create_group_data:
-        unsafe extern "C" fn(this: *mut TESForm, form: *mut FORM, group: *mut FORM_GROUP),
-
-    pub get_form_editor_id: unsafe extern "C" fn(this: *const TESForm) -> *const c_char,
-    pub set_form_editor_id: unsafe extern "C" fn(this: *mut TESForm, str: *const c_char) -> bool,
-
-    pub is_parent_form: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub is_parent_form_tree: unsafe extern "C" fn(this: *const TESForm) -> bool,
-    pub is_form_type_child: unsafe extern "C" fn(this: *const TESForm, form_type: FormType) -> bool,
-    pub activate: unsafe extern "C" fn(
-        this: *mut TESForm,
-        target_ref: *mut TESObjectREFR,
-        activator_ref: *mut TESObjectREFR,
-        arg3: u8,
-        object: *mut TESBoundObject,
-        target_count: i32,
-    ) -> bool,
+    #[inline]
+    fn get_form_type() -> FormType {
+        Self::FORM_TYPE
+    }
 }
