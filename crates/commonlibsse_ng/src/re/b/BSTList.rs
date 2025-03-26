@@ -4,17 +4,11 @@ use std::ptr::NonNull;
 /// LinkedList
 #[derive(Debug, Clone)]
 #[repr(C)]
-pub struct BSSimpleList<T>
-where
-    T: Clone,
-{
+pub struct BSSimpleList<T> {
     list_head: Node<T>,
 }
 
-impl<T> Default for BSSimpleList<T>
-where
-    T: Clone,
-{
+impl<T> Default for BSSimpleList<T> {
     #[inline]
     fn default() -> Self {
         Self::new()
@@ -24,8 +18,8 @@ where
 #[derive(Debug, Clone)]
 #[repr(C)]
 pub struct Node<T> {
-    item: NonNull<T>,
-    next: Option<NonNull<Node<T>>>,
+    item: NonNull<T>, // FIXME: FFI type always contains the possibility of null.
+    next: Option<NonNull<Node<T>>>, // FIXME: FFI type always contains the possibility of null.
     marker: PhantomData<Box<T>>,
 }
 
@@ -48,6 +42,17 @@ impl<T> BSSimpleList<T>
 where
     T: Clone,
 {
+    pub fn copy_from(&mut self, other: &Self) {
+        let mut current = other.list_head.next.as_ref();
+        while let Some(node) = current {
+            let node = unsafe { node.as_ref() };
+            unsafe { self.push_front(node.item.as_ref().clone()) };
+            current = node.next.as_ref();
+        }
+    }
+}
+
+impl<T> BSSimpleList<T> {
     pub fn new() -> Self {
         Self { list_head: Node::default() }
     }
@@ -152,15 +157,6 @@ where
         }
     }
 
-    pub fn copy_from(&mut self, other: &Self) {
-        let mut current = other.list_head.next.as_ref();
-        while let Some(node) = current {
-            let node = unsafe { node.as_ref() };
-            unsafe { self.push_front(node.item.as_ref().clone()) };
-            current = node.next.as_ref();
-        }
-    }
-
     #[inline]
     pub const fn iter(&self) -> Iter<T> {
         Iter { current: self.list_head.next, _marker: PhantomData }
@@ -184,10 +180,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
-impl<T> Drop for BSSimpleList<T>
-where
-    T: Clone,
-{
+impl<T> Drop for BSSimpleList<T> {
     #[inline]
     fn drop(&mut self) {
         while self.list_head.next.is_some() {
@@ -201,7 +194,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_bssimplelist() {
+    fn test_bs_simple_list() {
         let mut list: BSSimpleList<i32> = BSSimpleList::new();
         list.push_front(10);
         list.push_front(20);
