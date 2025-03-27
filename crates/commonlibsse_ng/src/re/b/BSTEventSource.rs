@@ -1,6 +1,7 @@
 use crate::re::BSAtomic::BSSpinLock;
 use crate::re::BSTArray::BSTArray;
 
+#[commonlibsse_ng_derive_internal::ffi_enum]
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BSEventNotifyControl {
@@ -21,7 +22,8 @@ pub struct BSTEventSinkVtbl<Event> {
     pub CxxDrop: unsafe extern "C" fn(this: *mut BSTEventSink<Event>), // 00
 
     /// - BSTEventSink: pure virtual
-    pub ProcessEvent: unsafe extern "C" fn(this: *mut BSTEventSink<Event>) -> BSEventNotifyControl, // 01
+    pub ProcessEvent:
+        unsafe extern "C" fn(this: *mut BSTEventSink<Event>) -> BSEventNotifyControlFlags, // 01
 }
 
 impl<Event> BSTEventSink<Event> {
@@ -29,8 +31,8 @@ impl<Event> BSTEventSink<Event> {
         &self,
         _event: &Event,
         _event_source: &BSTEventSource<Event>,
-    ) -> BSEventNotifyControl {
-        BSEventNotifyControl::Continue
+    ) -> BSEventNotifyControlFlags {
+        BSEventNotifyControlFlags::Continue
     }
 }
 

@@ -25,6 +25,7 @@ use std::{
 };
 
 /// Represents the different types of messages that can be sent or received through SKSE's messaging system.
+#[commonlibsse_ng_derive_internal::ffi_enum]
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum MessageType {
@@ -77,7 +78,7 @@ pub struct Message {
     /// The name of the sender as a C string.
     pub sender: *const c_char,
     /// The type of message.
-    pub msg_type: MessageType,
+    pub msg_type: MessageTypeFlags,
     /// The length of the data buffer.
     pub data_len: u32,
     /// Pointer to the message data.
@@ -280,4 +281,61 @@ pub enum MessagingError {
 
     #[snafu(transparent)]
     ApiStorageError { source: ApiStorageError },
+}
+
+mod tests {
+    use commonlibsse_ng_derive_internal::ffi_enum;
+
+    #[repr(u32)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub enum Enum {
+        A = 0,
+        B,
+        C,
+        D,
+        E,
+        F,
+    }
+
+    use bitflags::bitflags;
+    bitflags! {
+        /// Auto-generated bitflags for FFI compatibility.
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        #[repr(transparent)]
+        pub struct EnumFlags: u32 {
+            const A = 0;
+            const B = 1;
+            const C = 2;
+            const D = 3;
+            const E = 4;
+            const F = 5;
+        }
+    }
+
+    impl EnumFlags {
+        #[inline]
+        pub const fn to_enum(self) -> Option<Enum> {
+            Some(match self {
+                Self::A => Enum::A,
+                Self::B => Enum::B,
+                Self::C => Enum::C,
+                Self::D => Enum::D,
+                Self::E => Enum::E,
+                Self::F => Enum::F,
+                _ => return None,
+            })
+        }
+
+        #[inline]
+        pub const fn from_enum(enum_: Enum) -> Self {
+            match enum_ {
+                Enum::A => Self::A,
+                Enum::B => Self::B,
+                Enum::C => Self::C,
+                Enum::D => Self::D,
+                Enum::E => Self::E,
+                Enum::F => Self::F,
+            }
+        }
+    }
 }

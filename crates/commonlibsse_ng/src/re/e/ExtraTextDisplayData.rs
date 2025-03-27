@@ -177,13 +177,12 @@ impl ExtraTextDisplayData {
     }
 }
 
-/// NOTE: The `non_exhaustive` attribute is added because the FFI type may contain unexpected data.
-#[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[non_exhaustive]
-pub enum DisplayDataType {
-    Uninitialized = -1,
-    CustomName = -2,
+bitflags::bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+    pub struct DisplayDataType: i32 {
+        const Uninitialized = -1;
+        const CustomName = -2;
+    }
 }
 
 /// The virtual function table for `ExtraTextDisplayData`.

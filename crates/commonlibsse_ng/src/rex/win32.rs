@@ -61,6 +61,20 @@ pub fn is_valid_range(ptr: *const u8, len: usize) -> bool {
     }
 }
 
+/// Is this an accessible struct?
+///
+/// Returns `false` if
+/// - The address pointed to by `T` is null
+/// - When the address pointed to by `T` is not located at a memory address that is a multiple of `T` (unaligned)
+/// - There is no permission to access an address of size `T`.
+pub fn is_accessible_struct<T>(target: *const T) -> bool {
+    if target.is_null() || !target.is_aligned() {
+        return false;
+    }
+
+    is_valid_range(target.cast(), core::mem::size_of::<T>())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

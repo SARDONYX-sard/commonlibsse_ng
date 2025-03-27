@@ -6,6 +6,7 @@ use core::{
 // NOTE: `BSAtomicValue<T>`(std::uint32_t) uses `AtomicU32` instead.
 
 #[repr(C)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct BSCriticalSection {
     critical_section: windows::Win32::System::Threading::CRITICAL_SECTION,
 }
@@ -18,6 +19,7 @@ pub struct BSEventFlag {
 const_assert_eq!(core::mem::size_of::<BSEventFlag>(), 0x8);
 
 #[repr(C)]
+#[derive(Debug, Default)]
 pub struct BSNonReentrantSpinLock {
     lock: AtomicU32,
 }

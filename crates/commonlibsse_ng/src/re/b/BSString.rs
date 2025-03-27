@@ -47,6 +47,21 @@ impl BSString {
         Self { data: NonNull::dangling(), size: 0, capacity: 0, _pad0C: 0, marker: PhantomData }
     }
 
+    /// Allocate a new `Self` from `&CStr` argument.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use commonlibsse_ng::re::BSString::BSString;
+    /// let bs = BSString::from_c_str(c"Hello");
+    /// assert_eq!(bs.as_c_str(), c"Hello");
+    /// ```
+    pub fn from_c_str(s: &CStr) -> Self {
+        let mut string = Self::new();
+        string.set_c_str(s);
+        string
+    }
+
     /// Clears the string's data, resetting its size and capacity.
     ///
     /// # Examples

@@ -6,6 +6,7 @@ mod c;
 mod e;
 mod f;
 mod i;
+mod m;
 mod n;
 mod t;
 
@@ -21,13 +22,14 @@ pub mod offsets_ni_rtti;
 #[rustfmt::skip]
 pub mod offsets_vtable;
 
-pub use b::*;
-pub use c::*;
-pub use e::*;
-pub use f::*;
-pub use i::*;
-pub use n::*;
-pub use t::*;
+pub use self::b::*;
+pub use self::c::*;
+pub use self::e::*;
+pub use self::f::*;
+pub use self::i::*;
+pub use self::m::*;
+pub use self::n::*;
+pub use self::t::*;
 
 use crate::rel::id::VariantID;
 

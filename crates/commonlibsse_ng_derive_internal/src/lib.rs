@@ -56,3 +56,53 @@ pub fn relocate_fn(attrs: TokenStream, item: TokenStream) -> TokenStream {
     )
     .into()
 }
+
+/// An attribute macro to generate FFI-compatible bitflags from an `enum`.
+///
+/// # Why this is necessary
+///
+/// In FFI (Foreign Function Interface) contexts, `enum` types are often represented as `i32` or `u32`.
+/// When an invalid or unknown value is received from FFI, attempting to cast it into the `enum`
+/// can result in **undefined behavior**. This macro prevents that by:
+/// - Wrapping the `enum` in a **bitflags** struct that safely represents the FFI value.
+/// - Providing a `to_enum()` method that converts the flag back into the `enum`,
+///   returning `None` for invalid values instead of causing undefined behavior.
+/// - Ensuring safe and predictable FFI interactions.
+///
+/// # What this macro generates
+///
+/// This macro creates:
+/// - A `bitflags!` struct representing the `enum` values as FFI-compatible flags.
+/// - A `to_enum()` method for safely converting the flag struct back into the `enum`.
+/// - A `from_enum()` method for converting the `enum` into the FFI flag struct.
+///
+/// # Example
+///
+/// - [Expanded sample](https://play.rust-lang.org/?version=stable&mode=debug&edition=2024&gist=6077ae8b6a6f664009ef13da291f429a)
+///
+/// ```rust
+/// #[commonlibsse_ng_derive_internal::ffi_enum]
+/// #[repr(i32)]
+/// enum MyEnum {
+///     A = 1,
+///     B = 2,
+///     C = 4,
+/// }
+///
+/// // FFI -> Enum
+/// let valid = MyEnumFlags::A;
+/// assert_eq!(core::mem::size_of::<MyEnumFlags>(), core::mem::size_of::<i32>());
+/// assert_eq!(valid.to_enum(), Some(MyEnum::A));
+///
+/// let invalid = MyEnumFlags::from_bits(999).unwrap_or_else(|| MyEnumFlags::empty());
+/// assert_eq!(invalid.to_enum(), None);
+///
+/// // Enum -> FFI
+/// let flag = MyEnumFlags::from_enum(MyEnum::B);
+/// assert_eq!(flag, MyEnumFlags::B);
+/// ```
+#[proc_macro_attribute]
+pub fn ffi_enum(attrs: TokenStream, item: TokenStream) -> TokenStream {
+    let item_enum = syn::parse_macro_input!(item as syn::ItemEnum);
+    commonlibsse_ng_proc_macro_common::ffi_enum::ffi_enum(attrs.into(), item_enum).into()
+}
