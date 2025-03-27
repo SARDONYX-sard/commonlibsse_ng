@@ -32,7 +32,7 @@ impl<Event> BSTEventSink<Event> {
         _event: &Event,
         _event_source: &BSTEventSource<Event>,
     ) -> BSEventNotifyControlFlags {
-        BSEventNotifyControlFlags::Continue
+        BSEventNotifyControlFlags::Stop
     }
 }
 

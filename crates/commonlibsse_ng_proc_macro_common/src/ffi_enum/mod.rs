@@ -46,44 +46,42 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
     let DiscriminantData { bitflags, to_enum_arms, from_enum_arms } =
         DiscriminantData::from_item_enum(&item_enum);
 
-    let struct_doc = format!("Bitflags representation of `{enum_ident}` for FFI usage.");
+    let struct_doc = format!("`{enum_ident}` for FFI usage type.");
     let to_enum_doc =
         format!("Returns `Some({enum_ident})` if the value is valid, otherwise `None`.");
 
     let expanded = quote! {
-        /// Auto-generated bitflags for FFI compatibility.
         #item_enum
 
-        bitflags::bitflags! {
-            #[doc = #struct_doc]
-            ///
-            /// Provides conversion between the FFI-friendly flag struct and the `enum`.
-            ///
-            /// # Why bitflags?
-            ///
-            /// Because C enum is actually a number, and it is dangerous to put enum directly into struct because it may contain numbers other than the variant defined in Rust.
-            ///
-            /// Use `to_enum`/`from_enum` to inter-convert enums.
-            #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-            #[repr(transparent)]
-            #vis struct #flags_ident: #bitflags_type {
-                #(#bitflags)*
-            }
-        }
+        #[doc = #struct_doc]
+        ///
+        /// Automatically generated type for FFI affinity with C enum.
+        /// It will always have `#[repr(transparent)]`.
+        ///
+        /// # Why use NewType?
+        /// Because C enum is actually a number, and it is dangerous to put enum directly into struct
+        /// because it may contain numbers other than the variant defined in Rust.
+        ///
+        /// Use `to_enum`/`from_enum` to inter-convert enums.
+        #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        #[repr(transparent)]
+        #vis struct #flags_ident(#vis #bitflags_type);
 
         impl #flags_ident {
-            /// Converts the flag to the corresponding `enum` variant.
+            #(#bitflags;)*
+
+            /// Converts to the corresponding `enum` variant.
             ///
             #[doc = #to_enum_doc]
             #[inline]
             pub const fn to_enum(self) -> Option<#enum_ident> {
-                match self {
+                match self.0 {
                     #(#to_enum_arms,)*
                     _ => None,
                 }
             }
 
-            /// Creates the flag struct from the `enum`.
+            /// Creates the struct from the `enum`.
             ///
             /// This allows for easy conversion back to the FFI-friendly representation.
             #[inline]
@@ -91,6 +89,21 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
                 match e {
                     #(#from_enum_arms,)*
                 }
+            }
+        }
+
+        impl TryFrom<#flags_ident> for #enum_ident {
+            type Error = &'static str;
+
+            #[inline]
+            fn try_from(value: #flags_ident) -> Result<Self, Self::Error> {
+                #flags_ident::to_enum(value).ok_or("Couldn't convert value to enum.")
+            }
+        }
+        impl From<#enum_ident> for #flags_ident {
+            #[inline]
+            fn from(value: #enum_ident) -> Self {
+                Self::from_enum(value)
             }
         }
     };
@@ -134,12 +147,13 @@ impl DiscriminantData {
             // Add bitflags constant
             bitflags.push(quote! {
                 #(#variant_attrs)*
-                const #var_name = #value;
+                #[allow(non_upper_case_globals)]
+                pub const #var_name: Self = Self(#value)
             });
 
             // Add to_enum match arms
             to_enum_arms.push(quote! {
-                Self::#var_name => Some(#enum_ident::#var_name)
+                #value => Some(#enum_ident::#var_name)
             });
 
             // Add from_enum match arms

@@ -1,17 +1,10 @@
 /// 0 based Month
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 #[repr(transparent)]
-pub struct Month(f32);
+pub struct MonthInGameRaw(f32);
 
-impl Default for Month {
-    fn default() -> Self {
-        Self::DEFAULT
-    }
-}
-
-impl Month {
-    /// 11.0
-    pub const DEFAULT: Self = Self(11.0);
+impl MonthInGameRaw {
+    pub const DEFAULT: Self = Self(0.0);
 
     #[inline]
     pub const fn new(value: f32) -> Self {
@@ -20,21 +13,21 @@ impl Month {
 
     /// Returns the ensured 1-based month(1..=12).
     #[inline]
-    pub const fn month(&self) -> Option<u32> {
+    pub const fn to_valid_month(self) -> Option<u32> {
         let n = self.0 as u32;
         if n <= 11 { Some(n + 1) } else { None }
     }
 
     #[inline]
-    pub const fn to_month_of_year(self) -> Option<MonthOfYear> {
-        MonthOfYear::from_u32(self.0 as u32)
+    pub const fn to_enum(self) -> Option<MonthInGame> {
+        MonthInGame::from_u32(self.0 as u32)
     }
 }
 
 /// Represents the months of the year.
 #[repr(u32)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum MonthOfYear {
+pub enum MonthInGame {
     MorningStar = 0,
     SunsDawn = 1,
     FirstSeed = 2,
@@ -51,7 +44,7 @@ pub enum MonthOfYear {
     // Total, // unused
 }
 
-impl MonthOfYear {
+impl MonthInGame {
     /// Get the month name.
     #[inline]
     pub const fn as_str(&self) -> &'static str {

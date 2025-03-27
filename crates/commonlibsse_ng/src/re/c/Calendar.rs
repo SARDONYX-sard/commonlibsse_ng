@@ -1,10 +1,12 @@
 mod day;
 mod month;
 mod time;
+mod year;
 
-use self::day::{Day, DayOfWeek};
-use self::month::Month;
-use self::time::{GameDateTime, Time};
+use self::day::{GameDay, Week};
+use self::month::MonthInGameRaw;
+use self::time::{GameDateTime, Hour};
+use self::year::YearInGame;
 use crate::re::TESGlobal::TESGlobal;
 
 /// Represents the `Calendar` class from C++.
@@ -35,16 +37,16 @@ impl Calendar {
 
     /// Gets the current game time.
     #[inline]
-    pub fn get_current_game_time(&self) -> Option<Time> {
+    pub fn get_current_game_time(&self) -> Option<Hour> {
         debug_assert!(crate::rex::win32::is_accessible_struct(self.game_days_passed));
-        unsafe { self.game_days_passed.as_ref().map(|g| Time::new(g.value)) }
+        unsafe { self.game_days_passed.as_ref().map(|g| Hour::new(g.value)) }
     }
 
     /// Gets the current day.
     #[inline]
-    pub fn get_day(&self) -> Option<Day> {
+    pub fn get_day(&self) -> Option<GameDay> {
         debug_assert!(crate::rex::win32::is_accessible_struct(self.game_day));
-        unsafe { self.game_day.as_ref().map(|g| Day::new(g.value)) }
+        unsafe { self.game_day.as_ref().map(|g| GameDay::new(g.value)) }
     }
 
     /// Gets the day name.
@@ -55,14 +57,14 @@ impl Calendar {
 
     /// Gets the day of the week.
     #[inline]
-    pub fn get_day_of_week(&self) -> Option<DayOfWeek> {
-        self.get_days_passed().and_then(|day| day.to_day())
+    pub fn get_day_of_week(&self) -> Option<Week> {
+        self.get_days_passed().and_then(|day| day.to_week())
     }
 
     /// Gets the number of days passed.
     #[inline]
-    pub fn get_days_passed(&self) -> Option<Day> {
-        unsafe { self.game_days_passed.as_ref().map(|g| Day::new(g.value)) }
+    pub fn get_days_passed(&self) -> Option<GameDay> {
+        unsafe { self.game_days_passed.as_ref().map(|g| GameDay::new(g.value)) }
     }
 
     /// Gets the time in HH:MM format as a string.
@@ -70,16 +72,20 @@ impl Calendar {
     pub fn get_time_date_string(&self, show_year: bool) -> Option<String> {
         let (hour, minutes) = {
             let time = self.get_hour()?;
-            (time.hour(), time.minutes())
+            (time.to_hour(), time.to_minutes())
         };
-        let year = if show_year { format!(" {}", self.get_year()) } else { String::new() };
+        let year = if show_year {
+            format!(" {}", self.get_year().unwrap_or(YearInGame::GAME_DEFAULT).to_year())
+        } else {
+            String::new()
+        };
         Some(format!("{hour:02}:{minutes:02}{year}"))
     }
 
     /// Gets the current hour.
     #[inline]
-    pub fn get_hour(&self) -> Option<Time> {
-        unsafe { self.game_hour.as_ref().map(|g| Time::new(g.value)) }
+    pub fn get_hour(&self) -> Option<Hour> {
+        unsafe { self.game_hour.as_ref().map(|g| Hour::new(g.value)) }
     }
 
     /// Gets the number of hours passed.
@@ -95,19 +101,19 @@ impl Calendar {
     /// Gets the current minutes.
     #[inline]
     pub fn get_minutes(&self) -> Option<u32> {
-        Some(self.get_hour()?.minutes())
+        Some(self.get_hour()?.to_minutes())
     }
 
     /// Gets the current month.
     #[inline]
-    pub fn get_month(&self) -> Option<Month> {
-        unsafe { self.game_month.as_ref().map(|g| Month::new(g.value)) }
+    pub fn get_month(&self) -> Option<MonthInGameRaw> {
+        unsafe { self.game_month.as_ref().map(|g| MonthInGameRaw::new(g.value)) }
     }
 
     /// Gets the month name.
     #[inline]
     pub fn get_month_name(&self) -> Option<&'static str> {
-        self.get_month()?.to_month_of_year().map(|month| month.as_str())
+        self.get_month()?.to_enum().map(|month| month.as_str())
     }
 
     /// Gets the ordinal suffix for the day.
@@ -118,14 +124,11 @@ impl Calendar {
 
     /// Gets the in-game time as a `NaiveDateTime`.
     pub fn get_time(&self) -> Option<GameDateTime> {
-        let year = self.get_year() as i32;
-        let month = self.get_month()?.month()?;
-        let day = self.get_day()?.clamp_day(month);
-        let (hour, minute) = {
-            let time = self.get_hour()?;
-            (time.hour(), time.minutes())
-        };
-        GameDateTime::new(year, month, day, hour, minute)
+        let year = self.get_year()?;
+        let month = self.get_month()?;
+        let day = self.get_day()?;
+        let hour = self.get_hour()?;
+        GameDateTime::new(year, month, day, hour)
     }
 
     /// Gets the current time scale.
@@ -136,7 +139,7 @@ impl Calendar {
 
     /// Gets the current year.
     #[inline]
-    pub fn get_year(&self) -> u32 {
-        unsafe { self.game_year.as_ref().map_or(77, |g| g.value as u32) }
+    pub fn get_year(&self) -> Option<YearInGame> {
+        unsafe { self.game_year.as_ref().map(|g| YearInGame::new(g.value)) }
     }
 }

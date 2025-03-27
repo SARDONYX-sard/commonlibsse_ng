@@ -1,7 +1,7 @@
 /// Represents the days of the week.
 #[repr(u32)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum DayOfWeek {
+pub enum Week {
     #[default]
     Sundas,
     Morndas,
@@ -13,7 +13,7 @@ pub enum DayOfWeek {
     // Total, // unused
 }
 
-impl DayOfWeek {
+impl Week {
     #[inline]
     pub const fn as_str(&self) -> &'static str {
         match *self {
@@ -45,9 +45,11 @@ impl DayOfWeek {
 /// NewType wrapper for `u32` representing days
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 #[repr(transparent)]
-pub struct Day(pub f32);
+pub struct GameDay(pub f32);
 
-impl Day {
+impl GameDay {
+    pub const DEFAULT: Self = Self(0.0);
+
     #[inline]
     pub const fn new(value: f32) -> Self {
         Self(value)
@@ -94,19 +96,19 @@ impl Day {
 
     /// Converts `DayValue` into `Day`
     #[inline]
-    pub fn to_day(self) -> Option<DayOfWeek> {
+    pub fn to_week(self) -> Option<Week> {
         if self.0 > 7.0 {
             return None;
         }
 
         Some(match self.day_of_week() {
-            0 => DayOfWeek::Sundas,
-            1 => DayOfWeek::Morndas,
-            2 => DayOfWeek::Tirdas,
-            3 => DayOfWeek::Middas,
-            4 => DayOfWeek::Turdas,
-            5 => DayOfWeek::Fredas,
-            6 => DayOfWeek::Loredas,
+            0 => Week::Sundas,
+            1 => Week::Morndas,
+            2 => Week::Tirdas,
+            3 => Week::Middas,
+            4 => Week::Turdas,
+            5 => Week::Fredas,
+            6 => Week::Loredas,
             _ => unreachable!(),
         })
     }
