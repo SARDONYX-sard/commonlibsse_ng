@@ -3,10 +3,12 @@ mod month;
 mod time;
 mod year;
 
-use self::day::{GameDay, Week};
-use self::month::MonthInGameRaw;
-use self::time::{GameDateTime, Hour};
-use self::year::YearInGame;
+use core::ffi::c_char;
+
+pub use self::day::{GameDay, Week};
+pub use self::month::MonthIndex;
+pub use self::time::{GameDateTime, Hour};
+pub use self::year::YearInGame;
 use crate::re::TESGlobal::TESGlobal;
 
 /// Represents the `Calendar` class from C++.
@@ -67,20 +69,9 @@ impl Calendar {
         unsafe { self.game_days_passed.as_ref().map(|g| GameDay::new(g.value)) }
     }
 
-    /// Gets the time in HH:MM format as a string.
-    #[inline]
-    pub fn get_time_date_string(&self, show_year: bool) -> Option<String> {
-        let (hour, minutes) = {
-            let time = self.get_hour()?;
-            (time.to_hour(), time.to_minutes())
-        };
-        let year = if show_year {
-            format!(" {}", self.get_year().unwrap_or(YearInGame::GAME_DEFAULT).to_year())
-        } else {
-            String::new()
-        };
-        Some(format!("{hour:02}:{minutes:02}{year}"))
-    }
+    /// Gets the time string.
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 35413, ae_id = 36311)]
+    pub fn get_time_date_string(dest: *mut c_char, max: u32, show_year: bool) {}
 
     /// Gets the current hour.
     #[inline]
@@ -106,8 +97,8 @@ impl Calendar {
 
     /// Gets the current month.
     #[inline]
-    pub fn get_month(&self) -> Option<MonthInGameRaw> {
-        unsafe { self.game_month.as_ref().map(|g| MonthInGameRaw::new(g.value)) }
+    pub fn get_month(&self) -> Option<MonthIndex> {
+        unsafe { self.game_month.as_ref().map(|g| MonthIndex::new(g.value)) }
     }
 
     /// Gets the month name.
