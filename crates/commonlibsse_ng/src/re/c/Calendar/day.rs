@@ -102,7 +102,7 @@ impl GameDay {
     ///
     /// # Example
     /// ```
-    /// use crate::calendar::GameDay;
+    /// use commonlibsse_ng::re::Calendar::GameDay;
     /// let game_day = GameDay::new(32.0);
     /// assert_eq!(game_day.clamp_day(2), 28); // Sun's Dawn (28 days)
     /// ```
