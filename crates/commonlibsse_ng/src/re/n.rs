@@ -12,4 +12,6 @@ pub mod NiPointer;
 pub mod NiRTTI;
 pub mod NiRefObject;
 pub mod NiSmartPointer;
+pub mod NiTMap;
+pub mod NiTStringMap;
 pub mod NiTransform;

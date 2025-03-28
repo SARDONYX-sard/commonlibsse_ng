@@ -16,6 +16,7 @@ pub mod BSSmallBlockAllocator;
 pub mod BSString;
 pub mod BSStringPool;
 pub mod BSTArray;
+pub mod BSTCaseInsensitiveStringMap;
 pub mod BSTEventSource;
 pub mod BSTHashMap;
 pub mod BSTList;

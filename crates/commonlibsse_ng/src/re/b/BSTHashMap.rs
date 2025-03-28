@@ -1,3 +1,5 @@
+#![allow(unused)] // TODO:
+
 mod allocator;
 
 pub use self::allocator::{Allocator, BSTScatterTableHeapAllocator, BSTStaticHashMapBaseAllocator};
@@ -56,17 +58,18 @@ where
     // allocator_type    _allocator;
 
     fn default() -> Self {
-        Self {
-            pad00: 0,
-            pad08: 0,
-            capacity: 0,
-            free: 0,
-            good: 0,
-            sentinel: BST_SCATTER_TABLE_SENTINEL.as_ptr().cast(),
-            // allocator: A::new(),
-            allocator: todo!(),
-            marker: PhantomData,
-        }
+        todo!()
+        // Self {
+        //     pad00: 0,
+        //     pad08: 0,
+        //     capacity: 0,
+        //     free: 0,
+        //     good: 0,
+        //     sentinel: BST_SCATTER_TABLE_SENTINEL.as_ptr().cast(),
+        //     // allocator: A::new(),
+        //     allocator: todo!(),
+        //     marker: PhantomData,
+        // }
     }
 }
 

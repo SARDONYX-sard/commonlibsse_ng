@@ -5,9 +5,11 @@ mod b;
 mod c;
 mod e;
 mod f;
+mod g;
 mod i;
 mod m;
 mod n;
+mod s;
 mod t;
 
 pub mod rtti;
@@ -26,9 +28,11 @@ pub use self::b::*;
 pub use self::c::*;
 pub use self::e::*;
 pub use self::f::*;
+pub use self::g::*;
 pub use self::i::*;
 pub use self::m::*;
 pub use self::n::*;
+pub use self::s::*;
 pub use self::t::*;
 
 use crate::rel::id::VariantID;
