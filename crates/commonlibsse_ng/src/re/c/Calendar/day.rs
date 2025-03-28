@@ -18,7 +18,7 @@ impl Week {
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::c::Calendar::Week;
+    /// # use commonlibsse_ng::re::Calendar::Week;
     /// let day = Week::Sundas;
     /// assert_eq!(day.as_str(), "Sundas");
     /// ```
@@ -41,7 +41,7 @@ impl Week {
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::c::Calendar::Week;
+    /// # use commonlibsse_ng::re::Calendar::Week;
     /// let day = Week::from_u32(2);
     /// assert_eq!(day, Some(Week::Tirdas));
     /// ```
@@ -76,7 +76,7 @@ impl GameDay {
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::c::Calendar::GameDay;
+    /// # use commonlibsse_ng::re::Calendar::GameDay;
     /// let game_day = GameDay::new(5.0);
     /// assert_eq!(game_day.0, 5.0);
     /// ```
@@ -89,7 +89,7 @@ impl GameDay {
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::c::Calendar::GameDay;
+    /// # use commonlibsse_ng::re::Calendar::GameDay;
     /// let game_day = GameDay::new(3.0);
     /// assert_eq!(game_day.day_of_week(), 3);
     /// ```
@@ -131,7 +131,7 @@ impl GameDay {
     ///
     /// # Example
     /// ```
-    /// use crate::calendar::GameDay;
+    /// use commonlibsse_ng::re::Calendar::GameDay;
     /// let game_day = GameDay::new(21.0);
     /// assert_eq!(game_day.ordinal_suffix(), "st");
     /// ```
@@ -151,7 +151,7 @@ impl GameDay {
     ///
     /// # Example
     /// ```
-    /// use crate::calendar::{GameDay, Week};
+    /// use commonlibsse_ng::re::Calendar::{GameDay, Week};
     /// let game_day = GameDay::new(1.0);
     /// assert_eq!(game_day.to_week(), Some(Week::Morndas));
     /// ```

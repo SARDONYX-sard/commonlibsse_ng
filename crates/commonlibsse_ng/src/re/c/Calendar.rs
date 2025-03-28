@@ -6,7 +6,7 @@ mod year;
 use core::ffi::c_char;
 
 pub use self::day::{GameDay, Week};
-pub use self::month::MonthIndex;
+pub use self::month::{MonthInGame, MonthIndex};
 pub use self::time::{GameDateTime, Hour};
 pub use self::year::YearInGame;
 use crate::re::TESGlobal::TESGlobal;

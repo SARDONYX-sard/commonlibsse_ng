@@ -56,8 +56,11 @@ impl MonthIndex {
     /// ```
     #[inline]
     pub const fn to_clamp_month(self) -> Option<u32> {
-        let n = self.0 as u32;
-        if n <= 11 { Some(n + 1) } else { None }
+        let n = self.0;
+        match n {
+            0.0..12.0 => Some(n as u32 + 1),
+            _ => None,
+        }
     }
 
     /// Converts `MonthIndex` into `MonthInGame` enum if the value is valid.
