@@ -104,7 +104,7 @@ impl GameDay {
     /// ```
     /// use commonlibsse_ng::re::Calendar::GameDay;
     /// let game_day = GameDay::new(32.0);
-    /// assert_eq!(game_day.clamp_day(2), 28); // Sun's Dawn (28 days)
+    /// assert_eq!(game_day.to_clamp_day(2), 28); // Sun's Dawn (28 days)
     /// ```
     #[inline]
     pub fn to_clamp_day(self, month: u32) -> u32 {
