@@ -1,13 +1,13 @@
-use super::{day::GameDay, month::MonthIndex, year::YearInGame};
+use super::{day::GameDay, month::MonthIndex, year::Year};
 use chrono::{NaiveDate, NaiveDateTime};
 
 /// NewType wrapper for `NaiveDateTime`, representing in-game date and time.
 ///
 /// # Example
 /// ```
-/// use commonlibsse_ng::re::Calendar::{GameDateTime, YearInGame, MonthIndex, GameDay, Hour};
+/// use commonlibsse_ng::re::Calendar::{GameDateTime, Year, MonthIndex, GameDay, Hour};
 ///
-/// let year = YearInGame::new(2025.0);
+/// let year = Year::new(2025.0);
 /// let month = MonthIndex::new(2.0);   // March (0-based)
 /// let day = GameDay::new(28.0);
 /// let hour = Hour::new(15.5);         // 15:30
@@ -44,9 +44,9 @@ impl GameDateTime {
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::Calendar::{GameDateTime, YearInGame, MonthIndex, GameDay, Hour};
+    /// use commonlibsse_ng::re::Calendar::{GameDateTime, Year, MonthIndex, GameDay, Hour};
     ///
-    /// let year = YearInGame::new(2025.0);
+    /// let year = Year::new(2025.0);
     /// let month = MonthIndex::new(2.0);   // March
     /// let day = GameDay::new(15.0);
     /// let hour = Hour::new(9.75);         // 9:45
@@ -59,7 +59,7 @@ impl GameDateTime {
     /// assert!(invalid.is_none());
     /// ```
     #[inline]
-    pub fn new(year: YearInGame, month: MonthIndex, day: GameDay, hour: Hour) -> Option<Self> {
+    pub fn new(year: Year, month: MonthIndex, day: GameDay, hour: Hour) -> Option<Self> {
         let month = month.to_clamp_month()?; // 1-based month (1..=12)
         let day = day.to_clamp_day(month); // Clamped day
         let (hour, minute) = { (hour.to_hour(), hour.to_minutes()) };

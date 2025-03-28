@@ -69,7 +69,7 @@ impl Week {
 pub struct GameDay(pub f32);
 
 impl GameDay {
-    /// The default `GameDay` value (0.0).
+    /// The default `GameDay` value (0.0) at compile time.
     pub const DEFAULT: Self = Self(0.0);
 
     /// Creates a new `GameDay` instance with the specified value.
@@ -100,14 +100,20 @@ impl GameDay {
 
     /// Clamps the day value based on the month's maximum days.
     ///
+    /// When month is in the range of 1 to 12, a valid value is returned.
+    ///
     /// # Example
     /// ```
     /// use commonlibsse_ng::re::Calendar::GameDay;
     /// let game_day = GameDay::new(32.0);
     /// assert_eq!(game_day.to_clamp_day(2), 28); // Sun's Dawn (28 days)
+    ///
+    /// assert_eq!(game_day.to_clamp_day(0), 31); // Underflow (Fallback to 31 days)
+    /// assert_eq!(game_day.to_clamp_day(12), 31); // Overflow (Fallback to 31 days)
+    /// assert_eq!(game_day.to_clamp_day(300), 31); // Overflow (Fallback to 31 days)
     /// ```
     #[inline]
-    pub fn to_clamp_day(self, month: u32) -> u32 {
+    pub const fn to_clamp_day(self, month: u32) -> u32 {
         /// Days in each month
         pub const DAYS_IN_MONTH: [u8; 12] = [
             31, // Morning Star
@@ -123,8 +129,12 @@ impl GameDay {
             30, // Sun's Dusk
             31, // Evening Star
         ];
-        let max_days = DAYS_IN_MONTH.get((month - 1) as usize).copied().unwrap_or(31) as u32;
-        (self.0 as u32).min(max_days)
+        let max_days = match month {
+            1..=12 => DAYS_IN_MONTH[(month - 1) as usize] as u32,
+            _ => 31,
+        };
+        let n = self.0 as u32;
+        if n < max_days { n } else { max_days }
     }
 
     /// Returns the ordinal suffix for the day (e.g., `st`, `nd`, `rd`, `th`).
@@ -156,11 +166,7 @@ impl GameDay {
     /// assert_eq!(game_day.to_week(), Some(Week::Morndas));
     /// ```
     #[inline]
-    pub fn to_week(self) -> Option<Week> {
-        if self.0 >= 7.0 {
-            return None;
-        }
-
+    pub const fn to_week(self) -> Option<Week> {
         Some(match self.day_of_week() {
             0 => Week::Sundas,
             1 => Week::Morndas,
@@ -169,7 +175,7 @@ impl GameDay {
             4 => Week::Turdas,
             5 => Week::Fredas,
             6 => Week::Loredas,
-            _ => unreachable!(),
+            _ => return None,
         })
     }
 }

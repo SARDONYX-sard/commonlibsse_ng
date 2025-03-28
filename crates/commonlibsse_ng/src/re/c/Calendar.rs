@@ -8,7 +8,7 @@ use core::ffi::c_char;
 pub use self::day::{GameDay, Week};
 pub use self::month::{MonthInGame, MonthIndex};
 pub use self::time::{GameDateTime, Hour};
-pub use self::year::YearInGame;
+pub use self::year::Year;
 use crate::re::TESGlobal::TESGlobal;
 
 /// Represents the `Calendar` class from C++.
@@ -130,7 +130,7 @@ impl Calendar {
 
     /// Gets the current year.
     #[inline]
-    pub fn get_year(&self) -> Option<YearInGame> {
-        unsafe { self.game_year.as_ref().map(|g| YearInGame::new(g.value)) }
+    pub fn get_year(&self) -> Option<Year> {
+        unsafe { self.game_year.as_ref().map(|g| Year::new(g.value)) }
     }
 }

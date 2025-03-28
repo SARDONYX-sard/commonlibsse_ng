@@ -29,6 +29,8 @@ fn record_game_date() {
     use commonlibsse_ng::re::Calendar::Calendar;
 
     if let Some(calendar) = unsafe { Calendar::get_singleton().as_ref() } {
+        #[cfg(feature = "tracing")]
+        tracing::trace!("{calendar:#?}");
         if let Some(date) = calendar.get_time() {
             #[cfg(feature = "tracing")]
             tracing::trace!("{date}");
