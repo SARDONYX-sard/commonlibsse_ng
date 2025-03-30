@@ -26,7 +26,7 @@ pub struct TESGlobal {
 
     /// The type of the global (float, long, short).
     /// - Offset: `0x30`
-    pub type_: u8,
+    pub type_: TypeFlags,
 
     /// Padding for alignment.
     /// - Offset: `0x31`
@@ -52,28 +52,16 @@ const _: () = {
 };
 
 /// The global variable type.
-///
-/// # Note
-/// C It is dangerous to put enum directly into struct because enum is actually a number
-/// and may contain numbers other than the variant defined in Rust.
+#[commonlibsse_ng_derive_internal::ffi_enum]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(u8)]
 pub enum Type {
+    /// Stored type is [`f32`].
     Float = b'f',
+    /// Stored type is [`i32`].
     Long = b'l',
+    /// Stored type is [`i16`].
     Short = b's',
-}
-
-impl Type {
-    #[inline]
-    pub const fn from_u8(value: u8) -> Option<Self> {
-        Some(match value {
-            b'f' => Self::Float,
-            b'l' => Self::Long,
-            b's' => Self::Short,
-            _ => return None,
-        })
-    }
 }
 
 impl TESGlobal {
@@ -84,12 +72,6 @@ impl TESGlobal {
     pub const VTABLE: [VariantID; 1] = VTABLE_TESGlobal;
 
     pub const FORM_TYPE: FormType = FormType::Global;
-
-    /// Get the valid `self.type`
-    #[inline]
-    pub const fn get_type(&self) -> Option<Type> {
-        Type::from_u8(self.type_)
-    }
 
     /// Gets the form editor ID as a `&str`.
     #[inline]

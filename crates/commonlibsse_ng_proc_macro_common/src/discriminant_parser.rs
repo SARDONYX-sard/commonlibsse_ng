@@ -5,15 +5,14 @@ use syn::{Expr, Lit};
 pub(crate) fn parse_discriminant(expr: &Expr) -> syn::Result<i64> {
     match expr {
         Expr::Lit(lit) => {
-            if let Lit::Int(int) = &lit.lit {
-                if let Ok(value) = int.base10_parse::<i64>() {
-                    return Ok(value);
-                }
+            match &lit.lit {
+                Lit::Int(int) => int.base10_parse::<i64>(),
+                Lit::Byte(byte) => Ok(byte.value() as i64), // e.g. `b'l'`
+                _ => Err(syn::Error::new_spanned(
+                    lit,
+                    format!("Failed to parse as integer: {}", lit.to_token_stream()),
+                )),
             }
-            Err(syn::Error::new_spanned(
-                lit,
-                format!("Failed to parse as integer: {}", lit.to_token_stream()),
-            ))
         }
         Expr::Binary(binary) => {
             let left = parse_discriminant(&binary.left)?;
