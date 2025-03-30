@@ -167,7 +167,7 @@ impl GameDay {
     /// ```
     #[inline]
     pub const fn to_week(self) -> Option<Week> {
-        Some(match self.day_of_week() {
+        Some(match self.0 as u32 {
             0 => Week::Sundas,
             1 => Week::Morndas,
             2 => Week::Tirdas,

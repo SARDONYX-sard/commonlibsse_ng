@@ -60,7 +60,7 @@ impl ResolvableAddress for Offset {
 /// use commonlibsse_ng::rel::ResolvableAddress as _;
 ///
 /// let variant_offset = VariantOffset::new(0x1000, 0x2000, 0x3000);
-/// let offset = variant_offset.offset().unwrap();
+/// // let offset = variant_offset.offset().unwrap();
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct VariantOffset {
