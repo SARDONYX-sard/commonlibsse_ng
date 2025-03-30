@@ -1,4 +1,4 @@
-use crate::re::BSTEventSource::BSTEventSource;
+use crate::re::BSTEvent::BSTEventSource;
 use crate::re::InventoryEntryData::InventoryEntryData;
 use crate::re::TESObjectREFR::TESObjectREFR;
 

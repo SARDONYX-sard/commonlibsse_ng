@@ -59,6 +59,11 @@ impl<T: RefCountable> NiPointer<T> {
     }
 
     #[inline]
+    pub const fn as_ptr(&self) -> Option<NonNull<T>> {
+        self.ptr
+    }
+
+    #[inline]
     pub fn as_ref(&self) -> Option<&T> {
         self.ptr.as_ref().map(|ptr| unsafe { ptr.as_ref() })
     }

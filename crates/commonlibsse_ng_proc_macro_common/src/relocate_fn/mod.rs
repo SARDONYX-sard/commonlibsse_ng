@@ -41,6 +41,7 @@ fn generate_code(
         unsafety,
         abi,
         ident,
+        generics,
         inputs: fn_inputs,
         variadic,
         output: fn_output,
@@ -49,10 +50,9 @@ fn generate_code(
 
     let FnArgs { call_args, type_args, self_type, cast_self } = create_fn_args(fn_inputs, variadic);
 
-    let fn_type =
-        quote::quote! { #constness #asyncness #unsafety #abi fn(#self_type #type_args) #fn_output };
+    let fn_type = quote::quote! { #constness #asyncness #unsafety #abi fn #generics (#self_type #type_args) #fn_output };
 
-    let fn_sig = quote::quote! { #vis #constness #asyncness #unsafety #abi fn #ident(#fn_inputs) #fn_output };
+    let fn_sig = quote::quote! { #vis #constness #asyncness #unsafety #abi fn #ident #generics (#fn_inputs) #fn_output };
     let stmts = &block.stmts;
 
     #[cfg(feature = "tracing")]

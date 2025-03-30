@@ -139,6 +139,7 @@ pub struct BSTSmallArray<T> {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct BSTArray<T> {
     // BSTArrayHeapALlocator
     data: NonNull<T>,

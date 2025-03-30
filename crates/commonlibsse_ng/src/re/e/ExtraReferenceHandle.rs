@@ -12,7 +12,7 @@
 use crate::re::BSExtraData::{BSExtraData, DerivedBSExtraData};
 use crate::re::BSPointerHandle::ObjectRefHandle;
 use crate::re::ExtraDataType::ExtraDataType;
-use crate::re::NiPointer::NiPointer;
+use crate::re::NiSmartPointer::NiPointer;
 use crate::re::TESObjectREFR::TESObjectREFR;
 use crate::re::offsets_rtti::RTTI_ExtraReferenceHandle;
 use crate::re::offsets_vtable::VTABLE_ExtraReferenceHandle;
@@ -72,7 +72,7 @@ impl ExtraReferenceHandle {
     /// Creates a new `ExtraReferenceHandle` instance with a null reference.
     #[inline]
     pub const fn new() -> Self {
-        Self { __base: BSExtraData::new(), container_ref: ObjectRefHandle::null(), pad14: 0 }
+        Self { __base: BSExtraData::new(), container_ref: ObjectRefHandle::new(), pad14: 0 }
     }
 
     /// Creates a new `ExtraReferenceHandle` with a specific reference handle.

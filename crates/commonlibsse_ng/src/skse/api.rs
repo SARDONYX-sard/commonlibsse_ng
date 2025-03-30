@@ -1,4 +1,4 @@
-use crate::re::BSTEventSource::BSTEventSource;
+use crate::re::BSTEvent::BSTEventSource;
 use crate::rel::version::Version;
 use crate::skse::impls::stab::{
     PluginHandle, SKSEDelayFunctorManager, SKSEObjectRegistry, SKSEPersistentObjectStorage,

@@ -1,3 +1,5 @@
+pub mod BGSActorEvent;
+pub mod BGSActorCellEvent;
 pub mod BGSDirectionalAmbientLightingColors;
 pub mod BGSEncounterZone;
 pub mod BGSLoadFormBuffer;
@@ -18,7 +20,6 @@ pub mod BSStringPool;
 pub mod BSTArray;
 pub mod BSTCaseInsensitiveStringMap;
 pub mod BSTEvent;
-pub mod BSTEventSource;
 pub mod BSTHashMap;
 pub mod BSTList;
 pub mod BSTimer;

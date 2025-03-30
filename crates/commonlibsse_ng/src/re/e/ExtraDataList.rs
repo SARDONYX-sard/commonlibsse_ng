@@ -175,7 +175,7 @@ impl ExtraDataList {
     pub fn get_extra_text_display_data(&self) -> Option<NonNull<ExtraTextDisplayData>> {
         let tes_ref = self
             .get_by_type_as::<ExtraReferenceHandle>()
-            .map(|x_ref| unsafe { x_ref.as_ref().get_original_reference() });
+            .map(|x_ref| unsafe { x_ref.as_ref().get_original_reference() })?;
 
         tes_ref.as_ref().map_or_else(
             || self.get_by_type_as::<ExtraTextDisplayData>(),

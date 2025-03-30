@@ -1,3 +1,5 @@
+use core::ptr::NonNull;
+
 use crate::re::BSAtomic::BSSpinLock;
 use crate::re::BSTArray::BSTArray;
 
@@ -10,8 +12,9 @@ pub enum BSEventNotifyControl {
     Stop = 1,
 }
 
+#[derive(Debug)]
 pub struct BSTEventSink<Event> {
-    vtable: *const BSTEventSinkVtbl<Event>,
+    vtable: Option<NonNull<BSTEventSinkVtbl<Event>>>,
 }
 const _: () = assert!(core::mem::size_of::<BSTEventSink<*mut ()>>() == 0x8);
 
@@ -22,17 +25,12 @@ impl<Event> BSTEventSink<Event> {
         event: *const Self,
         event_source: *const BSTEventSource<Event>,
     ) -> BSEventNotifyControl {
-        #[allow(clippy::option_if_let_else)]
-        match self.vtable() {
-            Some(vtable) => unsafe { (vtable.ProcessEvent)(self, event, event_source) }.to_enum(),
-            None => None,
-        }
-        .unwrap_or(BSEventNotifyControl::Stop)
-    }
-
-    #[inline]
-    pub const fn vtable(&self) -> Option<&BSTEventSinkVtbl<Event>> {
-        unsafe { self.vtable.as_ref() }
+        self.vtable
+            .map(|ptr| unsafe { ptr.as_ref() })
+            .and_then(|vtable| {
+                unsafe { (vtable.ProcessEvent)(self, event, event_source) }.to_enum()
+            })
+            .unwrap_or(BSEventNotifyControl::Stop)
     }
 }
 
@@ -48,6 +46,7 @@ pub struct BSTEventSinkVtbl<Event> {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct BSTEventSource<Event> {
     sinks: BSTArray<*mut BSTEventSink<Event>>,
     pendingRegisters: BSTArray<*mut BSTEventSink<Event>>,

@@ -1,6 +1,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+mod a;
 mod b;
 mod c;
 mod e;
@@ -24,6 +25,7 @@ pub mod offsets_ni_rtti;
 #[rustfmt::skip]
 pub mod offsets_vtable;
 
+pub use self::a::*;
 pub use self::b::*;
 pub use self::c::*;
 pub use self::e::*;
@@ -50,9 +52,6 @@ pub trait CxxVirtClass {
 
 pub struct GFxMovieView;
 pub struct GFxValue;
-
-pub struct VMHandle(pub u64);
-pub struct FormID(pub u32);
 
 pub struct TesWaterForm;
 

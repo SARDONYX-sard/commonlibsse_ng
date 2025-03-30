@@ -9,7 +9,7 @@
 
 use core::ffi::c_void;
 
-use crate::re::{FormID, VMHandle};
+use crate::re::BSCoreTypes::{FormID, VMHandle};
 use crate::skse::api::{ApiStorageError, get_plugin_handle};
 use crate::skse::impls::stab::SKSESerializationInterface;
 
@@ -190,7 +190,7 @@ impl SerializationInterface {
     #[inline]
     pub fn resolve_form_id(&self, old: FormID, new: &mut FormID) -> Result<(), Error> {
         unsafe {
-            let result = (self.0.ResolveFormId)(old.0, &mut new.0);
+            let result = (self.0.ResolveFormId)(old.get(), &mut new.get());
             if result { Ok(()) } else { Err(Error::ResolveFormIdError) }
         }
     }
@@ -201,7 +201,7 @@ impl SerializationInterface {
     /// Returns an error if the handle resolution fails.
     #[inline]
     pub fn resolve_handle(&self, old: VMHandle, new: &mut VMHandle) -> Result<(), Error> {
-        let result = unsafe { (self.0.ResolveHandle)(old.0, &mut new.0) };
+        let result = unsafe { (self.0.ResolveHandle)(old.get(), &mut new.get()) };
         if result { Ok(()) } else { Err(Error::ResolveHandleError) }
     }
 }

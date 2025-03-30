@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::re::BSHandleRefObject::BSHandleRefObject;
 use crate::re::BSTArray::BSTSmallArray;
-use crate::re::BSTEventSource::BSTEventSink;
+use crate::re::BSTEvent::BSTEventSink;
 use crate::re::ExtraContainerChanges::ExtraContainerChanges;
 use crate::re::ExtraDataList::ExtraDataList;
 use crate::re::InventoryChanges::InventoryChanges;
@@ -62,6 +62,18 @@ pub struct TESObjectREFR {
     pub extraList: ExtraDataList,                     // 70
 }
 const _: () = assert!(core::mem::size_of::<TESObjectREFR>() == 0x78);
+
+impl crate::re::NiSmartPointer::RefCountable for TESObjectREFR{
+    #[inline]
+    fn inc_ref_count(&self) {
+        self.__base1.inc_ref_count();
+    }
+
+    #[inline]
+    fn dec_ref_count(&mut self) {
+        self.__base1.dec_ref_count();
+    }
+}
 
 type Count = i32;
 pub type InventoryCountMap = HashMap<*mut TESBoundObject, Count>;
