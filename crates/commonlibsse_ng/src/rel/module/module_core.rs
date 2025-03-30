@@ -235,7 +235,7 @@ mod tests {
         // Use `msvcrt.dll` for testing since the dll is always US English and
         // always loaded in the msvc target when the test is run.
 
-        match dbg!(Module::new_for_test()) {
+        match dbg!(Module::new_with_msvcrt()) {
             Ok(module) => {
                 assert!(!module.file_path.is_empty());
                 assert!(!module.filename.is_empty());
