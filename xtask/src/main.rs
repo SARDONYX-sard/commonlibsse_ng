@@ -32,6 +32,9 @@ enum Commands {
     Build,
     Gen,
     Test,
+    /// Run nextest for CI
+    TestCI,
+    /// Run nextest for local PC(Need SkyrimSE.exe & address library in `Data/SKSE/Plugins/version`)
     NTest,
     Example(ExampleArgs),
 }
@@ -108,9 +111,21 @@ fn main() -> Result<()> {
             &["test", "--workspace", "--features", "debug", "--no-default-features"],
             Some("./test_results.txt"),
         ),
+        Some(Commands::TestCI) => run_command(
+            "cargo",
+            &["nextest", "run", "--workspace", "--features", "test_on_ci", "--no-default-features"],
+            Some("./test_results.txt"),
+        ),
         Some(Commands::NTest) => run_command(
             "cargo",
-            &["nextest", "run", "--workspace", "--features", "debug", "--no-default-features"],
+            &[
+                "nextest",
+                "run",
+                "--workspace",
+                "--features",
+                "test_on_local",
+                "--no-default-features",
+            ],
             Some("./test_results.txt"),
         ),
         Some(Commands::Example(args)) => run_example(args),

@@ -151,6 +151,7 @@ pub enum LogInitError {
     FailedInitLog,
 }
 
+#[cfg(feature = "test_on_ci")]
 #[cfg(test)]
 mod tests {
     use super::*;

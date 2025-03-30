@@ -73,9 +73,6 @@ tracing = [
   "commonlibsse_ng_derive?/tracing",
 ]
 
-# For test and debugging.
-debug = ["tracing"]
-
 # For local test(Address library test)
 test_on_local = ["tracing"]
 

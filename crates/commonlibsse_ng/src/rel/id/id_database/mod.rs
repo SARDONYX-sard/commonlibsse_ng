@@ -26,13 +26,13 @@ use std::{num::NonZeroUsize, path::PathBuf, sync::LazyLock};
 /// This ensures the database is only loaded when needed.
 pub(crate) static ID_DATABASE: LazyLock<IDDatabase> = LazyLock::new(|| {
     // TODO: remove unwrap
-    #[cfg(not(feature = "debug"))]
+    #[cfg(not(any(feature = "test_on_ci", feature = "test_on_local")))]
     return IDDatabase::from_bin().unwrap_or_else(|err| {
         #[cfg(feature = "tracing")]
         tracing::error!("[Critical Error] Failed to load the ID database: {err}");
         panic!("[Critical Error] Failed to load the ID database: {err}");
     });
-    #[cfg(feature = "debug")]
+    #[cfg(any(feature = "test_on_ci", feature = "test_on_local"))]
     return IDDatabase::from_bin().unwrap_or_else(|_| IDDatabase::new_dummy());
 });
 
@@ -44,7 +44,7 @@ pub struct IDDatabase {
 }
 
 impl IDDatabase {
-    #[cfg(feature = "debug")]
+    #[cfg(any(feature = "test_on_ci", feature = "test_on_local"))]
     fn new_dummy() -> Self {
         use windows::core::h;
 
