@@ -34,8 +34,7 @@ jobs:
       - name: Install nextest(Parallel Test Execution CLI)
         uses: taiki-e/install-action@nextest
       - name: Test
-        run: cargo nextest run --target ${{ matrix.job.target }} --features debug --no-default-features
-        # run: cargo nextest run --workspace --target ${{ matrix.job.target }}
+        run: cargo nextest run --target ${{ matrix.job.target }} --features test_on_ci --no-default-features
 
   doc-test:
     strategy:
