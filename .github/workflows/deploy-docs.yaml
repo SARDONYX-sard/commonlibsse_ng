@@ -20,7 +20,7 @@ jobs:
           prefix-key: cargo-docs
 
       - name: Build documentation
-        run: cargo doc --features debug --no-default-features
+        run: cargo doc --features test_on_ci --no-default-features
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
