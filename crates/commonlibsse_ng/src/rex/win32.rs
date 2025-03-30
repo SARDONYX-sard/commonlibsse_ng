@@ -75,6 +75,25 @@ pub fn is_accessible_struct<T>(target: *const T) -> bool {
     is_valid_range(target.cast(), core::mem::size_of::<T>())
 }
 
+/// Gets the module size.
+///
+/// # Errors
+/// Returns an error when module information cannot be obtained.
+pub fn get_module_size(handle: windows::Win32::Foundation::HMODULE) -> windows::core::Result<u32> {
+    use windows::Win32::System::ProcessStatus::GetModuleInformation;
+    use windows::Win32::System::ProcessStatus::MODULEINFO;
+    use windows::Win32::System::Threading::GetCurrentProcess;
+
+    const MODULEINFO_SIZE: u32 = core::mem::size_of::<MODULEINFO>() as u32;
+
+    let mut module_info = MODULEINFO::default();
+    unsafe {
+        GetModuleInformation(GetCurrentProcess(), handle, &mut module_info, MODULEINFO_SIZE)?;
+    }
+
+    Ok(module_info.SizeOfImage)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

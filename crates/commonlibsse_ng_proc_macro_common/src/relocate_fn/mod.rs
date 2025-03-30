@@ -60,6 +60,19 @@ fn generate_code(
     #[cfg(not(feature = "tracing"))]
     let database_err_log = quote::quote! {};
 
+    #[cfg(feature = "tracing")]
+    let ptr_debug_log = quote::quote! {
+        #crate_root_name::__private::tracing::trace!(
+            "Resolved Address: {:#?} (se_id: {}, ae_id: {}, vr_id: {})",
+            fn_ptr.as_ptr(),
+            #se_id,
+            #ae_id,
+            #vr_id
+        );
+    };
+    #[cfg(not(feature = "tracing"))]
+    let ptr_debug_log = quote::quote! {};
+
     quote::quote! {
         #(#attrs)*
         #[allow(clippy::use_self)]
@@ -83,6 +96,7 @@ fn generate_code(
                         #database_err_log;
                         panic!("Failed to resolve address: {err}");
                     });
+                    #ptr_debug_log;
                     unsafe { core::mem::transmute::<NonNull<core::ffi::c_void>, SelfSignature>(fn_ptr) }
                 });
                 FUNC(#cast_self #call_args)

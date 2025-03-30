@@ -2,10 +2,9 @@ use crate::rel::module::ModuleState;
 use crate::rex::win32::document_dir;
 use crate::skse::version::RUNTIME_SSE_1_6_1170;
 use snafu::ResultExt as _;
-use std::{
-    path::{Path, PathBuf},
-    sync::OnceLock,
-};
+use std::path::{Path, PathBuf};
+#[cfg(feature = "tracing")]
+use std::sync::OnceLock;
 #[cfg(feature = "tracing")]
 use tracing_subscriber::{
     Registry,

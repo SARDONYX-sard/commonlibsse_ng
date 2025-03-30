@@ -6,10 +6,8 @@
 // SPDX-FileCopyrightText: (C) 2025 SARDONYX
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#[cfg(feature = "win_api")]
 mod win_api;
 
-#[cfg(feature = "win_api")]
 pub use win_api::{FileVersionError, get_file_version};
 
 /// Represents a 4-part version number.
@@ -22,6 +20,7 @@ pub use win_api::{FileVersionError, get_file_version};
 ///
 /// let ver = Version::new(1, 6, 1170, 0);
 /// assert_eq!(ver.major(), 1);
+/// assert_eq!(ver.to_string(), "1.6.1170.0");
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Version {
@@ -209,6 +208,33 @@ impl Version {
                 (packed & 0xF) as u16,
             ],
         }
+    }
+
+    /// Gets the inner parts.
+    ///
+    /// # Example
+    /// ```
+    /// # use commonlibsse_ng::rel::version::Version;
+    /// let v = Version::new(1, 2, 3, 4);
+    /// assert_eq!(v.parts(), [1, 2, 3, 4]);
+    /// ```
+    #[inline]
+    pub const fn parts(&self) -> [u16; 4] {
+        self._impl
+    }
+
+    /// To address library file name string.
+    ///
+    /// # Example
+    /// ```
+    /// # use commonlibsse_ng::rel::version::Version;
+    /// let v = Version::new(1, 2, 3, 4);
+    /// assert_eq!(v.to_address_library_string(), "1-2-3-4");
+    /// ```
+    #[inline]
+    pub fn to_address_library_string(&self) -> String {
+        let [major, minor, patch, build] = self._impl;
+        format!("{major}-{minor}-{patch}-{build}")
     }
 }
 

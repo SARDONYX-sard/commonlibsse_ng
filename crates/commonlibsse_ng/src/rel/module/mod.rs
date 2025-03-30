@@ -16,7 +16,7 @@ mod segment;
 
 pub use self::module_core::{Module, ModuleInitError};
 pub use self::module_handle::{ModuleHandle, ModuleHandleError};
-pub use self::runtime::Runtime;
+pub use self::runtime::{Runtime, get_skyrim_dir, get_skyrim_exe_path};
 pub use self::segment::{Segment, SegmentName};
 
 use std::sync::{LazyLock, RwLock};
@@ -41,10 +41,11 @@ pub enum ModuleState {
 impl ModuleState {
     /// Initialize the module.
     fn new() -> Self {
-        #[cfg(not(feature = "debug"))]
         let module = Module::new();
-        #[cfg(feature = "debug")]
-        let module = Module::new().or_else(|_| Module::new_for_test());
+        #[cfg(feature = "test_on_ci")]
+        let module = module.or_else(|_| Module::new_with_msvcrt());
+        #[cfg(feature = "test_on_local")]
+        let module = module.or_else(|_| Module::new_from_skyrim_exe());
         match module {
             Ok(module) => Self::Active(module),
             Err(err) => Self::FailedInit(err),

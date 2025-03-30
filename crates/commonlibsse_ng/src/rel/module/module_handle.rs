@@ -136,7 +136,7 @@ pub enum ModuleHandleError {
     InvalidNtHeader64Signature { actual: u32 },
 }
 
-// fn get_module_size(handle: windows::Win32::Foundation::HMODULE) -> windows::core::Result<u32> {
+// pub fn get_module_size(handle: windows::Win32::Foundation::HMODULE) -> windows::core::Result<u32> {
 //     use windows::Win32::System::ProcessStatus::GetModuleInformation;
 //     use windows::Win32::System::ProcessStatus::MODULEINFO;
 //     use windows::Win32::System::Threading::GetCurrentProcess;
@@ -145,8 +145,8 @@ pub enum ModuleHandleError {
 
 //     let mut module_info = MODULEINFO::default();
 //     unsafe {
-//         GetModuleInformation(GetCurrentProcess(), handle, &mut module_info, MODULEINFO_SIZE)?
-//     };
+//         GetModuleInformation(GetCurrentProcess(), handle, &mut module_info, MODULEINFO_SIZE)?;
+//     }
 
 //     Ok(module_info.SizeOfImage)
 // }

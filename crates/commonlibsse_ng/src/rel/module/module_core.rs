@@ -25,7 +25,7 @@ pub struct Module {
     /// File path of the module. (e.g. `"SkyrimSE.exe"`)
     pub file_path: String,
     /// Memory segments of the module.
-    segments: [Segment; 8],
+    pub(crate) segments: [Segment; 8],
     /// Version information of the module.
     pub version: Version,
     /// Base module handle if available.
@@ -47,14 +47,30 @@ impl Module {
     ];
 
     /// Method by which a dummy file(`msvcrt.dll`) is loaded for testing.
-    #[cfg(feature = "debug")]
-    pub(crate) fn new_for_test() -> Result<Self, ModuleInitError> {
+    #[cfg(feature = "test_on_ci")]
+    pub(crate) fn new_with_msvcrt() -> Result<Self, ModuleInitError> {
         let filename = windows::core::h!("msvcrt.dll");
         let module_handle = unsafe {
             ModuleHandle::new(filename).map_err(|_| ModuleInitError::ModuleNameAndHandleNotFound)
         }?;
 
         Self::init_inner(filename.clone(), module_handle)
+    }
+
+    #[cfg(feature = "test_on_local")]
+    pub(crate) fn new_from_skyrim_exe() -> Result<Self, ModuleInitError> {
+        let path = crate::rel::module::get_skyrim_exe_path(Runtime::Ae)
+            .ok_or(ModuleInitError::ModuleNameAndHandleNotFound)?;
+        let path = windows::core::HSTRING::from(path.as_path());
+
+        let module_handle = unsafe {
+            windows::Win32::System::LibraryLoader::LoadLibraryW(&path)
+                .map_err(|_| ModuleInitError::ModuleNameAndHandleNotFound)
+        }?;
+        let module_handle =
+            ModuleHandle(unsafe { core::ptr::NonNull::new_unchecked(module_handle.0) });
+
+        Self::init_inner(path, module_handle)
     }
 
     /// Initializes a new `Module` instance by detecting the currently loaded module.
@@ -209,13 +225,13 @@ pub enum ModuleInitError {
     VersionLoadFailed { source: crate::rel::version::FileVersionError },
 }
 
-#[cfg(feature = "debug")]
 #[cfg(test)]
 mod tests {
-    use super::*;
-
+    #[cfg(feature = "test_on_ci")]
     #[test]
     fn test_module_init() {
+        use super::*;
+
         // Use `msvcrt.dll` for testing since the dll is always US English and
         // always loaded in the msvc target when the test is run.
 

@@ -20,7 +20,7 @@ mod unpack;
 use super::Mapping;
 use crate::rel::version::Version;
 use shared_rwlock::SharedRwLock;
-use std::{num::NonZeroUsize, sync::LazyLock};
+use std::{num::NonZeroUsize, path::PathBuf, sync::LazyLock};
 
 /// Global static instance of `IdDatabase` initialized lazily.
 /// This ensures the database is only loaded when needed.
@@ -37,9 +37,10 @@ pub(crate) static ID_DATABASE: LazyLock<IDDatabase> = LazyLock::new(|| {
 });
 
 /// Represents a database of ID-to-offset mappings loaded from an address library binary file.
+#[derive(Debug)]
 pub struct IDDatabase {
     /// Memory-mapped storage of the ID database.
-    pub(super) mem_map: SharedRwLock<Mapping>,
+    pub(crate) mem_map: SharedRwLock<Mapping>,
 }
 
 impl IDDatabase {
@@ -68,14 +69,31 @@ impl IDDatabase {
         let is_ae = runtime.is_ae();
         let path = {
             let ver_suffix = if is_ae { "lib" } else { "" };
-            format!("Data/SKSE/Plugins/version{ver_suffix}-{version}.bin")
+            let version = version.to_address_library_string();
+            #[cfg(feature = "test_on_local")]
+            {
+                let skyrim_dir = crate::rel::module::get_skyrim_dir(
+                    crate::rel::module::Runtime::Se,
+                )
+                .ok_or(DataBaseError::AddressLibraryNotFound {
+                    path: std::path::Path::new(&version).to_path_buf(),
+                })?;
+                let skyrim_dir = skyrim_dir.display();
+                format!("{skyrim_dir}/Data/SKSE/Plugins/version{ver_suffix}-{version}.bin")
+            }
+            #[cfg(not(feature = "test_on_local"))]
+            {
+                format!("Data/SKSE/Plugins/version{ver_suffix}-{version}.bin")
+            }
         };
         let expected_fmt_ver = if is_ae { 2 } else { 1 }; // Expected AddressLibrary format version. SE/VR: 1, AE: 2
 
         Ok(Self { mem_map: load_bin_file(&path, version, expected_fmt_ver)? })
     }
 
-    /// Retrieves the offset corresponding to the given ID.
+    /// Gets the offset corresponding to the given ID.
+    ///
+    /// - Order: `O(log n)` for binary search
     ///
     /// # Errors
     /// Returns an error under the following conditions.
@@ -114,8 +132,9 @@ pub enum DataBaseError {
     /// Failed to create shared mapping
     MappingCreationFailed,
 
-    /// Failed to locate an appropriate address library at: {path}
-    AddressLibraryNotFound { path: String },
+    /// Failed to locate an appropriate address library.
+    #[snafu(display("Failed to locate an appropriate address library at: {}", path.display()))]
+    AddressLibraryNotFound { path: PathBuf },
 
     /// Failed to unpack file at: {source}
     FailedUnpackFile { source: self::unpack::UnpackError },

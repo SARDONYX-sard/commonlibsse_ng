@@ -46,6 +46,7 @@ windows = { workspace = true, features = [
   "Win32_System_LibraryLoader",
   "Win32_System_Memory",
   "Win32_System_ProcessStatus",
+  "Win32_System_Registry",
   "Win32_System_SystemInformation",
   "Win32_System_SystemServices",
   "Win32_System_Threading",
@@ -53,7 +54,7 @@ windows = { workspace = true, features = [
   "Win32_UI_Input_XboxController",
   "Win32_UI_Shell",
   "Win32_UI_WindowsAndMessaging",
-], optional = true }
+] }
 
 
 [dev-dependencies]
@@ -61,11 +62,7 @@ pretty_assertions = "1.4.1"
 
 
 [features]
-default = ["full"]
-
-# Enable functions that use the Windows API.
-# For example, functions to get file version information.
-win_api = ["dep:windows"]
+# default = ["full", "test_on_local"] # To debug
 
 # Enable tracing log support
 tracing = [
@@ -77,12 +74,18 @@ tracing = [
 ]
 
 # For test and debugging.
-debug = ["win_api", "tracing"]
+debug = ["tracing"]
+
+# For local test(Address library test)
+test_on_local = ["tracing"]
+
+# For test on CI
+test_on_ci = ["tracing"]
 
 # Enable proc macro
 derive = ["dep:commonlibsse_ng_derive"]
 
-full = ["win_api", "tracing", "derive"]
+full = ["tracing", "derive"]
 
 
 [lints]

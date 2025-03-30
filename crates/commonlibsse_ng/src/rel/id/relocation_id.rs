@@ -29,6 +29,7 @@ impl RelocationID {
     ///
     /// # Errors
     /// Returns an error if the module is in an invalid state.
+    #[inline]
     pub fn id(&self) -> Result<u64, crate::rel::module::ModuleStateError> {
         use crate::rel::module::{ModuleState, Runtime};
 
@@ -40,22 +41,6 @@ impl RelocationID {
             Runtime::Vr => self.vr_id,
         })
     }
-
-    // /// # Safety
-    // /// Safe transmute pattern
-    // /// - valid: ptr to ptr
-    // ///
-    // /// # Undefined behavior
-    // /// usize to ptr
-    // pub unsafe fn transmute<T>(&self) -> Result<T, DataBaseError> {
-    //     use crate::rel::ResolvableAddress as _;
-    //     use crate::rel::id::RelocationID;
-
-    //     const SE_ID: u64 = 15800;
-    //     const AE_ID: u64 = 16038;
-    //     let addr = RelocationID::new(SE_ID, AE_ID, SE_ID).address()?;
-    //     Ok(unsafe { core::mem::transmute(addr) })
-    // }
 }
 
 impl ResolvableAddress for RelocationID {
@@ -63,5 +48,20 @@ impl ResolvableAddress for RelocationID {
     fn offset(&self) -> Result<NonZeroUsize, DataBaseError> {
         use crate::rel::id::id_database::ID_DATABASE;
         ID_DATABASE.id_to_offset(self.id()?)
+    }
+}
+
+#[cfg(feature = "test_on_local")]
+#[cfg(test)]
+mod local_tests {
+    use super::*;
+
+    // REQUIREMENT: We need the version of AddressLibrary specified in Skyrim's Data on Steam.
+    #[test]
+    fn test_relocation() {
+        let relocation = RelocationID::from_se_ae_id(514287, 400447); // Calender::get_singleton() -> *mut Calender
+        if let (Ok(offset), Ok(address)) = (relocation.offset(), relocation.address()) {
+            dbg!(offset, &address); // AE offset(ver. 1.6.1170.0): 34572640
+        }
     }
 }

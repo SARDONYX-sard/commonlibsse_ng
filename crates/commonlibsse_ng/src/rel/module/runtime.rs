@@ -132,6 +132,61 @@ impl Runtime {
     }
 }
 
+/// Get `SkyrimSE.exe`/`SkyrimVR.exe` dir path from registry.
+///
+/// If got `None`, get path from registry.
+pub fn get_skyrim_dir(target_runtime: Runtime) -> Option<std::path::PathBuf> {
+    use std::ffi::OsString;
+    use std::os::windows::ffi::OsStringExt;
+    use std::path::PathBuf;
+    use windows::Win32::Foundation::ERROR_SUCCESS;
+    use windows::Win32::System::Registry::{HKEY_LOCAL_MACHINE, REG_ROUTINE_FLAGS, RegGetValueW};
+    use windows::core::h;
+
+    let sub_key = match target_runtime {
+        Runtime::Se | Runtime::Ae => h!(r"SOFTWARE\Bethesda Softworks\Skyrim Special Edition"),
+        Runtime::Vr => h!(r"SOFTWARE\Bethesda Softworks\Skyrim VR"),
+    };
+
+    const BUFFER_SIZE: usize = 4096; // Max NTFS path length
+    let mut value = vec![0_u16; BUFFER_SIZE];
+    let mut length = (BUFFER_SIZE * std::mem::size_of::<u16>()) as u32;
+
+    let status = unsafe {
+        RegGetValueW(
+            HKEY_LOCAL_MACHINE,
+            sub_key,
+            h!("Installed Path"),
+            REG_ROUTINE_FLAGS(0x20002),
+            None,
+            Some(value.as_mut_ptr().cast()),
+            Some(&mut length),
+        )
+    };
+
+    if status != ERROR_SUCCESS {
+        return None;
+    }
+
+    // Convert UTF-16 buffer to PathBuf
+    let path_str =
+        OsString::from_wide(&value[..(length as usize / 2)]).to_string_lossy().to_string();
+
+    Some(PathBuf::from(path_str.trim_end_matches('\0')))
+}
+
+/// Get `SkyrimSE.exe`/`SkyrimVR.exe` path from registry.
+///
+/// If got `None`, get path from registry.
+pub fn get_skyrim_exe_path(target_runtime: Runtime) -> Option<std::path::PathBuf> {
+    let mut install_path = get_skyrim_dir(target_runtime)?;
+    install_path.push(match target_runtime {
+        Runtime::Se | Runtime::Ae => "SkyrimSE.exe",
+        Runtime::Vr => "SkyrimVR.exe",
+    });
+    Some(install_path)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -153,5 +208,11 @@ mod tests {
         let version_1_4_5 = Version::new(1, 4, 5, 0); // Unknown version (not recognized by rules)
         assert_eq!(Runtime::from_version(&version_1_4_5), Runtime::Vr);
         assert_eq!(Runtime::from_version_strict(&version_1_4_5), None);
+    }
+
+    #[ignore = "local only"]
+    #[test]
+    fn test_get_skyrim_exe_path() {
+        dbg!(get_skyrim_exe_path(Runtime::Se));
     }
 }
