@@ -84,11 +84,17 @@ const_assert_eq!(core::mem::size_of::<BSSpinLock>(), 0x8);
 impl BSSpinLock {
     pub const FAST_SPIN_THRESHOLD: usize = 10000;
 
+    #[inline]
     pub const fn new() -> Self {
         Self { owning_thread: AtomicU32::new(0), lock_count: AtomicU32::new(0) }
     }
 
-    pub fn lock(&self, pause_attempts: u32) {
+    #[inline]
+    pub fn lock(&self) -> BSSpinLockGuard<'_> {
+        BSSpinLockGuard::new(self)
+    }
+
+    pub fn lock_with_pause_attempts(&self, pause_attempts: u32) {
         let my_thread_id = unsafe { windows::Win32::System::Threading::GetCurrentThreadId() };
 
         // Equivalent to _mm_lfence() (memory fence), Rust has no direct equivalent.
@@ -182,7 +188,7 @@ pub struct BSSpinLockGuard<'a> {
 
 impl<'a> BSSpinLockGuard<'a> {
     pub fn new(lock: &'a BSSpinLock) -> Self {
-        lock.lock(0);
+        lock.lock_with_pause_attempts(0);
         Self { lock }
     }
 }

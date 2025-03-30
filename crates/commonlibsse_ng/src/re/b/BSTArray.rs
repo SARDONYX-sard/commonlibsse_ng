@@ -1,4 +1,5 @@
 use core::ffi::c_void;
+use core::ops::{self, RangeBounds};
 use core::slice;
 use std::alloc::{self, Layout};
 use std::marker::PhantomData;
@@ -155,10 +156,12 @@ impl<T> Default for BSTArray<T> {
 }
 
 impl<T> BSTArray<T> {
+    /// Create a new empty array
     pub const fn new() -> Self {
         Self { data: NonNull::dangling(), size: 0, capacity: 0, _marker: PhantomData }
     }
 
+    /// Create an array with specified capacity.
     /// # Panics
     pub fn with_capacity(capacity: usize) -> Self {
         let layout = Layout::array::<T>(capacity).expect("Invalid layout");
@@ -167,6 +170,7 @@ impl<T> BSTArray<T> {
         Self { data, size: 0, capacity, _marker: PhantomData }
     }
 
+    /// Push a value into the array.
     pub fn push(&mut self, value: T) {
         if self.size == self.capacity {
             self.grow();
@@ -192,8 +196,83 @@ impl<T> BSTArray<T> {
         self.capacity = new_capacity;
     }
 
+    /// Get an element by index
     pub fn get(&self, index: usize) -> Option<&T> {
         if index < self.size { Some(unsafe { &*self.data.as_ptr().add(index) }) } else { None }
+    }
+
+    /// Check if the array contains a value
+    pub fn contains(&self, value: &T) -> bool
+    where
+        T: PartialEq,
+    {
+        for i in 0..self.size {
+            if let Some(item) = self.get(i) {
+                if item == value {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    /// Retain only the elements that satisfy the predicate
+    pub fn retain<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&T) -> bool,
+    {
+        let mut retained = 0;
+
+        for i in 0..self.size {
+            let elem = unsafe { self.data.add(i).as_ref() };
+            if f(elem) {
+                if retained != i {
+                    unsafe {
+                        let src = self.data.as_ptr().add(i);
+                        let dst = self.data.as_ptr().add(retained);
+                        ptr::copy_nonoverlapping(src, dst, 1);
+                    }
+                }
+                retained += 1;
+            } else {
+                // Drop elements that do not match the predicate
+                unsafe { ptr::drop_in_place(self.data.as_ptr().add(i)) };
+            }
+        }
+
+        self.size = retained;
+    }
+
+    /// Check if the array is empty
+    #[inline]
+    pub const fn is_empty(&self) -> bool {
+        self.size == 0
+    }
+
+    /// Get the current length of the array
+    #[inline]
+    pub const fn len(&self) -> usize {
+        self.size
+    }
+
+    /// Drain the array, clearing all elements and returning an iterator
+    pub fn drain<R>(&mut self, range: R) -> BSTDrain<'_, T>
+    where
+        R: RangeBounds<usize>,
+    {
+        let len = self.len();
+        let ops::Range { start, end } = crate::rex::stdx::range(range, ..len);
+
+        unsafe {
+            self.size = start;
+            let range_slice = slice::from_raw_parts(self.data.as_ptr().add(start), end - start);
+            BSTDrain { array: self, index: start, range: range_slice.iter() }
+        }
+    }
+
+    #[inline]
+    pub const fn iter(&self) -> BSTArrayIterator<'_, T> {
+        BSTArrayIterator { array: self, index: 0 }
     }
 }
 
@@ -205,6 +284,72 @@ impl<T> Drop for BSTArray<T> {
             }
             let layout = Layout::array::<T>(self.capacity).expect("Invalid layout");
             alloc::dealloc(self.data.as_ptr().cast::<u8>(), layout);
+        }
+    }
+}
+
+impl<T> IntoIterator for BSTArray<T> {
+    type Item = T;
+    type IntoIter = BSTArrayIntoIterator<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        BSTArrayIntoIterator { array: self, index: 0 }
+    }
+}
+
+/// Iterator returned by `BSTArray::drain()`
+pub struct BSTDrain<'a, T> {
+    array: &'a mut BSTArray<T>,
+    index: usize,
+    range: core::slice::Iter<'a, T>,
+}
+
+impl<T> Iterator for BSTDrain<'_, T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.range.next().map(|_| {
+            let item = unsafe { ptr::read(self.array.data.as_ptr().add(self.index)) };
+            self.index += 1;
+            item
+        })
+    }
+}
+
+pub struct BSTArrayIterator<'a, T> {
+    array: &'a BSTArray<T>,
+    index: usize,
+}
+
+impl<'a, T> Iterator for BSTArrayIterator<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.array.size {
+            let item = unsafe { &*self.array.data.as_ptr().add(self.index) };
+            self.index += 1;
+            Some(item)
+        } else {
+            None
+        }
+    }
+}
+
+pub struct BSTArrayIntoIterator<T> {
+    array: BSTArray<T>,
+    index: usize,
+}
+
+impl<T> Iterator for BSTArrayIntoIterator<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.array.size {
+            let item = unsafe { ptr::read(self.array.data.as_ptr().add(self.index)) };
+            self.index += 1;
+            Some(item)
+        } else {
+            None
         }
     }
 }
