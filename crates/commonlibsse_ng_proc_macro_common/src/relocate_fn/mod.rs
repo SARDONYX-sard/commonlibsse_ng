@@ -61,9 +61,9 @@ fn generate_code(
     let database_err_log = quote::quote! {};
 
     #[cfg(feature = "tracing")]
-    let ptr_debug_log = quote::quote! {
-        #crate_root_name::__private::tracing::trace!(
-            "Resolved Address: {:#?} (se_id: {}, ae_id: {}, vr_id: {})",
+    let ptr_err_log = quote::quote! {
+        #crate_root_name::__private::tracing::error!(
+            "Resolved Address, but no permission permission to access this address: {:#?} (se_id: {}, ae_id: {}, vr_id: {})",
             fn_ptr.as_ptr(),
             #se_id,
             #ae_id,
@@ -71,7 +71,7 @@ fn generate_code(
         );
     };
     #[cfg(not(feature = "tracing"))]
-    let ptr_debug_log = quote::quote! {};
+    let ptr_err_log = quote::quote! {};
 
     quote::quote! {
         #(#attrs)*
@@ -96,7 +96,9 @@ fn generate_code(
                         #database_err_log;
                         panic!("Failed to resolve address: {err}");
                     });
-                    #ptr_debug_log;
+                    if !#crate_root_name::rex::win32::is_valid_range(fn_ptr.as_ptr().cast(), core::mem::size_of::<usize>()) {
+                        #ptr_err_log;
+                    }
                     unsafe { core::mem::transmute::<NonNull<core::ffi::c_void>, SelfSignature>(fn_ptr) }
                 });
                 FUNC(#cast_self #call_args)
