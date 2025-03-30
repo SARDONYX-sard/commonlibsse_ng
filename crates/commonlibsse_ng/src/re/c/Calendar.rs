@@ -37,6 +37,7 @@ impl Calendar {
     pub fn get_singleton() -> Option<&'static Self> {
         use crate::rel::{ResolvableAddress as _, id::RelocationID};
 
+        // TODO: To make the address static with OnceLock, Send + Sync safety of the raw pointer must be established
         const SE_ID: u64 = 514287;
         const AE_ID: u64 = 400447;
         let address = match RelocationID::from_se_ae_id(SE_ID, AE_ID).address() {
