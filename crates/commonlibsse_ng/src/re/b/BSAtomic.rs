@@ -65,9 +65,9 @@ impl BSSemaphore {
 impl Drop for BSSemaphore {
     fn drop(&mut self) {
         unsafe {
-            if let Err(error) = windows::Win32::Foundation::CloseHandle(self._base.semaphore) {
+            if let Err(_error) = windows::Win32::Foundation::CloseHandle(self._base.semaphore) {
                 #[cfg(feature = "tracing")]
-                tracing::error!("Failed to close BSSemaphore's handle: {error}");
+                tracing::error!("Failed to close BSSemaphore's handle: {_error}");
             };
         }
     }

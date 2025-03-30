@@ -50,9 +50,9 @@ impl BSExtraData {
     pub fn get_type(&self) -> ExtraDataType {
         let vtable = match Self::VTABLE[0].address() {
             Ok(addr) => addr.cast::<BSExtraDataVtbl>(),
-            Err(err) => {
+            Err(_err) => {
                 #[cfg(feature = "tracing")]
-                tracing::error!("Failed to get address of vtable: {err}");
+                tracing::error!("Failed to get address of vtable: {_err}");
                 return (BS_EXTRA_DATA_VTBL.GetType)(self);
             }
         };
@@ -64,9 +64,9 @@ impl BSExtraData {
     pub fn is_not_equal(&self, rhs: &Self) -> bool {
         let vtable = match Self::VTABLE[0].address() {
             Ok(addr) => addr.cast::<BSExtraDataVtbl>(),
-            Err(err) => {
+            Err(_err) => {
                 #[cfg(feature = "tracing")]
-                tracing::error!("Failed to get address of vtable: {err}");
+                tracing::error!("Failed to get address of vtable: {_err}");
                 return false;
             }
         };

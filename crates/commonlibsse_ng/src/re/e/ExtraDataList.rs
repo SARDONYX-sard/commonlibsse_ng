@@ -34,9 +34,9 @@ impl ExtraDataList {
             Ok(presence) => {
                 unsafe { presence.as_ref() }.is_some_and(|presence| presence.has_type(type_.bits()))
             }
-            Err(err) => {
+            Err(_err) => {
                 #[cfg(feature = "tracing")]
-                tracing::error!("Error getting presence address: {err}");
+                tracing::error!("Error getting presence address: {_err}");
                 false
             }
         }
