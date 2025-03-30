@@ -59,8 +59,8 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
         /// It will always have `#[repr(transparent)]`.
         ///
         /// # Why use NewType?
-        /// Because C enum is actually a number, and it is dangerous to put enum directly into struct
-        /// because it may contain numbers other than the variant defined in Rust.
+        /// This is because as long as it is an FFI type, there is always the possibility of an invalid C enum (number) coming in,
+        /// and if an unexpected number comes into Rust's enum, it will result in undefined behavior.
         ///
         /// Use `to_enum`/`from_enum` to inter-convert enums.
         #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

@@ -59,29 +59,29 @@ pub fn relocate_fn(attrs: TokenStream, item: TokenStream) -> TokenStream {
 
 /// An attribute macro to generate FFI-compatible bitflags from an `enum`.
 ///
+/// # Attributes
+/// The macro accepts the following arguments:
+///
+/// | Attribute   | Description                                                                                |
+/// |-------------|--------------------------------------------------------------------------------------------|
+/// | `flag_name` | The Identifier of Flag struct(optional, defaults to `Flags` suffix struct if not provided) |
+///
 /// # Why this is necessary
+/// In the context of FFI (Foreign Function Interface), the `enum` type is often represented as `i32` or `u32`.
+/// Using Rust's `enum` in a struct for FFI may cause **undefined behavior** if an invalid or unknown value is received.
 ///
-/// In FFI (Foreign Function Interface) contexts, `enum` types are often represented as `i32` or `u32`.
-/// When an invalid or unknown value is received from FFI, attempting to cast it into the `enum`
-/// can result in **undefined behavior**. This macro prevents that by:
-/// - Wrapping the `enum` in a **bitflags** struct that safely represents the FFI value.
-/// - Providing a `to_enum()` method that converts the flag back into the `enum`,
+/// This macro prevents it:
+/// - Represent the numeric value of the `enum` in a **Flag** structure that safely represents the value of FFI.
+/// - Provide a `to_enum()` method to return the flags to the `enum`,
 ///   returning `None` for invalid values instead of causing undefined behavior.
-/// - Ensuring safe and predictable FFI interactions.
-///
-/// # What this macro generates
-///
-/// This macro creates:
-/// - A `bitflags!` struct representing the `enum` values as FFI-compatible flags.
-/// - A `to_enum()` method for safely converting the flag struct back into the `enum`.
-/// - A `from_enum()` method for converting the `enum` into the FFI flag struct.
+/// - Ensure safe and predictable FFI interactions.
 ///
 /// # Example
 ///
-/// - [Expanded sample](https://play.rust-lang.org/?version=stable&mode=debug&edition=2024&gist=6077ae8b6a6f664009ef13da291f429a)
+/// - [Expanded sample](https://play.rust-lang.org/?version=stable&mode=debug&edition=2024&gist=037f7efdd562a28e7af4cbb59406602b)
 ///
 /// ```rust
-/// #[commonlibsse_ng_derive_internal::ffi_enum]
+/// #[commonlibsse_ng_derive_internal::ffi_enum] // auto generate `struct MyEnumFlags(i32)`
 /// #[repr(i32)]
 /// enum MyEnum {
 ///     A = 1,
@@ -94,7 +94,8 @@ pub fn relocate_fn(attrs: TokenStream, item: TokenStream) -> TokenStream {
 /// assert_eq!(core::mem::size_of::<MyEnumFlags>(), core::mem::size_of::<i32>());
 /// assert_eq!(valid.to_enum(), Some(MyEnum::A));
 ///
-/// let invalid = MyEnumFlags::from_bits(999).unwrap_or_else(|| MyEnumFlags::empty());
+/// // Invalid flag: using a bit value that is not defined in the enum
+/// let invalid = MyEnumFlags(999);
 /// assert_eq!(invalid.to_enum(), None);
 ///
 /// // Enum -> FFI
