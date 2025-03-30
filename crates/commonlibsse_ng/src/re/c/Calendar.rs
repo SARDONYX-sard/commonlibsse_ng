@@ -43,7 +43,7 @@ impl Calendar {
             Ok(address) => address,
             Err(_err) => {
                 #[cfg(feature = "tracing")]
-                tracing::trace!("Failed to get address(se_id={SE_ID}, ae_id={AE_ID}): {_err}");
+                tracing::error!("Failed to get address(se_id={SE_ID}, ae_id={AE_ID}): {_err}");
                 return None;
             }
         };
