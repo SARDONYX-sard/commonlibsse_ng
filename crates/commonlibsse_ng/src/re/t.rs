@@ -7,3 +7,4 @@ pub mod TESObject;
 pub mod TESObjectCELL;
 pub mod TESObjectREFR;
 pub mod TESQuest;
+pub mod TESWorldSpace;

@@ -3,6 +3,7 @@ use core::ops::{
 };
 
 /// 3D vector representation.
+#[repr(C)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, PartialOrd)]
 pub struct NiPoint3 {
     pub x: f32,

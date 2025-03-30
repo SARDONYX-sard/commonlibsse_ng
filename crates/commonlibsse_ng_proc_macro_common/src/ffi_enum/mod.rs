@@ -1,11 +1,13 @@
 //! generate bitflags from enum
-mod attr_args;
+pub(crate) mod attr_args;
 
 use core::str::FromStr as _;
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
-use syn::{Attribute, Expr, ItemEnum, Meta};
+use syn::{Attribute, ItemEnum, Meta};
+
+use crate::discriminant_parser::parse_discriminant;
 
 pub fn ffi_enum(attrs: TokenStream, item_enum: ItemEnum) -> TokenStream {
     let args = {
@@ -43,7 +45,7 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
     };
 
     // Generate bitflags and match arms
-    let DiscriminantData { bitflags, to_enum_arms, from_enum_arms } =
+    let DiscriminantData { bitflags, to_enum_arms, from_enum_arms, default_value } =
         DiscriminantData::from_item_enum(&item_enum);
 
     let struct_doc = format!("`{enum_ident}` for FFI usage type.");
@@ -63,9 +65,16 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
         /// and if an unexpected number comes into Rust's enum, it will result in undefined behavior.
         ///
         /// Use `to_enum`/`from_enum` to inter-convert enums.
-        #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
         #[repr(transparent)]
         #vis struct #flags_ident(#vis #bitflags_type);
+
+        impl Default for #flags_ident {
+            #[inline]
+            fn default() -> Self {
+                Self(#default_value)
+            }
+        }
 
         impl #flags_ident {
             #(#bitflags;)*
@@ -112,37 +121,45 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
 }
 
 /// Struct to store discriminant information and current value
-struct DiscriminantData {
-    bitflags: Vec<TokenStream>,
-    to_enum_arms: Vec<TokenStream>,
-    from_enum_arms: Vec<TokenStream>,
+pub(crate) struct DiscriminantData {
+    /// .e.g `pub const #var_name: Self = Self(#value)`
+    pub(crate) bitflags: Vec<TokenStream>,
+    pub(crate) to_enum_arms: Vec<TokenStream>,
+    pub(crate) from_enum_arms: Vec<TokenStream>,
+    pub(crate) default_value: TokenStream,
+}
+
+macro_rules! to_non_suffix_num_token {
+    ($value:expr) => {
+        TokenStream::from_str(&format!("{}", $value)).unwrap()
+    };
 }
 
 /// Generates the discriminants for the enum and prepares the corresponding quote items
 impl DiscriminantData {
-    fn from_item_enum(item_enum: &ItemEnum) -> Self {
+    pub(crate) fn from_item_enum(item_enum: &ItemEnum) -> Self {
         let enum_ident = &item_enum.ident;
 
         let mut current_value = 0;
         let mut bitflags = Vec::new();
         let mut to_enum_arms = Vec::new();
         let mut from_enum_arms = Vec::new();
+        let mut default_value = quote! { 0 };
 
         for variant in &item_enum.variants {
             let var_name = &variant.ident;
-            let variant_attrs = &variant.attrs;
+            let (variant_attrs, found_default) = filter_default_attr(&variant.attrs);
 
-            let value = if let Some((_, expr)) = &variant.discriminant {
-                // Use explicit discriminant
+            // If use explicit discriminant, change from current discriminant.
+            if let Some((_, expr)) = &variant.discriminant {
                 if let Ok(parsed) = parse_discriminant(expr) {
                     current_value = parsed; // Set the current value
-                    TokenStream::from_str(&format!("{current_value}")).unwrap()
-                } else {
-                    TokenStream::from_str(&format!("{current_value}")).unwrap()
-                }
-            } else {
-                TokenStream::from_str(&format!("{current_value}")).unwrap()
+                    if found_default {
+                        default_value = to_non_suffix_num_token!(current_value);
+                    }
+                };
             };
+            let value = to_non_suffix_num_token!(current_value);
 
             // Add bitflags constant
             bitflags.push(quote! {
@@ -164,24 +181,12 @@ impl DiscriminantData {
             current_value += 1;
         }
 
-        Self { bitflags, to_enum_arms, from_enum_arms }
+        Self { bitflags, to_enum_arms, from_enum_arms, default_value }
     }
-}
-
-/// Parses the discriminant value into `i32`.
-fn parse_discriminant(expr: &Expr) -> Result<i32, ()> {
-    if let Expr::Lit(lit) = expr {
-        if let syn::Lit::Int(int) = &lit.lit {
-            if let Ok(value) = int.base10_parse::<i32>() {
-                return Ok(value);
-            }
-        }
-    }
-    Err(())
 }
 
 /// Select the appropriate bitflags type based on the `repr` attribute.
-fn select_bitflags_type(repr_attr: &Attribute) -> syn::Result<TokenStream> {
+pub(crate) fn select_bitflags_type(repr_attr: &Attribute) -> syn::Result<TokenStream> {
     let mut repr = quote! { usize };
     if let Meta::List(meta) = &repr_attr.meta {
         meta.parse_nested_meta(|nested_meta| {
@@ -224,4 +229,19 @@ fn select_bitflags_type(repr_attr: &Attribute) -> syn::Result<TokenStream> {
     }
 
     Ok(repr)
+}
+
+pub(crate) fn filter_default_attr(attrs: &[Attribute]) -> (Vec<&Attribute>, bool) {
+    let mut found_default = false;
+    let v = attrs
+        .iter()
+        .filter(|attr| {
+            // Remove `#[default]`
+            found_default =
+                if let Meta::Path(path) = &attr.meta { !path.is_ident("default") } else { true };
+            found_default
+        })
+        .collect();
+
+    (v, found_default)
 }

@@ -1,3 +1,7 @@
+mod vtable;
+
+pub use self::vtable::TESObjectREFRVtbl;
+
 use core::ffi::c_void;
 use core::ptr::NonNull;
 use std::collections::HashMap;
@@ -63,7 +67,7 @@ pub struct TESObjectREFR {
 }
 const _: () = assert!(core::mem::size_of::<TESObjectREFR>() == 0x78);
 
-impl crate::re::NiSmartPointer::RefCountable for TESObjectREFR{
+impl crate::re::NiSmartPointer::RefCountable for TESObjectREFR {
     #[inline]
     fn inc_ref_count(&self) {
         self.__base1.inc_ref_count();
@@ -81,181 +85,6 @@ pub type InventoryItemMap = HashMap<*mut TESBoundObject, (Count, Box<InventoryEn
 pub type InventoryDropMap = HashMap<*mut TESBoundObject, (Count, Vec<ObjectHandle>)>;
 
 impl TESObjectREFR {
-    // fn create_reference(
-    //     _handle_out: &mut ObjectRefHandle,
-    //     _form_type: FormType,
-    //     _add_actor_to_process_list: bool,
-    // ) {
-    //     unimplemented!()
-    // }
-
-    // fn lookup_by_handle(_ref_handle: RefHandle) -> Option<Box<TESObjectREFR>> {
-    //     unimplemented!()
-    // }
-
-    // fn lookup_by_handle_out(
-    //     _ref_handle: RefHandle,
-    //     _refr_out: &mut Option<Box<TESObjectREFR>>,
-    // ) -> bool {
-    //     unimplemented!()
-    // }
-
-    // fn find_reference_for_3d(_object_3d: &NiAVObject) -> Option<&TESObjectREFR> {
-    //     unimplemented!()
-    // }
-
-    // fn activate_ref(
-    //     &self,
-    //     _activator: &TESObjectREFR,
-    //     _arg2: u8,
-    //     _object: &TESBoundObject,
-    //     _count: i32,
-    //     _default_processing_only: bool,
-    // ) -> bool {
-    //     unimplemented!()
-    // }
-
-    // fn apply_art_object(
-    //     &self,
-    //     _art_object: &BGSArtObject,
-    //     _duration: f32,
-    //     _facing_ref: Option<&TESObjectREFR>,
-    //     _face_target: bool,
-    //     _attach_to_camera: bool,
-    //     _attach_node: Option<&NiAVObject>,
-    //     _interface_effect: bool,
-    // ) -> ModelReferenceEffect {
-    //     unimplemented!()
-    // }
-
-    // fn apply_effect_shader(
-    //     &self,
-    //     _effect_shader: &TESEffectShader,
-    //     _duration: f32,
-    //     _facing_ref: Option<&TESObjectREFR>,
-    //     _face_target: bool,
-    //     _attach_to_camera: bool,
-    //     _attach_node: Option<&NiAVObject>,
-    //     _interface_effect: bool,
-    // ) -> ShaderReferenceEffect {
-    //     unimplemented!()
-    // }
-
-    // fn can_be_moved(&self) -> bool {
-    //     unimplemented!()
-    // }
-
-    // fn create_ref_handle(&self) -> ObjectRefHandle {
-    //     unimplemented!()
-    // }
-
-    // fn do_trap_data(&self, _data: &TrapData) {
-    //     unimplemented!()
-    // }
-
-    // fn do_trap_entry(&self, _trap: &TrapEntry, _target: &TargetEntry) {
-    //     unimplemented!()
-    // }
-
-    // fn enable(&self, _reset_inventory: bool) {
-    //     unimplemented!()
-    // }
-
-    // fn get_3d(&self, _first_person: bool) -> Option<&NiAVObject> {
-    //     unimplemented!()
-    // }
-
-    // fn get_actor_owner(&self) -> Option<&TESNPC> {
-    //     unimplemented!()
-    // }
-
-    // fn get_angle(&self) -> NiPoint3 {
-    //     unimplemented!()
-    // }
-
-    // fn get_angle_x(&self) -> f32 {
-    //     unimplemented!()
-    // }
-
-    // fn get_angle_y(&self) -> f32 {
-    //     unimplemented!()
-    // }
-
-    // fn get_angle_z(&self) -> f32 {
-    //     unimplemented!()
-    // }
-
-    // fn get_base_height(&self) -> f32 {
-    //     unimplemented!()
-    // }
-
-    // fn get_base_object(&self) -> Option<&TESBoundObject> {
-    //     unimplemented!()
-    // }
-
-    // fn get_biped(&self, _first_person: bool) -> Option<&BSTSmartPointer<BipedAnim>> {
-    //     unimplemented!()
-    // }
-
-    // fn get_calc_level(&self, _adjust_level: bool) -> u16 {
-    //     unimplemented!()
-    // }
-
-    // pub fn get_container(&self) -> Option<&TESContainer> {
-    //     let obj = self.get_object_reference();
-
-    //     obj.as_ref()?.
-    // }
-
-    // fn get_current_location(&self) -> Option<&BGSLocation> {
-    //     unimplemented!()
-    // }
-
-    // fn get_display_full_name(&self) -> Option<&str> {
-    //     unimplemented!()
-    // }
-
-    // fn get_distance(
-    //     &self,
-    //     _other: &TESObjectREFR,
-    //     _disabled_refs: bool,
-    //     _ignore_worldspace: bool,
-    // ) -> f32 {
-    //     unimplemented!()
-    // }
-
-    // fn get_dropped_inventory(&self) -> InventoryDropMap {
-    //     unimplemented!()
-    // }
-
-    // fn get_editor_location(&self) -> Option<BGSLocation> {
-    //     unimplemented!()
-    // }
-
-    // fn get_enchantment_charge(&self) -> Option<f64> {
-    //     unimplemented!()
-    // }
-
-    // fn get_faction_owner(&self) -> Option<&TESFaction> {
-    //     unimplemented!()
-    // }
-
-    // fn get_handle(&self) -> ObjectRefHandle {
-    //     unimplemented!()
-    // }
-
-    // fn get_heading_angle(&self, _pos: &NiPoint3, _abs: bool) -> f32 {
-    //     unimplemented!()
-    // }
-
-    // fn get_height(&self) -> f32 {
-    //     unimplemented!()
-    // }
-
-    // fn get_inventory(&self) -> InventoryItemMap {
-    //     unimplemented!()
-    // }
-
     pub fn get_inventory_filter<F>(&self, filter: F, no_init: bool) -> Option<InventoryItemMap>
     where
         F: Fn(&TESBoundObject) -> bool,

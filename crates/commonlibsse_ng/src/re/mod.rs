@@ -10,6 +10,7 @@ mod g;
 mod i;
 mod m;
 mod n;
+mod p;
 mod s;
 mod t;
 
@@ -34,6 +35,7 @@ pub use self::g::*;
 pub use self::i::*;
 pub use self::m::*;
 pub use self::n::*;
+pub use self::p::*;
 pub use self::s::*;
 pub use self::t::*;
 
@@ -78,7 +80,6 @@ impl NiSmartPointer::RefCountable for NiTimeController {
     fn inc_ref_count(&self) {
         todo!()
     }
-
     fn dec_ref_count(&mut self) {
         todo!()
     }
@@ -86,12 +87,28 @@ impl NiSmartPointer::RefCountable for NiTimeController {
 
 #[repr(C)]
 pub struct NiNode;
+impl NiSmartPointer::RefCountable for NiNode {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
 
 #[repr(C)]
 pub struct NiSwitchNode;
 
 #[repr(C)]
 pub struct BSFadeNode;
+impl NiSmartPointer::RefCountable for BSFadeNode {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
 
 #[repr(C)]
 pub struct BSMultiBoundNode;
@@ -104,6 +121,14 @@ pub struct NiTriStrips;
 
 #[repr(C)]
 pub struct BSTriShape;
+impl NiSmartPointer::RefCountable for BSTriShape {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
 
 #[repr(C)]
 pub struct BSSegmentedTriShape;
@@ -153,3 +178,58 @@ pub struct bhkCollisionObject;
 
 pub struct BGSLocation;
 pub struct TESFaction;
+pub struct NiBillboardNode;
+impl NiSmartPointer::RefCountable for NiBillboardNode {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
+
+#[repr(C)]
+pub struct TESTopicInfo;
+#[repr(C)]
+pub struct BGSAnimationSequencer;
+#[repr(C)]
+pub struct BGSKeyword;
+#[repr(C)]
+pub struct TESPackage;
+#[repr(C)]
+pub struct BGSScene;
+#[repr(C)]
+pub struct DialogueResponse;
+#[repr(C)]
+pub struct BGSDialogueBranch;
+#[repr(C)]
+pub struct ActorCause;
+#[repr(C)]
+pub struct MagicCaster;
+#[repr(C)]
+pub struct MagicTarget;
+#[repr(C)]
+pub struct TESActorBase;
+#[repr(C)]
+pub struct BSFaceGenNiNode;
+#[repr(C)]
+pub struct BSFaceGenAnimationData;
+#[repr(C)]
+pub struct TrapData;
+#[repr(C)]
+pub struct TrapEntry;
+#[repr(C)]
+pub struct TargetEntry;
+#[repr(C)]
+pub struct BSAnimationUpdateData;
+#[repr(C)]
+pub struct BipedAnim;
+#[repr(C)]
+pub struct BSTSmartPointer<T>(pub *mut T);
+
+#[repr(C)]
+pub enum MagicSystem {
+    CastingSource,
+}
+
+pub enum ITEM_REMOVE_REASON {}

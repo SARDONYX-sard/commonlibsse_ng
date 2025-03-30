@@ -107,3 +107,10 @@ pub fn ffi_enum(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let item_enum = syn::parse_macro_input!(item as syn::ItemEnum);
     commonlibsse_ng_proc_macro_common::ffi_enum::ffi_enum(attrs.into(), item_enum).into()
 }
+
+/// This is a convenience macro for those who wish to use bitflags without changing the existing enum notation.
+#[proc_macro_attribute]
+pub fn to_bitflags(attrs: TokenStream, item: TokenStream) -> TokenStream {
+    let item_enum = syn::parse_macro_input!(item as syn::ItemEnum);
+    commonlibsse_ng_proc_macro_common::to_bitflags::to_bitflags(attrs.into(), item_enum).into()
+}
