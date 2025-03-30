@@ -24,4 +24,4 @@ syn = { version = "2.0.99" }
 quote = { version = "1.0.39" }
 
 [features]
-tracing = []
+tracing = ["commonlibsse_ng_proc_macro_common/tracing"]

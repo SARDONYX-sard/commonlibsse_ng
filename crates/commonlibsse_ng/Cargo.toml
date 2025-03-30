@@ -82,7 +82,7 @@ test_on_ci = ["tracing"]
 # Enable proc macro
 derive = ["dep:commonlibsse_ng_derive"]
 
-full = ["tracing", "derive"]
+full = ["tracing", "derive", "commonlibsse_ng_derive/tracing"]
 
 
 [lints]
