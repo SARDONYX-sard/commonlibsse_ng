@@ -123,7 +123,7 @@ fn build() -> Result<()> {
 }
 
 fn run_command(cmd: &str, args: &[&str], output_file: Option<&str>) -> Result<()> {
-    println!("Running: {} {:?}", cmd, args);
+    println!("Running: {cmd} {}", args.join(" "));
     let output = Command::new(cmd).args(args).output().context(CommandExecutionSnafu)?;
 
     if let Some(output_file) = output_file {
@@ -147,7 +147,11 @@ fn run_example(args: ExampleArgs) -> Result<()> {
     println!("Running example...");
 
     let example_name = args.example_name;
-    run_command("cargo", &["build", "-p", "commonlibsse_ng", "--example", &example_name], None)?;
+    run_command(
+        "cargo",
+        &["build", "-p", "commonlibsse_ng", "--example", &example_name, "--features", "full"],
+        None,
+    )?;
 
     let dest_dir = args.dest_mode.path();
 
