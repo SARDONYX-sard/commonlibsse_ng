@@ -1,0 +1,17 @@
+pub mod hkBaseObject;
+pub mod hkBaseTypes;
+pub mod hkMatrix3;
+pub mod hkMotionState;
+pub mod hkQuaternion;
+pub mod hkReferencedObject;
+pub mod hkRotation;
+pub mod hkSseMathTypes;
+pub mod hkSweptTransform;
+pub mod hkTransform;
+pub mod hkVector4;
+pub mod hkbBehaviorGraph;
+pub mod hkbCharacter;
+pub mod hkbGeneratorOutput;
+pub mod hkpKeyframedRigidMotion;
+pub mod hkpMaxSizeMotion;
+pub mod hkpMotion;

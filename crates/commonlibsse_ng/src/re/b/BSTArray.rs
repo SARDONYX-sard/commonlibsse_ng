@@ -355,6 +355,9 @@ impl<T> Iterator for BSTArrayIntoIterator<T> {
     }
 }
 
+pub type BSSSmallArray<T> = BSTArray<T>;
+pub type BSScrapArray<T> = BSTArray<T>;
+
 #[repr(C)]
 #[derive(Debug)]
 pub struct BSStaticArray<T> {

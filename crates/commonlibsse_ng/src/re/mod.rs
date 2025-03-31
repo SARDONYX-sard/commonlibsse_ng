@@ -7,6 +7,7 @@ mod c;
 mod e;
 mod f;
 mod g;
+mod h;
 mod i;
 mod m;
 mod n;
@@ -32,6 +33,7 @@ pub use self::c::*;
 pub use self::e::*;
 pub use self::f::*;
 pub use self::g::*;
+pub use self::h::*;
 pub use self::i::*;
 pub use self::m::*;
 pub use self::n::*;
@@ -58,13 +60,11 @@ pub struct GFxValue;
 pub struct TesWaterForm;
 
 #[derive(Debug)]
-pub struct BSAnimationGraphEvent;
+pub struct BSTransformDeltaEvent;
 #[derive(Debug)]
-pub struct IAnimationGraphManagerHolder {
-    pub opaque: [u8; 2],
-}
+pub struct BSAnimationGraphEvent;
 
-pub enum ItemRemoveReason {
+pub enum ITEM_REMOVE_REASON {
     Remove,
     Steal,
     Selling,
@@ -221,15 +221,31 @@ pub struct TrapEntry;
 #[repr(C)]
 pub struct TargetEntry;
 #[repr(C)]
-pub struct BSAnimationUpdateData;
-#[repr(C)]
 pub struct BipedAnim;
-#[repr(C)]
-pub struct BSTSmartPointer<T>(pub *mut T);
+impl BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for BipedAnim {
+    fn inc_ref(&self) -> u32 {
+        0
+    }
+
+    fn dec_ref(&self) -> u32 {
+        0
+    }
+}
 
 #[repr(C)]
 pub enum MagicSystem {
     CastingSource,
 }
+pub struct BSAnimationGraphManagerPtr;
+pub struct BSAnimationCache;
 
-pub enum ITEM_REMOVE_REASON {}
+#[repr(C)]
+#[derive(Debug)]
+pub struct hkStatisticsCollector;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct hkClass;
+pub struct ahkpWorld;
+pub struct hkpWorld;
+pub struct hkbRagdollDriver;

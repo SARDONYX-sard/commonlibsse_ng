@@ -11,6 +11,7 @@ use crate::re::BSTArray::BSTSmallArray;
 use crate::re::BSTEvent::BSTEventSink;
 use crate::re::ExtraContainerChanges::ExtraContainerChanges;
 use crate::re::ExtraDataList::ExtraDataList;
+use crate::re::IAnimationGraphManagerHolder::IAnimationGraphManagerHolder;
 use crate::re::InventoryChanges::InventoryChanges;
 use crate::re::InventoryEntryData::InventoryEntryData;
 use crate::re::NiAVObject::NiAVObject;
@@ -19,7 +20,7 @@ use crate::re::NiSmartPointer::NiPointer;
 use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
 use crate::re::TESObjectCELL::TESObjectCELL;
-use crate::re::{BSAnimationGraphEvent, IAnimationGraphManagerHolder, ObjectHandle, TesWaterForm};
+use crate::re::{BSAnimationGraphEvent, ObjectHandle, TesWaterForm};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
