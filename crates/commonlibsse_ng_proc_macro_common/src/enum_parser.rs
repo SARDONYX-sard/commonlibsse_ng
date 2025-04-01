@@ -1,6 +1,5 @@
 use proc_macro2::TokenStream;
-use quote::ToTokens as _;
-use quote::quote;
+use quote::{ToTokens as _, quote};
 use syn::{Attribute, Expr, Lit, Meta};
 
 /// Parses the discriminant value into integer
@@ -123,34 +122,38 @@ pub(crate) fn filter_default_attr(attrs: &[Attribute]) -> (Vec<&Attribute>, bool
     (v, not_default)
 }
 
-pub(crate) fn filter_repr_default_attr(attrs: &[Attribute]) -> (Vec<&Attribute>, Option<&Attribute>) {
-    let mut default_derive_attr = None;
+pub(crate) fn filter_repr_default_attr(
+    attrs: &[Attribute],
+) -> (Vec<TokenStream>, Option<&Attribute>) {
+    let mut others_attr = vec![];
     let mut repr_attr = None;
-    let v = attrs
-        .iter()
-        .filter(|attr| {
-            let is_repr = attr.meta.path().is_ident("repr");
-            if is_repr {
-                repr_attr = Some(*attr);
+
+    for attr in attrs {
+        // Exclude `repr` & `derive(Default)`
+        let path = attr.meta.path();
+
+        if path.is_ident("repr") {
+            repr_attr = Some(attr);
+            continue;
+        }
+
+        if path.is_ident("derive") {
+            let mut derived = vec![];
+            if let Meta::List(meta) = &attr.meta {
+                let _ = meta.parse_nested_meta(|nested_meta| {
+                    let path = nested_meta.path;
+                    if !path.is_ident("Default") {
+                        derived.push(path);
+                    };
+                    Ok(())
+                });
             }
-            let is_derive = attr.meta.path().is_ident("derive");
+            others_attr.push(quote! { #[derive(#(#derived,)*)] });
+            continue;
+        }
 
-            if is_derive {
-                if let Meta::List(meta) = &attr.meta {
-                    let _ = meta.parse_nested_meta(|nested_meta| {
-                        let path = &nested_meta.path;
+        others_attr.push(attr.to_token_stream());
+    }
 
-                        if path.is_ident("Default") {
-                            default_derive_attr = Some(*attr);
-                        }
-                        Ok(())
-                    });
-                }
-            }
-
-            !(is_repr || default_derive_attr.is_some()) // Exclude `repr` & `derive(Default)`
-        })
-        .collect();
-
-    (v, repr_attr)
+    (others_attr, repr_attr)
 }

@@ -35,7 +35,7 @@ fn to_bitflags_inner(_args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::R
     let enum_ident = &item_enum.ident;
     let vis = &item_enum.vis;
 
-    let (other_attr, repr_attr) = filter_repr_default_attr(&item_enum.attrs);
+    let (others_attr, repr_attr) = filter_repr_default_attr(&item_enum.attrs);
     let bitflags_type = match repr_attr {
         Some(repr_attr) => select_bitflags_type(repr_attr)?,
         None => quote! { usize },
@@ -48,7 +48,7 @@ fn to_bitflags_inner(_args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::R
 
     let expanded = quote! {
         bitflags::bitflags! {
-            #(#other_attr)*
+            #(#others_attr)*
             ///
             #[doc = #docs]
             #vis struct #enum_ident: #bitflags_type {
