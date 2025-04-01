@@ -64,6 +64,7 @@ pub struct BSTransformDeltaEvent;
 #[derive(Debug)]
 pub struct BSAnimationGraphEvent;
 
+#[repr(C)]
 pub enum ITEM_REMOVE_REASON {
     Remove,
     Steal,
@@ -249,3 +250,29 @@ pub struct hkClass;
 pub struct ahkpWorld;
 pub struct hkpWorld;
 pub struct hkbRagdollDriver;
+impl hkRefPtr::hkRefPtrCounted for hkbRagdollDriver {}
+
+#[derive(Debug, Default)]
+pub struct hkCriticalSection;
+impl hkRefPtr::hkRefPtrCounted for hkCriticalSection {}
+#[derive(Debug)]
+pub struct hkaMirroredSkeleton;
+impl hkRefPtr::hkRefPtrCounted for hkaMirroredSkeleton {}
+#[derive(Debug)]
+pub struct hkaSkeleton;
+impl hkRefPtr::hkRefPtrCounted for hkaSkeleton {}
+#[derive(Debug)]
+pub struct hkaSkeletonMapper;
+impl hkRefPtr::hkRefPtrCounted for hkaSkeletonMapper {}
+
+#[derive(Debug)]
+pub struct hkbAnimationBinding;
+#[derive(Debug)]
+pub struct hkbCharacterData;
+impl hkRefPtr::hkRefPtrCounted for hkbCharacterData {}
+#[derive(Debug)]
+pub struct hkbSymbolIdMap;
+impl hkRefPtr::hkRefPtrCounted for hkbSymbolIdMap {}
+#[derive(Debug)]
+pub struct hkbAnimationBindingSet;
+impl hkRefPtr::hkRefPtrCounted for hkbAnimationBindingSet {}

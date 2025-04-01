@@ -145,6 +145,8 @@ impl BSAnimationGraphVariableCache {
     }
 
     /// Gets the animation graph (SE only).
+    ///
+    /// # Errors
     #[inline]
     pub fn get_animation_graph(
         &self,

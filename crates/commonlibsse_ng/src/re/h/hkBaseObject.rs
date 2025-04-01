@@ -37,11 +37,11 @@ impl hkBaseObject {
 
 pub struct hkBaseObjectVtbl {
     /// Destructor for `hkBaseObject` (represented as a virtual method in C++).
-    CxxDrop: unsafe extern "C" fn(this: *mut c_void),
+    pub CxxDrop: unsafe extern "C" fn(this: *mut c_void),
 }
 impl hkBaseObjectVtbl {
     const fn new() -> Self {
-        unsafe extern "C" fn CxxDrop(_this: *mut c_void) {}
+        const unsafe extern "C" fn CxxDrop(_this: *mut c_void) {}
 
         Self { CxxDrop }
     }

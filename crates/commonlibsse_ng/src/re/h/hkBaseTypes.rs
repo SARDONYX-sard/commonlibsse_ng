@@ -36,7 +36,7 @@ const _: () = {
 impl hkHalf {
     /// Creates a new `hkHalf` with a default value of 0.0.
     #[inline]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self { _value: 0 }
     }
 
@@ -67,7 +67,7 @@ impl hkHalf {
 
     /// Gets the 32-bit float value from this `hkHalf`.
     #[inline]
-    fn to_f32(&self) -> f32 {
+    fn to_f32(self) -> f32 {
         // Simplified conversion; actual half-precision float conversion would use IEEE 754 rules
         let sign = (self._value >> 15) & 0x1;
         let exp = ((self._value >> 10) & 0x1F) as u32;
@@ -106,10 +106,10 @@ impl From<f32> for hkHalf {
     }
 }
 
-impl Into<f32> for hkHalf {
+impl From<hkHalf> for f32 {
     #[inline]
-    fn into(self) -> f32 {
-        self.to_f32()
+    fn from(val: hkHalf) -> Self {
+        val.to_f32()
     }
 }
 

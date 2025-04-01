@@ -20,6 +20,8 @@ pub trait BSTSmartPointerTrait {
     }
 
     /// Deallocates the managed object.
+    ///
+    /// # Safety
     unsafe fn release<T>(ptr: *mut T)
     where
         T: BSIntrusiveRefCountedTrait,
@@ -36,6 +38,7 @@ pub struct BSTSmartPointerIntrusiveRefCount;
 
 impl BSTSmartPointerTrait for BSTSmartPointerIntrusiveRefCount {
     /// Increases the reference count of the managed object.
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn acquire<T>(ptr: *mut T)
     where
         T: BSIntrusiveRefCountedTrait,
@@ -100,7 +103,7 @@ where
     }
 
     /// Returns a reference to the managed object or `None` if null.
-    pub fn as_ref(&self) -> Option<&T> {
+    pub const fn as_ref(&self) -> Option<&T> {
         unsafe { self.ptr.as_ref() }
     }
 
@@ -110,7 +113,7 @@ where
     }
 
     /// Gets the raw pointer.
-    pub fn get(&self) -> *mut T {
+    pub const fn get(&self) -> *mut T {
         self.ptr
     }
 }
@@ -237,7 +240,7 @@ where
     }
 }
 
-/// Macro to define a smart pointer alias with intrusive ref-counting.
+// /// Macro to define a smart pointer alias with intrusive ref-counting.
 // #[macro_export]
 // macro_rules! BSSmartPointer {
 //     ($name:ident) => {
@@ -258,7 +261,7 @@ mod tests {
     }
 
     impl TestObject {
-        fn new(value: i32) -> Self {
+        const fn new(value: i32) -> Self {
             Self { ref_count: AtomicU32::new(1), value }
         }
     }

@@ -74,12 +74,12 @@ impl BSAnimationGraphChannel {
     pub const VTABLE: [VariantID; 1] = VTABLE_BSAnimationGraphChannel;
 
     /// Virtual function to poll channel update (abstract function in C++).
-    pub fn poll_channel_update_impl(&self, _a_arg1: bool) {
+    pub const fn poll_channel_update_impl(&self, _a_arg1: bool) {
         // Implementation in derived classes.
     }
 
     /// Virtual function to reset the channel (abstract function in C++).
-    pub fn reset_impl(&self) {
+    pub const fn reset_impl(&self) {
         // Implementation in derived classes.
     }
 }

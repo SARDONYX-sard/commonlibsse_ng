@@ -1,5 +1,6 @@
 use crate::re::hkArray::hkArray;
-use crate::re::hkRefVariant::{hkRefPtr, hkRefVariant};
+use crate::re::hkRefPtr::hkRefPtr;
+use crate::re::hkRefVariant::hkRefVariant;
 use crate::re::hkReferencedObject::hkReferencedObject;
 use crate::re::hkReferencedObject::hkReferencedObjectVtbl;
 use crate::re::hkStringPtr::hkStringPtr;
@@ -136,6 +137,12 @@ const _: () = {
     assert!(core::mem::offset_of!(hkbCharacter, pad9E) == 0x9E);
     assert!(core::mem::size_of::<hkbCharacter>() == 0xA0);
 };
+
+impl Default for hkbCharacter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl hkbCharacter {
     /// RTTI identifier for this type.

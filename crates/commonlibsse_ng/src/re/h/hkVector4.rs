@@ -53,39 +53,39 @@ impl hkVector4 {
 
     /// Assigns the value of another `hkVector4` to this one.
     #[inline]
-    pub fn assign(&mut self, rhs: hkVector4) {
+    pub fn assign(&mut self, rhs: Self) {
         self.quad = rhs.quad;
     }
 
     /// Checks if this vector is equal to another within a given epsilon.
     #[inline]
-    pub fn IsEqual(&self, pt: hkVector4, epsilon: f32) -> bool {
+    pub fn IsEqual(&self, pt: Self, epsilon: f32) -> bool {
         let diff = self.sub(pt);
         diff.SqrLength4() < epsilon * epsilon
     }
 
     /// Computes the cross product with another `hkVector4` (using x, y, z components).
     #[inline]
-    pub fn Cross(&self, pt: hkVector4) -> Self {
+    pub fn Cross(&self, pt: Self) -> Self {
         let x1 = self.get_component(0);
         let y1 = self.get_component(1);
         let z1 = self.get_component(2);
         let x2 = pt.get_component(0);
         let y2 = pt.get_component(1);
         let z2 = pt.get_component(2);
-        Self::from_components(y1 * z2 - z1 * y2, z1 * x2 - x1 * z2, x1 * y2 - y1 * x2, 0.0)
+        Self::from_components(y1.mul_add(z2, -(z1 * y2)), z1.mul_add(x2, -(x1 * z2)), x1.mul_add(y2, -(y1 * x2)), 0.0)
     }
 
     /// Computes the 3D dot product with another `hkVector4` (ignoring w).
     #[inline]
-    pub fn Dot3(&self, pt: hkVector4) -> f32 {
+    pub fn Dot3(&self, pt: Self) -> f32 {
         let prod = self.mul(pt);
         prod.get_component(0) + prod.get_component(1) + prod.get_component(2)
     }
 
     /// Computes the 4D dot product with another `hkVector4`.
     #[inline]
-    pub fn Dot4(&self, pt: hkVector4) -> f32 {
+    pub fn Dot4(&self, pt: Self) -> f32 {
         unsafe {
             let prod = _mm_mul_ps(self.quad, pt.quad);
             let sum1 = _mm_hadd_ps(prod, prod); // Horizontal add (x+y, z+w, x+y, z+w)
@@ -96,13 +96,13 @@ impl hkVector4 {
 
     /// Gets the 3D distance to another `hkVector4`.
     #[inline]
-    pub fn GetDistance3(&self, pt: hkVector4) -> f32 {
+    pub fn GetDistance3(&self, pt: Self) -> f32 {
         self.GetSquaredDistance3(pt).sqrt()
     }
 
     /// Gets the squared 3D distance to another `hkVector4`.
     #[inline]
-    pub fn GetSquaredDistance3(&self, pt: hkVector4) -> f32 {
+    pub fn GetSquaredDistance3(&self, pt: Self) -> f32 {
         let diff = self.sub(pt);
         diff.SqrLength3()
     }
@@ -119,7 +119,7 @@ impl hkVector4 {
         let x = self.get_component(0);
         let y = self.get_component(1);
         let z = self.get_component(2);
-        x * x + y * y + z * z
+        z.mul_add(z, x.mul_add(x, y * y))
     }
 
     /// Gets the 4D length of the vector.

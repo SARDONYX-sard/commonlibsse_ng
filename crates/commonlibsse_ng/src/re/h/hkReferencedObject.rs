@@ -37,6 +37,8 @@ const _: () = {
     assert!(core::mem::size_of::<hkReferencedObject>() == 0x10);
 };
 
+impl crate::re::hkRefPtr::hkRefPtrCounted for hkReferencedObject {}
+
 /// Lock mode enumeration for reference counting behavior.
 #[commonlibsse_ng_derive_internal::to_bitflags]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -59,7 +61,7 @@ impl hkReferencedObject {
 
     /// Creates a new `hkReferencedObject` with default values.
     #[inline]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             __base: hkBaseObject::new(),
             memSizeAndFlags: Self::MEM_SIZE,
@@ -86,7 +88,7 @@ impl hkReferencedObject {
 
     /// Gets the allocated size (based on memSizeAndFlags).
     #[inline]
-    pub fn get_allocated_size(&self) -> i32 {
+    pub const fn get_allocated_size(&self) -> i32 {
         (self.memSizeAndFlags & Self::MEM_SIZE) as i32
     }
 }
