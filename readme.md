@@ -6,7 +6,11 @@
 
 ### Implementation progress
 
-Currently the priority is to enable the `PlayerCharacter` API
+- I have not been able to test any APIs other than `Calendar`, so I am not sure if the memory layout is correct.
+
+- In fact, almost all relocation and vtable address acquisition is now possible, so it can already be used by manually defining the RE namespace structure API.
+- Currently the priority is to enable the `PlayerCharacter` API
+- API names are currently not stable and are in the trial and error stage. Therefore, there is no guarantee of compatibility in the next commit.
 
 | Module | progress | additional                                                                      |
 | ------ | -------: | ------------------------------------------------------------------------------- |
