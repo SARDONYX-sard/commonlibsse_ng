@@ -8,9 +8,11 @@
 
 Currently the priority is to enable the `PlayerCharacter` API
 
-- RE: 3% (The work on the `Calendar` API is done, but the workload is too huge to finish.)
-- REL: 80% (It is already possible to load AddressLibrary and use any ID.)
-- SKSE: 70% (Most of the API is already available.)
+| Module | progress | additional                                                                      |
+| ------ | -------: | ------------------------------------------------------------------------------- |
+| RE     |       3% | The work on the `Calendar` API is done, but the workload is too huge to finish. |
+| REL    |      80% | It is already possible to load AddressLibrary and use any ID.                   |
+| SKSE   |      70% | Most of the API is already available.                                           |
 
 ```toml
 commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "b118ea6" }
