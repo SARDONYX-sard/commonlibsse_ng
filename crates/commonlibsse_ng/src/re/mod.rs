@@ -87,6 +87,7 @@ impl NiSmartPointer::RefCountable for NiTimeController {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct NiNode;
 impl NiSmartPointer::RefCountable for NiNode {
     fn inc_ref_count(&self) {
@@ -101,6 +102,7 @@ impl NiSmartPointer::RefCountable for NiNode {
 pub struct NiSwitchNode;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct BSFadeNode;
 impl NiSmartPointer::RefCountable for BSFadeNode {
     fn inc_ref_count(&self) {
@@ -113,6 +115,14 @@ impl NiSmartPointer::RefCountable for BSFadeNode {
 
 #[repr(C)]
 pub struct BSMultiBoundNode;
+impl NiSmartPointer::RefCountable for BSMultiBoundNode {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
 
 #[repr(C)]
 pub struct BSGeometry;
@@ -121,6 +131,7 @@ pub struct BSGeometry;
 pub struct NiTriStrips;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct BSTriShape;
 impl NiSmartPointer::RefCountable for BSTriShape {
     fn inc_ref_count(&self) {
@@ -179,6 +190,7 @@ pub struct bhkCollisionObject;
 
 pub struct BGSLocation;
 pub struct TESFaction;
+#[derive(Debug)]
 pub struct NiBillboardNode;
 impl NiSmartPointer::RefCountable for NiBillboardNode {
     fn inc_ref_count(&self) {
@@ -276,3 +288,44 @@ impl hkRefPtr::hkRefPtrCounted for hkbSymbolIdMap {}
 #[derive(Debug)]
 pub struct hkbAnimationBindingSet;
 impl hkRefPtr::hkRefPtrCounted for hkbAnimationBindingSet {}
+#[derive(Debug)]
+pub struct BGSWaterUpdateI;
+#[derive(Debug)]
+pub struct TESObjectLAND;
+#[derive(Debug)]
+pub struct BGSLightingTemplate;
+#[derive(Debug)]
+pub struct BSPortalGraph;
+impl crate::re::NiSmartPointer::RefCountable for BSPortalGraph {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
+pub struct NavMesh;
+
+impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for NavMesh {
+    fn inc_ref(&self) -> u32 {
+        todo!()
+    }
+
+    fn dec_ref(&self) -> u32 {
+        todo!()
+    }
+}
+
+#[derive(Debug)]
+pub struct BSTMap<T, U> {
+    /// dummy
+    pub unk_opaque: [u8; 0x20],
+    marker: core::marker::PhantomData<(T, U)>,
+}
+#[derive(Debug)]
+pub struct BSTSet<T> {
+    /// dummy
+    pub unk_opaque: [u8; 0x20],
+    marker: core::marker::PhantomData<T>,
+}

@@ -1,6 +1,5 @@
-mod vr_node;
+pub mod vr;
 
-pub use self::vr_node::VRNodeData;
 use crate::re::{
     BSCoreTypes::RefHandle, Character::Character, NiPoint3::NiPoint3, TESObjectCELL::TESObjectCELL,
     TESWorldSpace::TESWorldSpace,
@@ -31,52 +30,73 @@ pub enum PLAYER_ACTION {
     InvalidMarker,
 }
 
-#[commonlibsse_ng_derive_internal::ffi_enum]
-#[repr(u32)]
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum VR_Bow_State {
-    #[default]
-    None,
-    NoAmmo,
-    Idle,
-    ArrowKnocked,
-}
-
 #[repr(C)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct CrimeGoldStruct {
-    violent_cur: f32,        // 00
-    non_violent_cur: f32,    // 04
-    non_violent_infamy: f32, // 08
-    violent_infamy: f32,     // 0C
+    violentCur: f32,       // 00
+    nonViolentCur: f32,    // 04
+    nonViolentInfamy: f32, // 08
+    violentInfamy: f32,    // 0C
 }
+const _: () = {
+    assert!(core::mem::offset_of!(CrimeGoldStruct, violentCur) == 0x0);
+    assert!(core::mem::offset_of!(CrimeGoldStruct, nonViolentCur) == 0x4);
+    assert!(core::mem::offset_of!(CrimeGoldStruct, nonViolentInfamy) == 0x8);
+    assert!(core::mem::offset_of!(CrimeGoldStruct, violentInfamy) == 0xc);
+    assert!(core::mem::size_of::<CrimeGoldStruct>() == 0x10);
+};
 
 #[repr(C)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct StolenItemValueStruct {
     unwitnessed: i32, // 0
     witnessed: i32,   // 4
 }
+const _: () = {
+    assert!(core::mem::offset_of!(StolenItemValueStruct, unwitnessed) == 0x0);
+    assert!(core::mem::offset_of!(StolenItemValueStruct, witnessed) == 0x4);
+    assert!(core::mem::size_of::<StolenItemValueStruct>() == 0x8);
+};
 
 #[repr(C)]
 pub struct FriendshipFactionsStruct {
     friend_counts: [u16; 4], // 0
 }
+const _: () = assert!(core::mem::size_of::<FriendshipFactionsStruct>() == 0x8);
 
 #[repr(C)]
 pub struct PLAYER_TARGET_LOC {
-    world: *mut TESWorldSpace,                // 00
-    interior: *mut TESObjectCELL,             // 08
-    location: NiPoint3,                       // 10
-    angle: NiPoint3,                          // 1C
-    arrival_func: Option<extern "C" fn(i64)>, // 28
-    arrival_func_data: i64,                   // 30
-    furniture_ref: RefHandle,                 // 38
-    fast_travel_marker: RefHandle,            // 3C
-    reset_weather: bool,                      // 40
-    allow_auto_save: bool,                    // 41
-    is_valid: bool,                           // 42
-    pad43: u8,                                // 43
-    pad44: u32,                               // 44
+    world: *mut TESWorldSpace,       // 00
+    interior: *mut TESObjectCELL,    // 08
+    location: NiPoint3,              // 10
+    angle: NiPoint3,                 // 1C
+    arrivalFunc: extern "C" fn(i64), // 28
+    arrivalFuncData: i64,            // 30
+    furnitureRef: RefHandle,         // 38
+    fastTravelMarker: RefHandle,     // 3C
+    resetWeather: bool,              // 40
+    allowAutoSave: bool,             // 41
+    isValid: bool,                   // 42
+    pad43: u8,                       // 43
+    pad44: u32,                      // 44
 }
+const _: () = {
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, world) == 0x00);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, interior) == 0x08);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, location) == 0x10);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, angle) == 0x1c);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, arrivalFunc) == 0x28);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, arrivalFuncData) == 0x30);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, furnitureRef) == 0x38);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, fastTravelMarker) == 0x3C);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, resetWeather) == 0x40);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, allowAutoSave) == 0x41);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, isValid) == 0x42);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, pad43) == 0x43);
+    assert!(core::mem::offset_of!(PLAYER_TARGET_LOC, pad44) == 0x44);
+
+    assert!(core::mem::size_of::<PLAYER_TARGET_LOC>() == 0x48);
+};
 
 #[repr(C)]
 pub struct VR_PLAYER_TARGET_LOC {

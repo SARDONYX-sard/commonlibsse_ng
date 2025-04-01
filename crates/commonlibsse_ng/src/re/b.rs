@@ -10,6 +10,7 @@ pub mod BSAnimationGraphChannel;
 pub mod BSAnimationGraphManager;
 pub mod BSAnimationUpdateData;
 pub mod BSAtomic;
+pub mod BSBitField;
 pub mod BSCoreTypes;
 pub mod BSExtraData;
 pub mod BSFile;

@@ -1,7 +1,9 @@
 pub mod TESBitArrayFile;
 pub mod TESBoundObject;
+pub mod TESChildCell;
 pub mod TESFile;
 pub mod TESForm;
+pub mod TESFullName;
 pub mod TESGlobal;
 pub mod TESObject;
 pub mod TESObjectCELL;
