@@ -1,22 +1,16 @@
 # CommonLibSSE-NG rust
 
-- FFI
-
-It probably will crash if used it does not pass the layout test. See [test results](./crates/commonlibsse_ng_sys/test_results.txt)
-
-```toml
-commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "b118ea6" }
-```
-
 ## Manual implementation
 
 - [api docs](https://commonlibsse-ng-docs-rs.netlify.app/commonlibsse_ng/)
 
-Implementation progress
+### Implementation progress
 
-- RE: 0%
-- REL: 80%
-- SKSE: 70%
+Currently the priority is to enable the `PlayerCharacter` API
+
+- RE: 3% (The work on the `Calendar` API is done, but the workload is too huge to finish.)
+- REL: 80% (It is already possible to load AddressLibrary and use any ID.)
+- SKSE: 70% (Most of the API is already available.)
 
 ```toml
 commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "b118ea6" }
@@ -24,10 +18,18 @@ commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", re
 
 ## Example test
 
-[module_state.dll](./crates/commonlibsse_ng/examples/module_state.rs)
+- [module_state.dll](./crates/commonlibsse_ng/examples/module_state.rs): Get the date in the game.
 
 ```shell
 cargo xtask example --dest_mode build
+```
+
+- FFI
+
+It probably will crash if used it does not pass the layout test. See [test results](./crates/commonlibsse_ng_sys/test_results.txt)
+
+```toml
+commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "b118ea6" }
 ```
 
 ## Licenses
