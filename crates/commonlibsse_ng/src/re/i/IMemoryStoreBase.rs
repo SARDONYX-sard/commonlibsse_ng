@@ -38,11 +38,57 @@ pub struct IMemoryStoreBaseVtbl {
         unsafe extern "C" fn(this: *const IMemoryStoreBase, block: *const u8) -> bool,
 }
 
+impl Default for IMemoryStoreBaseVtbl {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl IMemoryStoreBaseVtbl {
+    pub const fn new() -> Self {
+        const unsafe extern "C" fn CxxDrop(this: *mut IMemoryStoreBase) {
+            let _ = this;
+        }
+        pub const unsafe extern "C" fn Size(
+            this: *const IMemoryStoreBase,
+            mem: *const u8,
+        ) -> usize {
+            let _ = this;
+            let _ = mem;
+            0
+        }
+        pub const unsafe extern "C" fn GetMemoryStats(
+            this: *mut IMemoryStoreBase,
+            stats: *mut MemoryStats,
+        ) {
+            let _ = this;
+            let _ = stats;
+        }
+        pub const unsafe extern "C" fn ContainsBlockImpl(
+            this: *const IMemoryStoreBase,
+            block: *const u8,
+        ) -> bool {
+            let _ = this;
+            let _ = block;
+            false
+        }
+
+        Self { CxxDrop, Size, GetMemoryStats, ContainsBlockImpl }
+    }
+}
+static I_MEMORY_STORE_BASE_VTBL: IMemoryStoreBaseVtbl = IMemoryStoreBaseVtbl::new();
+
 /// Base memory store interface with virtual functions.
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct IMemoryStoreBase {
     pub vtable: *const IMemoryStoreBaseVtbl,
+}
+
+impl Default for IMemoryStoreBase {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl IMemoryStoreBase {
@@ -52,8 +98,8 @@ impl IMemoryStoreBase {
     /// Address & Offset of the virtual function table.
     pub const VTABLE: [VariantID; 1] = VTABLE_IMemoryStoreBase;
 
-    pub const fn new(vtable: *const IMemoryStoreBaseVtbl) -> Self {
-        Self { vtable }
+    pub const fn new() -> Self {
+        Self { vtable: &I_MEMORY_STORE_BASE_VTBL }
     }
 
     /// Destructor

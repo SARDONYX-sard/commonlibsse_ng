@@ -19,6 +19,7 @@ enum RecordFlag {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct Character {
     pub __base: Actor,
 }

@@ -1,4 +1,8 @@
+use crate::re::BSCoreTypes::RefHandle;
+use crate::re::NiPoint3::NiPoint3;
 use crate::re::NiSmartPointer::NiPointer;
+use crate::re::TESObjectCELL::TESObjectCELL;
+use crate::re::TESWorldSpace::TESWorldSpace;
 use crate::re::{BSFadeNode, BSTriShape, NiBillboardNode, NiNode};
 use std::ffi::c_void;
 
@@ -104,3 +108,26 @@ pub struct VR_NODE_DATA {
     pub TeleportNodeArray3: *mut c_void, // 0x678    TODO - Make into proper data structure
 }
 const _: () = assert!(core::mem::size_of::<VR_NODE_DATA>() == 0x290);
+
+#[repr(C)]
+pub struct VR_PLAYER_TARGET_LOC {
+    world: *mut TESWorldSpace,    // 0x00
+    interior: *mut TESObjectCELL, // 0x08
+    location: NiPoint3,           // 0x10
+    angle: NiPoint3,              // 0x1C
+    arrivalFunc: fn(i64),         // 0x28
+    arrivalFuncData: i64,         // 0x30
+    furnitureRef: RefHandle,      // 0x38
+    fastTravelMarker: RefHandle,  // 0x3C
+    unk_40: f32,                  // 0x40 - New in VR, always 0.0 in vanilla
+    unk44: u8,                    // 0x44
+    resetWeather: bool,           // 0x45
+    allowAutoSave: u8,            // 0x46
+    isValid: bool,                // 0x47
+    unk48: u8,                    // 0x48
+    unk49: u8,                    // 0x49
+    unk4A: u8,                    // 0x4A
+    unk4B: u8,                    // 0x4B
+    unk4C: u32,                   // 0x4C
+}
+const _: () = assert!(core::mem::size_of::<VR_PLAYER_TARGET_LOC>() == 0x50);

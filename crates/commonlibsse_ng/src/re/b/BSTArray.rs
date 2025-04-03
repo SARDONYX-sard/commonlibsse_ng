@@ -1,15 +1,19 @@
+mod allocator;
+
 use core::ffi::c_void;
+use core::marker::PhantomData;
 use core::ops::{self, RangeBounds};
+use core::ptr::{self, NonNull};
 use core::slice;
 use std::alloc::{self, Layout};
-use std::marker::PhantomData;
-use std::ptr::{self, NonNull};
 
+use self::allocator::BSTArrayHeapAllocator;
 use crate::re::offsets_rtti::RTTI_BSTArrayBase__IAllocatorFunctor;
 use crate::re::offsets_vtable::VTABLE_BSTArrayBase__IAllocatorFunctor;
 use crate::rel::id::VariantID;
 
 #[repr(C)]
+#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BSTArrayBase {
     pub size: u32,
 }
@@ -23,6 +27,7 @@ impl BSTArrayBase {
 }
 
 #[repr(C)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct IAllocatorFunctor {
     vtable_: *const IAllocatorFunctorVtbl,
 }
@@ -33,108 +38,27 @@ impl IAllocatorFunctor {
     pub const VTABLE: [VariantID; 1] = VTABLE_BSTArrayBase__IAllocatorFunctor;
 }
 
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct IAllocatorFunctorVtbl {
-    pub allocate: fn(this: *mut c_void, num: u32, elem_size: u32) -> bool,
-    pub reallocate: fn(
+    pub Allocate: fn(this: *mut c_void, num: u32, elem_size: u32) -> bool,
+    pub Reallocate: fn(
         this: *mut c_void,
         min_new_size_items: u32,
         front_copy_count: u32,
         back_copy_count: u32,
         elem_size: u32,
     ) -> bool,
-    pub deallocate: fn(this: *mut c_void) -> c_void,
+    pub Deallocate: fn(this: *mut c_void) -> c_void,
+
+    /// `~IAllocatorFunctor`
+    pub CxxDrop: fn(this: *mut c_void) -> c_void,
 }
 
 #[repr(C)]
-pub struct BSTArrayHeapAllocator {
-    data: *mut u8,
-    capacity: u32,
-}
-const_assert_eq!(core::mem::size_of::<BSTArrayHeapAllocator>(), 0x10);
-
-impl BSTArrayHeapAllocator {
-    pub const fn new() -> Self {
-        Self { data: ptr::null_mut(), capacity: 0 }
-    }
-
-    /// # Errors
-    /// - If size > `isize::MAX`
-    /// - If allocation failed
-    pub fn allocate(&mut self, size: usize) -> Result<(), AllocatorError> {
-        if size == 0 {
-            return Ok(());
-        }
-        let layout = Layout::array::<u8>(size)
-            .map_err(|_| AllocatorError::InvalidLayout { requested_size: size })?;
-        let mem = unsafe { alloc::alloc_zeroed(layout) };
-        if mem.is_null() {
-            return Err(AllocatorError::AllocationFailed { layout });
-        }
-        self.data = mem;
-        self.capacity = size as u32;
-        Ok(())
-    }
-
-    /// # Errors
-    /// - If `self.capacity` > `isize::MAX`
-    pub fn deallocate(&mut self) -> Result<(), AllocatorError> {
-        if !self.data.is_null() {
-            let layout = Layout::array::<u8>(self.capacity as usize).map_err(|_| {
-                AllocatorError::InvalidLayout { requested_size: self.capacity as usize }
-            })?;
-            unsafe {
-                alloc::dealloc(self.data, layout);
-            }
-            self.data = ptr::null_mut();
-            self.capacity = 0;
-        }
-        Ok(())
-    }
-
-    pub const fn capacity(&self) -> u32 {
-        self.capacity
-    }
-
-    pub const fn data(&self) -> *const u8 {
-        self.data
-    }
-}
-
-impl Drop for BSTArrayHeapAllocator {
-    fn drop(&mut self) {
-        let _ = self.deallocate();
-    }
-}
-
-impl Clone for BSTArrayHeapAllocator {
-    fn clone(&self) -> Self {
-        let mut new_alloc = Self::new();
-        if self.capacity > 0 && matches!(new_alloc.allocate(self.capacity as usize), Ok(())) {
-            unsafe {
-                ptr::copy_nonoverlapping(self.data, new_alloc.data, self.capacity as usize);
-            }
-        }
-        new_alloc
-    }
-}
-
-impl Default for BSTArrayHeapAllocator {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-#[derive(Debug, snafu::Snafu)]
-pub enum AllocatorError {
-    /// The heap memory you tried to allocate is too large. The `BSTArrayHeapAllocator` only supports allocating less than isize::MAX but requested {requested_size}.
-    InvalidLayout { requested_size: usize },
-    /// Heap allocation failed. Layout attempted to allocate: {layout:?}
-    AllocationFailed { layout: Layout },
-}
-
-pub struct BSTSmallArray<T> {
+#[derive(Debug)]
+pub struct BSTSmallArray<T, const N: usize = 1> {
     pub data: *mut T,
-    pub size: usize,
+    pub size: Option<[u8; N]>,
     pub capacity: usize,
 }
 
@@ -144,6 +68,8 @@ pub struct BSTArray<T> {
     // BSTArrayHeapALlocator
     data: NonNull<T>,
     capacity: usize,
+    // pub __base: BSTArrayHeapALlocator,
+    // pub __base1: BSTArrayBase,
 
     // BSTArrayBase
     size: usize,

@@ -329,3 +329,17 @@ pub struct BSTSet<T> {
     pub unk_opaque: [u8; 0x20],
     marker: core::marker::PhantomData<T>,
 }
+
+#[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct BGSActorDeathEvent;
+#[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct UserEventEnabledEvent;
+#[repr(C)]
+#[derive(Debug)]
+pub struct bhkMouseSpringAction;
+impl crate::re::hkRefPtr::hkRefPtrCounted for bhkMouseSpringAction {}
+#[repr(C)]
+#[derive(Debug)]
+pub struct TESObjectWEAP;

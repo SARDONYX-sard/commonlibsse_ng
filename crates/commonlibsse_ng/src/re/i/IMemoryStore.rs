@@ -3,23 +3,18 @@ use crate::re::offsets_rtti::RTTI_IMemoryStore;
 use crate::re::offsets_vtable::VTABLE_IMemoryStore;
 use crate::rel::id::VariantID;
 
-/// Virtual table for `IMemoryStore`.
-#[repr(C)]
-pub struct IMemoryStoreVtbl {
-    pub __base: IMemoryStoreBaseVtbl,
-
-    pub AllocateAlignImpl:
-        unsafe extern "C" fn(this: *mut IMemoryStore, size: usize, alignment: u32) -> *mut u8,
-    pub DeallocateAlignImpl: unsafe extern "C" fn(this: *mut IMemoryStore, block: *mut *mut u8),
-    pub TryAllocateImpl:
-        unsafe extern "C" fn(this: *mut IMemoryStore, size: usize, alignment: u32) -> *mut u8,
-}
-
 /// Memory store interface extending `IMemoryStoreBase`.
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq)]
 pub struct IMemoryStore {
     pub __base: IMemoryStoreBase,
+}
+const _: () = assert!(std::mem::size_of::<IMemoryStore>() == 0x8);
+
+impl Default for IMemoryStore {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl IMemoryStore {
@@ -28,6 +23,10 @@ impl IMemoryStore {
 
     /// Address & Offset of the virtual function table.
     pub const VTABLE: [VariantID; 1] = VTABLE_IMemoryStore;
+
+    pub const fn new() -> Self {
+        Self { __base: IMemoryStoreBase::new() }
+    }
 
     /// Allocate aligned memory.
     #[inline]
@@ -53,6 +52,14 @@ impl IMemoryStore {
     }
 }
 
-const _: () = {
-    assert!(std::mem::size_of::<IMemoryStore>() == 0x8);
-};
+/// Virtual table for `IMemoryStore`.
+#[repr(C)]
+pub struct IMemoryStoreVtbl {
+    pub __base: IMemoryStoreBaseVtbl,
+
+    pub AllocateAlignImpl:
+        unsafe extern "C" fn(this: *mut IMemoryStore, size: usize, alignment: u32) -> *mut u8,
+    pub DeallocateAlignImpl: unsafe extern "C" fn(this: *mut IMemoryStore, block: *mut *mut u8),
+    pub TryAllocateImpl:
+        unsafe extern "C" fn(this: *mut IMemoryStore, size: usize, alignment: u32) -> *mut u8,
+}
