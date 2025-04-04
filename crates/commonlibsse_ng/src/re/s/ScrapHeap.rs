@@ -56,10 +56,10 @@ impl ScrapHeap {
     }
 
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 66884, ae_id = 68144)]
-    pub fn allocate(&mut self, size: usize, alignment: usize) -> *mut c_void {}
+    pub unsafe fn allocate(&mut self, size: usize, alignment: usize) -> *mut c_void {}
 
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 66885, ae_id = 68146)]
-    pub fn deallocate(&mut self, mem: *mut c_void) -> *mut c_void {}
+    pub unsafe fn deallocate(&mut self, mem: *mut c_void) -> *mut c_void {}
 }
 
 impl Drop for ScrapHeap {

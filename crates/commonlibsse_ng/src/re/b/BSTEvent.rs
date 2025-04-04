@@ -72,7 +72,7 @@ const _: () = {
 
 impl<Event> BSTEventSource<Event> {
     #[inline]
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             sinks: BSTArray::new(),
             pendingRegisters: BSTArray::new(),

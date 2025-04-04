@@ -193,12 +193,12 @@ pub unsafe fn realloc(ptr: *mut c_void, size: usize) -> *mut c_void {
 /// # NOTE
 /// `alignment` <= `i32::MAX`
 #[inline]
-pub unsafe fn aligned_realloc(ptr: *mut c_void, layout: Layout) -> *mut c_void {
-    let (size, alignment) = (layout.size(), layout.align());
+pub unsafe fn aligned_realloc(ptr: *mut c_void, layout: Layout, new_size: usize) -> *mut c_void {
+    let alignment = layout.align() as i32;
     unsafe {
         MemoryManager::GetSingleton()
             .as_mut()
-            .map_or(ptr::null_mut(), |heap| heap.Reallocate(ptr, size, alignment as i32, true))
+            .map_or(ptr::null_mut(), |heap| heap.Reallocate(ptr, new_size, alignment, true))
     }
 }
 
@@ -222,5 +222,21 @@ pub unsafe fn aligned_free(ptr: *mut c_void) {
         if let Some(heap) = MemoryManager::GetSingleton().as_mut() {
             heap.Deallocate(ptr, true);
         };
+    }
+}
+
+/// Allocator for Rust using Skyrim's `malloc` & `free`.
+pub struct TESAllocator;
+unsafe impl core::alloc::GlobalAlloc for TESAllocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        unsafe { aligned_malloc(layout).cast::<u8>() }
+    }
+
+    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
+        unsafe { aligned_free(ptr.cast::<c_void>()) };
+    }
+
+    unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+        unsafe { aligned_realloc(ptr.cast::<c_void>(), layout, new_size).cast::<u8>() }
     }
 }

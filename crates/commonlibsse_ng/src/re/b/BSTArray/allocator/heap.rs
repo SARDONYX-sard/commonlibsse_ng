@@ -1,67 +1,73 @@
-use core::ptr::{self, NonNull};
-use std::alloc::{self, Layout};
+use core::alloc::Layout;
+use core::ffi::c_void;
+use core::ptr::{self};
 
-use super::error::AllocatorError;
+use crate::re::BSTArray::Allocator;
+use crate::re::MemoryManager::{free, malloc};
 
 #[repr(C)]
 #[derive(Debug)]
 pub struct BSTArrayHeapAllocator {
-    data: Option<NonNull<u8>>,
+    data: *mut c_void,
     capacity: u32,
 }
 const_assert_eq!(core::mem::size_of::<BSTArrayHeapAllocator>(), 0x10);
 
-impl BSTArrayHeapAllocator {
+unsafe impl Allocator for BSTArrayHeapAllocator {
     #[inline]
-    pub const fn new() -> Self {
-        Self { data: None, capacity: 0 }
+    fn new() -> Self {
+        Self { data: ptr::null_mut(), capacity: 0 }
     }
 
     #[inline]
-    pub const unsafe fn data(&self) -> Option<NonNull<u8>> {
+    fn as_ptr(&self) -> *const c_void {
+        self.data.cast_const()
+    }
+
+    #[inline]
+    fn as_mut_ptr(&mut self) -> *mut c_void {
         self.data
     }
 
     #[inline]
-    pub const fn capacity(&self) -> u32 {
+    fn capacity(&self) -> u32 {
         self.capacity
     }
 
-    /// # Errors
-    /// - If size > `isize::MAX`
-    /// - If allocation failed
-    pub fn allocate(&mut self, size: usize) -> Result<(), AllocatorError> {
-        if size == 0 {
-            return Ok(());
+    #[inline]
+    unsafe fn allocate(&mut self, layout: Layout) -> *mut c_void {
+        let size = layout.size();
+        let mem = unsafe { malloc(size) };
+        if !mem.is_null() {
+        } else {
+            unsafe { ptr::write_bytes(mem, 0, size) };
         }
-        let layout = Layout::array::<u8>(size)
-            .map_err(|_| AllocatorError::InvalidLayout { requested_size: size })?;
-        let mem = unsafe { alloc::alloc_zeroed(layout) };
 
-        self.data =
-            Some(NonNull::new(mem).ok_or_else(|| AllocatorError::AllocationFailed { layout })?);
-        self.capacity = size as u32;
-        Ok(())
+        mem
     }
 
-    /// # Errors
-    /// - If `self.capacity` > `isize::MAX`
-    pub fn deallocate(&mut self) -> Result<(), AllocatorError> {
-        let capacity = self.capacity as usize;
-        let layout = Layout::array::<u8>(capacity)
-            .map_err(|_| AllocatorError::InvalidLayout { requested_size: capacity })?;
+    #[inline]
+    unsafe fn deallocate(&mut self, ptr: *mut c_void) {
+        unsafe { free(ptr) };
+    }
 
-        if let Some(data) = self.data.take() {
-            unsafe { alloc::dealloc(data.as_ptr(), layout) };
-            self.capacity = 0;
-        }
-        Ok(())
+    #[inline]
+    fn set_allocator_traits(&mut self, data: *mut c_void, capacity: u32, type_size: usize) {
+        let _ = type_size;
+        self.data = data;
+        self.capacity = capacity;
+    }
+}
+
+impl Default for BSTArrayHeapAllocator {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
 impl Drop for BSTArrayHeapAllocator {
     fn drop(&mut self) {
-        let _ = self.deallocate();
+        unsafe { self.deallocate(self.data) };
     }
 }
 
@@ -69,22 +75,17 @@ impl Clone for BSTArrayHeapAllocator {
     fn clone(&self) -> Self {
         let mut new_alloc = Self::new();
 
-        if let Some(data) = self.data {
+        let src_ptr = self.data;
+        if !src_ptr.is_null() {
             let capacity = self.capacity as usize;
-            if capacity > 0 && matches!(new_alloc.allocate(self.capacity as usize), Ok(())) {
-                let new_ptr = new_alloc.data.expect("valid ptr").as_ptr();
-                unsafe {
-                    ptr::copy_nonoverlapping(data.as_ptr(), new_ptr, capacity);
-                }
+
+            if capacity > 0 {
+                let dst_ptr = unsafe { new_alloc.allocate(Self::ptr_layout(capacity)) };
+                unsafe { ptr::copy_nonoverlapping(src_ptr, dst_ptr, capacity) };
+                new_alloc.data = dst_ptr;
             }
         }
 
         new_alloc
-    }
-}
-
-impl Default for BSTArrayHeapAllocator {
-    fn default() -> Self {
-        Self::new()
     }
 }

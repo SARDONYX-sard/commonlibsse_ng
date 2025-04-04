@@ -10,10 +10,10 @@ use std::alloc::{Layout, alloc, dealloc};
 ///
 /// The array follows a specific layout:
 ///
-/// | Index | Value       |
+/// | Index | Value      |
 /// |-------|------------|
 /// |       | Length (N) |
-/// | 0     | Element 1  |
+/// | 0     | Element 1  | <- Ptr pointed `self.data`
 /// | 1     | Element 2  |
 /// | 2     | Element 3  |
 /// | ...   | ...        |
