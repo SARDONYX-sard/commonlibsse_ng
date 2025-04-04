@@ -31,7 +31,9 @@
     "impls",
     "Keyframed",
     "lfanew",
+    "Lockpicking",
     "Loredas",
+    "MAGICKA",
     "Middas",
     "modrm",
     "MODULEINFO",
@@ -67,6 +69,7 @@
     "SKSE",
     "Skyrim",
     "smallvec",
+    "Smithing",
     "Softworks",
     "splwow",
     "stdx",
@@ -74,6 +77,7 @@
     "Streamable",
     "Streamables",
     "subsec",
+    "SUNGAZING",
     "Textw",
     "Textx",
     "Tirdas",
@@ -94,6 +98,8 @@
     "vtables",
     "vtbl",
     "waitable",
+    "WEAP",
+    "worldspace",
     "xtask"
   ]
 }

@@ -40,6 +40,7 @@ pub struct PerformOpFunc {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct NiAVObject {
     pub __base: NiObjectNET,
     pub parent: *mut NiNode,                            // 0x030

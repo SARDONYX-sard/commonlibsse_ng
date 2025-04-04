@@ -4,3 +4,4 @@ pub mod Character;
 pub mod CollisionLayer;
 pub mod Color;
 pub mod CompactingStore;
+pub mod Crime;

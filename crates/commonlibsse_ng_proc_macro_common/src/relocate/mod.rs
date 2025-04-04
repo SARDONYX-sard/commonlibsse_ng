@@ -1,9 +1,10 @@
 mod attr_args;
 
 use crate::fn_args_parser::{FnArgs, create_fn_args};
+use core::str::FromStr;
 use proc_macro2::TokenStream;
 
-pub fn gen_relocate_fn(
+pub fn gen_relocate(
     attrs: TokenStream,
     item_fn: syn::ItemFn,
     crate_root_name: TokenStream,
@@ -23,15 +24,16 @@ pub fn gen_relocate_fn(
             }
         }
     };
-    generate_code(args, item_fn, crate_root_name)
+    generate_code(args, item_fn, crate_root_name).unwrap_or_else(syn::Error::into_compile_error)
 }
 
 fn generate_code(
     args: attr_args::MacroArgs,
     item_fn: syn::ItemFn,
     crate_root_name: TokenStream,
-) -> TokenStream {
-    let attr_args::MacroArgs { se_id, ae_id, vr_id } = args;
+) -> syn::Result<TokenStream> {
+    let attr_args::MacroArgs { cast_as, default, id } = args;
+    let attr_args::RelocationId { se: se_id, ae: ae_id, vr: vr_id } = id;
     let vr_id = vr_id.unwrap_or(se_id);
 
     let syn::ItemFn { attrs, vis, sig, block } = &item_fn;
@@ -48,7 +50,7 @@ fn generate_code(
         ..
     } = &sig;
 
-    let FnArgs { call_args, type_args, self_type, cast_self } = create_fn_args(fn_inputs, variadic);
+    let FnArgs { type_args, self_type, .. } = create_fn_args(fn_inputs, variadic);
 
     let fn_type = quote::quote! { #constness #asyncness #unsafety #abi fn #generics (#self_type #type_args) #fn_output };
 
@@ -60,49 +62,49 @@ fn generate_code(
     #[cfg(not(feature = "tracing"))]
     let database_err_log = quote::quote! {};
 
-    #[cfg(feature = "tracing")]
-    let ptr_err_log = quote::quote! {
-        #crate_root_name::__private::tracing::error!(
-            "Resolved Address, but no permission permission to access this address: {:#?} (se_id: {}, ae_id: {}, vr_id: {})",
-            fn_ptr.as_ptr(),
-            #se_id,
-            #ae_id,
-            #vr_id
-        );
-    };
-    #[cfg(not(feature = "tracing"))]
-    let ptr_err_log = quote::quote! {};
+    let as_token = TokenStream::from_str(&cast_as)?;
+    let default = TokenStream::from_str(&default)?;
 
-    quote::quote! {
+    Ok(quote::quote! {
         #(#attrs)*
+        #[allow(clippy::unnecessary_map_or)]
         #[allow(clippy::use_self)]
         #fn_sig {
-            #(#stmts)*
-
             /// Function signature for self.
             /// `self` is automatically `this: *const ()`, `this: *mut ()`, etc..
             ///
             /// This is created because Rust does not have a function equivalent to `decltype(T)` in C++.
             type SelfSignature = #fn_type;
+            /// Casted type.
+            type AsType = #as_token;
 
             {
-                static FUNC: std::sync::LazyLock<SelfSignature> = std::sync::LazyLock::new(|| {
-                    use core::ptr::NonNull;
+                static ADDRESS: #crate_root_name::__private::OnceCell<#crate_root_name::__private::Unique<::core::ffi::c_void>> =
+                    #crate_root_name::__private::OnceCell::new();
+                ADDRESS
+                    .get_or_try_init(|| {
+                        use #crate_root_name::__private::Unique;
+                        use #crate_root_name::rel::id::RelocationID;
+                        use #crate_root_name::rel::ResolvableAddress as _;
 
-                    use #crate_root_name::rel::id::RelocationID;
-                    use #crate_root_name::rel::ResolvableAddress as _;
+                        let address = match RelocationID::new(#se_id, #ae_id, #vr_id).address() {
+                            Ok(addr) => addr,
+                            Err(err) => {
+                                #database_err_log
+                                return Err(err);
+                            }
+                        };
 
-                    let fn_ptr = RelocationID::new(#se_id, #ae_id, #vr_id).address().unwrap_or_else(|err| {
-                        #database_err_log;
-                        panic!("Failed to resolve address: {err}");
-                    });
-                    if !#crate_root_name::rex::win32::is_valid_range(fn_ptr.as_ptr().cast(), core::mem::size_of::<usize>()) {
-                        #ptr_err_log;
-                    }
-                    unsafe { core::mem::transmute::<NonNull<core::ffi::c_void>, SelfSignature>(fn_ptr) }
-                });
-                FUNC(#cast_self #call_args)
+                        unsafe { Ok(Unique::new_unchecked(address.as_ptr())) }
+                    })
+                    .ok()
+                    .map(|v| unsafe {
+                        let ptr: *mut AsType = core::mem::transmute(v.as_ptr());
+                        let ptr = ptr.read_unaligned();
+                        ptr
+                    })
+                    .map_or(#default, #(#stmts)*) // intended stmts: `|ptr| unsafe { ptr.read_unaligned() }`
             }
         }
-    }
+    })
 }

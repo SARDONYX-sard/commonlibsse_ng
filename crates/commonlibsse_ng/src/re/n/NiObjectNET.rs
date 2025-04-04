@@ -4,6 +4,7 @@ use crate::re::NiSmartPointer::NiPointer;
 use crate::re::{NiExtraData, NiTimeController};
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct NiObjectNET {
     pub __base: NiObject, // Inherit from NiObject
     pub name: BSFixedString,

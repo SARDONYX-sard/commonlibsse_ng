@@ -344,6 +344,7 @@ dependencies = [
  "commonlibsse_ng_derive_internal",
  "dashmap",
  "generic-array 1.2.0",
+ "once_cell",
  "pretty_assertions",
  "retour",
  "shared_rwlock",
@@ -1361,9 +1362,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.20.3"
+version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "945462a4b81e43c4e3ba96bd7b49d834c6f61198356aa858733bc4acf3cbe62e"
+checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "openssl"

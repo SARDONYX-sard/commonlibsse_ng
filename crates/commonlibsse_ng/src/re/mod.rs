@@ -75,6 +75,7 @@ pub enum ITEM_REMOVE_REASON {
 }
 pub struct ObjectHandle;
 pub struct NiExtraData;
+#[derive(Debug)]
 pub struct NiTimeController;
 
 impl NiSmartPointer::RefCountable for NiTimeController {
@@ -234,6 +235,7 @@ pub struct TrapEntry;
 #[repr(C)]
 pub struct TargetEntry;
 #[repr(C)]
+#[derive(Debug)]
 pub struct BipedAnim;
 impl BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for BipedAnim {
     fn inc_ref(&self) -> u32 {
@@ -339,3 +341,31 @@ pub struct UserEventEnabledEvent;
 #[repr(C)]
 #[derive(Debug)]
 pub struct TESObjectWEAP;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct TESRace;
+#[repr(C)]
+#[derive(Debug)]
+pub struct MagicItem;
+#[repr(C)]
+#[derive(Debug)]
+pub struct BGSTextureSet;
+#[repr(C)]
+#[derive(Debug)]
+pub struct BSLight;
+impl crate::re::NiSmartPointer::RefCountable for BSLight {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
+#[repr(C)]
+#[derive(Debug)]
+pub struct CombatGroup;
+#[repr(C)]
+#[derive(Debug)]
+pub struct TESClass;

@@ -8,6 +8,8 @@ use core::ffi::c_void;
 use core::hash::Hasher;
 use core::marker::PhantomData;
 
+#[repr(C)]
+#[derive(Debug)]
 pub struct BSTHashMap<K, V> {
     key: core::marker::PhantomData<K>,
     value: core::marker::PhantomData<V>,

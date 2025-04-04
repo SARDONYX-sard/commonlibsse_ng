@@ -3,6 +3,79 @@
 
 use proc_macro::TokenStream;
 
+/// Relocates a address using Skyrim runtime-specific relocation IDs.
+///
+/// The `#[relocate]` attribute macro enables dynamic resolution of a pointer using relocation
+/// IDs for Skyrim Special Edition (SE), Anniversary Edition (AE), and optionally VR. It injects code
+/// to resolve the address at runtime and execute user-provided logic through a closure, passing the
+/// resolved pointer as an argument.
+///
+/// # Attributes
+///
+/// | Attribute    | Type      | Required | Description                                                               |
+/// |--------------|-----------|----------|---------------------------------------------------------------------------|
+/// | `cast_as`    | `&str`    | Yes      | The type to cast the resolved pointer to (e.g., `"bool"`).                |
+/// | `default`    | `&str`    | Yes      | The fallback value returned if resolution fails (e.g., `"false"`).        |
+/// | `id.se`      | `u64`     | Yes      | Relocation ID for Skyrim Special Edition.                                 |
+/// | `id.ae`      | `u64`     | Yes      | Relocation ID for Skyrim Anniversary Edition.                             |
+/// | `id.vr`      | `u64`     | No       | Relocation ID for Skyrim VR. Defaults to `se` if omitted.                 |
+///
+/// # Function Body
+///
+/// The body must be a single closure of the form:
+///
+/// ```rust
+/// |ptr: AsType| { ... }
+/// ```
+///
+/// where `AsType` is the dereferenced value of the casted pointer.
+/// This closure will only be called if the relocation address is resolved successfully.
+///
+/// If resolution fails, the `default` value will be returned instead (after parsing the literal).
+///
+/// # Example
+///
+/// ```rust
+/// #[relocate(
+///     cast_as = "bool",
+///     default = "false",
+///     id(se = 517711, ae = 404238)
+/// )]
+/// pub fn is_god_mode() -> bool {
+///     |ptr: bool| ptr
+/// }
+/// ```
+///
+/// In this case, the macro will:
+/// - Resolve the relocation address by using the given `se`/`ae` ID.
+/// - Cast it to `*mut bool`, dereference it, and pass the value into the closure.
+/// - If resolution fails, return `false`.
+///
+/// # Notes
+///
+/// - The macro requires `once_cell`, `Unique`, and `rel::ResolvableAddress` system to work.
+/// - You must ensure the type provided in `cast_as` is safe to dereference.
+/// - This pattern encourages a declarative and readable way to define relocation logic without
+///   repetitive boilerplate.
+/// - `SelfSignature`: Function signature for self. like C++ `decltype(T)`
+///
+/// # See Also
+///
+/// - `#[relocate_fn]` if you want to relocate and *call* a function with arguments instead of
+///   resolving and evaluating a pointer.
+#[proc_macro_attribute]
+pub fn relocate(attrs: TokenStream, item: TokenStream) -> TokenStream {
+    let item_fn = syn::parse_macro_input!(item as syn::ItemFn);
+    let crate_root_name = quote::quote! { crate };
+
+    commonlibsse_ng_proc_macro_common::relocate::gen_relocate(
+        attrs.into(),
+        item_fn,
+        crate_root_name,
+    )
+    .into()
+}
+
 /// `relocate_fn` is a procedural macro used to generate a relocated function in Rust.
 /// It allows you to specify function relocation IDs (`se_id`, `ae_id`, and `vr_id`) to relocate a function at runtime.
 /// This macro generates code that attempts to resolve a function's address based on the provided IDs,
