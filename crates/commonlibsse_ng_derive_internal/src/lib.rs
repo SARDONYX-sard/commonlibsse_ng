@@ -181,9 +181,86 @@ pub fn ffi_enum(attrs: TokenStream, item: TokenStream) -> TokenStream {
     commonlibsse_ng_proc_macro_common::ffi_enum::ffi_enum(attrs.into(), item_enum).into()
 }
 
-/// This is a convenience macro for those who wish to use bitflags without changing the existing enum notation.
+/// Converts a regular `enum` into a `bitflags`-compatible type using its variant values.
+///
+/// The `#[to_bitflags]` attribute macro transforms a plain Rust `enum` definition into a [`bitflags`] struct,
+/// while keeping the original enum syntax intact. This is particularly useful when you want to use bitflags
+/// functionality without switching to a `bitflags!` macro or changing enum semantics.
+///
+/// # Syntax
+///
+/// ```rust
+/// #[commonlibsse_ng_derive_internal::to_bitflags]
+/// #[derive(Default)]
+/// pub enum MyFlags {
+///     A = 0b0001,
+///     B = 0b0010,
+///     C = 0b0100,
+///
+///     #[default] // Optional, sets the default bitflags (requires `#[derive(Default)]`)
+///     None = 0,
+/// }
+/// ```
+///
+/// Optionally, you can specify the output type name using the `fn_name` parameter:
+///
+/// ```rust
+/// #[commonlibsse_ng_derive_internal::to_bitflags(fn_name = "MyFlagsBits")]
+/// pub enum MyFlags {
+///     A = 1,
+///     B = 2,
+/// }
+/// ```
+///
+/// # Attributes
+///
+/// | Attribute    | Type      | Required | Description                                                                    |
+/// |--------------|-----------|----------|--------------------------------------------------------------------------------|
+/// | `fn_name`    | `&str`    | No       | The name of the generated `bitflags` struct. Defaults to the enum name. |
+///
+/// # Features
+///
+/// - Automatically implements `bitflags!` for the enum using its variant values.
+/// - Honors `#[default]` on a variant if `#[derive(Default)]` is also used.
+/// - Avoids the need to rewrite your enum as a `bitflags!` block.
+/// - Works with enums using `explicit discriminant values`.
+///
+/// # Example
+///
+/// ```rust
+/// #[commonlibsse_ng_derive_internal::to_bitflags]
+/// #[derive(Default)]
+/// pub enum RenderFlags {
+///     Alpha = 0b0001,
+///     Depth = 0b0010,
+///     Stencil = 0b0100,
+///
+///     #[default]
+///     None = 0,
+/// }
+///
+/// let flags = RenderFlags::ALPHA | RenderFlags::DEPTH;
+/// assert!(flags.contains(RenderFlags::ALPHA));
+/// ```
+///
+/// # Notes
+///
+/// - The macro expects all enum variants to have constant discriminant values (e.g., integers or const exprs).
+/// - The original `enum` is preserved in the output (i.e., not removed or renamed).
+///
+/// # Dependencies
+///
+/// - `#[derive(Default)]` and `#[default]` can be used to control the default value of the generated flag struct.
+///
+/// [`bitflags`]: https://docs.rs/bitflags
 #[proc_macro_attribute]
 pub fn to_bitflags(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let item_enum = syn::parse_macro_input!(item as syn::ItemEnum);
-    commonlibsse_ng_proc_macro_common::to_bitflags::to_bitflags(attrs.into(), item_enum).into()
+    let crate_root_name = quote::quote! { crate };
+    commonlibsse_ng_proc_macro_common::to_bitflags::to_bitflags(
+        attrs.into(),
+        item_enum,
+        crate_root_name,
+    )
+    .into()
 }

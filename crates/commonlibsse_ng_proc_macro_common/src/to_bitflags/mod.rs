@@ -12,7 +12,11 @@ use crate::{
     ffi_enum::attr_args,
 };
 
-pub fn to_bitflags(attrs: TokenStream, item_enum: ItemEnum) -> TokenStream {
+pub fn to_bitflags(
+    attrs: TokenStream,
+    item_enum: ItemEnum,
+    crate_root_name: TokenStream,
+) -> TokenStream {
     let args = {
         let attr_args = match darling::ast::NestedMeta::parse_meta_list(attrs) {
             Ok(v) => v,
@@ -28,10 +32,15 @@ pub fn to_bitflags(attrs: TokenStream, item_enum: ItemEnum) -> TokenStream {
             }
         }
     };
-    to_bitflags_inner(args, item_enum).unwrap_or_else(syn::Error::into_compile_error)
+    to_bitflags_inner(args, item_enum, crate_root_name)
+        .unwrap_or_else(syn::Error::into_compile_error)
 }
 
-fn to_bitflags_inner(_args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<TokenStream> {
+fn to_bitflags_inner(
+    _args: attr_args::MacroArgs,
+    item_enum: ItemEnum,
+    crate_root_name: TokenStream,
+) -> syn::Result<TokenStream> {
     let enum_ident = &item_enum.ident;
     let vis = &item_enum.vis;
 
@@ -47,7 +56,7 @@ fn to_bitflags_inner(_args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::R
     let docs = format!("- size type: [`{bitflags_type}`]");
 
     let expanded = quote! {
-        bitflags::bitflags! {
+        #crate_root_name::__private::bitflags::bitflags! {
             #(#others_attr)*
             ///
             #[doc = #docs]
