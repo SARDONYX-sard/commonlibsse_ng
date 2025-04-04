@@ -68,7 +68,7 @@ impl Drop for ScrapHeap {
 
         if let Err(_err) = unsafe { VirtualFree(self.baseAddress, 0, MEM_RELEASE) } {
             #[cfg(feature = "tracing")]
-            tracing::error!("Failed `VirtualFree`: {_err}")
+            tracing::error!("Failed `VirtualFree`: {_err}");
         };
     }
 }

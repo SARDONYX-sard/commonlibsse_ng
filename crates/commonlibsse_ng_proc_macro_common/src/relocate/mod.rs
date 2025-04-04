@@ -55,7 +55,8 @@ fn generate_code(
     let fn_type = quote::quote! { #constness #asyncness #unsafety #abi fn #generics (#self_type #type_args) #fn_output };
 
     let fn_sig = quote::quote! { #vis #constness #asyncness #unsafety #abi fn #ident #generics (#fn_inputs) #fn_output };
-    let stmts = &block.stmts;
+    let closure = extract_closure_expr(block)?;
+    let body = &closure.body;
 
     #[cfg(feature = "tracing")]
     let database_err_log = quote::quote! { #crate_root_name::__private::tracing::error!("[Critical Error] Failed to resolve address: {err}") };
@@ -90,7 +91,7 @@ fn generate_code(
                         let address = match RelocationID::new(#se_id, #ae_id, #vr_id).address() {
                             Ok(addr) => addr,
                             Err(err) => {
-                                #database_err_log
+                                #database_err_log;
                                 return Err(err);
                             }
                         };
@@ -103,8 +104,27 @@ fn generate_code(
                         let ptr = ptr.read_unaligned();
                         ptr
                     })
-                    .map_or(#default, #(#stmts)*) // intended stmts: `|ptr| unsafe { ptr.read_unaligned() }`
+                    .map_or(#default, |as_type| { #body }) // intended stmts: `|ptr| unsafe { ptr.read_unaligned() }`
             }
         }
     })
+}
+
+fn extract_closure_expr(block: &syn::Block) -> syn::Result<&syn::ExprClosure> {
+    use syn::{Expr, Stmt};
+
+    if block.stmts.len() != 1 {
+        return Err(syn::Error::new_spanned(
+            block,
+            "expected a single closure expression inside the function body",
+        ));
+    }
+
+    match &block.stmts[0] {
+        Stmt::Expr(Expr::Closure(closure), _) => Ok(closure),
+        Stmt::Expr(expr, _) => {
+            Err(syn::Error::new_spanned(expr, "expected a closure expression like `|x| x`"))
+        }
+        stmt => Err(syn::Error::new_spanned(stmt, "expected an expression statement (closure)")),
+    }
 }
