@@ -36,7 +36,7 @@ use proc_macro::TokenStream;
 /// # Example
 ///
 /// ```rust
-/// #[relocate(
+/// #[commonlibsse_ng_derive_internal::relocate(
 ///     cast_as = "bool",
 ///     default = "false",
 ///     id(se = 517711, ae = 404238)
@@ -97,7 +97,7 @@ pub fn relocate(attrs: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// # Example
 /// ```rust:no_compile
-/// #[commonlibsse_ng_internal::relocate_fn(se_id = 1, ae_id = 2, vr_id = 3)]
+/// #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 1, ae_id = 2, vr_id = 3)]
 /// fn my_function(arg1: usize, arg2: usize) -> bool {
 ///     tracing::info("arg1 = {arg1}, arg2 = {arg2}"); // We can sandwich the process before that.
 ///
