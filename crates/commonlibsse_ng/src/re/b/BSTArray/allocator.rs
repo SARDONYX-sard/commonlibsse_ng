@@ -4,6 +4,7 @@ mod scrap;
 mod small_heap;
 
 pub use self::heap::BSTArrayHeapAllocator;
+pub use self::rust_global::RustAllocator;
 pub use self::scrap::BSScrapArrayAllocator;
 pub use self::small_heap::BSTSmallArrayHeapAllocator;
 

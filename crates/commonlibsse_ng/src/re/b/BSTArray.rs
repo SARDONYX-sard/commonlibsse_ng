@@ -8,6 +8,7 @@ use core::slice;
 pub use self::BSTArrayInner::BSTArray;
 pub use self::allocator::{
     Allocator, BSScrapArrayAllocator, BSTArrayHeapAllocator, BSTSmallArrayHeapAllocator,
+    RustAllocator,
 };
 
 ///Use stack while within the specified size, and use heap if it is larger.
