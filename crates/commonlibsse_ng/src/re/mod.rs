@@ -338,8 +338,4 @@ pub struct BGSActorDeathEvent;
 pub struct UserEventEnabledEvent;
 #[repr(C)]
 #[derive(Debug)]
-pub struct bhkMouseSpringAction;
-impl crate::re::hkRefPtr::hkRefPtrCounted for bhkMouseSpringAction {}
-#[repr(C)]
-#[derive(Debug)]
 pub struct TESObjectWEAP;

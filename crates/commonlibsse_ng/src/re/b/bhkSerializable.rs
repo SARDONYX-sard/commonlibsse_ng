@@ -6,15 +6,13 @@
 
 use core::ffi::c_void;
 
-use crate::re::bhkRefObject::bhkRefObject;
+use crate::re::bhkRefObject::{bhkRefObject, bhkRefObjectVtbl};
 use crate::re::bhkWorld::bhkWorld;
 use crate::re::offsets_ni_rtti::NiRTTI_bhkSerializable;
 use crate::re::offsets_rtti::RTTI_bhkSerializable;
 use crate::re::offsets_vtable::VTABLE_bhkSerializable;
 use crate::re::{ahkpWorld, hkpWorld};
 use crate::rel::id::VariantID;
-
-use super::bhkRefObject::bhkRefObjectVtbl;
 
 /// Represents a serializable object in the physics world.
 /// Inherits from `bhkRefObject`.
@@ -24,6 +22,7 @@ use super::bhkRefObject::bhkRefObjectVtbl;
 /// - `serializable`: Pointer to another `bhkSerializable`
 ///
 #[repr(C)]
+#[derive(Debug)]
 pub struct bhkSerializable {
     /// Base class `bhkRefObject`.
     pub __base: bhkRefObject,

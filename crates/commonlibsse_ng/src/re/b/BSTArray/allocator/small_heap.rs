@@ -165,3 +165,9 @@ union Data<const N: usize> {
     // Fixed-size array for local (stack) storage.
     local: [u8; N],
 }
+
+const _: () = {
+    const SIZE_: usize = core::mem::size_of::<Data<12>>();
+    const SIZE: usize = core::mem::size_of::<[u8; 8]>();
+    assert!(SIZE == 0x8);
+};

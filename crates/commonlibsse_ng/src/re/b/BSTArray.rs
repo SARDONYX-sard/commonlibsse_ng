@@ -18,7 +18,7 @@ pub use self::allocator::{
 ///
 /// - [`smallvec` crate](https://crates.io/crates/smallvec)
 pub type BSTSmallArray<T, const N: usize = 1> = BSTArray<T, BSTSmallArrayHeapAllocator<N>>;
-const _: () = assert!(core::mem::size_of::<BSTSmallArray<u8>>() == 0x18);
+const _: () = assert!(core::mem::size_of::<BSTSmallArray<u8, 8>>() == 0x18);
 
 pub type BSScrapArray<T> = BSTArray<T, BSScrapArrayAllocator>;
 const _: () = assert!(core::mem::size_of::<BSScrapArray<u8>>() == 0x20);

@@ -23,6 +23,7 @@ enum RecordFlag {
 pub struct Character {
     pub __base: Actor,
 }
+const _: () = assert!(core::mem::size_of::<Character>() == 0x78);
 
 impl Character {
     /// Address & offset of the runtime type information (RTTI) identifier.

@@ -15,10 +15,11 @@ use crate::re::TESObjectCELL::TESObjectCELL;
 use crate::re::TESTrackedStatsEvent::TESTrackedStatsEvent;
 use crate::re::TESWorldSpace::TESWorldSpace;
 use crate::re::UserEventEnabledEvent;
+use crate::re::bhkMouseSpringAction::bhkMouseSpringAction;
 use crate::re::hkRefPtr::hkRefPtr;
 use crate::re::offsets_rtti::RTTI_PlayerCharacter;
 use crate::re::offsets_vtable::VTABLE_PlayerCharacter;
-use crate::re::{BGSActorDeathEvent, TESObjectWEAP, bhkMouseSpringAction};
+use crate::re::{BGSActorDeathEvent, TESObjectWEAP};
 use crate::rel::id::VariantID;
 
 #[commonlibsse_ng_derive_internal::to_bitflags]
@@ -169,18 +170,30 @@ pub enum ByCharGenFlag {
 #[repr(C)]
 #[derive(Debug)]
 pub struct GrabData {
-    grabSpring: BSTSmallArray<hkRefPtr<bhkMouseSpringAction>, 4>,
+    /// - `0x8(hkRefPtr) * 4(N) = 32 = 0x20`
+    grabSpring: BSTSmallArray<hkRefPtr<bhkMouseSpringAction>, 0x20>,
     grabbedObject: ObjectRefHandle,
     grabObjectWeight: f32,
     grabDistance: f32,
     unk004: f32,
     unk008: u64,
 }
+const _: () = {
+    assert!(core::mem::offset_of!(GrabData, grabSpring) == 0x0);
+    assert!(core::mem::offset_of!(GrabData, grabbedObject) == 0x30);
+    assert!(core::mem::offset_of!(GrabData, grabObjectWeight) == 0x34);
+    assert!(core::mem::offset_of!(GrabData, grabDistance) == 0x38);
+    assert!(core::mem::offset_of!(GrabData, unk004) == 0x3c);
+    assert!(core::mem::offset_of!(GrabData, unk008) == 0x40);
+
+    assert!(core::mem::size_of::<GrabData>() == 0x48);
+};
 
 #[repr(C)]
 #[derive(Debug)]
 pub struct VRGrabData {
-    grabSpring: BSTSmallArray<hkRefPtr<bhkMouseSpringAction>, 4>,
+    /// - `0x8(hkRefPtr) * 4(N) = 32 = 0x20`
+    grabSpring: BSTSmallArray<hkRefPtr<bhkMouseSpringAction>, 0x20>,
     grabbedObject: ObjectRefHandle,
     grabObjectWeight: f32,
     grabType: GrabbingType,

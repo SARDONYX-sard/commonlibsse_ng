@@ -218,6 +218,7 @@ where
     /// array.push(5);
     /// assert_eq!(array[0], 5);
     /// ```
+    #[inline]
     pub fn push(&mut self, value: T) {
         let size = self.__base1.size;
         if size == self.__base.capacity() {
@@ -241,6 +242,7 @@ where
     /// assert_eq!(array.pop(), Some(1));
     /// assert_eq!(array.pop(), None);
     /// ```
+    #[inline]
     pub fn pop(&mut self) -> Option<T> {
         let len = self.len();
         if len == 0 {
@@ -430,6 +432,7 @@ where
     /// assert_eq!(array.len(), 5);
     /// assert_eq!(array[3], 0);
     /// ```
+    #[inline]
     pub fn resize(&mut self, new_size: usize, value: T)
     where
         T: Clone,
