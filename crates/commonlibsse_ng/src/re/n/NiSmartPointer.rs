@@ -64,12 +64,12 @@ impl<T: RefCountable> NiPointer<T> {
     }
 
     #[inline]
-    pub fn as_ref(&self) -> Option<&T> {
+    pub fn as_ref<'a>(&self) -> Option<&'a T> {
         self.ptr.as_ref().map(|ptr| unsafe { ptr.as_ref() })
     }
 
     #[inline]
-    pub fn as_mut(&mut self) -> Option<&mut T> {
+    pub fn as_mut<'a>(&mut self) -> Option<&'a mut T> {
         self.ptr.as_mut().map(|ptr| unsafe { ptr.as_mut() })
     }
 }
