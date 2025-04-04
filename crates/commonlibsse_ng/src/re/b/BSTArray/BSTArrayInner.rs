@@ -2,7 +2,8 @@ use core::{
     ffi::c_void,
     marker::PhantomData,
     ops::{Index, IndexMut, Range, RangeBounds},
-    ptr, slice,
+    ptr::{self, NonNull},
+    slice,
 };
 
 use crate::re::BSTArray::{BSTArrayHeapAllocator, allocator::Allocator};
@@ -135,7 +136,7 @@ where
         let capacity = capacity as u32;
         Self::set_allocator_traits(&mut allocator, new_data, capacity);
 
-        Self { __base: allocator, __base1: BSTArrayBase::with_size(capacity), _marker: PhantomData }
+        Self { __base: allocator, __base1: BSTArrayBase::new(), _marker: PhantomData }
     }
 
     /// Returns the number of elements in the array.
@@ -195,7 +196,7 @@ where
     ///
     /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
-    /// assert_eq!(array.len(), 11);
+    /// assert_eq!(array.len(), 1);
     /// array.shrink_to_fit();
     /// assert!(array.capacity() >= array.len());
     /// ```
@@ -225,7 +226,7 @@ where
             self.grow();
         }
         unsafe {
-            self.__base.as_mut_ptr().add(size as usize).cast::<T>().write(value);
+            self.as_mut_ptr().add(size as usize).write(value);
         }
 
         self.__base1.size += 1;
@@ -249,7 +250,7 @@ where
             None
         } else {
             self.__base1.size -= 1;
-            unsafe { Some(ptr::read(self.as_ptr().add(len))) }
+            unsafe { Some(ptr::read(self.as_ptr().add(len - 1))) }
         }
     }
 
@@ -302,6 +303,7 @@ where
     /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
+    /// assert_eq!(array.len(), 2);
     /// array.clear();
     /// assert_eq!(array.len(), 0);
     /// assert_eq!(array.capacity(), 10); // Capacity is preserved
@@ -464,10 +466,18 @@ where
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
+    /// array.push(4);
+    /// array.push(5);
     /// let drained = array.drain(0..2);
     /// assert_eq!(drained.collect::<Vec<_>>(), vec![1, 2]);
-    /// assert_eq!(array.len(), 1);
+    /// assert_eq!(array.len(), 3);
+    /// assert_eq!(array[0], 3);
+    /// assert_eq!(array[1], 4);
+    /// assert_eq!(array[2], 5);
     /// ```
+    ///
+    /// # Panics
+    /// Panics if the range is out of bounds.
     #[inline]
     pub fn drain<R>(&mut self, range: R) -> BSTDrain<'_, T, A>
     where
@@ -475,11 +485,19 @@ where
     {
         let len = self.len();
         let Range { start, end } = stdx::range(range, ..len);
+        debug_assert!(start <= end);
+        debug_assert!(end <= len);
 
-        unsafe {
-            self.__base1.size = start as u32;
-            let range_slice = slice::from_raw_parts(self.as_ptr().add(start), end - start);
-            BSTDrain { array: self, index: start, range: range_slice.iter() }
+        // Need this.
+        // If the size is not changed before creating iter for Drain, inconsistencies will occur.
+        self.__base1.size = start as u32;
+
+        BSTDrain {
+            iter: unsafe { core::slice::from_raw_parts(self.as_ptr().add(start), end - start) }
+                .iter(),
+            tail_start: end,
+            tail_len: len - end,
+            array: unsafe { NonNull::new_unchecked(self as *mut Self) },
         }
     }
 
@@ -577,18 +595,19 @@ where
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Iterator
+
 /// Iterator returned by `BSTArray::drain()`
 pub struct BSTDrain<'a, T, A>
 where
     A: Allocator,
 {
-    array: &'a mut BSTArray<T, A>,
-    index: usize,
-    range: core::slice::Iter<'a, T>,
+    tail_start: usize, // = range.end
+    tail_len: usize,   // = original_len - range.end
+    iter: core::slice::Iter<'a, T>,
+    array: NonNull<BSTArray<T, A>>,
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Iterator
 
 impl<T, A> Iterator for BSTDrain<'_, T, A>
 where
@@ -596,12 +615,63 @@ where
 {
     type Item = T;
 
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        self.range.next().map(|_| {
-            let item = unsafe { ptr::read(self.array.as_ptr().add(self.index)) };
-            self.index += 1;
-            item
-        })
+        self.iter.next().map(|item| unsafe { ptr::read(item) })
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<T, A> DoubleEndedIterator for BSTDrain<'_, T, A>
+where
+    A: Allocator,
+{
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back().map(|item| unsafe { ptr::read(item) })
+    }
+}
+
+impl<T, A> ExactSizeIterator for BSTDrain<'_, T, A>
+where
+    A: Allocator,
+{
+    #[inline]
+    fn len(&self) -> usize {
+        self.iter.len()
+    }
+}
+
+impl<T, A: Allocator> Drop for BSTDrain<'_, T, A> {
+    fn drop(&mut self) {
+        // Copyright (c) 2018 The Servo Project Developers
+        // SPDX-License-Identifier: Apache-2.0 OR MIT
+        // https://github.com/servo/rust-smallvec/blob/v2/src/lib.rs#L3
+
+        if core::mem::needs_drop::<T>() {
+            self.for_each(drop);
+        }
+
+        // Copy backward data not subject to drain to the drained start location
+        if self.tail_len > 0 {
+            unsafe {
+                let array = self.array.as_mut();
+
+                let start = array.len();
+                let tail = self.tail_start;
+                if tail != start {
+                    let ptr = array.as_mut_ptr();
+                    let src = ptr.add(tail);
+                    let dst = ptr.add(start);
+                    ptr::copy(src, dst, self.tail_len);
+                }
+                array.__base1.size = (start + self.tail_len) as u32;
+            }
+        }
     }
 }
 
@@ -725,8 +795,30 @@ where
     T: PartialEq,
     A: Allocator,
 {
+    #[inline]
     fn eq(&self, other: &Self) -> bool {
         self.as_slice() == other.as_slice()
+    }
+}
+impl<T, A> PartialEq<Vec<T>> for BSTArray<T, A>
+where
+    T: PartialEq,
+    A: Allocator,
+{
+    #[inline]
+    fn eq(&self, other: &Vec<T>) -> bool {
+        self.as_slice() == *other
+    }
+}
+
+impl<T, A> PartialEq<&[T]> for BSTArray<T, A>
+where
+    T: PartialEq,
+    A: Allocator,
+{
+    #[inline]
+    fn eq(&self, other: &&[T]) -> bool {
+        self.as_slice() == *other
     }
 }
 
@@ -742,6 +834,7 @@ where
     T: PartialOrd,
     A: Allocator,
 {
+    #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         self.as_slice().partial_cmp(other.as_slice())
     }
@@ -752,6 +845,7 @@ where
     T: Ord,
     A: Allocator,
 {
+    #[inline]
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         self.as_slice().cmp(other.as_slice())
     }
@@ -762,9 +856,36 @@ where
     T: core::hash::Hash,
     A: Allocator,
 {
+    #[inline]
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.as_slice().hash(state);
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::re::BSTArray::RustAllocator;
+
+    #[test]
+    fn test_drain() {
+        let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+        array.push(1);
+        array.push(2);
+        array.push(3);
+        array.push(4);
+        array.push(5);
+
+        let drained = array.drain(1..3);
+        // for i in drained {
+        //     println!("{:?}", i);
+        // }
+        assert_eq!(drained.collect::<Vec<_>>(), vec![2, 3]);
+        assert_eq!(array.len(), 3);
+        assert_eq!(array[0], 1);
+        assert_eq!(array[1], 4);
+        assert_eq!(array[2], 5);
+    }
+}
