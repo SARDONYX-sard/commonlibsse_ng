@@ -37,8 +37,8 @@ impl BSTArrayBase {
 
 /// A binary-compatible, growable array used in Havok serialization.
 ///
-/// `hkArray<T, A>` is a contiguous, heap-allocated collection of elements of type `T`
-/// with memory layout designed to match Havok's native `hkArray`. This type is similar
+/// `BSTArray<T, A>` is a contiguous, heap-allocated collection of elements of type `T`
+/// with memory layout designed to match Havok's native `BSTArray`. This type is similar
 /// to [`Vec<T>`] in usage but may differ in layout due to alignment, padding, or
 /// platform-specific serialization constraints.
 ///
@@ -53,7 +53,7 @@ impl BSTArrayBase {
 ///
 /// # Features
 ///
-/// - Compatible with Havok's binary layout for `hkArray<T>`
+/// - Compatible with Havok's binary layout for `BSTArray<T>`
 /// - Supports growable or fixed-capacity semantics
 /// - Custom allocator support (`A: Allocator`)
 /// - Methods similar to `Vec<T>`
@@ -77,7 +77,7 @@ impl BSTArrayBase {
 /// ```rust
 /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
 ///
-/// let mut array = hkArray::<i32, RustAllocator>::new();
+/// let mut array = BSTArray::<i32, RustAllocator>::new();
 /// array.push(1);
 /// array.push(2);
 /// assert_eq!(array.len(), 2);
@@ -88,7 +88,7 @@ impl BSTArrayBase {
 ///
 /// - [`Vec<T>`]
 /// - [`Box<[T]>`]
-/// - Havok documentation for `hkArray<T>` layout.
+/// - Havok documentation for `BSTArray<T>` layout.
 #[repr(C)]
 pub struct BSTArray<T, A = BSTArrayHeapAllocator>
 where
@@ -104,7 +104,7 @@ impl<T, A> BSTArray<T, A>
 where
     A: Allocator,
 {
-    /// Creates a new, empty `hkArray<T, A>` with the specified allocator.
+    /// Creates a new, empty `BSTArray<T, A>` with the specified allocator.
     ///
     /// The array will not allocate until elements are pushed.
     ///
@@ -112,20 +112,20 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let array = hkArray::<i32, RustAllocator>::new();
+    /// let array = BSTArray::<i32, RustAllocator>::new();
     /// assert!(array.is_empty());
     /// ```
     pub fn new() -> Self {
         Self { __base: A::new(), __base1: BSTArrayBase::new(), _marker: PhantomData }
     }
 
-    /// Creates a new, empty `hkArray<T, A>` with the capacity.
+    /// Creates a new, empty `BSTArray<T, A>` with the capacity.
     ///
     /// # Example
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let array = hkArray::<i32, RustAllocator>::with_capacity(5);
+    /// let array = BSTArray::<i32, RustAllocator>::with_capacity(5);
     /// assert_eq!(array.capacity(), 5);
     /// ```
     pub fn with_capacity(capacity: usize) -> Self {
@@ -146,7 +146,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let array = hkArray::<i32, RustAllocator>::new();
+    /// let array = BSTArray::<i32, RustAllocator>::new();
     /// assert_eq!(array.len(), 0);
     /// ```
     #[inline]
@@ -160,7 +160,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let array = hkArray::<i32, RustAllocator>::new();
+    /// let array = BSTArray::<i32, RustAllocator>::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
@@ -176,7 +176,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// assert!(array.capacity() >= 10);
     /// ```
     #[inline]
@@ -193,7 +193,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
     /// assert_eq!(array.len(), 11);
     /// array.shrink_to_fit();
@@ -214,7 +214,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// let mut array = BSTArray::<i32, RustAllocator>::new();
     /// array.push(5);
     /// assert_eq!(array[0], 5);
     /// ```
@@ -237,7 +237,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// let mut array = BSTArray::<i32, RustAllocator>::new();
     /// array.push(1);
     /// assert_eq!(array.pop(), Some(1));
     /// assert_eq!(array.pop(), None);
@@ -259,7 +259,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// let mut array = BSTArray::<i32, RustAllocator>::new();
     /// array.push(42);
     /// assert_eq!(array.get(0), Some(&42));
     /// assert_eq!(array.get(1), None);
@@ -278,7 +278,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// let mut array = BSTArray::<i32, RustAllocator>::new();
     /// array.push(10);
     /// if let Some(x) = array.get_mut(0) {
     ///     *x += 1;
@@ -299,7 +299,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.clear();
@@ -342,7 +342,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert!(array.contains(&1));
@@ -374,7 +374,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -425,7 +425,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.resize(5, 0);
@@ -460,7 +460,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -504,7 +504,7 @@ where
     /// ```
     /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// let sum: i32 = array.iter().sum();
