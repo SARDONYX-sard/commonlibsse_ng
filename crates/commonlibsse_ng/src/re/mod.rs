@@ -7,6 +7,7 @@ mod c;
 mod e;
 mod f;
 mod g;
+mod h;
 mod i;
 mod m;
 mod n;
@@ -32,6 +33,7 @@ pub use self::c::*;
 pub use self::e::*;
 pub use self::f::*;
 pub use self::g::*;
+pub use self::h::*;
 pub use self::i::*;
 pub use self::m::*;
 pub use self::n::*;
@@ -58,13 +60,12 @@ pub struct GFxValue;
 pub struct TesWaterForm;
 
 #[derive(Debug)]
-pub struct BSAnimationGraphEvent;
+pub struct BSTransformDeltaEvent;
 #[derive(Debug)]
-pub struct IAnimationGraphManagerHolder {
-    pub opaque: [u8; 2],
-}
+pub struct BSAnimationGraphEvent;
 
-pub enum ItemRemoveReason {
+#[repr(C)]
+pub enum ITEM_REMOVE_REASON {
     Remove,
     Steal,
     Selling,
@@ -74,6 +75,7 @@ pub enum ItemRemoveReason {
 }
 pub struct ObjectHandle;
 pub struct NiExtraData;
+#[derive(Debug)]
 pub struct NiTimeController;
 
 impl NiSmartPointer::RefCountable for NiTimeController {
@@ -86,6 +88,7 @@ impl NiSmartPointer::RefCountable for NiTimeController {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct NiNode;
 impl NiSmartPointer::RefCountable for NiNode {
     fn inc_ref_count(&self) {
@@ -100,6 +103,7 @@ impl NiSmartPointer::RefCountable for NiNode {
 pub struct NiSwitchNode;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct BSFadeNode;
 impl NiSmartPointer::RefCountable for BSFadeNode {
     fn inc_ref_count(&self) {
@@ -112,6 +116,14 @@ impl NiSmartPointer::RefCountable for BSFadeNode {
 
 #[repr(C)]
 pub struct BSMultiBoundNode;
+impl NiSmartPointer::RefCountable for BSMultiBoundNode {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
 
 #[repr(C)]
 pub struct BSGeometry;
@@ -120,6 +132,7 @@ pub struct BSGeometry;
 pub struct NiTriStrips;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct BSTriShape;
 impl NiSmartPointer::RefCountable for BSTriShape {
     fn inc_ref_count(&self) {
@@ -178,6 +191,7 @@ pub struct bhkCollisionObject;
 
 pub struct BGSLocation;
 pub struct TESFaction;
+#[derive(Debug)]
 pub struct NiBillboardNode;
 impl NiSmartPointer::RefCountable for NiBillboardNode {
     fn inc_ref_count(&self) {
@@ -221,15 +235,137 @@ pub struct TrapEntry;
 #[repr(C)]
 pub struct TargetEntry;
 #[repr(C)]
-pub struct BSAnimationUpdateData;
-#[repr(C)]
+#[derive(Debug)]
 pub struct BipedAnim;
-#[repr(C)]
-pub struct BSTSmartPointer<T>(pub *mut T);
+impl BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for BipedAnim {
+    fn inc_ref(&self) -> u32 {
+        0
+    }
+
+    fn dec_ref(&self) -> u32 {
+        0
+    }
+}
 
 #[repr(C)]
 pub enum MagicSystem {
     CastingSource,
 }
+pub struct BSAnimationGraphManagerPtr;
+pub struct BSAnimationCache;
 
-pub enum ITEM_REMOVE_REASON {}
+#[repr(C)]
+#[derive(Debug)]
+pub struct hkStatisticsCollector;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct hkClass;
+pub struct ahkpWorld;
+pub struct hkpWorld;
+pub struct hkbRagdollDriver;
+impl hkRefPtr::hkRefPtrCounted for hkbRagdollDriver {}
+
+#[derive(Debug, Default)]
+pub struct hkCriticalSection;
+impl hkRefPtr::hkRefPtrCounted for hkCriticalSection {}
+#[derive(Debug)]
+pub struct hkaMirroredSkeleton;
+impl hkRefPtr::hkRefPtrCounted for hkaMirroredSkeleton {}
+#[derive(Debug)]
+pub struct hkaSkeleton;
+impl hkRefPtr::hkRefPtrCounted for hkaSkeleton {}
+#[derive(Debug)]
+pub struct hkaSkeletonMapper;
+impl hkRefPtr::hkRefPtrCounted for hkaSkeletonMapper {}
+
+#[derive(Debug)]
+pub struct hkbAnimationBinding;
+#[derive(Debug)]
+pub struct hkbCharacterData;
+impl hkRefPtr::hkRefPtrCounted for hkbCharacterData {}
+#[derive(Debug)]
+pub struct hkbSymbolIdMap;
+impl hkRefPtr::hkRefPtrCounted for hkbSymbolIdMap {}
+#[derive(Debug)]
+pub struct hkbAnimationBindingSet;
+impl hkRefPtr::hkRefPtrCounted for hkbAnimationBindingSet {}
+#[derive(Debug)]
+pub struct BGSWaterUpdateI;
+#[derive(Debug)]
+pub struct TESObjectLAND;
+#[derive(Debug)]
+pub struct BGSLightingTemplate;
+#[derive(Debug)]
+pub struct BSPortalGraph;
+impl crate::re::NiSmartPointer::RefCountable for BSPortalGraph {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
+pub struct NavMesh;
+
+impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for NavMesh {
+    fn inc_ref(&self) -> u32 {
+        todo!()
+    }
+
+    fn dec_ref(&self) -> u32 {
+        todo!()
+    }
+}
+
+#[derive(Debug)]
+pub struct BSTMap<T, U> {
+    /// dummy
+    pub unk_opaque: [u8; 0x20],
+    marker: core::marker::PhantomData<(T, U)>,
+}
+#[derive(Debug)]
+pub struct BSTSet<T> {
+    /// dummy
+    pub unk_opaque: [u8; 0x20],
+    marker: core::marker::PhantomData<T>,
+}
+
+#[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct BGSActorDeathEvent;
+#[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct UserEventEnabledEvent;
+#[repr(C)]
+#[derive(Debug)]
+pub struct TESObjectWEAP;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct TESRace;
+#[repr(C)]
+#[derive(Debug)]
+pub struct MagicItem;
+#[repr(C)]
+#[derive(Debug)]
+pub struct BGSTextureSet;
+#[repr(C)]
+#[derive(Debug)]
+pub struct BSLight;
+impl crate::re::NiSmartPointer::RefCountable for BSLight {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
+#[repr(C)]
+#[derive(Debug)]
+pub struct CombatGroup;
+#[repr(C)]
+#[derive(Debug)]
+pub struct TESClass;

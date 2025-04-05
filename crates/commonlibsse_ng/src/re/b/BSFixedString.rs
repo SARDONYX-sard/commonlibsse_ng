@@ -78,6 +78,12 @@ where
     pub fn is_empty(&self) -> bool {
         self.count_bytes() == 0
     }
+
+    /// Converts this C string as a byte slice.
+    #[inline]
+    pub fn as_bytes(&self) -> &[u8] {
+        unsafe { core::slice::from_raw_parts(self.data.cast::<u8>(), self.count_bytes() as usize) }
+    }
 }
 
 impl<T: StringFormat> Clone for BSFixedStringInternal<T> {
@@ -86,6 +92,27 @@ impl<T: StringFormat> Clone for BSFixedStringInternal<T> {
         let cloned = Self { data: self.data, marker: PhantomData };
         cloned.try_acquire();
         cloned
+    }
+}
+
+impl PartialOrd for BSFixedString {
+    #[inline]
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for BSFixedString {
+    #[inline]
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
+        self.as_bytes().cmp(other.as_bytes())
+    }
+}
+
+impl core::hash::Hash for BSFixedString {
+    #[inline]
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        self.as_bytes().hash(state);
     }
 }
 
@@ -106,7 +133,9 @@ mod u8_bytes {
     use core::fmt;
     use core::ops::Deref;
 
-    /// A fixed-length C string represented by `BSFixedStringInternal<U8>`.
+    /// A fixed-length C string.
+    ///
+    /// This type is string-interlaced and reference-shares memory with the same string.
     ///
     /// # Encoding
     /// Since this is an FFI type, the encoding is not guaranteed. It may be UTF-8, ANSI,
@@ -162,14 +191,6 @@ mod u8_bytes {
             unsafe { CStr::from_ptr(EMPTY_C_CHAR) }
         }
 
-        /// Converts this C string as a byte slice.
-        #[inline]
-        pub fn as_bytes(&self) -> &[u8] {
-            unsafe {
-                core::slice::from_raw_parts(self.data.cast::<u8>(), self.count_bytes() as usize)
-            }
-        }
-
         /// Converts the string to `&str` if it is valid UTF-8.
         #[inline]
         pub fn to_str(&self) -> Option<&str> {
@@ -201,6 +222,8 @@ mod u8_bytes {
             }
         }
     }
+
+    impl Eq for BSFixedString {}
 
     impl Default for BSFixedString {
         #[inline]

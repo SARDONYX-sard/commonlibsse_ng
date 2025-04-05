@@ -4,23 +4,23 @@ use crate::rel::id::VariantID;
 use core::ffi::c_void;
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BaseFormComponent {
     pub vtbl: *const BaseFormComponentVtbl,
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BaseFormComponentVtbl {
-    /// C++ destructor
-    pub delete: extern "C" fn(this: *mut c_void),
+    /// C++ destructor: `~BaseFormComponent`
+    pub CxxDrop: extern "C" fn(this: *mut c_void),
 
     /// - `BaseFormComponent`: pure virtual
-    pub initialize_data_component: extern "C" fn(this: *mut c_void),
+    pub InitializeDataComponent: extern "C" fn(this: *mut c_void),
     /// - `BaseFormComponent`: pure virtual
-    pub clear_data_component: extern "C" fn(this: *mut c_void),
+    pub ClearDataComponent: extern "C" fn(this: *mut c_void),
     /// - `BaseFormComponent`: always return `c_void`
-    pub copy_component: extern "C" fn(this: *mut c_void, _rhs: *mut c_void),
+    pub CopyComponent: extern "C" fn(this: *mut c_void, _rhs: *mut c_void),
 }
 
 const _: () = {

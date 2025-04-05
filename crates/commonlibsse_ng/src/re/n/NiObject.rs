@@ -19,6 +19,7 @@ use core::ffi::CStr;
 use core::ptr::NonNull;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct NiObject {
     pub __base: NiRefObject,
 }

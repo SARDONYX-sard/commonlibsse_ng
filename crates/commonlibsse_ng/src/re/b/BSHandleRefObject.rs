@@ -1,4 +1,4 @@
-use crate::re::NiRefObject::NiRefObject;
+use crate::re::NiRefObject::{NiRefObject, NiRefObjectVtbl};
 use crate::re::offsets_rtti::RTTI_BSHandleRefObject;
 use crate::re::offsets_vtable::VTABLE_BSHandleRefObject;
 use crate::rel::id::VariantID;
@@ -27,4 +27,9 @@ impl crate::re::NiSmartPointer::RefCountable for BSHandleRefObject {
     fn dec_ref_count(&mut self) {
         self.__base.dec_ref_count();
     }
+}
+
+#[repr(C)]
+pub struct BSHandleRefObjectVtbl {
+    pub __base: NiRefObjectVtbl,
 }

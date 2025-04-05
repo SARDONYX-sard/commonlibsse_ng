@@ -42,7 +42,7 @@ impl BSUntypedPointerHandle {
 
 // === BSPointerHandle ===
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialOrd, Ord)]
 pub struct BSPointerHandle<T> {
     handle: BSUntypedPointerHandle,
     _phantom: core::marker::PhantomData<T>,

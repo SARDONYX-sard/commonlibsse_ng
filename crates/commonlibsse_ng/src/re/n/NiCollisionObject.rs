@@ -6,6 +6,7 @@ use crate::re::offsets_vtable::VTABLE_NiCollisionObject;
 use crate::rel::id::VariantID;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct NiCollisionObject {
     pub __base: NiObject,
     pub sceneObject: *mut NiAVObject,

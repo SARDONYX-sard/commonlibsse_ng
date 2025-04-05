@@ -1,21 +1,32 @@
 use core::ffi::c_void;
 
+use crate::re::BSAnimationUpdateData::BSAnimationUpdateData;
 use crate::re::BSPointerHandle::ObjectRefHandle;
+use crate::re::BSTEvent::BSTEventSinkVtbl;
+use crate::re::BSTSmartPointer::BSTSmartPointer;
 use crate::re::ExtraDataList::ExtraDataList;
+use crate::re::NiAVObject::NiAVObject;
 use crate::re::NiPoint3::NiPoint3;
 use crate::re::TESBoundObject::TESBoundObject;
-use crate::re::TESForm::TESForm;
+use crate::re::TESForm::{TESForm, TESFormVtbl};
 use crate::re::TESObjectCELL::TESObjectCELL;
+use crate::re::i::IAnimationGraphManagerHolder::IAnimationGraphManagerHolderVtbl;
 use crate::re::{
     ActorCause, BGSAnimationSequencer, BGSDialogueBranch, BGSKeyword, BGSLocation, BGSScene,
-    DialogueResponse, ITEM_REMOVE_REASON, TESPackage, TESTopicInfo, TargetEntry, TrapData,
-    TrapEntry,
+    BSAnimationGraphEvent, BSFaceGenAnimationData, BSFaceGenNiNode, BipedAnim, DialogueResponse,
+    ITEM_REMOVE_REASON, MagicCaster, MagicTarget, NiNode, TESActorBase, TESPackage, TESTopicInfo,
+    TargetEntry, TrapData, TrapEntry,
 };
 
 use super::TESObjectREFR;
 
 #[repr(C)]
 pub struct TESObjectREFRVtbl {
+    pub __base: TESFormVtbl,
+    pub __base1: BSTEventSinkVtbl<BSAnimationGraphEvent>,
+    pub __base2: BSTEventSinkVtbl<BSAnimationGraphEvent>,
+    pub __base3: IAnimationGraphManagerHolderVtbl,
+
     pub Predestroy: unsafe extern "C" fn(this: *mut c_void),
     pub GetEditorLocation1: unsafe extern "C" fn(this: *const c_void) -> *const BGSLocation,
     pub GetEditorLocation2: unsafe extern "C" fn(
@@ -80,4 +91,64 @@ pub struct TESObjectREFRVtbl {
     pub DoTrap1: unsafe extern "C" fn(this: *mut c_void, data: *mut TrapData),
     pub DoTrap2:
         unsafe extern "C" fn(this: *mut c_void, trap: *mut TrapEntry, target: *mut TargetEntry),
+    pub AddObjectToContainer: unsafe extern "C" fn(
+        this: *mut c_void,
+        object: *mut TESBoundObject,
+        extrlist: *mut ExtraDataList,
+        count: i32,
+        from_refr: *mut TESObjectREFR,
+    ),
+    pub GetLookingAtLocation: unsafe extern "C" fn(this: *const c_void) -> NiPoint3,
+    pub GetMagicCaster: unsafe extern "C" fn(this: *mut c_void, source: i32) -> *mut MagicCaster,
+    pub GetMagicTarget: unsafe extern "C" fn(this: *mut c_void) -> *mut MagicTarget,
+    pub IsChild: unsafe extern "C" fn(this: *const c_void) -> bool,
+    pub GetTemplateActorBase: unsafe extern "C" fn(this: *mut c_void) -> *mut TESActorBase,
+    pub SetTemplateActorBase: unsafe extern "C" fn(this: *mut c_void, template: *mut TESActorBase),
+    pub GetFaceNodeSkinned: unsafe extern "C" fn(this: *mut c_void) -> *mut BSFaceGenNiNode,
+    pub GetFaceNode: unsafe extern "C" fn(this: *mut c_void) -> *mut BSFaceGenNiNode,
+    pub GetFaceGenAnimationData:
+        unsafe extern "C" fn(this: *mut c_void) -> *mut BSFaceGenAnimationData,
+    pub ClampToGround: unsafe extern "C" fn(this: *mut c_void) -> bool,
+    pub DetachHavok: unsafe extern "C" fn(this: *mut c_void, obj3D: *mut NiAVObject) -> bool,
+    pub InitHavok: unsafe extern "C" fn(this: *mut c_void),
+    pub Unk_67: unsafe extern "C" fn(this: *mut c_void),
+    pub Unk_68: unsafe extern "C" fn(this: *mut c_void),
+    pub Unk_69: unsafe extern "C" fn(this: *mut c_void),
+    pub Load3D:
+        unsafe extern "C" fn(this: *mut c_void, background_loading: bool) -> *mut NiAVObject,
+    pub Release3DRelatedData: unsafe extern "C" fn(this: *mut c_void),
+    pub Set3D:
+        unsafe extern "C" fn(this: *mut c_void, object: *mut NiAVObject, queue3D_tasks: bool),
+    pub ShouldBackgroundClone: unsafe extern "C" fn(this: *const c_void) -> bool,
+    pub Unk_6E: unsafe extern "C" fn(this: *mut c_void),
+    pub Get3D1: unsafe extern "C" fn(this: *const c_void, first_person: bool) -> *mut NiAVObject,
+    pub Get3D2: unsafe extern "C" fn(this: *const c_void) -> *mut NiAVObject,
+    pub Is3rdPersonVisible: unsafe extern "C" fn(this: *const c_void) -> bool,
+    pub PopulateGraphProjectsToLoad: unsafe extern "C" fn(this: *const c_void) -> bool,
+    pub GetBoundMin: unsafe extern "C" fn(this: *const c_void) -> NiPoint3,
+    pub GetBoundMax: unsafe extern "C" fn(this: *const c_void) -> NiPoint3,
+    pub Unk_75: unsafe extern "C" fn(this: *mut c_void),
+    pub InitNonNPCAnimation:
+        unsafe extern "C" fn(this: *mut c_void, node_for_anim: *mut NiNode) -> bool,
+    pub CheckAndFixSkinAndBoneOrder:
+        unsafe extern "C" fn(this: *mut c_void, node_to_test: *mut NiNode) -> bool,
+    pub Unk_78: unsafe extern "C" fn(this: *mut c_void),
+    pub ModifyAnimationUpdateData:
+        unsafe extern "C" fn(this: *mut c_void, data: *mut BSAnimationUpdateData),
+    pub ShouldSaveAnimationOnUnloading: unsafe extern "C" fn(this: *const c_void) -> bool,
+    pub ShouldSaveAnimationOnSaving: unsafe extern "C" fn(this: *const c_void) -> bool,
+    pub ShouldPerformRevert: unsafe extern "C" fn(this: *const c_void) -> bool,
+    pub UpdateAnimation: unsafe extern "C" fn(this: *mut c_void, delta: f32),
+    pub GetBiped1:
+        unsafe extern "C" fn(this: *const c_void, first_person: bool) -> BSTSmartPointer<BipedAnim>,
+    pub GetBiped2: unsafe extern "C" fn(this: *const c_void) -> BSTSmartPointer<BipedAnim>,
+    pub GetCurrentBiped: unsafe extern "C" fn(this: *const c_void) -> BSTSmartPointer<BipedAnim>,
+    pub SetBiped: unsafe extern "C" fn(this: *mut c_void, biped: BSTSmartPointer<BipedAnim>),
 }
+
+// const _: () = {
+//     use core::mem::size_of;
+//     const SIZE: usize = size_of::<TESObjectREFRVtbl>();
+//     const EXPECTED_SIZE: usize = 0x82 * size_of::<usize>();
+//     assert!(SIZE == EXPECTED_SIZE);
+// };

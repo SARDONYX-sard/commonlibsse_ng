@@ -19,6 +19,7 @@ bitflags = { version = "2.9.0" }
 chrono = { version = "0.4.40" }
 dashmap = { version = "6.1.0" }
 generic-array = { version = "1.2.0" }
+once_cell = { workspace = true }
 retour = { version = "0.3.1", default-features = false }     # fn ptr hook
 shared_rwlock = { path = "../shared_rwlock" }
 snafu = { workspace = true }                                 # To define error types.

@@ -3,6 +3,79 @@
 
 use proc_macro::TokenStream;
 
+/// Relocates a address using Skyrim runtime-specific relocation IDs.
+///
+/// The `#[relocate]` attribute macro enables dynamic resolution of a pointer using relocation
+/// IDs for Skyrim Special Edition (SE), Anniversary Edition (AE), and optionally VR. It injects code
+/// to resolve the address at runtime and execute user-provided logic through a closure, passing the
+/// resolved pointer as an argument.
+///
+/// # Attributes
+///
+/// | Attribute    | Type      | Required | Description                                                               |
+/// |--------------|-----------|----------|---------------------------------------------------------------------------|
+/// | `cast_as`    | `&str`    | Yes      | The type to cast the resolved pointer to (e.g., `"bool"`).                |
+/// | `default`    | `&str`    | Yes      | The fallback value returned if resolution fails (e.g., `"false"`).        |
+/// | `id.se`      | `u64`     | Yes      | Relocation ID for Skyrim Special Edition.                                 |
+/// | `id.ae`      | `u64`     | Yes      | Relocation ID for Skyrim Anniversary Edition.                             |
+/// | `id.vr`      | `u64`     | No       | Relocation ID for Skyrim VR. Defaults to `se` if omitted.                 |
+///
+/// # Function Body
+///
+/// The body must be a single closure of the form:
+///
+/// ```rust
+/// |ptr: AsType| { ... }
+/// ```
+///
+/// where `AsType` is the dereferenced value of the casted pointer.
+/// This closure will only be called if the relocation address is resolved successfully.
+///
+/// If resolution fails, the `default` value will be returned instead (after parsing the literal).
+///
+/// # Example
+///
+/// ```rust
+/// #[commonlibsse_ng_derive_internal::relocate(
+///     cast_as = "bool",
+///     default = "false",
+///     id(se = 517711, ae = 404238)
+/// )]
+/// pub fn is_god_mode() -> bool {
+///     |ptr: bool| ptr
+/// }
+/// ```
+///
+/// In this case, the macro will:
+/// - Resolve the relocation address by using the given `se`/`ae` ID.
+/// - Cast it to `*mut bool`, dereference it, and pass the value into the closure.
+/// - If resolution fails, return `false`.
+///
+/// # Notes
+///
+/// - The macro requires `once_cell`, `Unique`, and `rel::ResolvableAddress` system to work.
+/// - You must ensure the type provided in `cast_as` is safe to dereference.
+/// - This pattern encourages a declarative and readable way to define relocation logic without
+///   repetitive boilerplate.
+/// - `SelfSignature`: Function signature for self. like C++ `decltype(T)`
+///
+/// # See Also
+///
+/// - `#[relocate_fn]` if you want to relocate and *call* a function with arguments instead of
+///   resolving and evaluating a pointer.
+#[proc_macro_attribute]
+pub fn relocate(attrs: TokenStream, item: TokenStream) -> TokenStream {
+    let item_fn = syn::parse_macro_input!(item as syn::ItemFn);
+    let crate_root_name = quote::quote! { crate };
+
+    commonlibsse_ng_proc_macro_common::relocate::gen_relocate(
+        attrs.into(),
+        item_fn,
+        crate_root_name,
+    )
+    .into()
+}
+
 /// `relocate_fn` is a procedural macro used to generate a relocated function in Rust.
 /// It allows you to specify function relocation IDs (`se_id`, `ae_id`, and `vr_id`) to relocate a function at runtime.
 /// This macro generates code that attempts to resolve a function's address based on the provided IDs,
@@ -24,7 +97,7 @@ use proc_macro::TokenStream;
 ///
 /// # Example
 /// ```rust:no_compile
-/// #[commonlibsse_ng_internal::relocate_fn(se_id = 1, ae_id = 2, vr_id = 3)]
+/// #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 1, ae_id = 2, vr_id = 3)]
 /// fn my_function(arg1: usize, arg2: usize) -> bool {
 ///     tracing::info("arg1 = {arg1}, arg2 = {arg2}"); // We can sandwich the process before that.
 ///
@@ -108,9 +181,86 @@ pub fn ffi_enum(attrs: TokenStream, item: TokenStream) -> TokenStream {
     commonlibsse_ng_proc_macro_common::ffi_enum::ffi_enum(attrs.into(), item_enum).into()
 }
 
-/// This is a convenience macro for those who wish to use bitflags without changing the existing enum notation.
+/// Converts a regular `enum` into a `bitflags`-compatible type using its variant values.
+///
+/// The `#[to_bitflags]` attribute macro transforms a plain Rust `enum` definition into a [`bitflags`] struct,
+/// while keeping the original enum syntax intact. This is particularly useful when you want to use bitflags
+/// functionality without switching to a `bitflags!` macro or changing enum semantics.
+///
+/// # Syntax
+///
+/// ```rust
+/// #[commonlibsse_ng_derive_internal::to_bitflags]
+/// #[derive(Default)]
+/// pub enum MyFlags {
+///     A = 0b0001,
+///     B = 0b0010,
+///     C = 0b0100,
+///
+///     #[default] // Optional, sets the default bitflags (requires `#[derive(Default)]`)
+///     None = 0,
+/// }
+/// ```
+///
+/// Optionally, you can specify the output type name using the `fn_name` parameter:
+///
+/// ```rust
+/// #[commonlibsse_ng_derive_internal::to_bitflags(fn_name = "MyFlagsBits")]
+/// pub enum MyFlags {
+///     A = 1,
+///     B = 2,
+/// }
+/// ```
+///
+/// # Attributes
+///
+/// | Attribute    | Type      | Required | Description                                                                    |
+/// |--------------|-----------|----------|--------------------------------------------------------------------------------|
+/// | `fn_name`    | `&str`    | No       | The name of the generated `bitflags` struct. Defaults to the enum name. |
+///
+/// # Features
+///
+/// - Automatically implements `bitflags!` for the enum using its variant values.
+/// - Honors `#[default]` on a variant if `#[derive(Default)]` is also used.
+/// - Avoids the need to rewrite your enum as a `bitflags!` block.
+/// - Works with enums using `explicit discriminant values`.
+///
+/// # Example
+///
+/// ```rust
+/// #[commonlibsse_ng_derive_internal::to_bitflags]
+/// #[derive(Default)]
+/// pub enum RenderFlags {
+///     Alpha = 0b0001,
+///     Depth = 0b0010,
+///     Stencil = 0b0100,
+///
+///     #[default]
+///     None = 0,
+/// }
+///
+/// let flags = RenderFlags::ALPHA | RenderFlags::DEPTH;
+/// assert!(flags.contains(RenderFlags::ALPHA));
+/// ```
+///
+/// # Notes
+///
+/// - The macro expects all enum variants to have constant discriminant values (e.g., integers or const exprs).
+/// - The original `enum` is preserved in the output (i.e., not removed or renamed).
+///
+/// # Dependencies
+///
+/// - `#[derive(Default)]` and `#[default]` can be used to control the default value of the generated flag struct.
+///
+/// [`bitflags`]: https://docs.rs/bitflags
 #[proc_macro_attribute]
 pub fn to_bitflags(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let item_enum = syn::parse_macro_input!(item as syn::ItemEnum);
-    commonlibsse_ng_proc_macro_common::to_bitflags::to_bitflags(attrs.into(), item_enum).into()
+    let crate_root_name = quote::quote! { crate };
+    commonlibsse_ng_proc_macro_common::to_bitflags::to_bitflags(
+        attrs.into(),
+        item_enum,
+        crate_root_name,
+    )
+    .into()
 }

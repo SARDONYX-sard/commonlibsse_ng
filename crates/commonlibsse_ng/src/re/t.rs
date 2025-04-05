@@ -1,10 +1,13 @@
 pub mod TESBitArrayFile;
 pub mod TESBoundObject;
+pub mod TESChildCell;
 pub mod TESFile;
 pub mod TESForm;
+pub mod TESFullName;
 pub mod TESGlobal;
 pub mod TESObject;
 pub mod TESObjectCELL;
 pub mod TESObjectREFR;
 pub mod TESQuest;
+pub mod TESTrackedStatsEvent;
 pub mod TESWorldSpace;

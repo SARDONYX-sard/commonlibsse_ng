@@ -156,7 +156,7 @@ pub trait StringFormat {
     fn is_valid(is_wide: bool);
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum U8 {}
 
 impl StringFormat for U8 {
@@ -177,7 +177,7 @@ impl StringFormat for U8 {
 ///
 /// In Microsoft compilers, it represents a 16-bit wide character used to store Unicode encoded as UTF-16LE.
 /// - ref: [`char、wchar_t、char8_t、char16_t、char32_t`](https://learn.microsoft.com/cpp/cpp/char-wchar-t-char16-t-char32-t?view=msvc-170)
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum U16 {}
 
 impl StringFormat for U16 {

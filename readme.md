@@ -1,22 +1,22 @@
 # CommonLibSSE-NG rust
 
-- FFI
-
-It probably will crash if used it does not pass the layout test. See [test results](./crates/commonlibsse_ng_sys/test_results.txt)
-
-```toml
-commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "b118ea6" }
-```
-
 ## Manual implementation
 
 - [api docs](https://commonlibsse-ng-docs-rs.netlify.app/commonlibsse_ng/)
 
-Implementation progress
+### Implementation progress
 
-- RE: 0%
-- REL: 80%
-- SKSE: 70%
+- I have not been able to test any APIs other than `Calendar`, so I am not sure if the memory layout is correct.
+
+- In fact, almost all relocation and vtable address acquisition is now possible, so it can already be used by manually defining the RE namespace structure API.
+- Currently the priority is to enable the `PlayerCharacter` API
+- API names are currently not stable and are in the trial and error stage. Therefore, there is no guarantee of compatibility in the next commit.
+
+| Module | progress | additional                                                                      |
+| ------ | -------: | ------------------------------------------------------------------------------- |
+| RE     |       3% | The work on the `Calendar` API is done, but the workload is too huge to finish. |
+| REL    |      80% | It is already possible to load AddressLibrary and use any ID.                   |
+| SKSE   |      70% | Most of the API is already available.                                           |
 
 ```toml
 commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "b118ea6" }
@@ -24,10 +24,18 @@ commonlibsse_ng = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", re
 
 ## Example test
 
-[module_state.dll](./crates/commonlibsse_ng/examples/module_state.rs)
+- [module_state.dll](./crates/commonlibsse_ng/examples/module_state.rs): Get the date in the game.
 
 ```shell
 cargo xtask example --dest_mode build
+```
+
+- FFI
+
+It probably will crash if used it does not pass the layout test. See [test results](./crates/commonlibsse_ng_sys/test_results.txt)
+
+```toml
+commonlibsse_ng_sys = { git = "https://github.com/SARDONYX-sard/commonlibsse_ng", rev = "b118ea6" }
 ```
 
 ## Licenses

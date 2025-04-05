@@ -12,13 +12,6 @@ use crate::re::{BSExtraData::BSExtraData, ExtraDataType::ExtraDataType};
 use crate::rel::id::VariantID;
 
 /// Represents extra data for an ash pile reference.
-///
-/// Inherits from `BSExtraData` and includes a reference to the associated `ObjectRefHandle`.
-///
-/// # Memory Layout:
-/// - `__base`: Base class `BSExtraData`
-/// - `ash_pile_ref`: Object reference handle (0x10)
-/// - `pad14`: Padding to align with the C++ structure (0x14)
 #[repr(C)]
 pub struct ExtraAshPileRef {
     /// Base class `BSExtraData`.
