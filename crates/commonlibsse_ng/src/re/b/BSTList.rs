@@ -63,7 +63,7 @@ impl<T> BSSimpleList<T> {
     /// `node` must point to a valid node that was boxed and leaked using the list's allocator.
     /// This method takes ownership of the node, so the pointer should not be used again.
     #[inline]
-    unsafe fn push_front_node(&mut self, value: NonNull<Node<T>>) {
+    const unsafe fn push_front_node(&mut self, value: NonNull<Node<T>>) {
         self.list_head.next = Some(value);
     }
 
@@ -143,14 +143,14 @@ impl<T> BSSimpleList<T> {
     }
 
     #[inline]
-    pub fn erase_after(&mut self, pos: &mut Node<T>) {
+    pub const fn erase_after(&mut self, pos: &mut Node<T>) {
         if let Some(mut node) = pos.next.take() {
             pos.next = unsafe { node.as_mut().next.take() };
         }
     }
 
     #[inline]
-    pub fn clear(&mut self) {
+    pub const fn clear(&mut self) {
         let mut current = self.list_head.next.take();
         while let Some(mut node) = current {
             current = unsafe { node.as_mut().next.take() };

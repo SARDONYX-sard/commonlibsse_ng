@@ -6,6 +6,7 @@ use crate::{
 };
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct TESObject {
     pub __base: TESForm,
 }

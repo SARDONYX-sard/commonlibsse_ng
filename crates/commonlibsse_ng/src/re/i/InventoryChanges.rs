@@ -68,6 +68,7 @@ impl InventoryChanges {
     /// C++ Destructor
     fn manually_drop(&mut self) {}
 
+    #[allow(clippy::missing_const_for_fn)]
     pub fn add_entry_data(&mut self, entry: *mut InventoryEntryData) {
         // self.entry_list.push_front(entry); // move take?
         let _ = entry;

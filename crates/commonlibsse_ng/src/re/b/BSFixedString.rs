@@ -53,7 +53,7 @@ where
     ///
     /// # Safety
     /// This dereferences a pointer that may point to invalid memory.
-    pub unsafe fn get_proxy(&self) -> Option<&mut BSStringPool::Entry<T>> {
+    pub const unsafe fn get_proxy(&self) -> Option<&mut BSStringPool::Entry<T>> {
         if self.data.is_null() {
             return None;
         }

@@ -35,7 +35,7 @@ impl BSUntypedPointerHandle {
     }
 
     #[inline]
-    pub fn reset(&mut self) {
+    pub const fn reset(&mut self) {
         self.handle = 0;
     }
 }
@@ -94,7 +94,7 @@ impl<T> BSPointerHandle<T> {
         self.handle.has_value()
     }
 
-    pub fn reset(&mut self) {
+    pub const fn reset(&mut self) {
         self.handle.reset();
     }
 }

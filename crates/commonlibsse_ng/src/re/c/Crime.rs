@@ -18,6 +18,7 @@ pub enum CRIME_TYPE {
     Unused = 6,
 }
 impl CRIME_TYPE {
+    /// Total
     pub const TOTAL: usize = 7;
 }
 

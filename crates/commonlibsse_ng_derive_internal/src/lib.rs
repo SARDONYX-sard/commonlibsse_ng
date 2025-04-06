@@ -37,18 +37,18 @@ use proc_macro::TokenStream;
 ///
 /// ```rust
 /// #[commonlibsse_ng_derive_internal::relocate(
-///     cast_as = "bool",
+///     cast_as = "*mut bool",
 ///     default = "false",
 ///     id(se = 517711, ae = 404238)
 /// )]
 /// pub fn is_god_mode() -> bool {
-///     |ptr: bool| ptr
+///     |ptr: *mut bool| ptr
 /// }
 /// ```
 ///
 /// In this case, the macro will:
 /// - Resolve the relocation address by using the given `se`/`ae` ID.
-/// - Cast it to `*mut bool`, dereference it, and pass the value into the closure.
+/// - Cast it to `*mut *mut bool`, dereference it, and pass the value into the closure.
 /// - If resolution fails, return `false`.
 ///
 /// # Notes

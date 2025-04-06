@@ -51,12 +51,6 @@ impl hkVector4 {
         unsafe { Self { quad: _mm_setr_ps(point.x, point.y, point.z, 0.0) } }
     }
 
-    /// Assigns the value of another `hkVector4` to this one.
-    #[inline]
-    pub fn assign(&mut self, rhs: Self) {
-        self.quad = rhs.quad;
-    }
-
     /// Checks if this vector is equal to another within a given epsilon.
     #[inline]
     pub fn IsEqual(&self, pt: Self, epsilon: f32) -> bool {
@@ -73,7 +67,12 @@ impl hkVector4 {
         let x2 = pt.get_component(0);
         let y2 = pt.get_component(1);
         let z2 = pt.get_component(2);
-        Self::from_components(y1.mul_add(z2, -(z1 * y2)), z1.mul_add(x2, -(x1 * z2)), x1.mul_add(y2, -(y1 * x2)), 0.0)
+        Self::from_components(
+            y1.mul_add(z2, -(z1 * y2)),
+            z1.mul_add(x2, -(x1 * z2)),
+            x1.mul_add(y2, -(y1 * x2)),
+            0.0,
+        )
     }
 
     /// Computes the 3D dot product with another `hkVector4` (ignoring w).

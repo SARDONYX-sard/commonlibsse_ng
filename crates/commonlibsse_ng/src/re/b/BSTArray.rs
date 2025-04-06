@@ -44,7 +44,7 @@ impl<T> BSStaticArray<T> {
     }
 
     #[inline]
-    pub fn as_mut_slice(&mut self) -> &mut [T] {
+    pub const fn as_mut_slice(&mut self) -> &mut [T] {
         unsafe { slice::from_raw_parts_mut(self.data.as_ptr(), self.size as usize) }
     }
 

@@ -38,6 +38,7 @@ commonlibsse_ng_derive = { path = "../commonlibsse_ng_derive", optional = true }
 windows = { workspace = true, features = [
   "Win32_Devices_HumanInterfaceDevice",
   "Win32_Globalization",
+  "Win32_Graphics_Direct3D11",
   "Win32_Security",
   "Win32_Storage_FileSystem",
   "Win32_System_Com",

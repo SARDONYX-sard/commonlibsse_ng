@@ -12,8 +12,11 @@ use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
 use crate::re::{BSLight, BipedAnim, CombatGroup, NiNode, TESClass};
 
+const _: () = assert!(7 == CRIME_TYPE::TOTAL);
+
 #[repr(C, packed(4))]
 pub struct INFO_RUNTIME_DATA {
+    // dummy: [u8; 20],
     pub sleepSeconds: u32,                                   // 014
     pub largeBiped: BSTSmartPointer<BipedAnim>,              // 018
     pub firstPerson3D: NiPointer<NiNode>,                    // 020
@@ -29,12 +32,12 @@ pub struct INFO_RUNTIME_DATA {
     pub sortActorDistanceTimer: f32,                         // 04C
     pub sitHeadingDelta: f32,                                // 050 only in SSE, VR needs adjustment
     pub playerMapMarker: ObjectRefHandle,                    // 054
-    pub playerMarkerPath: Option<TeleportPath>,              // 058
+    pub playerMarkerPath: *mut TeleportPath,                 // 058
     pub skillTrainingsThisLevel: u32,                        // 060
     pub unk064: u32,                                         // 064
     pub defaultClass: *mut TESClass,                         // 068
     pub unk070: u64,                                         // 070
-    pub crimeCounts: [u32; CRIME_TYPE::TOTAL],               // 078
+    pub crimeCounts: [u32; 7],                               // 078  7: CRIME_TYPE::TOTAL
     pub unk094: u32,                                         // 094
     pub pendingPoison: *mut AlchemyItem,                     // 098
     pub lastPlayingTimeUpdate: i64,                          // 0A0
@@ -48,14 +51,14 @@ pub struct INFO_RUNTIME_DATA {
     pub thirdPersonLight: NiPointer<BSLight>,                // 0D0
     pub dropAngleMod: f32,                                   // 0D8
     pub lastDropAngleMod: f32,                               // 0DC
-    pub skills: Option<PlayerSkills>,                        // 0E0
+    pub skills: *mut PlayerSkills,                           // 0E0
     pub autoAimActor: ActorHandle,                           // 0E8
     pub unk0EC: RefHandle,                                   // 0EC
     pub unk118: u64,                                         // 0F0
     pub targeted3D: NiPointer<NiAVObject>,                   // 0F8
     pub combatGroup: *mut CombatGroup,                       // 100
     pub actorsToDisplayOnTheHUDArray: BSTArray<ActorHandle>, // 108
-    pub advanceObject: Option<TESForm>,                      // 120
+    pub advanceObject: *mut TESForm,                         // 120
     pub lastOneHandItems: [*mut TESBoundObject; 2],          // 128
     pub teammateCount: u32,                                  // 138
     pub combatTimer: f32,                                    // 13C
@@ -64,13 +67,14 @@ pub struct INFO_RUNTIME_DATA {
     pub drawSheatheSafetyTimer: f32,                         // 148
     pub unk14C: u32,                                         // 14C
 }
+const _: () = assert!(core::mem::size_of::<INFO_RUNTIME_DATA>() == 0x13C);
 
 #[repr(C, packed(4))]
 pub struct VR_INFO_RUNTIME_DATA {
     pub sleepSeconds: u32,                                   // FE0
     pub unkFE4: u32,                                         // FE4
     pub largeBiped: BSTSmartPointer<BipedAnim>,              // FE8
-    pub firstPerson3D: Option<NiPointer<NiNode>>,            // FF0
+    pub firstPerson3D: NiPointer<NiNode>,                    // FF0
     pub eyeHeight: f32,                                      // FF8
     pub greetTimer: f32,                                     // FFC
     pub encumberedTimer: f32,                                // 1000
@@ -83,7 +87,7 @@ pub struct VR_INFO_RUNTIME_DATA {
     pub sortActorDistanceTimer: f32,                         // 101C
     pub playerMapMarker: ObjectRefHandle,                    // 1020
     pub pad1024: u32,                                        // 1024
-    pub playerMarkerPath: Option<TeleportPath>,              // 1028
+    pub playerMarkerPath: *mut TeleportPath,                 // 1028
     pub skillTrainingsThisLevel: u32,                        // 1030
     pub unk1034: u32,                                        // 1034
     pub defaultClass: *mut TESClass,                         // 1038
@@ -106,10 +110,10 @@ pub struct VR_INFO_RUNTIME_DATA {
     pub autoAimActor: ActorHandle,                           // 10B8
     pub unk9BC: RefHandle,                                   // 10BC
     pub unk9C0: u64,                                         // 10C0
-    pub targeted3D: Option<NiPointer<NiAVObject>>,           // 10C8
-    pub combatGroup: Option<CombatGroup>,                    // 10D0
+    pub targeted3D: NiPointer<NiAVObject>,                   // 10C8
+    pub combatGroup: *mut CombatGroup,                       // 10D0
     pub actorsToDisplayOnTheHUDArray: BSTArray<ActorHandle>, // 10D8
-    pub advanceObject: Option<TESForm>,                      // 10F0
+    pub advanceObject: *mut TESForm,                         // 10F0
     pub lastOneHandItems: [*mut TESBoundObject; 2],          // 10F8
     pub teammateCount: u32,                                  // 1108
     pub combatTimer: f32,                                    // 110C
@@ -118,3 +122,4 @@ pub struct VR_INFO_RUNTIME_DATA {
     pub drawSheatheSafetyTimer: f32,                         // 1118
     pub unk111C: u32,                                        // 111C
 }
+const _: () = assert!(core::mem::size_of::<VR_INFO_RUNTIME_DATA>() == 0x140);

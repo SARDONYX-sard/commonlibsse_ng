@@ -40,11 +40,7 @@ impl Flag {
     /// Checks the flag for an unguarded borrow, where we only care about existing poison.
     #[inline]
     pub fn borrow(&self) -> LockResult<()> {
-        if self.get() {
-            Err(PoisonError::new(()))
-        } else {
-            Ok(())
-        }
+        if self.get() { Err(PoisonError::new(())) } else { Ok(()) }
     }
 
     /// Checks the flag for a guarded borrow, where we may also set poison when `done`.
@@ -54,11 +50,7 @@ impl Flag {
             #[cfg(panic = "unwind")]
             panicking: thread::panicking(),
         };
-        if self.get() {
-            Err(PoisonError::new(ret))
-        } else {
-            Ok(ret)
-        }
+        if self.get() { Err(PoisonError::new(ret)) } else { Ok(ret) }
     }
 
     #[inline]
@@ -254,7 +246,7 @@ impl<T> PoisonError<T> {
 
     /// Reaches into this error indicating that a lock is poisoned, returning a
     /// mutable reference to the underlying guard to allow access regardless.
-    pub fn get_mut(&mut self) -> &mut T {
+    pub const fn get_mut(&mut self) -> &mut T {
         &mut self.guard
     }
 }
