@@ -108,7 +108,7 @@ where
     }
 
     /// Returns a mutable reference to the managed object or `None` if null.
-    pub fn as_mut(&mut self) -> Option<&mut T> {
+    pub const fn as_mut(&mut self) -> Option<&mut T> {
         unsafe { self.ptr.as_mut() }
     }
 

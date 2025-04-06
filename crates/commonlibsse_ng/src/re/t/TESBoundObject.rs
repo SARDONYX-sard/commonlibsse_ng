@@ -20,6 +20,7 @@ pub struct BOUND_DATA {
 const _: () = assert!(std::mem::size_of::<BOUND_DATA>() == 0xC);
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct TESBoundObject {
     pub __base: TESObject,
     pub bound_data: BOUND_DATA,

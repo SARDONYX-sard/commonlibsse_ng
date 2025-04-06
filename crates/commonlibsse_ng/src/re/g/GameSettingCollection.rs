@@ -72,7 +72,7 @@ impl GameSettingCollection {
     /// # Returns
     /// - `false` (this function always returns `false`).
     #[inline]
-    pub fn write_setting(&mut self, _a_setting: &Setting) -> bool {
+    pub const fn write_setting(&mut self, _a_setting: &Setting) -> bool {
         false
     }
 
@@ -84,7 +84,7 @@ impl GameSettingCollection {
     /// # Returns
     /// - `true` if reading was successful, `false` otherwise.
     #[inline]
-    pub fn read_setting(&mut self, _a_setting: &mut Setting) -> bool {
+    pub const fn read_setting(&mut self, _a_setting: &mut Setting) -> bool {
         true
     }
 
@@ -96,7 +96,7 @@ impl GameSettingCollection {
     /// # Returns
     /// - `true` if the handle is valid.
     #[inline]
-    pub fn open_handle(&mut self, _a_create: bool) -> bool {
+    pub const fn open_handle(&mut self, _a_create: bool) -> bool {
         self.handle != 0
     }
 
@@ -105,14 +105,14 @@ impl GameSettingCollection {
     /// # Returns
     /// - `true` on success.
     #[inline]
-    pub fn close_handle(&mut self) -> bool {
+    pub const fn close_handle(&mut self) -> bool {
         self.handle = 0;
         true
     }
 
     /// Unknown virtual function `0A`.
     #[inline]
-    pub fn unk_0a(&mut self) {
+    pub const fn unk_0a(&mut self) {
         // Stub function, add behavior if needed.
     }
 }

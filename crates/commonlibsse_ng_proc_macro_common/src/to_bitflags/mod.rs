@@ -60,6 +60,7 @@ fn to_bitflags_inner(
             #(#others_attr)*
             ///
             #[doc = #docs]
+            #[repr(transparent)]
             #vis struct #enum_ident: #bitflags_type {
                 #(#bitflags;)*
             }

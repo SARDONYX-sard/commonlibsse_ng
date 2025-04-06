@@ -56,7 +56,7 @@ impl PluginVersionData {
 
     pub const VERSION_INDEPENDENT_EX_NO_STRUCT_USE: u32 = 1;
 
-    pub fn set_plugin_version(&mut self, version: u32) {
+    pub const fn set_plugin_version(&mut self, version: u32) {
         self.plugin_version = version;
     }
 

@@ -5,23 +5,32 @@ pub mod runtime_info;
 pub mod skill;
 pub mod vr_node_data;
 
+use crate::re::ActorValues::ActorValue;
 use crate::re::BGSActorCellEvent::BGSActorCellEvent;
+use crate::re::BGSAddToPlayerInventoryEvent::ACQUIRE_TYPE;
+use crate::re::BGSTextureSet::BGSTextureSet;
 use crate::re::BSCoreTypes::RefHandle;
 use crate::re::BSPointerHandle::ActorHandle;
 use crate::re::BSTEvent::{BSTEventSink, BSTEventSource};
 use crate::re::Character::Character;
+use crate::re::CrosshairPickData::VR_DEVICE;
 use crate::re::FormTypes::FormType;
+use crate::re::InventoryEntryData::InventoryEntryData;
+use crate::re::MagicItem::MagicItem;
 use crate::re::MenuModeChangeEvent::MenuModeChangeEvent;
 use crate::re::MenuOpenCloseEvent::MenuOpenCloseEvent;
 use crate::re::NiSmartPointer::NiPointer;
 use crate::re::PositionPlayerEvent::PositionPlayerEvent;
 use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
+use crate::re::TESObject::TESObject;
+use crate::re::TESObjectCELL::TESObjectCELL;
+use crate::re::TESObjectREFR::TESObjectREFR;
 use crate::re::TESTrackedStatsEvent::TESTrackedStatsEvent;
-use crate::re::UserEventEnabledEvent;
 use crate::re::offsets_rtti::RTTI_PlayerCharacter;
 use crate::re::offsets_vtable::VTABLE_PlayerCharacter;
-use crate::re::{BGSActorDeathEvent, BGSTextureSet, MagicItem, TESObjectWEAP, TESRace};
+use crate::re::{BGSActorDeathEvent, TESObjectWEAP, TESRace};
+use crate::re::{Effect, MagicSystem, UserEventEnabledEvent};
 use crate::rel::id::VariantID;
 
 #[commonlibsse_ng_derive_internal::to_bitflags]
@@ -100,6 +109,70 @@ impl PlayerCharacter {
     pub fn is_god_mode() -> bool {
         |as_type: AsType| as_type
     }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39471, ae_id = 40548)]
+    pub fn activate_pick_ref(&mut self) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39471, ae_id = 40548)]
+    pub fn activate_pick_ref_vr(&mut self, device: VR_DEVICE) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39384, ae_id = 40456)]
+    pub fn add_player_add_item_event(
+        &mut self,
+        object: TESObject,
+        owner: *mut TESForm,
+        container: *mut TESObjectREFR,
+        type_: ACQUIRE_TYPE,
+    ) {
+    }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39568, ae_id = 40654)]
+    pub fn attempt_pickpocket(
+        &mut self,
+        container_ref: *mut TESObjectREFR,
+        entry: *mut InventoryEntryData,
+        number: i32,
+        from_container: bool,
+    ) -> bool {
+    }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39409, ae_id = 40484)]
+    pub fn check_cast(
+        &mut self,
+        spell: MagicItem,
+        effect: Effect,
+        reason: MagicSystem::CannotCastReason,
+    ) -> bool {
+    }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39480, ae_id = 40557)]
+    pub fn destroy_mouse_springs(&mut self) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39365, ae_id = 40437)]
+    pub fn center_on_cell_impl(
+        &mut self,
+        cell_name: Option<&str>,
+        cell: Option<TESObjectCELL>,
+    ) -> bool {
+    }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39413, ae_id = 40488)]
+    pub fn add_skill_experience(&mut self, skill: ActorValue, experience: f32) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39507, ae_id = 40586)]
+    pub fn set_ai_driven(&mut self, enable: bool) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39574, ae_id = 40660)]
+    pub fn set_escaping(&mut self, flag: bool, escaped: bool) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39475, ae_id = 40552)]
+    pub fn start_grab_object(&mut self, device: VR_DEVICE) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39535, ae_id = 40621)]
+    pub fn update_crosshairs(&mut self) {}
+
+    // VR-specific functions (if VR is enabled)
+    // pub fn is_grabbing_with_device(&mut self, device: VR_DEVICE) -> bool {}
 }
 
 impl crate::re::NiSmartPointer::RefCountable for PlayerCharacter {

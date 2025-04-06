@@ -334,7 +334,7 @@ impl<T: PartialOrd> PartialOrd for SimpleArray<T> {
         }
         for i in 0..self.len() {
             match self[i].partial_cmp(&other[i]) {
-                Some(Ordering::Equal) => continue,
+                Some(Ordering::Equal) => {}
                 Some(ordering) => return Some(ordering),
                 None => return None,
             }
@@ -351,7 +351,7 @@ impl<T: Ord> Ord for SimpleArray<T> {
         }
         for i in 0..self.len() {
             match self[i].cmp(&other[i]) {
-                Ordering::Equal => continue,
+                Ordering::Equal => {}
                 ordering => return ordering,
             }
         }

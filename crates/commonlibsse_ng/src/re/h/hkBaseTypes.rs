@@ -42,7 +42,7 @@ impl hkHalf {
 
     /// Creates a new `hkHalf` from a 32-bit float.
     #[inline]
-    pub fn from_f32(a_val: f32) -> Self {
+    pub const fn from_f32(a_val: f32) -> Self {
         let mut half = Self::new();
         half.set_f32(a_val);
         half
@@ -50,7 +50,7 @@ impl hkHalf {
 
     /// Sets the internal half-precision value from a 32-bit float.
     #[inline]
-    fn set_f32(&mut self, a_val: f32) {
+    const fn set_f32(&mut self, a_val: f32) {
         // Simplified conversion; actual half-precision float conversion would use IEEE 754 rules
         let bits = a_val.to_bits();
         let sign = (bits >> 31) as i16;

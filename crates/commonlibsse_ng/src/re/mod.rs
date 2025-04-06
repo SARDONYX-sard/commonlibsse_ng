@@ -4,6 +4,7 @@
 mod a;
 mod b;
 mod c;
+mod d;
 mod e;
 mod f;
 mod g;
@@ -30,6 +31,7 @@ pub mod offsets_vtable;
 pub use self::a::*;
 pub use self::b::*;
 pub use self::c::*;
+pub use self::d::*;
 pub use self::e::*;
 pub use self::f::*;
 pub use self::g::*;
@@ -247,10 +249,6 @@ impl BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for BipedAnim {
     }
 }
 
-#[repr(C)]
-pub enum MagicSystem {
-    CastingSource,
-}
 pub struct BSAnimationGraphManagerPtr;
 pub struct BSAnimationCache;
 
@@ -347,12 +345,6 @@ pub struct TESObjectWEAP;
 pub struct TESRace;
 #[repr(C)]
 #[derive(Debug)]
-pub struct MagicItem;
-#[repr(C)]
-#[derive(Debug)]
-pub struct BGSTextureSet;
-#[repr(C)]
-#[derive(Debug)]
 pub struct BSLight;
 impl crate::re::NiSmartPointer::RefCountable for BSLight {
     fn inc_ref_count(&self) {
@@ -369,3 +361,17 @@ pub struct CombatGroup;
 #[repr(C)]
 #[derive(Debug)]
 pub struct TESClass;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct BGSKeywordForm {
+    opaque: [u8; 10],
+}
+pub struct BGSKeywordFormVtbl {
+    // (5 + 1) * 8
+    pub dummy: [u64; 48],
+}
+pub struct EffectItem;
+pub struct EffectSetting;
+pub struct Effect;
+pub struct BGSSoundDescriptorForm;
