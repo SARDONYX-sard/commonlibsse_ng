@@ -43,3 +43,8 @@ pub struct CharacterVtbl {
     pub Unk_128: extern "C" fn(this: *mut Character, c_void) -> c_void,
     pub Unk_129: extern "C" fn(this: *mut Character, c_void) -> c_void,
 }
+const _: () = {
+    const VTABLE_SIZE: usize = core::mem::size_of::<CharacterVtbl>();
+    const EXPECTED_SIZE: usize = 0x129 * core::mem::size_of::<usize>();
+    // assert!(VTABLE_SIZE == EXPECTED_SIZE);
+};

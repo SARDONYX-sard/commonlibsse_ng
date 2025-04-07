@@ -12,7 +12,7 @@ use crate::re::BGSTextureSet::BGSTextureSet;
 use crate::re::BSCoreTypes::RefHandle;
 use crate::re::BSPointerHandle::ActorHandle;
 use crate::re::BSTEvent::{BSTEventSink, BSTEventSource};
-use crate::re::Character::Character;
+use crate::re::Character::{Character, CharacterVtbl};
 use crate::re::CrosshairPickData::VR_DEVICE;
 use crate::re::FormTypes::FormType;
 use crate::re::InventoryEntryData::InventoryEntryData;
@@ -29,7 +29,7 @@ use crate::re::TESObjectREFR::TESObjectREFR;
 use crate::re::TESTrackedStatsEvent::TESTrackedStatsEvent;
 use crate::re::offsets_rtti::RTTI_PlayerCharacter;
 use crate::re::offsets_vtable::VTABLE_PlayerCharacter;
-use crate::re::{BGSActorDeathEvent, TESObjectWEAP, TESRace};
+use crate::re::{BGSActorDeathEvent, TESFaction, TESObjectWEAP, TESRace};
 use crate::re::{Effect, MagicSystem, UserEventEnabledEvent};
 use crate::rel::id::VariantID;
 
@@ -173,6 +173,18 @@ impl PlayerCharacter {
 
     // VR-specific functions (if VR is enabled)
     // pub fn is_grabbing_with_device(&mut self, device: VR_DEVICE) -> bool {}
+}
+
+pub struct PlayerCharacterVtbl {
+    pub __base: CharacterVtbl,
+
+    // 0x12A * 8 = 4520
+    pub Unk_12A: fn(this: *mut PlayerCharacter), // 0x12A
+    pub GetViolentCrimeGoldValue: fn(this: *const PlayerCharacter, faction: *mut TESFaction) -> u32, // 0x12B
+    pub GetNonViolentCrimeGoldValue:
+        fn(this: *const PlayerCharacter, faction: *mut TESFaction) -> u32, // 0x12C
+    pub ClearAllCrimeGold: fn(this: *mut PlayerCharacter, faction: *mut TESFaction), // 0x12D
+    pub Unk_12E: fn(this: *mut PlayerCharacter),                                     // 0x12E
 }
 
 impl crate::re::NiSmartPointer::RefCountable for PlayerCharacter {

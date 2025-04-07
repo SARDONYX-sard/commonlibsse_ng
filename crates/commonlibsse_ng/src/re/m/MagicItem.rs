@@ -1,5 +1,6 @@
 use crate::re::Actor::Actor;
 use crate::re::ActorValues::{ActorValue, ActorValueFlags};
+use crate::re::BGSKeywordForm::{BGSKeywordForm, BGSKeywordFormVtbl};
 use crate::re::BSTArray::BSTArray;
 use crate::re::BSTSmartPointer::BSTSmartPointer;
 use crate::re::MagicSystem;
@@ -10,7 +11,7 @@ use crate::re::TESModel::TESModel;
 use crate::re::TESObjectWEAP;
 use crate::re::offsets_rtti::RTTI_MagicItem;
 use crate::re::offsets_vtable::VTABLE_MagicItem;
-use crate::re::{BGSKeywordForm, BGSKeywordFormVtbl, EffectItem, EffectSetting};
+use crate::re::{EffectItem, EffectSetting};
 use crate::rel::id::VariantID;
 
 #[derive(Debug)]
@@ -28,17 +29,16 @@ impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for QueuedFile
 #[repr(C)]
 #[derive(Debug)]
 pub struct MagicItem {
-    pub vtbl: *const MagicItemVtbl, // must be first for C++ ABI compatibility
-    pub __base: TESBoundObject,     // 00
-    pub __base1: TESFullName,       // 30
-    pub __base2: BGSKeywordForm,    // 40
-    pub effects: BSTArray<*mut EffectItem>, // 58
-    pub hostileCount: i32,          // 70
-    pub pad74: u32,                 // 74
-    pub avEffect: *mut EffectSetting, // 78
-    pub preloadCount: u32,          // 80
-    pub pad84: u32,                 // 84
-    pub preloadItem: BSTSmartPointer<QueuedFile>, // 88
+    pub __base: TESBoundObject,                   // 0x00
+    pub __base1: TESFullName,                     // 0x30
+    pub __base2: BGSKeywordForm,                  // 0x40
+    pub effects: BSTArray<*mut EffectItem>,       // 0x58
+    pub hostileCount: i32,                        // 0x70
+    pub pad74: u32,                               // 0x74
+    pub avEffect: *mut EffectSetting,             // 0x78
+    pub preloadCount: u32,                        // 0x80
+    pub pad84: u32,                               // 0x84
+    pub preloadItem: BSTSmartPointer<QueuedFile>, // 0x88
 }
 const _: () = assert!(core::mem::size_of::<MagicItem>() == 0x90);
 

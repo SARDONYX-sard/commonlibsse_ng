@@ -46,11 +46,12 @@ fn record_game_date() {
 
 fn record_player_character() {
     use commonlibsse_ng::re::PlayerCharacter::PlayerCharacter;
-    if let Some(player) = PlayerCharacter::get_singleton() {
+
+    #[cfg(feature = "tracing")]
+    tracing::trace!("is_god_mode = {}", PlayerCharacter::is_god_mode());
+
+    if let Some(_player) = PlayerCharacter::get_singleton() {
         #[cfg(feature = "tracing")]
-        tracing::trace!("{player:#?}");
-        let _is_god_mode = PlayerCharacter::is_god_mode();
-        #[cfg(feature = "tracing")]
-        tracing::trace!("is_god_mode = {_is_god_mode}");
+        tracing::trace!("{_player:#?}");
     };
 }

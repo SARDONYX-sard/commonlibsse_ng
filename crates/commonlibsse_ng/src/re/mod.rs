@@ -209,8 +209,6 @@ pub struct TESTopicInfo;
 #[repr(C)]
 pub struct BGSAnimationSequencer;
 #[repr(C)]
-pub struct BGSKeyword;
-#[repr(C)]
 pub struct TESPackage;
 #[repr(C)]
 pub struct BGSScene;
@@ -362,16 +360,6 @@ pub struct CombatGroup;
 #[derive(Debug)]
 pub struct TESClass;
 
-#[repr(C)]
-#[derive(Debug)]
-pub struct BGSKeywordForm {
-    opaque: [u8; 10],
-}
-pub struct BGSKeywordFormVtbl {
-    // (5 + 1) * 8
-    pub dummy: [u64; 48],
-}
 pub struct EffectItem;
 pub struct EffectSetting;
 pub struct Effect;
-pub struct BGSSoundDescriptorForm;

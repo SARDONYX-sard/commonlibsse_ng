@@ -1,18 +1,19 @@
 use core::ffi::c_void;
 
+use crate::re::BGSKeyword::BGSKeyword;
 use crate::re::BSAnimationUpdateData::BSAnimationUpdateData;
 use crate::re::BSPointerHandle::ObjectRefHandle;
 use crate::re::BSTEvent::BSTEventSinkVtbl;
 use crate::re::BSTSmartPointer::BSTSmartPointer;
 use crate::re::ExtraDataList::ExtraDataList;
+use crate::re::IAnimationGraphManagerHolder::IAnimationGraphManagerHolderVtbl;
 use crate::re::NiAVObject::NiAVObject;
 use crate::re::NiPoint3::NiPoint3;
 use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::{TESForm, TESFormVtbl};
 use crate::re::TESObjectCELL::TESObjectCELL;
-use crate::re::i::IAnimationGraphManagerHolder::IAnimationGraphManagerHolderVtbl;
 use crate::re::{
-    ActorCause, BGSAnimationSequencer, BGSDialogueBranch, BGSKeyword, BGSLocation, BGSScene,
+    ActorCause, BGSAnimationSequencer, BGSDialogueBranch, BGSLocation, BGSScene,
     BSAnimationGraphEvent, BSFaceGenAnimationData, BSFaceGenNiNode, BipedAnim, DialogueResponse,
     ITEM_REMOVE_REASON, MagicCaster, MagicTarget, NiNode, TESActorBase, TESPackage, TESTopicInfo,
     TargetEntry, TrapData, TrapEntry,
