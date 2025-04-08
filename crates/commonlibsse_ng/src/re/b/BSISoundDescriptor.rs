@@ -22,6 +22,11 @@ pub struct BSISoundDescriptorVtbl {
     pub Unk_01: extern "C" fn(this: *mut BSISoundDescriptor),  // 0x01
     pub Unk_02: extern "C" fn(this: *mut BSISoundDescriptor),  // 0x02
 }
+const _: () = {
+    const ACTUAL_SIZE: usize = core::mem::size_of::<BSISoundDescriptorVtbl>();
+    const EXPECTED_SIZE: usize = (0x02 + 1) * core::mem::size_of::<usize>();
+    assert!(ACTUAL_SIZE == EXPECTED_SIZE);
+};
 
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -44,3 +49,8 @@ pub struct BSIPlaybackCharacteristicsVtbl {
     pub GetStaticAttenuation: extern "C" fn(this: *mut BSIPlaybackCharacteristics) -> u16, // 0x4
     pub GetDBVariance: extern "C" fn(this: *mut BSIPlaybackCharacteristics) -> u8, // 0x5
 }
+const _: () = {
+    const ACTUAL_SIZE: usize = core::mem::size_of::<BSIPlaybackCharacteristicsVtbl>();
+    const EXPECTED_SIZE: usize = (0x05 + 1) * core::mem::size_of::<usize>();
+    assert!(ACTUAL_SIZE == EXPECTED_SIZE);
+};
