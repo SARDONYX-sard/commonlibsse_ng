@@ -21,7 +21,7 @@ pub struct BGSAddToPlayerInventoryEvent {
     containerRef: ObjectRefHandle,
     location: *mut BGSLocation,
     itemBase: *mut TESForm,
-    acquireType: ACQUIRE_TYPEFlags,
+    acquireType: ACQUIRE_TYPE_CEnum,
 }
 const _: () = assert!(core::mem::size_of::<BGSAddToPlayerInventoryEvent>() == 0x20);
 

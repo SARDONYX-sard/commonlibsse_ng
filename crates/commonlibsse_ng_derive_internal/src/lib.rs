@@ -137,7 +137,7 @@ pub fn relocate_fn(attrs: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// | Attribute   | Description                                                                                |
 /// |-------------|--------------------------------------------------------------------------------------------|
-/// | `flag_name` | The Identifier of Flag struct(optional, defaults to `Flags` suffix struct if not provided) |
+/// | `flag_name` | The Identifier of Flag struct(optional, defaults to `_CEnum` suffix struct if not provided) |
 ///
 /// # Why this is necessary
 /// In the context of FFI (Foreign Function Interface), the `enum` type is often represented as `i32` or `u32`.
@@ -154,7 +154,7 @@ pub fn relocate_fn(attrs: TokenStream, item: TokenStream) -> TokenStream {
 /// - [Expanded sample](https://play.rust-lang.org/?version=stable&mode=debug&edition=2024&gist=037f7efdd562a28e7af4cbb59406602b)
 ///
 /// ```rust
-/// #[commonlibsse_ng_derive_internal::ffi_enum] // auto generate `struct MyEnumFlags(i32)`
+/// #[commonlibsse_ng_derive_internal::ffi_enum] // auto generate `struct MyEnum_CEnum(i32)`
 /// #[repr(i32)]
 /// enum MyEnum {
 ///     A = 1,
@@ -163,17 +163,17 @@ pub fn relocate_fn(attrs: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 ///
 /// // FFI -> Enum
-/// let valid = MyEnumFlags::A;
-/// assert_eq!(core::mem::size_of::<MyEnumFlags>(), core::mem::size_of::<i32>());
+/// let valid = MyEnum_CEnum::A;
+/// assert_eq!(core::mem::size_of::<MyEnum_CEnum>(), core::mem::size_of::<i32>());
 /// assert_eq!(valid.to_enum(), Some(MyEnum::A));
 ///
 /// // Invalid flag: using a bit value that is not defined in the enum
-/// let invalid = MyEnumFlags(999);
+/// let invalid = MyEnum_CEnum(999);
 /// assert_eq!(invalid.to_enum(), None);
 ///
 /// // Enum -> FFI
-/// let flag = MyEnumFlags::from_enum(MyEnum::B);
-/// assert_eq!(flag, MyEnumFlags::B);
+/// let flag = MyEnum_CEnum::from_enum(MyEnum::B);
+/// assert_eq!(flag, MyEnum_CEnum::B);
 /// ```
 #[proc_macro_attribute]
 pub fn ffi_enum(attrs: TokenStream, item: TokenStream) -> TokenStream {

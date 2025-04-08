@@ -41,7 +41,7 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
     // Generate flag struct name: MyEnum -> MyEnumFlags
     let flags_ident = match args.flag_name {
         Some(name) => format_ident!("{name}"),
-        None => format_ident!("{enum_ident}Flags"),
+        None => format_ident!("{enum_ident}_CEnum"),
     };
 
     // Generate bitflags and match arms

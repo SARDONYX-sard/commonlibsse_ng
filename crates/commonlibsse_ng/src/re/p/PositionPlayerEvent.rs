@@ -2,7 +2,7 @@
 #[repr(C)]
 #[derive(Debug, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PositionPlayerEvent {
-    type_: EVENT_TYPEFlags,
+    type_: EVENT_TYPE_CEnum,
 }
 const _: () = assert!(core::mem::size_of::<PositionPlayerEvent>() == 0x4);
 

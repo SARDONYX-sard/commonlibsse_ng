@@ -26,7 +26,7 @@ pub struct TESGlobal {
 
     /// The type of the global (float, long, short).
     /// - Offset: `0x30`
-    pub type_: TypeFlags,
+    pub type_: Type_CEnum,
 
     /// Padding for alignment.
     /// - Offset: `0x31`

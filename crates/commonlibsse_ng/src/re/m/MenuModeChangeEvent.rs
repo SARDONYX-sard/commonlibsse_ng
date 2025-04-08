@@ -4,7 +4,7 @@ use crate::re::BSFixedString::BSFixedString;
 #[derive(Debug, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct MenuModeChangeEvent {
     menu: BSFixedString, // 0x00
-    mode: ModeFlags,     // 0x08
+    mode: Mode_CEnum,    // 0x08
 }
 const _: () = assert!(core::mem::size_of::<MenuModeChangeEvent>() == 0x10);
 

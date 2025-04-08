@@ -22,7 +22,7 @@ pub struct hkpMotion {
 
     /// Motion type enumeration.
     /// - Offset: 0x010
-    pub type_: MotionTypeFlags,
+    pub type_: MotionType_CEnum,
 
     /// Counter for deactivation integration.
     /// - Offset: 0x011
@@ -138,7 +138,7 @@ impl hkpMotion {
     pub fn new() -> Self {
         Self {
             __base: hkReferencedObject::new(),
-            type_: MotionTypeFlags::Invalid,
+            type_: MotionType_CEnum::Invalid,
             deactivationIntegrateCounter: 0,
             deactivationNumInactiveFrames: [0; 2],
             pad016: 0,

@@ -78,7 +78,7 @@ pub struct Message {
     /// The name of the sender as a C string.
     pub sender: *const c_char,
     /// The type of message.
-    pub msg_type: MessageTypeFlags,
+    pub msg_type: MessageType_CEnum,
     /// The length of the data buffer.
     pub data_len: u32,
     /// Pointer to the message data.

@@ -42,7 +42,7 @@ pub struct BSTEventSinkVtbl<Event> {
         this: *mut BSTEventSink<Event>,
         event: *const BSTEventSink<Event>,
         eventSource: *const BSTEventSource<Event>,
-    ) -> BSEventNotifyControlFlags,
+    ) -> BSEventNotifyControl_CEnum,
 }
 
 #[repr(C)]

@@ -1,5 +1,5 @@
 use crate::re::Actor::Actor;
-use crate::re::ActorValues::{ActorValue, ActorValueFlags};
+use crate::re::ActorValues::{ActorValue, ActorValue_CEnum};
 use crate::re::BGSKeywordForm::{BGSKeywordForm, BGSKeywordFormVtbl};
 use crate::re::BSTArray::BSTArray;
 use crate::re::BSTSmartPointer::BSTSmartPointer;
@@ -56,9 +56,9 @@ pub struct MagicItemVtbl {
     // MagicItem virtual methods (start offset: 0x53 * 8 = 664)
     pub GetSpellType: extern "C" fn(this: *const MagicItem) -> MagicSystem::SpellType, // 0x53
     pub SetCastingType: extern "C" fn(this: *mut MagicItem, ty: MagicSystem::CastingType), // 0x54 - { return; }
-    pub GetCastingType: extern "C" fn(this: *const MagicItem) -> MagicSystem::CastingTypeFlags, // 0x55
+    pub GetCastingType: extern "C" fn(this: *const MagicItem) -> MagicSystem::CastingType_CEnum, // 0x55
     pub SetDelivery: extern "C" fn(this: *mut MagicItem, delivery: MagicSystem::Delivery), // 0x56 - { return; }
-    pub GetDelivery: extern "C" fn(this: *const MagicItem) -> MagicSystem::DeliveryFlags,  // 0x57
+    pub GetDelivery: extern "C" fn(this: *const MagicItem) -> MagicSystem::Delivery_CEnum,  // 0x57
     pub IsValidDelivery:
         extern "C" fn(this: *const MagicItem, delivery: MagicSystem::Delivery) -> bool, // 0x58 - { return true; }
     pub GetFixedCastDuration: extern "C" fn(this: *const MagicItem) -> f32, // 0x59 - { return 0.0; }
@@ -74,7 +74,7 @@ pub struct MagicItemVtbl {
     pub AdjustCost: extern "C" fn(this: *const MagicItem, cost: *mut f32, actor: *mut Actor), // 0x63 - { return; }
     pub GetChargeTime: extern "C" fn(this: *const MagicItem) -> f32, // 0x64 - { return 0.0; }
     pub GetMaxEffectCount: extern "C" fn(this: *const MagicItem) -> u32, // 0x65 - { return 0; }
-    pub GetAssociatedSkill: extern "C" fn(this: *const MagicItem) -> ActorValueFlags, // 0x66 - { return ActorValue::kNone; }
+    pub GetAssociatedSkill: extern "C" fn(this: *const MagicItem) -> ActorValue_CEnum, // 0x66 - { return ActorValue::kNone; }
     pub IsTwoHanded: extern "C" fn(this: *const MagicItem) -> bool, // 0x67 - { return false; }
     pub GetChunkID: extern "C" fn(this: *mut MagicItem) -> u32,     // 0x68
     pub CopyMagicItemData: extern "C" fn(this: *mut MagicItem, src: *const MagicItem), // 0x69
