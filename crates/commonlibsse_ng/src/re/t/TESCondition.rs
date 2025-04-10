@@ -1,24 +1,27 @@
 mod function_id;
 
+use core::ptr;
+
 pub use function_id::FunctionData;
 
 use crate::re::BSPointerHandle::ObjectRefHandle;
 use crate::re::TESGlobal::TESGlobal;
 
 #[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum OpCode {
-    /// - `==`: EqualTo
+    /// - EqualTo: `==`
+    #[default]
     Eq,
-    /// - `!=`: NotEqualTo
+    /// - NotEqualTo: `!=`
     Ne,
-    /// - `>`: GreaterThan
+    /// - GreaterThan: `>`
     Gt,
-    /// - `>=`: GreaterThanOrEqualTo
+    /// - GreaterThanOrEqualTo: `>=`
     Ge,
-    /// - `<`: LessThan
+    /// - LessThan: `<`
     Lt,
-    /// - `<=`: LessThanOrEqualTo
+    /// - LessThanOrEqualTo: `<=`
     Le,
 }
 
@@ -28,6 +31,13 @@ pub union GlobalOrFloat {
     pub f: f32,
 }
 const _: () = assert!(std::mem::size_of::<GlobalOrFloat>() == 0x8);
+
+impl Default for GlobalOrFloat {
+    #[inline]
+    fn default() -> Self {
+        Self { g: ptr::null_mut() }
+    }
+}
 
 bitflags::bitflags! {
     #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -75,7 +85,7 @@ pub enum ConditionItemObject {
     CommandTarget = 8,
 }
 
-// #[derive(Debug)]
+#[derive(Default)]
 #[repr(C)]
 pub struct CONDITION_ITEM_DATA {
     pub comparison_value: GlobalOrFloat, // 0x08
@@ -96,7 +106,12 @@ pub struct TESCondition {
 }
 const _: () = assert!(core::mem::size_of::<TESCondition>() == 0x8);
 
-impl TESCondition {}
+impl Default for TESCondition {
+    #[inline]
+    fn default() -> Self {
+        Self { head: ptr::null_mut() }
+    }
+}
 
 // #[derive(Debug)]
 #[repr(C)]
@@ -106,11 +121,7 @@ pub struct TESConditionItem {
 }
 const _: () = assert!(core::mem::size_of::<TESConditionItem>() == 0x38);
 
-#[commonlibsse_ng_derive_internal::ffi_enum]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(u32)]
-pub enum PERK_ENTRY_TYPE {
-    Quest = 0,
-    Ability = 1,
-    EntryPoint = 2,
+impl TESConditionItem {
+    // #[commonlibsse_ng_derive_internal(se_id = 29090, ae_id = 29924)]
+    // pub fn is_true(&self, solution: &mut ConditionCheckParams) -> bool {}
 }

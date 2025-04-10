@@ -745,9 +745,20 @@ pub enum FunctionID {
 #[repr(C)]
 #[derive(Debug)]
 pub struct FunctionData {
-    pub function: FunctionID,                // 0x00
+    pub function: FunctionID_CEnum,          // 0x00
     pub pad02: u16,                          // 0x02
     pub pad04: u32,                          // 0x04
     pub params: [*mut core::ffi::c_void; 2], // 0x08
 }
 const _: () = assert!(std::mem::size_of::<FunctionData>() == 0x18);
+
+impl Default for FunctionData {
+    fn default() -> Self {
+        Self {
+            function: FunctionID_CEnum(u16::MAX),
+            pad02: 0,
+            pad04: 0,
+            params: [core::ptr::null_mut(); 2],
+        }
+    }
+}

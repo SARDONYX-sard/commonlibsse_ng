@@ -79,7 +79,7 @@ fn record_game_ini() {
             let is_valid_range = {
                 let game_setting_ptr = (game_setting as *const GameSettingCollection).cast();
                 const GAME_SETTING_LEN: usize = core::mem::size_of::<GameSettingCollection>();
-                commonlibsse_ng::rex::win32::is_valid_range(game_setting_ptr, GAME_SETTING_LEN);
+                commonlibsse_ng::rex::win32::is_valid_range(game_setting_ptr, GAME_SETTING_LEN)
             };
             tracing::trace!("game_setting.is_valid_range() = {is_valid_range}");
 
