@@ -14,7 +14,7 @@ pub enum BSEventNotifyControl {
 
 #[derive(Debug)]
 pub struct BSTEventSink<Event> {
-    vtable: Option<NonNull<BSTEventSinkVtbl<Event>>>,
+    pub vtable: Option<NonNull<BSTEventSinkVtbl<Event>>>,
 }
 const _: () = assert!(core::mem::size_of::<BSTEventSink<*mut ()>>() == 0x8);
 
@@ -48,14 +48,14 @@ pub struct BSTEventSinkVtbl<Event> {
 #[repr(C)]
 #[derive(Debug)]
 pub struct BSTEventSource<Event> {
-    sinks: BSTArray<*mut BSTEventSink<Event>>,
-    pendingRegisters: BSTArray<*mut BSTEventSink<Event>>,
-    pendingUnregisters: BSTArray<*mut BSTEventSink<Event>>,
-    lock: BSSpinLock,
-    notifying: bool,
-    pad51: u8,
-    pad52: u16,
-    pad54: u32,
+    pub sinks: BSTArray<*mut BSTEventSink<Event>>,
+    pub pendingRegisters: BSTArray<*mut BSTEventSink<Event>>,
+    pub pendingUnregisters: BSTArray<*mut BSTEventSink<Event>>,
+    pub lock: BSSpinLock,
+    pub notifying: bool,
+    pub pad51: u8,
+    pub pad52: u16,
+    pub pad54: u32,
 }
 const _: () = {
     assert!(core::mem::offset_of!(BSTEventSource<*mut ()>, sinks) == 0x00);

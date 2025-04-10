@@ -6,7 +6,7 @@ use crate::re::offsets_vtable::VTABLE_TESTexture;
 use crate::rel::id::VariantID;
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct TESTexture {
     pub __base: BaseFormComponent,  // 00
     pub textureName: BSFixedString, // 08 - ICON

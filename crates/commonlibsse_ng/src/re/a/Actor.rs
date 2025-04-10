@@ -5,7 +5,9 @@ mod runtime_data;
 pub use enums::*;
 pub use local_map::*;
 
+use crate::re::BSAnimationGraphEvent::BSAnimationGraphEvent;
 use crate::re::BSCoreTypes::RefHandle;
+use crate::re::BSTEvent::BSTEventSink;
 use crate::re::FormTypes::FormType;
 use crate::re::Misc::LookupReferenceByHandle_ActorImpl;
 use crate::re::NiSmartPointer::NiPointer;
@@ -43,6 +45,41 @@ impl Actor {
     #[inline]
     pub fn lookup_by_handle_actor(ref_handle: RefHandle, refr_out: &mut NiPointer<Self>) -> bool {
         LookupReferenceByHandle_ActorImpl(&ref_handle, refr_out)
+    }
+
+    pub fn add_animation_graph_event_sink(
+        &self,
+        sink: *mut BSTEventSink<BSAnimationGraphEvent>,
+    ) -> bool {
+        let mut graph_manager = match self.__base.__base3.get_animation_graph_manager() {
+            Some(graph) => graph,
+            None => return false,
+        };
+
+        let mut sinked = false;
+        for anim_graph in &graph_manager.graphs {
+            if sinked {
+                break;
+            }
+
+            for other_sink in &anim_graph.__base3.sinks {
+                if sink == *other_sink {
+                    sinked = true;
+                    break;
+                }
+            }
+        }
+
+        if !sinked {
+            let anim_graph = match graph_manager.graphs.get_mut(0) {
+                Some(sink) => sink,
+                None => return false,
+            };
+            anim_graph.__base3.add_event_sink(sink);
+            return true;
+        };
+
+        false
     }
 }
 

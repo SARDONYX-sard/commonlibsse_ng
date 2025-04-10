@@ -69,6 +69,7 @@
     "serde",
     "setzero",
     "SIGV",
+    "sinked",
     "SKSE",
     "Skyrim",
     "smallvec",

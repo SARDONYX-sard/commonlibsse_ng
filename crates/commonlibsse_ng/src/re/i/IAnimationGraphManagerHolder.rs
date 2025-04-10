@@ -14,6 +14,7 @@ use crate::re::BSTArray::BSScrapArray;
 use crate::re::BSTSmartPointer::BSTSmartPointer;
 use crate::re::BShkbAnimationGraph::BShkbAnimationGraph;
 use crate::re::NiAVObject::NiAVObject;
+use crate::re::SpellItem::SpellItem;
 use crate::re::offsets_rtti::RTTI_IAnimationGraphManagerHolder;
 use crate::re::offsets_vtable::VTABLE_IAnimationGraphManagerHolder;
 use crate::rel::id::VariantID;
@@ -23,7 +24,7 @@ use crate::rel::id::VariantID;
 pub struct IAnimationGraphManagerHolder {
     /// Virtual function table pointer.
     /// Offset: `0x0`
-    pub vtable: *const IAnimationGraphManagerHolderVtbl,
+    vtable: *const IAnimationGraphManagerHolderVtbl,
 }
 
 const _: () = {
@@ -36,6 +37,25 @@ impl IAnimationGraphManagerHolder {
 
     /// Address & offset of the virtual function table.
     pub const VTABLE: [VariantID; 1] = VTABLE_IAnimationGraphManagerHolder;
+
+    /// # Panics
+    /// If vtable is null.
+    #[inline]
+    pub const fn vtable(&self) -> &IAnimationGraphManagerHolderVtbl {
+        unsafe { self.vtable.as_ref().expect("vtable must not be null") }
+    }
+
+    #[inline]
+    pub fn get_animation_graph_manager(&self) -> Option<BSTSmartPointer<BSAnimationGraphManager>> {
+        let mut out = BSTSmartPointer::default();
+        if (self.vtable().GetAnimationGraphManagerImpl)(self, &mut out) && !out.is_null() {
+            return Some(out);
+        };
+        None
+    }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 37787, ae_id = 38736)]
+    pub fn add_cast_power(&mut self, power: *mut SpellItem) {}
 }
 
 /// The virtual function table for `IAnimationGraphManagerHolder`.

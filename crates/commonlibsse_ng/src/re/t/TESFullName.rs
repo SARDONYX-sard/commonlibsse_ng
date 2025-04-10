@@ -6,7 +6,7 @@ use crate::rel::id::VariantID;
 use core::ffi::{c_char, c_void};
 
 #[repr(C)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct TESFullName {
     pub __base: BaseFormComponent, // 0x00
     pub fullName: BSFixedString,   // 0x08 - FULL
@@ -22,7 +22,7 @@ impl TESFullName {
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug)]
 pub struct TESFullNameVtbl {
     /// override
     /// - `CxxDrop`(0x00):

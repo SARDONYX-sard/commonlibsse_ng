@@ -675,6 +675,8 @@ impl<T, A: Allocator> Drop for BSTDrain<'_, T, A> {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 pub struct BSTArrayIterator<'a, T, A>
 where
     A: Allocator,
@@ -689,6 +691,7 @@ where
 {
     type Item = &'a T;
 
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.array.len() {
             let item = unsafe { &*self.array.as_ptr().add(self.index) };
@@ -714,6 +717,7 @@ where
 {
     type Item = T;
 
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.array.len() {
             let item = unsafe { ptr::read(self.array.as_ptr().add(self.index)) };
@@ -732,6 +736,7 @@ where
     type Item = T;
     type IntoIter = BSTArrayIntoIterator<T, A>;
 
+    #[inline]
     fn into_iter(self) -> Self::IntoIter {
         BSTArrayIntoIterator { array: self, index: 0 }
     }
@@ -744,8 +749,56 @@ where
     type Item = &'a T;
     type IntoIter = BSTArrayIterator<'a, T, A>;
 
+    #[inline]
     fn into_iter(self) -> Self::IntoIter {
         BSTArrayIterator { array: self, index: 0 }
+    }
+}
+
+pub struct BSTArrayIterMut<'a, T, A>
+where
+    A: Allocator,
+{
+    array: &'a mut BSTArray<T, A>,
+    index: usize,
+}
+
+impl<'a, T, A> Iterator for BSTArrayIterMut<'a, T, A>
+where
+    A: Allocator,
+{
+    type Item = &'a mut T;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.array.len() {
+            unsafe {
+                let ptr = self.array.as_mut_ptr().add(self.index);
+                self.index += 1;
+                Some(&mut *ptr)
+            }
+        } else {
+            None
+        }
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.array.len();
+        (len, Some(len))
+    }
+}
+
+impl<'a, T, A> IntoIterator for &'a mut BSTArray<T, A>
+where
+    A: Allocator,
+{
+    type Item = &'a mut T;
+    type IntoIter = BSTArrayIterMut<'a, T, A>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        BSTArrayIterMut { array: self, index: 0 }
     }
 }
 

@@ -20,11 +20,9 @@ fn plugin_main() {
 }
 
 fn skse_event_listener(message: &Message) {
-    // #[cfg(feature = "tracing")]
-    // tracing::trace!("SKSE event: {message:#?}");
-
     if let Some(msg_type) = message.msg_type.to_enum() {
         if msg_type == MessageType::PostLoadGame {
+            record_game_ini();
             record_player_character();
             // record_game_date();
         }
@@ -37,9 +35,9 @@ fn record_game_date() {
     if let Some(calendar) = Calendar::get_singleton() {
         #[cfg(feature = "tracing")]
         tracing::trace!("{calendar:#?}");
-        if let Some(_date) = calendar.get_time() {
+        if let Some(date) = calendar.get_time() {
             #[cfg(feature = "tracing")]
-            tracing::trace!("{_date}");
+            tracing::trace!("{date}");
         };
     };
 }
@@ -53,21 +51,39 @@ fn record_player_character() {
 
     if let Some(player) = PlayerCharacter::get_singleton() {
         #[cfg(feature = "tracing")]
-        tracing::trace!("player addr = {:p}", player);
-
-        #[cfg(feature = "tracing")]
         {
-            let player_ptr = (player as *const PlayerCharacter).cast();
-            let player_len = core::mem::size_of::<PlayerCharacter>();
-            let is_valid_range =
-                commonlibsse_ng::rex::win32::is_valid_range(player_ptr, player_len);
-            tracing::trace!("player.is_valid_range() = {}", is_valid_range);
-        }
+            tracing::trace!("player addr = {player:p}");
 
-        #[cfg(feature = "tracing")]
-        {
+            let is_valid_range = {
+                let player_ptr = (player as *const PlayerCharacter).cast();
+                const PLAYER_LEN: usize = core::mem::size_of::<PlayerCharacter>();
+                commonlibsse_ng::rex::win32::is_valid_range(player_ptr, PLAYER_LEN)
+            };
+            tracing::trace!("player.is_valid_range() = {is_valid_range}");
+
             let refr = &player.__base.__base.__base;
             tracing::trace!("player_refr = {refr:#?}");
+        }
+    };
+}
+
+#[allow(unused)]
+fn record_game_ini() {
+    use commonlibsse_ng::re::GameSettingCollection::GameSettingCollection;
+
+    if let Some(game_setting) = GameSettingCollection::get_singleton() {
+        #[cfg(feature = "tracing")]
+        {
+            tracing::trace!("game_setting addr = {:p}", game_setting);
+
+            let is_valid_range = {
+                let game_setting_ptr = (game_setting as *const GameSettingCollection).cast();
+                const GAME_SETTING_LEN: usize = core::mem::size_of::<GameSettingCollection>();
+                commonlibsse_ng::rex::win32::is_valid_range(game_setting_ptr, GAME_SETTING_LEN);
+            };
+            tracing::trace!("game_setting.is_valid_range() = {is_valid_range}");
+
+            tracing::trace!("game_setting_refr = {game_setting:#?}");
         }
     };
 }

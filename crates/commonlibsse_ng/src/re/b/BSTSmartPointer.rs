@@ -13,6 +13,7 @@ use core::ptr;
 
 pub trait BSTSmartPointerTrait {
     /// No-op for acquire.
+    #[inline]
     fn acquire<T>(_ptr: *mut T)
     where
         T: BSIntrusiveRefCountedTrait,
@@ -22,6 +23,7 @@ pub trait BSTSmartPointerTrait {
     /// Deallocates the managed object.
     ///
     /// # Safety
+    #[inline]
     unsafe fn release<T>(ptr: *mut T)
     where
         T: BSIntrusiveRefCountedTrait,
@@ -38,6 +40,7 @@ pub struct BSTSmartPointerIntrusiveRefCount;
 
 impl BSTSmartPointerTrait for BSTSmartPointerIntrusiveRefCount {
     /// Increases the reference count of the managed object.
+    #[inline]
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn acquire<T>(ptr: *mut T)
     where
@@ -49,6 +52,7 @@ impl BSTSmartPointerTrait for BSTSmartPointerIntrusiveRefCount {
     }
 
     /// Decreases the reference count and deallocates if necessary.
+    #[inline]
     unsafe fn release<T>(ptr: *mut T)
     where
         T: BSIntrusiveRefCountedTrait,
@@ -83,12 +87,14 @@ where
     M: BSTSmartPointerTrait,
 {
     /// Creates a new `BSTSmartPointer` from a raw pointer.
+    #[inline]
     pub fn new(ptr: *mut T) -> Self {
         M::acquire(ptr);
         Self { ptr, _marker: PhantomData }
     }
 
     /// Resets the smart pointer, releasing the current object.
+    #[inline]
     pub fn reset(&mut self) {
         unsafe {
             M::release(self.ptr);
@@ -97,24 +103,34 @@ where
     }
 
     /// Creates a new `BSTSmartPointer` by moving ownership.
+    #[inline]
     pub fn from_box(value: Box<T>) -> Self {
         let ptr = Box::into_raw(value);
         Self::new(ptr)
     }
 
     /// Returns a reference to the managed object or `None` if null.
+    #[inline]
     pub const fn as_ref(&self) -> Option<&T> {
         unsafe { self.ptr.as_ref() }
     }
 
     /// Returns a mutable reference to the managed object or `None` if null.
+    #[inline]
     pub const fn as_mut(&mut self) -> Option<&mut T> {
         unsafe { self.ptr.as_mut() }
     }
 
     /// Gets the raw pointer.
+    #[inline]
     pub const fn get(&self) -> *mut T {
         self.ptr
+    }
+
+    /// Is null ptr?
+    #[inline]
+    pub const fn is_null(&self) -> bool {
+        self.ptr.is_null()
     }
 }
 
@@ -123,6 +139,7 @@ where
     T: BSIntrusiveRefCountedTrait,
     M: BSTSmartPointerTrait,
 {
+    #[inline]
     fn default() -> Self {
         Self { ptr: ptr::null_mut(), _marker: PhantomData }
     }
@@ -133,6 +150,7 @@ where
     T: BSIntrusiveRefCountedTrait,
     M: BSTSmartPointerTrait,
 {
+    #[inline]
     fn drop(&mut self) {
         self.reset();
     }
@@ -145,6 +163,7 @@ where
 {
     type Target = T;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         self.as_ref().expect("Dereferencing null pointer")
     }
@@ -155,6 +174,7 @@ where
     T: BSIntrusiveRefCountedTrait,
     M: BSTSmartPointerTrait,
 {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_mut().expect("Dereferencing null pointer")
     }
@@ -165,6 +185,7 @@ where
     T: BSIntrusiveRefCountedTrait,
     M: BSTSmartPointerTrait,
 {
+    #[inline]
     fn clone(&self) -> Self {
         M::acquire(self.ptr);
         Self { ptr: self.ptr, _marker: PhantomData }
@@ -176,6 +197,7 @@ where
     T: BSIntrusiveRefCountedTrait,
     M: BSTSmartPointerTrait,
 {
+    #[inline]
     fn eq(&self, other: &Self) -> bool {
         self.ptr == other.ptr
     }
@@ -194,6 +216,7 @@ where
     T: BSIntrusiveRefCountedTrait,
 {
     /// Creates an auto-pointer smart pointer.
+    #[inline]
     pub fn auto_ptr(value: Box<T>) -> Self {
         let ptr = Box::into_raw(value);
         Self::new(ptr)
@@ -201,6 +224,7 @@ where
 }
 
 /// Helper function to create a `BSTSmartPointer`.
+#[inline]
 pub fn make_smart<T, M>(value: T) -> BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
@@ -215,6 +239,7 @@ where
     T: BSIntrusiveRefCountedTrait,
     M: BSTSmartPointerTrait,
 {
+    #[inline]
     fn eq(&self, other: &*mut T) -> bool {
         self.ptr == *other
     }
@@ -225,6 +250,7 @@ where
     T: BSIntrusiveRefCountedTrait,
     M: BSTSmartPointerTrait,
 {
+    #[inline]
     fn eq(&self, other: &Option<*mut T>) -> bool {
         Some(self.ptr) == *other
     }
@@ -235,6 +261,7 @@ where
     T: BSIntrusiveRefCountedTrait,
     M: BSTSmartPointerTrait,
 {
+    #[inline]
     fn eq(&self, other: &std::ptr::NonNull<T>) -> bool {
         self.ptr == other.as_ptr()
     }
