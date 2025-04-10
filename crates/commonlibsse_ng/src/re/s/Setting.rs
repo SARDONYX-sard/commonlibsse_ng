@@ -18,6 +18,7 @@ use core::{fmt, ptr};
 /// - `data`: Union containing the setting value (0x08)
 /// - `name`: Pointer to the setting's name (0x10)
 #[repr(C)]
+#[derive(Clone)]
 pub struct Setting {
     pub vtable: *const SettingVtbl,
     data: Data,
@@ -87,7 +88,7 @@ union Data {
     pub f: f32,
     pub i: i32,
     pub r: Color,
-    pub s: *mut c_char,
+    pub s: *const c_char,
     pub u: u32,
 }
 const _: () = assert!(core::mem::size_of::<Data>() == 0x8);
@@ -99,42 +100,13 @@ impl Setting {
     /// Virtual table offset.
     pub const VTABLE: [VariantID; 1] = VTABLE_Setting;
 
-    /// Creates a new empty `Setting` with zeroed fields.
-    ///
-    /// # Example
-    /// ```
-    /// let setting = Setting::new();
-    /// ```
-    #[inline]
-    pub const fn new() -> Self {
-        Self { vtable: ptr::null(), data: Data { u: 0 }, name: ptr::null_mut() }
-    }
-
     /// Checks whether the setting is managed (i.e., dynamically allocated).
-    ///
-    /// # Example
-    /// ```
-    /// if setting.is_managed() {
-    ///     // clean up
-    /// }
-    /// ```
     #[inline]
     pub const fn is_managed(&self) -> bool {
         !self.name.is_null() && unsafe { self.name.read() } == b'S' as i8
     }
 
     /// Returns the type of the setting based on the name prefix.
-    ///
-    /// # Safety
-    /// Assumes the `name` pointer is valid or null.
-    ///
-    /// # Example
-    /// ```
-    /// match setting.get_type() {
-    ///     Type::Bool => { /* ... */ }
-    ///     _ => {}
-    /// }
-    /// ```
     #[inline]
     pub const fn get_type(&self) -> Type {
         match unsafe { self.name.read() } as u8 {
@@ -161,13 +133,6 @@ impl Setting {
     }
 
     /// Returns the value as a typed enum.
-    ///
-    /// # Example
-    /// ```
-    /// if let SettingValue::Float(f) = setting.get_value() {
-    ///     println!("value = {}", f);
-    /// }
-    /// ```
     #[inline]
     pub const fn get_value(&self) -> SettingValue<'_> {
         if self.name.is_null() {
@@ -197,10 +162,7 @@ impl Setting {
 
 impl Drop for Setting {
     fn drop(&mut self) {
-        if self.is_managed() {
-            unsafe { free(self.name.cast()) };
-            self.name = ptr::null_mut();
-        }
+        ((unsafe { &*self.vtable }).CxxDrop)(self);
     }
 }
 
@@ -221,7 +183,12 @@ impl Default for SettingVtbl {
 impl SettingVtbl {
     #[inline]
     pub const fn new() -> Self {
-        const fn CxxDrop(_this: &mut Setting) {}
+        fn CxxDrop(this: &mut Setting) {
+            if this.is_managed() {
+                unsafe { free(this.name.cast()) };
+                this.name = ptr::null_mut();
+            }
+        }
         const fn Unk_01(_this: &mut Setting) -> bool {
             false
         }

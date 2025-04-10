@@ -4,16 +4,16 @@
 //! simulating the base map and its template inheritance behavior.
 
 use crate::re::NiTMap::NiTMap;
-use core::{
-    ffi::c_char,
-    hash::{Hash as _, Hasher as _},
-};
+use core::ffi::c_char;
 
 /// Represents a string template map.
 ///
 /// Simulates the `NiTStringTemplateMap` C++ class.
+///
+/// - `V`: Map value type
 #[repr(C)]
-pub struct NiTStringTemplateMap<Parent, T> {
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct NiTStringTemplateMap<Parent, V> {
     /// Base map.
     pub __base: Parent,
 
@@ -25,7 +25,7 @@ pub struct NiTStringTemplateMap<Parent, T> {
     pub pad22: u16,
     pub pad24: u32,
 
-    marker: core::marker::PhantomData<T>,
+    marker: core::marker::PhantomData<V>,
 }
 
 const _: () = {
@@ -40,75 +40,14 @@ const _: () = {
 
 /// Represents a case-sensitive string map.
 ///
-/// Inherits from `NiTStringTemplateMap`.
+/// - `V`: Map value type
 #[repr(C)]
-pub struct NiTStringMap<T> {
-    /// Base `NiTStringTemplateMap`.
-    pub __base: NiTStringTemplateMap<NiTMap<*const c_char, T>, T>,
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct NiTStringMap<V> {
+    pub __base: NiTStringTemplateMap<NiTMap<*const c_char, V>, V>,
 }
 
 const _: () = {
     assert!(core::mem::offset_of!(NiTStringMap::<()>, __base) == 0x00);
     assert!(core::mem::size_of::<NiTStringMap::<()>>() == 0x28);
 };
-
-/// Trait representing the `NiTStringMap` behavior.
-pub trait NiTStringMapTrait<T> {
-    /// Hashes a string key.
-    ///
-    /// # Arguments
-    /// - `key`: The string key.
-    ///
-    /// # Returns
-    /// - The hash value.
-    fn hash_function(&self, key: &str) -> u32;
-
-    /// Checks if two keys are equal.
-    ///
-    /// # Arguments
-    /// - `lhs`: The left-hand side key.
-    /// - `rhs`: The right-hand side key.
-    ///
-    /// # Returns
-    /// - `true` if equal, `false` otherwise.
-    fn key_eq(&self, lhs: &str, rhs: &str) -> bool;
-
-    /// Assigns a value to the map.
-    ///
-    /// # Arguments
-    /// - `key`: The key.
-    /// - `value`: The mapped value.
-    fn assign_value(&mut self, key: &str, value: T);
-
-    /// Clears a value from the map.
-    ///
-    /// # Arguments
-    /// - `key`: The key to remove.
-    fn clear_value(&mut self, key: &str);
-}
-
-impl<T> NiTStringMapTrait<T> for NiTStringMap<T> {
-    #[inline]
-    fn hash_function(&self, key: &str) -> u32 {
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
-        key.hash(&mut hasher);
-        hasher.finish() as u32
-    }
-
-    #[inline]
-    fn key_eq(&self, lhs: &str, rhs: &str) -> bool {
-        lhs == rhs
-    }
-
-    #[inline]
-    fn assign_value(&mut self, key: &str, value: T) {
-        let c_key = std::ffi::CString::new(key).unwrap();
-        self.__base.__base.insert(c_key.as_ptr(), value);
-    }
-
-    #[inline]
-    fn clear_value(&mut self, key: &str) {
-        let c_key = std::ffi::CString::new(key).unwrap();
-        self.__base.__base.remove(&c_key.as_ptr());
-    }
-}

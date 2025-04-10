@@ -11,7 +11,7 @@
 /// - `sub_key`: 260 bytes
 /// - `handle`: Pointer to the handle (0x110)
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SettingCollection<T> {
     pub vtable: *const SettingCollectionVtbl<T>, // 0x00
     pub subKey: [u8; 0x104],                     // 0x08

@@ -17,6 +17,7 @@ use crate::rel::id::VariantID;
 /// - `__base`: Base class `SettingCollectionMap<Setting>`
 /// - `handle`: Handle used for settings management
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct GameSettingCollection {
     pub __base: SettingCollectionMap<Setting>, // 0x000
 }

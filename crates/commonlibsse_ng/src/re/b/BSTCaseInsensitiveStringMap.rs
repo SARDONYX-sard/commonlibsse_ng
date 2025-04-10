@@ -9,8 +9,9 @@ use crate::re::NiTStringMap::NiTStringMap;
 
 /// Represents a case-insensitive string map.
 #[repr(C)]
-pub struct BSTCaseInsensitiveStringMap<T> {
-    pub __base: NiTStringMap<T>,
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct BSTCaseInsensitiveStringMap<V> {
+    pub __base: NiTStringMap<V>,
 }
 
 const _: () = {
@@ -69,29 +70,4 @@ pub struct BSTCaseInsensitiveStringMapVtbl<T> {
 
     /// Function pointer for case-insensitive key equality.
     pub KeyEq: fn(this: &BSTCaseInsensitiveStringMap<T>, lhs: &str, rhs: &str) -> bool,
-}
-
-impl<T> Default for BSTCaseInsensitiveStringMapVtbl<T> {
-    #[inline]
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<T> BSTCaseInsensitiveStringMapVtbl<T> {
-    /// Creates a new default virtual table with stubbed functions.
-    #[inline]
-    pub const fn new() -> Self {
-        const fn CxxDrop<T>(_this: &mut BSTCaseInsensitiveStringMap<T>) {}
-
-        const fn HashFunction<T>(_this: &BSTCaseInsensitiveStringMap<T>, _key: &str) -> u32 {
-            0
-        }
-
-        const fn KeyEq<T>(_this: &BSTCaseInsensitiveStringMap<T>, _lhs: &str, _rhs: &str) -> bool {
-            false
-        }
-
-        Self { CxxDrop, HashFunction, KeyEq }
-    }
 }

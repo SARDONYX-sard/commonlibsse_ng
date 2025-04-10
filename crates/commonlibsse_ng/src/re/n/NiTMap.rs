@@ -4,14 +4,14 @@ use core::hash::{Hash, Hasher};
 use core::ptr;
 
 use crate::re::NiTDefaultAllocator::NiTDefaultAllocator;
-use crate::re::NiTMapBase::{NiTMapBase, NiTMapItem};
+use crate::re::NiTMapBase::{NiTMapBase, NiTMapBaseVtbl, NiTMapItem};
 
 /// A generic map data structure that supports basic operations like insertion, removal, and lookup.
 ///
 /// This type is designed to be compatible with C++'s `NiTMap` and is exposed through FFI bindings.
 ///
 /// # Note
-/// As far as the requirements in the vtable are concerned, key is supposed to be a number.
+/// As far as the requirements in the vtable are concerned, key is supposed to be a `Copy` type.
 pub struct NiTMap<K, V> {
     pub __base: NiTMapBase<K, V, NiTDefaultAllocator<NiTMapItem<K, V>>>,
 }
@@ -38,6 +38,10 @@ impl<K, V> NiTMap<K, V> {
     pub const fn is_empty(&self) -> bool {
         self.len() == 0
     }
+}
+
+pub struct NiTMapVtbl<K, V> {
+    pub __base: NiTMapBaseVtbl<K, V, NiTDefaultAllocator<NiTMapItem<K, V>>>,
 }
 
 impl<K, V> NiTMap<K, V>

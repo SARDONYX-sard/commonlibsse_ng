@@ -1,21 +1,37 @@
 use core::cmp::Ordering;
+use core::fmt;
 use core::hash::{Hash, Hasher};
 use core::marker::PhantomData;
 use core::ptr::NonNull;
 
-/// LinkedList
-#[derive(Debug)]
-#[repr(C)]
-pub struct BSSimpleList<T> {
-    list_head: Node<T>,
-}
-
-#[derive(Debug, PartialEq)]
+#[derive(PartialEq)]
 #[repr(C)]
 pub struct Node<T> {
     item: NonNull<T>, // FIXME: FFI type always contains the possibility of null.
     next: Option<NonNull<Node<T>>>, // FIXME: FFI type always contains the possibility of null.
     marker: PhantomData<Box<T>>,
+}
+
+impl<T: fmt::Debug> fmt::Debug for Node<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Recursively traverse nodes and display contents
+        let mut curr = Some(NonNull::from(self));
+        let mut items = vec![];
+
+        while let Some(node_ptr) = curr {
+            // Safety: `item` is a valid pointer
+            unsafe {
+                let node = node_ptr.as_ref();
+                if node.item == NonNull::dangling() {
+                    break;
+                }
+                items.push(node.item.as_ref());
+                curr = node.next;
+            }
+        }
+
+        f.debug_list().entries(items).finish()
+    }
 }
 
 impl<T> Default for Node<T> {
@@ -31,6 +47,13 @@ impl<T> Node<T> {
         let item_ptr = NonNull::from(Box::leak(Box::new(item)));
         Self { item: item_ptr, next, marker: PhantomData }
     }
+}
+
+/// LinkedList
+#[derive(Debug)]
+#[repr(C)]
+pub struct BSSimpleList<T> {
+    list_head: Node<T>,
 }
 
 impl<T> BSSimpleList<T> {

@@ -17,6 +17,7 @@ use crate::re::SettingCollection::SettingCollection;
 /// - `handle`: Handle pointer (0x110)
 /// - `settings`: Case-insensitive map of settings (0x118)
 #[repr(C)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SettingCollectionMap<T> {
     /// Base `SettingCollection<T>` struct.
     pub __base: SettingCollection<T>,
