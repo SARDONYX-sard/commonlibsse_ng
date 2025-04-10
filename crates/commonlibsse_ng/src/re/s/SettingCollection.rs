@@ -8,21 +8,18 @@
 /// This struct corresponds to the `SettingCollection<T>` C++ template class.
 ///
 /// # Memory Layout:
-/// - `sub_key`: 260 bytes (0x104)
+/// - `sub_key`: 260 bytes
 /// - `handle`: Pointer to the handle (0x110)
 #[repr(C)]
+#[derive(Debug)]
 pub struct SettingCollection<T> {
-    pub vtable: *const SettingCollectionVtbl<T>,
-
-    /// Sub key (0x104 bytes)
-    pub sub_key: [u8; 0x104],
-
-    /// Handle pointer (0x110)
-    pub handle: *mut std::ffi::c_void,
+    pub vtable: *const SettingCollectionVtbl<T>, // 0x00
+    pub subKey: [u8; 0x104],                     // 0x08
+    pub handle: *mut core::ffi::c_void,          // 0x110
 }
 
 const _: () = {
-    assert!(core::mem::offset_of!(SettingCollection::<()>, sub_key) == 0x08);
+    assert!(core::mem::offset_of!(SettingCollection::<()>, subKey) == 0x08);
     assert!(core::mem::offset_of!(SettingCollection::<()>, handle) == 0x110);
     assert!(core::mem::size_of::<SettingCollection::<()>>() == 0x118);
 };
@@ -146,17 +143,17 @@ impl<T> SettingCollectionTrait<T> for SettingCollection<T> {
 #[repr(C)]
 pub struct SettingCollectionVtbl<T> {
     /// Destructor function pointer.
-    pub CxxDrop: fn(this: &mut SettingCollection<T>),
+    pub CxxDrop: fn(this: &mut SettingCollection<T>), // 0x00
 
-    pub InsertSetting: fn(this: &mut SettingCollection<T>, setting: &mut T),
-    pub RemoveSetting: fn(this: &mut SettingCollection<T>, setting: &mut T),
-    pub WriteSetting: fn(this: &mut SettingCollection<T>, setting: &mut T) -> bool,
-    pub ReadSetting: fn(this: &mut SettingCollection<T>, setting: &mut T) -> bool,
-    pub OpenHandle: fn(this: &mut SettingCollection<T>, create: bool) -> bool,
-    pub CloseHandle: fn(this: &mut SettingCollection<T>) -> bool,
-    pub Unk_07: fn(this: &mut SettingCollection<T>),
-    pub WriteAllSettings: fn(this: &mut SettingCollection<T>),
-    pub ReadAllSettings: fn(this: &mut SettingCollection<T>),
+    pub InsertSetting: fn(this: &mut SettingCollection<T>, setting: &mut T), // 0x01
+    pub RemoveSetting: fn(this: &mut SettingCollection<T>, setting: &mut T), // 0x02
+    pub WriteSetting: fn(this: &mut SettingCollection<T>, setting: &mut T) -> bool, // 0x03
+    pub ReadSetting: fn(this: &mut SettingCollection<T>, setting: &mut T) -> bool, // 0x04
+    pub OpenHandle: fn(this: &mut SettingCollection<T>, create: bool) -> bool, // 0x05 - { return false; }
+    pub CloseHandle: fn(this: &mut SettingCollection<T>) -> bool, // 0x06 - { return true; }
+    pub Unk_07: fn(this: &mut SettingCollection<T>),              // 0x07 - { return 0; }
+    pub WriteAllSettings: fn(this: &mut SettingCollection<T>),    // 0x08 - { return handle != 0; }
+    pub ReadAllSettings: fn(this: &mut SettingCollection<T>),     // 0x09 - { return handle != 0; }
 }
 
 impl<T> Default for SettingCollectionVtbl<T> {

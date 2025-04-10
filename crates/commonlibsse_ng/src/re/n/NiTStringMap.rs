@@ -3,10 +3,11 @@
 //! This module defines the `NiTStringMap<T>` and `NiTStringTemplateMap<Parent, T>` structs,
 //! simulating the base map and its template inheritance behavior.
 
-use core::hash::{Hash as _, Hasher as _};
-use std::collections::HashMap;
-
-use crate::re::Setting::Setting;
+use crate::re::NiTMap::NiTMap;
+use core::{
+    ffi::c_char,
+    hash::{Hash as _, Hasher as _},
+};
 
 /// Represents a string template map.
 ///
@@ -14,7 +15,7 @@ use crate::re::Setting::Setting;
 #[repr(C)]
 pub struct NiTStringTemplateMap<Parent, T> {
     /// Base map.
-    pub base: Parent,
+    pub __base: Parent,
 
     /// Copy flag.
     pub copy: bool,
@@ -28,12 +29,13 @@ pub struct NiTStringTemplateMap<Parent, T> {
 }
 
 const _: () = {
-    assert!(core::mem::offset_of!(NiTStringTemplateMap::<Setting, ()>, base) == 0x00);
-    // assert!(core::mem::offset_of!(NiTStringTemplateMap::<Setting, ()>, copy) == 0x20);
-    // assert!(core::mem::offset_of!(NiTStringTemplateMap::<Setting, ()>, pad21) == 0x21);
-    // assert!(core::mem::offset_of!(NiTStringTemplateMap::<Setting, ()>, pad22) == 0x22);
-    // assert!(core::mem::offset_of!(NiTStringTemplateMap::<Setting, ()>, pad24) == 0x24);
-    // assert!(core::mem::size_of::<NiTStringTemplateMap::<Setting, ()>>() == 0x28);
+    type ParentType = [u8; 0x20];
+    assert!(core::mem::offset_of!(NiTStringTemplateMap::<ParentType, ()>, __base) == 0x00);
+    assert!(core::mem::offset_of!(NiTStringTemplateMap::<ParentType, ()>, copy) == 0x20);
+    assert!(core::mem::offset_of!(NiTStringTemplateMap::<ParentType, ()>, pad21) == 0x21);
+    assert!(core::mem::offset_of!(NiTStringTemplateMap::<ParentType, ()>, pad22) == 0x22);
+    assert!(core::mem::offset_of!(NiTStringTemplateMap::<ParentType, ()>, pad24) == 0x24);
+    assert!(core::mem::size_of::<NiTStringTemplateMap::<ParentType, ()>>() == 0x28);
 };
 
 /// Represents a case-sensitive string map.
@@ -42,12 +44,12 @@ const _: () = {
 #[repr(C)]
 pub struct NiTStringMap<T> {
     /// Base `NiTStringTemplateMap`.
-    pub base: NiTStringTemplateMap<HashMap<*const i8, T>, T>,
+    pub __base: NiTStringTemplateMap<NiTMap<*const c_char, T>, T>,
 }
 
 const _: () = {
-    assert!(core::mem::offset_of!(NiTStringMap::<()>, base) == 0x00);
-    // assert!(core::mem::size_of::<NiTStringMap::<()>>() == 0x28);
+    assert!(core::mem::offset_of!(NiTStringMap::<()>, __base) == 0x00);
+    assert!(core::mem::size_of::<NiTStringMap::<()>>() == 0x28);
 };
 
 /// Trait representing the `NiTStringMap` behavior.
@@ -101,12 +103,12 @@ impl<T> NiTStringMapTrait<T> for NiTStringMap<T> {
     #[inline]
     fn assign_value(&mut self, key: &str, value: T) {
         let c_key = std::ffi::CString::new(key).unwrap();
-        self.base.base.insert(c_key.as_ptr(), value);
+        self.__base.__base.insert(c_key.as_ptr(), value);
     }
 
     #[inline]
     fn clear_value(&mut self, key: &str) {
         let c_key = std::ffi::CString::new(key).unwrap();
-        self.base.base.remove(&c_key.as_ptr());
+        self.__base.__base.remove(&c_key.as_ptr());
     }
 }

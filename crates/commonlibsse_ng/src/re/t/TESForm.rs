@@ -22,21 +22,21 @@ use core::ptr::NonNull;
 use std::sync::LazyLock;
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct TESFileArray {
     _base: BSStaticArray<TESFile>,
 }
 const_assert_eq!(core::mem::size_of::<TESFileArray>(), 0x10);
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct TESFileContainer {
     array: *mut TESFileArray,
 }
 const_assert_eq!(core::mem::size_of::<TESFileContainer>(), 0x8);
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct TESForm {
     pub __base: BaseFormComponent,
     pub sourceFiles: TESFileContainer,

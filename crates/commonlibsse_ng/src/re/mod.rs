@@ -63,8 +63,6 @@ pub struct TesWaterForm;
 
 #[derive(Debug)]
 pub struct BSTransformDeltaEvent;
-#[derive(Debug)]
-pub struct BSAnimationGraphEvent;
 
 #[repr(C)]
 pub enum ITEM_REMOVE_REASON {

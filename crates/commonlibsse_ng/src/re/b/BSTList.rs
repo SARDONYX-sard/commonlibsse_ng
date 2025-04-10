@@ -1,21 +1,16 @@
-use std::marker::PhantomData;
-use std::ptr::NonNull;
+use core::cmp::Ordering;
+use core::hash::{Hash, Hasher};
+use core::marker::PhantomData;
+use core::ptr::NonNull;
 
 /// LinkedList
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 #[repr(C)]
 pub struct BSSimpleList<T> {
     list_head: Node<T>,
 }
 
-impl<T> Default for BSSimpleList<T> {
-    #[inline]
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq)]
 #[repr(C)]
 pub struct Node<T> {
     item: NonNull<T>, // FIXME: FFI type always contains the possibility of null.
@@ -35,20 +30,6 @@ impl<T> Node<T> {
     fn new(item: T, next: Option<NonNull<Self>>) -> Self {
         let item_ptr = NonNull::from(Box::leak(Box::new(item)));
         Self { item: item_ptr, next, marker: PhantomData }
-    }
-}
-
-impl<T> BSSimpleList<T>
-where
-    T: Clone,
-{
-    pub fn copy_from(&mut self, other: &Self) {
-        let mut current = other.list_head.next.as_ref();
-        while let Some(node) = current {
-            let node = unsafe { node.as_ref() };
-            unsafe { self.push_front(node.item.as_ref().clone()) };
-            current = node.next.as_ref();
-        }
     }
 }
 
@@ -163,6 +144,8 @@ impl<T> BSSimpleList<T> {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 pub struct Iter<'a, T> {
     current: Option<NonNull<Node<T>>>,
     _marker: PhantomData<&'a T>,
@@ -177,6 +160,107 @@ impl<'a, T> Iterator for Iter<'a, T> {
             self.current = node_ref.next;
             unsafe { node_ref.item.as_ref() }
         })
+    }
+}
+
+impl<'a, T> IntoIterator for &'a BSSimpleList<T> {
+    type Item = &'a T;
+
+    type IntoIter = Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+impl<T> Default for BSSimpleList<T> {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<T> Clone for BSSimpleList<T>
+where
+    T: Clone,
+{
+    #[inline]
+    fn clone(&self) -> Self {
+        let mut ret = Self::new();
+
+        let mut current = self.list_head.next.as_ref();
+        while let Some(node) = current {
+            let node = unsafe { node.as_ref() };
+            unsafe { ret.push_front(node.item.as_ref().clone()) };
+            current = node.next.as_ref();
+        }
+
+        ret
+    }
+}
+
+impl<T: PartialEq> PartialEq for BSSimpleList<T> {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        let mut a = self.iter();
+        let mut b = other.iter();
+        loop {
+            match (a.next(), b.next()) {
+                (Some(x), Some(y)) if x == y => {}
+                (None, None) => return true,
+                _ => return false,
+            }
+        }
+    }
+}
+impl<T: Eq> Eq for BSSimpleList<T> {}
+
+impl<T: PartialOrd> PartialOrd for BSSimpleList<T> {
+    #[inline]
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        let mut a = self.iter();
+        let mut b = other.iter();
+        loop {
+            match (a.next(), b.next()) {
+                (Some(x), Some(y)) => match x.partial_cmp(y) {
+                    Some(Ordering::Equal) => {}
+                    non_eq => return non_eq,
+                },
+                (None, None) => return Some(Ordering::Equal),
+                (None, _) => return Some(Ordering::Less),
+                (_, None) => return Some(Ordering::Greater),
+            }
+        }
+    }
+}
+
+impl<T: Ord> Ord for BSSimpleList<T> {
+    #[inline]
+    fn cmp(&self, other: &Self) -> Ordering {
+        let mut a = self.iter();
+        let mut b = other.iter();
+        loop {
+            match (a.next(), b.next()) {
+                (Some(x), Some(y)) => match x.cmp(y) {
+                    Ordering::Equal => {}
+                    non_eq => return non_eq,
+                },
+                (None, None) => return Ordering::Equal,
+                (None, _) => return Ordering::Less,
+                (_, None) => return Ordering::Greater,
+            }
+        }
+    }
+}
+
+impl<T: Hash> Hash for BSSimpleList<T> {
+    #[inline]
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        for item in self.iter() {
+            item.hash(state);
+        }
     }
 }
 

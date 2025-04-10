@@ -22,6 +22,7 @@ use std::ffi::{CStr, CString};
 /// assert_eq!(bs.len(), 13);
 /// assert_eq!(bs.as_c_str().to_str(), Ok("Hello, Rust!"));
 /// ```
+#[derive(PartialEq)]
 pub struct BSString {
     // FIXME: data coming from ffi should be *mut c_char because it could be null
     /// Raw pointer from `Vec`

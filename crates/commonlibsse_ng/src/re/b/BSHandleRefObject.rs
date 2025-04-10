@@ -9,7 +9,7 @@ pub const HANDLE_VALID: u32 = 1 << 10;
 #[repr(C)]
 #[derive(Debug)]
 pub struct BSHandleRefObject {
-    __base: NiRefObject,
+    pub __base: NiRefObject,
 }
 
 impl BSHandleRefObject {

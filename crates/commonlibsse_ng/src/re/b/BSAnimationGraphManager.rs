@@ -1,10 +1,7 @@
 //! # BSAnimationGraph
-use crate::re::offsets_rtti::RTTI_BSAnimationGraphManager;
-use crate::re::offsets_vtable::VTABLE_BSAnimationGraphManager;
-// use crate::re::BSAnimationGraphEvent::BSAnimationGraphEvent;
 use crate::re::BSAnimationCache;
 use crate::re::BSAnimationGraphChannel::BSAnimationGraphChannel;
-use crate::re::BSAnimationGraphEvent;
+use crate::re::BSAnimationGraphEvent::BSAnimationGraphEvent;
 use crate::re::BSAnimationGraphManagerPtr;
 use crate::re::BSAtomic::BSSpinLock;
 use crate::re::BSFixedString::BSFixedString;
@@ -14,6 +11,8 @@ use crate::re::BSTArray::BSTArray;
 use crate::re::BSTEvent::BSTEventSink;
 use crate::re::BSTSmartPointer::BSTSmartPointer;
 use crate::re::BShkbAnimationGraph::BShkbAnimationGraph;
+use crate::re::offsets_rtti::RTTI_BSAnimationGraphManager;
+use crate::re::offsets_vtable::VTABLE_BSAnimationGraphManager;
 use crate::rel::id::VariantID;
 use crate::rel::module::ModuleState;
 use crate::rel::relocation::{

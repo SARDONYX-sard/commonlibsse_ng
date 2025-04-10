@@ -6,18 +6,6 @@ use crate::re::offsets_rtti::RTTI_Character;
 use crate::re::offsets_vtable::VTABLE_Character;
 use crate::rel::id::VariantID;
 
-#[commonlibsse_ng_derive_internal::to_bitflags]
-#[repr(u32)]
-enum RecordFlag {
-    Deleted = 1 << 5,
-    StartsDead = 1 << 9,
-    Persistent = 1 << 10,
-    InitiallyDisabled = 1 << 11,
-    Ignored = 1 << 12,
-    NoAIAcquire = 1 << 25,
-    DontHavokSettle = 1 << 29,
-}
-
 #[repr(C)]
 #[derive(Debug)]
 pub struct Character {
@@ -40,11 +28,25 @@ impl Character {
 
 pub struct CharacterVtbl {
     pub __base: ActorVtbl,
-    pub Unk_128: extern "C" fn(this: *mut Character, c_void) -> c_void,
-    pub Unk_129: extern "C" fn(this: *mut Character, c_void) -> c_void,
+    pub Unk_128: extern "C" fn(this: *mut Character, c_void) -> c_void, // 0x128
+    /// - Character: `{ return 1; }`
+    pub Unk_129: extern "C" fn(this: *mut Character, c_void) -> c_void, // 0x129
 }
 const _: () = {
     const VTABLE_SIZE: usize = core::mem::size_of::<CharacterVtbl>();
-    const EXPECTED_SIZE: usize = 0x129 * core::mem::size_of::<usize>();
+    const EXPECTED_SIZE: usize = (0x129 + 1) * core::mem::size_of::<usize>();
     // assert!(VTABLE_SIZE == EXPECTED_SIZE);
 };
+
+#[commonlibsse_ng_derive_internal::to_bitflags]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(u32)]
+pub enum RecordFlag {
+    Deleted = 1 << 5,
+    StartsDead = 1 << 9,
+    Persistent = 1 << 10,
+    InitiallyDisabled = 1 << 11,
+    Ignored = 1 << 12,
+    NoAIAcquire = 1 << 25,
+    DontHavokSettle = 1 << 29,
+}

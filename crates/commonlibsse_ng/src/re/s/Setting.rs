@@ -1,14 +1,16 @@
 //! # Setting
 //!
-//! This module defines the `Setting` struct, representing various game settings with multiple data types.
-//! It supports boolean, float, integer, color, string, and unsigned integer types.
+//! This module defines the `Setting` struct, representing various game settings
+//! with multiple data types such as boolean, float, integer, color, string, and unsigned integer.
+//! It safely encapsulates a union for value storage and provides a typed API to interact with it.
 
 use crate::re::Color::Color;
+use crate::re::MemoryManager::free;
 use crate::re::offsets_rtti::RTTI_Setting;
 use crate::re::offsets_vtable::VTABLE_Setting;
 use crate::rel::id::VariantID;
 use core::ffi::{CStr, c_char};
-use core::{ptr, str};
+use core::{fmt, ptr};
 
 /// Represents a game setting with multiple data types.
 ///
@@ -18,14 +20,9 @@ use core::{ptr, str};
 #[repr(C)]
 pub struct Setting {
     pub vtable: *const SettingVtbl,
-
-    /// Union holding the setting data.
-    pub data: SettingData,
-
-    /// Pointer to the setting name.
-    pub name: *mut c_char,
+    data: Data,
+    name: *mut c_char,
 }
-
 const _: () = {
     assert!(core::mem::offset_of!(Setting, data) == 0x08);
     assert!(core::mem::offset_of!(Setting, name) == 0x10);
@@ -38,10 +35,27 @@ impl Default for Setting {
     }
 }
 
-/// Represents the types of values in a `Setting`.
+impl fmt::Debug for Setting {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Setting")
+            .field("vtable", &self.vtable)
+            .field("name", &self.get_name().map(|name| name.to_str().unwrap_or("Invalid Name")))
+            .field("data", &self.get_value())
+            .finish()
+    }
+}
+
+impl PartialEq for Setting {
+    fn eq(&self, other: &Self) -> bool {
+        self.get_type() == other.get_type() && self.get_value() == other.get_value()
+    }
+}
+
+/// Represents the value type of a `Setting`.
 #[repr(u32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SettingType {
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Type {
+    #[default]
     Unknown = 0,
     Bool,
     Float,
@@ -51,153 +65,149 @@ pub enum SettingType {
     UnsignedInteger,
 }
 
-/// Represents the union holding the setting's value.
+/// A safe wrapper for accessing the value in a `Setting`.
+#[derive(Debug, Clone, PartialEq)]
+pub enum SettingValue<'a> {
+    Bool(bool),
+    Float(f32),
+    SignedInteger(i32),
+    Color(Color),
+    String(&'a CStr),
+    UnsignedInteger(u32),
+    Unknown,
+}
+
+/// Union representing various setting values.
 ///
-/// # Memory Layout:
-/// - `b`: Boolean value (0x00)
-/// - `f`: Float value (0x00)
-/// - `i`: Signed integer (0x00)
-/// - `r`: Color value (0x00)
-/// - `s`: Pointer to a C string (0x00)
-/// - `u`: Unsigned integer (0x00)
+/// field name => value type
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub union SettingData {
+union Data {
     pub b: bool,
     pub f: f32,
     pub i: i32,
     pub r: Color,
-    pub s: *mut i8,
+    pub s: *mut c_char,
     pub u: u32,
 }
-
-const _: () = {
-    assert!(core::mem::size_of::<SettingData>() == 0x8);
-};
+const _: () = assert!(core::mem::size_of::<Data>() == 0x8);
 
 impl Setting {
-    /// Address & Offset of the runtime type information (RTTI) identifier.
+    /// Runtime type info offset for this type.
     pub const RTTI: VariantID = RTTI_Setting;
 
-    /// Address & Offset of the virtual function table.
+    /// Virtual table offset.
     pub const VTABLE: [VariantID; 1] = VTABLE_Setting;
 
-    /// Creates a new `Setting` with default values.
+    /// Creates a new empty `Setting` with zeroed fields.
     ///
-    /// - `data`: Default-initialized union.
-    /// - `name`: Null pointer.
+    /// # Example
+    /// ```
+    /// let setting = Setting::new();
+    /// ```
     #[inline]
     pub const fn new() -> Self {
-        Self { vtable: ptr::null(), data: SettingData { u: 0 }, name: ptr::null_mut() }
+        Self { vtable: ptr::null(), data: Data { u: 0 }, name: ptr::null_mut() }
     }
 
-    /// Retrieves the name of the setting.
+    /// Checks whether the setting is managed (i.e., dynamically allocated).
     ///
-    /// # Returns
-    /// - `Some(&str)` if the name is valid.
-    /// - `None` if the name pointer is null.
+    /// # Example
+    /// ```
+    /// if setting.is_managed() {
+    ///     // clean up
+    /// }
+    /// ```
     #[inline]
-    pub fn get_name(&self) -> Option<&str> {
+    pub const fn is_managed(&self) -> bool {
+        !self.name.is_null() && unsafe { self.name.read() } == b'S' as i8
+    }
+
+    /// Returns the type of the setting based on the name prefix.
+    ///
+    /// # Safety
+    /// Assumes the `name` pointer is valid or null.
+    ///
+    /// # Example
+    /// ```
+    /// match setting.get_type() {
+    ///     Type::Bool => { /* ... */ }
+    ///     _ => {}
+    /// }
+    /// ```
+    #[inline]
+    pub const fn get_type(&self) -> Type {
+        match unsafe { self.name.read() } as u8 {
+            b'b' => Type::Bool,
+            b'f' => Type::Float,
+            b'i' => Type::SignedInteger,
+            b'r' => Type::Color,
+            b's' | b'S' => Type::String,
+            b'u' => Type::UnsignedInteger,
+            _ => Type::Unknown,
+        }
+    }
+
+    /// Returns the name as `&CStr` if available.
+    ///
+    /// # Errors
+    /// Returns `None` if the pointer is null.
+    #[inline]
+    pub const fn get_name(&self) -> Option<&CStr> {
         if self.name.is_null() {
             return None;
         }
-
-        unsafe { CStr::from_ptr(self.name).to_str().ok() }
+        unsafe { Some(CStr::from_ptr(self.name)) }
     }
 
-    /// Retrieves the setting type.
+    /// Returns the value as a typed enum.
     ///
-    /// # Returns
-    /// - The `SettingType` corresponding to the setting.
+    /// # Example
+    /// ```
+    /// if let SettingValue::Float(f) = setting.get_value() {
+    ///     println!("value = {}", f);
+    /// }
+    /// ```
     #[inline]
-    pub const fn get_type(&self) -> SettingType {
-        // Placeholder logic; replace with actual type retrieval logic if necessary.
-        SettingType::Unknown
-    }
-
-    /// Checks if the setting is managed.
-    ///
-    /// # Returns
-    /// - `true` if the setting is managed.
-    /// - `false` otherwise.
-    #[inline]
-    pub const fn is_managed(&self) -> bool {
-        // Placeholder: implement the correct logic here.
-        false
-    }
-
-    /// Retrieves the boolean value.
-    ///
-    /// # Returns
-    /// - `true` or `false`.
-    #[inline]
-    pub const fn get_bool(&self) -> bool {
-        unsafe { self.data.b }
-    }
-
-    /// Retrieves the float value.
-    ///
-    /// # Returns
-    /// - `f32` value.
-    #[inline]
-    pub const fn get_float(&self) -> f32 {
-        unsafe { self.data.f }
-    }
-
-    /// Retrieves the signed integer value.
-    ///
-    /// # Returns
-    /// - `i32` value.
-    #[inline]
-    pub const fn get_sint(&self) -> i32 {
-        unsafe { self.data.i }
-    }
-
-    /// Retrieves the color value.
-    ///
-    /// # Returns
-    /// - `Color` value.
-    #[inline]
-    pub const fn get_color(&self) -> Color {
-        unsafe { self.data.r }
-    }
-
-    /// Retrieves the string value.
-    ///
-    /// # Returns
-    /// - `Some(&str)` if valid.
-    /// - `None` if the pointer is null or invalid.
-    #[inline]
-    pub fn get_string(&self) -> Option<&str> {
-        if unsafe { self.data.s.is_null() } {
-            return None;
+    pub const fn get_value(&self) -> SettingValue<'_> {
+        if self.name.is_null() {
+            return SettingValue::Unknown;
         }
 
         unsafe {
-            let c_str = CStr::from_ptr(self.data.s);
-            c_str.to_str().ok()
+            match self.get_type() {
+                Type::Bool => SettingValue::Bool(self.data.b),
+                Type::Float => SettingValue::Float(self.data.f),
+                Type::SignedInteger => SettingValue::SignedInteger(self.data.i),
+                Type::Color => SettingValue::Color(self.data.r),
+                Type::String => {
+                    let s = self.data.s;
+                    if s.is_null() {
+                        SettingValue::Unknown
+                    } else {
+                        SettingValue::String(CStr::from_ptr(s))
+                    }
+                }
+                Type::UnsignedInteger => SettingValue::UnsignedInteger(self.data.u),
+                Type::Unknown => SettingValue::Unknown,
+            }
         }
-    }
-
-    /// Retrieves the unsigned integer value.
-    ///
-    /// # Returns
-    /// - `u32` value.
-    #[inline]
-    pub const fn get_uint(&self) -> u32 {
-        unsafe { self.data.u }
     }
 }
 
-/// The virtual function table for `Setting`.
-///
-/// This struct defines function pointers to simulate the C++ virtual functions.
+impl Drop for Setting {
+    fn drop(&mut self) {
+        if self.is_managed() {
+            unsafe { free(self.name.cast()) };
+            self.name = ptr::null_mut();
+        }
+    }
+}
+
+/// Virtual function table for `Setting`.
 #[repr(C)]
 pub struct SettingVtbl {
-    /// Destructor function pointer.
     pub CxxDrop: fn(this: &mut Setting),
-
-    /// Unknown function pointer `0x01`.
     pub Unk_01: fn(this: &mut Setting) -> bool,
 }
 
@@ -209,15 +219,12 @@ impl Default for SettingVtbl {
 }
 
 impl SettingVtbl {
-    /// Creates a new default virtual table with stubbed functions.
     #[inline]
     pub const fn new() -> Self {
         const fn CxxDrop(_this: &mut Setting) {}
-
         const fn Unk_01(_this: &mut Setting) -> bool {
             false
         }
-
         Self { CxxDrop, Unk_01 }
     }
 }

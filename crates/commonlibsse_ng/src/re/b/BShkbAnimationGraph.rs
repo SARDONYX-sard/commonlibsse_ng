@@ -16,7 +16,7 @@
 //! - `physics_world`: Physics world reference (0x238)
 
 use crate::re::Actor::Actor;
-use crate::re::BSFadeNode;
+use crate::re::BSAnimationGraphEvent::BSAnimationGraphEvent;
 use crate::re::BSFixedString::BSFixedString;
 use crate::re::BSIRagdollDriver::BSIRagdollDriver;
 use crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCounted;
@@ -30,7 +30,7 @@ use crate::re::bhkWorld::bhkWorld;
 use crate::re::hkbBehaviorGraph::hkbBehaviorGraph;
 use crate::re::hkbCharacter::hkbCharacter;
 use crate::re::hkbGeneratorOutput::hkbGeneratorOutput;
-use crate::re::{BSAnimationGraphEvent, NiNode};
+use crate::re::{BSFadeNode, NiNode};
 
 #[repr(C)]
 #[derive(Debug)]

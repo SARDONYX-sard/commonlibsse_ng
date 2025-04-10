@@ -5,18 +5,18 @@
 
 use std::hash::{Hash, Hasher};
 
-use crate::re::{NiTStringMap::NiTStringMap, Setting::Setting};
+use crate::re::NiTStringMap::NiTStringMap;
 
 /// Represents a case-insensitive string map.
 #[repr(C)]
 pub struct BSTCaseInsensitiveStringMap<T> {
-    /// Base `NiTStringMap`.
     pub __base: NiTStringMap<T>,
 }
 
 const _: () = {
-    assert!(core::mem::offset_of!(BSTCaseInsensitiveStringMap::<Setting>, __base) == 0x00);
-    // assert!(core::mem::size_of::<BSTCaseInsensitiveStringMap::<Setting>>() == 0x28);
+    type ParentType = [u8; 0x20];
+    assert!(core::mem::offset_of!(BSTCaseInsensitiveStringMap::<ParentType>, __base) == 0x00);
+    assert!(core::mem::size_of::<BSTCaseInsensitiveStringMap::<ParentType>>() == 0x28);
 };
 
 /// Trait to represent map operations.

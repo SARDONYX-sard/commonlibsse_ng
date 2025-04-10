@@ -2,11 +2,12 @@ use crate::re::BSFile::BSFile;
 use crate::re::BSString::BSString;
 use crate::re::BSTList::BSSimpleList;
 use crate::re::FORM::FORM;
-use crate::re::TESObjectCELL::TESObjectCELL;
 use crate::re::TESBitArrayFile::TESBitArrayFile;
+use crate::re::TESObjectCELL::TESObjectCELL;
 use core::ffi::c_void;
 use windows::Win32::{Foundation::FILETIME, Storage::FileSystem::WIN32_FIND_DATAA};
 
+#[commonlibsse_ng_derive_internal::ffi_enum]
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Error {
@@ -43,7 +44,7 @@ bitflags::bitflags! {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct TESFile {
     pub lastError: Error,                           // 000
     pub pad004: u32,                                // 004

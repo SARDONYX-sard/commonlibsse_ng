@@ -44,14 +44,30 @@ fn record_game_date() {
     };
 }
 
+#[allow(unused)]
 fn record_player_character() {
     use commonlibsse_ng::re::PlayerCharacter::PlayerCharacter;
 
     #[cfg(feature = "tracing")]
     tracing::trace!("is_god_mode = {}", PlayerCharacter::is_god_mode());
 
-    if let Some(_player) = PlayerCharacter::get_singleton() {
+    if let Some(player) = PlayerCharacter::get_singleton() {
         #[cfg(feature = "tracing")]
-        tracing::trace!("{_player:#?}");
+        tracing::trace!("player addr = {:p}", player);
+
+        #[cfg(feature = "tracing")]
+        {
+            let player_ptr = (player as *const PlayerCharacter).cast();
+            let player_len = core::mem::size_of::<PlayerCharacter>();
+            let is_valid_range =
+                commonlibsse_ng::rex::win32::is_valid_range(player_ptr, player_len);
+            tracing::trace!("player.is_valid_range() = {}", is_valid_range);
+        }
+
+        #[cfg(feature = "tracing")]
+        {
+            let refr = &player.__base.__base.__base;
+            tracing::trace!("player_refr = {refr:#?}");
+        }
     };
 }

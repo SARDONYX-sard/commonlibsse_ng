@@ -5,7 +5,7 @@ use crate::rel::id::VariantID;
 #[repr(C)]
 #[derive(Debug)]
 pub struct BSISoundCategory {
-    vtable: *const BSISoundCategoryVtbl,
+    pub vtable: *const BSISoundCategoryVtbl,
 }
 
 impl BSISoundCategory {

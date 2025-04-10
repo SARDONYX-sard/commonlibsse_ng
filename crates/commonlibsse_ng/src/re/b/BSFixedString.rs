@@ -67,7 +67,7 @@ where
     ///
     /// Returns `0` if the string data is null or the proxy is invalid.
     #[inline]
-    pub fn count_bytes(&self) -> u32 {
+    pub fn count_bytes_with_null(&self) -> u32 {
         unsafe { self.get_proxy().map_or(0, |proxy| proxy.len()) }
     }
 
@@ -76,13 +76,18 @@ where
     /// Returns `true` if the string length is zero.
     #[inline]
     pub fn is_empty(&self) -> bool {
-        self.count_bytes() == 0
+        self.count_bytes_with_null() == 0
     }
 
-    /// Converts this C string as a byte slice.
+    /// Converts this C string as a byte slice with null.
     #[inline]
-    pub fn as_bytes(&self) -> &[u8] {
-        unsafe { core::slice::from_raw_parts(self.data.cast::<u8>(), self.count_bytes() as usize) }
+    pub fn as_bytes_with_null(&self) -> &[u8] {
+        unsafe {
+            core::slice::from_raw_parts(
+                self.data.cast::<u8>(),
+                self.count_bytes_with_null() as usize,
+            )
+        }
     }
 }
 
@@ -105,14 +110,14 @@ impl PartialOrd for BSFixedString {
 impl Ord for BSFixedString {
     #[inline]
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-        self.as_bytes().cmp(other.as_bytes())
+        self.as_bytes_with_null().cmp(other.as_bytes_with_null())
     }
 }
 
 impl core::hash::Hash for BSFixedString {
     #[inline]
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
-        self.as_bytes().hash(state);
+        self.as_bytes_with_null().hash(state);
     }
 }
 
@@ -194,13 +199,13 @@ mod u8_bytes {
         /// Converts the string to `&str` if it is valid UTF-8.
         #[inline]
         pub fn to_str(&self) -> Option<&str> {
-            core::str::from_utf8(self.as_bytes()).ok()
+            core::str::from_utf8(self.as_bytes_with_null()).ok()
         }
 
         /// Returns true if `CStr` passed as argument is contained in this string or not.
         #[inline]
         pub fn contains(&self, rhs: &CStr) -> bool {
-            let self_bytes = self.as_bytes();
+            let self_bytes = self.as_bytes_with_null();
             let rhs_bytes = rhs.to_bytes();
             let rhs_len = rhs_bytes.len();
 

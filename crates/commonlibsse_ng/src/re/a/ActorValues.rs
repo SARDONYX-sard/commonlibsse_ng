@@ -1,3 +1,8 @@
+/// `u8::MAX`(`255`)
+///It is also a key for LocalMap.
+///
+///# Notes
+///In C++ it is `c_char`, but that would be i8 in MSVC, so anything above 127 is meaningless, but perhaps wrap?
 #[commonlibsse_ng_derive_internal::ffi_enum]
 #[repr(u32)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -170,19 +175,11 @@ pub enum ActorValue {
     ReflectDamage = 163,
 }
 
-impl ActorValue {
-    /// enum length.
-    pub const TOTAL: usize = 164;
-}
-
+#[commonlibsse_ng_derive_internal::ffi_enum]
 #[repr(u32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum ACTOR_VALUE_MODIFIER {
     Permanent = 0,
     Temporary = 1,
     Damage = 2,
-}
-
-impl ACTOR_VALUE_MODIFIER {
-    /// enum length.
-    pub const TOTAL: usize = 3;
 }

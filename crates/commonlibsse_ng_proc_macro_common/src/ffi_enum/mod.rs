@@ -47,6 +47,8 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
     // Generate bitflags and match arms
     let DiscriminantData { bitflags, to_enum_arms, from_enum_arms, default_value } =
         DiscriminantData::from_item_enum(&item_enum);
+    let discriminant_count = to_enum_arms.len();
+    let discriminant_count_doc = format!("Returns `{discriminant_count}`");
 
     let struct_doc = format!("`{enum_ident}` for FFI usage type.");
     let to_enum_doc =
@@ -98,6 +100,14 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
                 match e {
                     #(#from_enum_arms,)*
                 }
+            }
+
+            /// Number of discriminant in enum.
+            ///
+            #[doc = #discriminant_count_doc]
+            #[inline]
+            pub const fn count() -> usize {
+                #discriminant_count
             }
         }
 

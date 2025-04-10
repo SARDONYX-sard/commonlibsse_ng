@@ -6,7 +6,7 @@
 
 use crate::re::BSTCaseInsensitiveStringMap::BSTCaseInsensitiveStringMap;
 use crate::re::Setting::Setting;
-use crate::re::SettingCollection::{SettingCollection, SettingCollectionTrait};
+use crate::re::SettingCollection::SettingCollection;
 
 /// Represents a map-based collection of settings.
 ///
@@ -28,76 +28,8 @@ pub struct SettingCollectionMap<T> {
 const _: () = {
     assert!(core::mem::offset_of!(SettingCollectionMap::<Setting>, __base) == 0x00);
     assert!(core::mem::offset_of!(SettingCollectionMap::<Setting>, settings) == 0x118);
-    // assert!(core::mem::size_of::<SettingCollectionMap::<Setting>>() == 0x140);
+    assert!(core::mem::size_of::<SettingCollectionMap::<Setting>>() == 0x140);
 };
-
-/// Implementation of the `SettingCollectionTrait` for `SettingCollectionMap<T>`.
-impl<T> SettingCollectionTrait<T> for SettingCollectionMap<T> {
-    /// Inserts a setting into the collection.
-    ///
-    /// # Arguments
-    /// - `setting`: The setting to insert.
-    #[inline]
-    fn insert_setting(&mut self, setting: &mut T) {
-        let _ = setting;
-        // Assuming `get_name` is available on `T`
-        // if let Some(name) = unsafe { (*setting).get_name() } {
-        // self.settings.insert(name, setting);
-        // }
-        todo!()
-    }
-
-    /// Removes a setting from the collection.
-    ///
-    /// # Arguments
-    /// - `setting`: The setting to remove.
-    #[inline]
-    fn remove_setting(&mut self, setting: &mut T) {
-        let _ = setting;
-        // if let Some(name) = unsafe { (*setting).get_name() } {
-        //     self.settings.remove(name);
-        // }
-        todo!()
-    }
-
-    /// Writes all settings to storage.
-    #[inline]
-    fn write_all_settings(&mut self) {
-        // for (_, setting) in self.settings.iter() {
-        //     self.write_setting(unsafe { &mut **setting });
-        // }
-        todo!()
-    }
-
-    /// Reads all settings from storage.
-    #[inline]
-    fn read_all_settings(&mut self) {
-        // for (_, setting) in self.settings.iter() {
-        //     self.read_setting(unsafe { &mut **setting });
-        // }
-        todo!()
-    }
-
-    fn write_setting(&mut self, _setting: &mut T) -> bool {
-        todo!()
-    }
-
-    fn read_setting(&mut self, _setting: &mut T) -> bool {
-        todo!()
-    }
-
-    fn open_handle(&mut self, _create: bool) -> bool {
-        todo!()
-    }
-
-    fn close_handle(&mut self) -> bool {
-        todo!()
-    }
-
-    fn unk_07(&mut self) {
-        todo!()
-    }
-}
 
 /// The virtual function table for `SettingCollectionMap<T>`.
 ///

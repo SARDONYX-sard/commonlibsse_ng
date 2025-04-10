@@ -1,6 +1,7 @@
 use core::ffi::c_void;
 
 use crate::re::BGSKeyword::BGSKeyword;
+use crate::re::BSAnimationGraphEvent::BSAnimationGraphEvent;
 use crate::re::BSAnimationUpdateData::BSAnimationUpdateData;
 use crate::re::BSPointerHandle::ObjectRefHandle;
 use crate::re::BSTEvent::BSTEventSinkVtbl;
@@ -14,9 +15,9 @@ use crate::re::TESForm::{TESForm, TESFormVtbl};
 use crate::re::TESObjectCELL::TESObjectCELL;
 use crate::re::{
     ActorCause, BGSAnimationSequencer, BGSDialogueBranch, BGSLocation, BGSScene,
-    BSAnimationGraphEvent, BSFaceGenAnimationData, BSFaceGenNiNode, BipedAnim, DialogueResponse,
-    ITEM_REMOVE_REASON, MagicCaster, MagicTarget, NiNode, TESActorBase, TESPackage, TESTopicInfo,
-    TargetEntry, TrapData, TrapEntry,
+    BSFaceGenAnimationData, BSFaceGenNiNode, BipedAnim, DialogueResponse, ITEM_REMOVE_REASON,
+    MagicCaster, MagicTarget, NiNode, TESActorBase, TESPackage, TESTopicInfo, TargetEntry,
+    TrapData, TrapEntry,
 };
 
 use super::TESObjectREFR;

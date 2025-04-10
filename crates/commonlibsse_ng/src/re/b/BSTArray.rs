@@ -25,7 +25,7 @@ pub type BSScrapArray<T> = BSTArray<T, BSScrapArrayAllocator>;
 const _: () = assert!(core::mem::size_of::<BSScrapArray<u8>>() == 0x20);
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BSStaticArray<T> {
     data: NonNull<T>,
     size: u32,

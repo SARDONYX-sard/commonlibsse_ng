@@ -14,6 +14,7 @@ pub mod BGSSoundDescriptor;
 pub mod BGSSoundDescriptorForm;
 pub mod BGSTextureSet;
 pub mod BSAnimationGraphChannel;
+pub mod BSAnimationGraphEvent;
 pub mod BSAnimationGraphManager;
 pub mod BSAnimationUpdateData;
 pub mod BSAtomic;

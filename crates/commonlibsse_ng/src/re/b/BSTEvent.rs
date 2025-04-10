@@ -19,8 +19,8 @@ pub struct BSTEventSink<Event> {
 const _: () = assert!(core::mem::size_of::<BSTEventSink<*mut ()>>() == 0x8);
 
 impl<Event> BSTEventSink<Event> {
-    #[allow(clippy::not_unsafe_ptr_arg_deref)]
-    pub fn process_event(
+    /// # Safety
+    pub unsafe fn process_event(
         &mut self,
         event: *const Self,
         event_source: *const BSTEventSource<Event>,
@@ -117,7 +117,8 @@ impl<Event> BSTEventSource<Event> {
         self.pendingUnregisters.retain(|&s| s != sink);
     }
 
-    pub fn send_event(&mut self, event: *const BSTEventSink<Event>) {
+    /// # Safety
+    pub unsafe fn send_event(&mut self, event: *const BSTEventSink<Event>) {
         let _guard = self.lock.lock();
 
         let was_notifying = self.notifying;
@@ -132,7 +133,7 @@ impl<Event> BSTEventSource<Event> {
         }
 
         for sink in self.sinks.iter() {
-            let ret = (unsafe { &mut **sink }).process_event(event, self);
+            let ret = unsafe { (**sink).process_event(event, self) };
             if !self.pendingUnregisters.contains(sink) && ret == BSEventNotifyControl::Stop {
                 break;
             }

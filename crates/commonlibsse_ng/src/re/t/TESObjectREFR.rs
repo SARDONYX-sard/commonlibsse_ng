@@ -6,6 +6,7 @@ use core::ffi::c_void;
 use core::ptr::NonNull;
 use std::collections::HashMap;
 
+use crate::re::BSAnimationGraphEvent::BSAnimationGraphEvent;
 use crate::re::BSHandleRefObject::BSHandleRefObject;
 use crate::re::BSTArray::BSTSmallArray;
 use crate::re::BSTEvent::BSTEventSink;
@@ -20,7 +21,7 @@ use crate::re::NiSmartPointer::NiPointer;
 use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
 use crate::re::TESObjectCELL::TESObjectCELL;
-use crate::re::{BSAnimationGraphEvent, ObjectHandle, TesWaterForm};
+use crate::re::{ObjectHandle, TesWaterForm};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

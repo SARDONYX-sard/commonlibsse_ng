@@ -18,18 +18,12 @@ use crate::rel::id::VariantID;
 /// - `handle`: Handle used for settings management
 #[repr(C)]
 pub struct GameSettingCollection {
-    /// Base class `SettingCollectionMap<Setting>`.
-    pub __base: SettingCollectionMap<Setting>,
-
-    /// Handle used for managing settings (0x138).
-    /// - Offset: `0x138`
-    pub handle: u64,
+    pub __base: SettingCollectionMap<Setting>, // 0x000
 }
 
 const _: () = {
     assert!(core::mem::offset_of!(GameSettingCollection, __base) == 0x0);
-    // assert!(core::mem::offset_of!(GameSettingCollection, handle) == 0x138);
-    // assert!(core::mem::size_of::<GameSettingCollection>() == 0x140);
+    assert!(core::mem::size_of::<GameSettingCollection>() == 0x140);
 };
 
 impl GameSettingCollection {
@@ -39,81 +33,14 @@ impl GameSettingCollection {
     /// Address & Offset of the virtual function table.
     pub const VTABLE: [VariantID; 1] = VTABLE_GameSettingCollection;
 
-    /// Retrieves the singleton instance of `GameSettingCollection`.
-    ///
-    /// # Returns
-    /// A reference to the singleton instance.
-    #[inline]
-    pub fn get_singleton() -> *mut Self {
-        static mut SINGLETON: *mut GameSettingCollection = std::ptr::null_mut();
-        unsafe { SINGLETON }
-    }
-
-    /// Retrieves a setting by name.
-    ///
-    /// # Arguments
-    /// - `a_name`: The name of the setting to retrieve.
-    ///
-    /// # Returns
-    /// - `Some(&mut Setting)` if the setting exists.
-    /// - `None` if the setting is not found.
-    #[inline]
-    pub fn get_setting(&mut self, a_name: &str) -> Option<&mut Setting> {
-        let _ = a_name;
-        // self.__base.settings.get_mut(a_name)
-        todo!()
-    }
-
-    /// Writes a setting.
-    ///
-    /// # Arguments
-    /// - `a_setting`: The setting to write.
-    ///
-    /// # Returns
-    /// - `false` (this function always returns `false`).
-    #[inline]
-    pub const fn write_setting(&mut self, _a_setting: &Setting) -> bool {
-        false
-    }
-
-    /// Reads a setting.
-    ///
-    /// # Arguments
-    /// - `a_setting`: The setting to read.
-    ///
-    /// # Returns
-    /// - `true` if reading was successful, `false` otherwise.
-    #[inline]
-    pub const fn read_setting(&mut self, _a_setting: &mut Setting) -> bool {
-        true
-    }
-
-    /// Opens the handle.
-    ///
-    /// # Arguments
-    /// - `a_create`: Whether to create the handle.
-    ///
-    /// # Returns
-    /// - `true` if the handle is valid.
-    #[inline]
-    pub const fn open_handle(&mut self, _a_create: bool) -> bool {
-        self.handle != 0
-    }
-
-    /// Closes the handle.
-    ///
-    /// # Returns
-    /// - `true` on success.
-    #[inline]
-    pub const fn close_handle(&mut self) -> bool {
-        self.handle = 0;
-        true
-    }
-
-    /// Unknown virtual function `0A`.
-    #[inline]
-    pub const fn unk_0a(&mut self) {
-        // Stub function, add behavior if needed.
+    /// Gets the singleton instance of `GameSettingCollection`.
+    #[commonlibsse_ng_derive_internal::relocate(
+        cast_as = "*mut GameSettingCollection",
+        default = "None",
+        id(se = 514622, ae = 400782)
+    )]
+    pub fn get_singleton() -> Option<&'static GameSettingCollection> {
+        |as_type: AsType| unsafe { as_type.as_ref() }
     }
 }
 
