@@ -25,7 +25,6 @@ pub struct SettingCollectionMap<T> {
     /// Map of case-insensitive strings to settings.
     pub settings: BSTCaseInsensitiveStringMap<*mut T>,
 }
-
 const _: () = {
     assert!(core::mem::offset_of!(SettingCollectionMap::<Setting>, __base) == 0x00);
     assert!(core::mem::offset_of!(SettingCollectionMap::<Setting>, settings) == 0x118);

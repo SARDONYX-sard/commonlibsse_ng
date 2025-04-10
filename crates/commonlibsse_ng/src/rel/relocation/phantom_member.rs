@@ -1,7 +1,7 @@
 use crate::skse::version::RUNTIME_SSE_1_6_629;
 
 use super::{RelocationError, relocate_member_if_newer, relocate_member_if_newer_mut};
-use core::marker::PhantomData;
+use core::{fmt, marker::PhantomData};
 
 /// A zero-sized marker used to access dynamically relocated members.
 ///
@@ -16,9 +16,22 @@ use core::marker::PhantomData;
 /// - `T`: Member type
 /// - `OLD`: Offset when < ver.1_6_629
 /// - `NEW`: Offset when >= ver.1_6_629
-#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PhantomMember<T, const OLD: isize, const NEW: isize> {
     marker: PhantomData<T>,
+}
+
+impl<T, const OLD: isize, const NEW: isize> fmt::Debug for PhantomMember<T, OLD, NEW>
+where
+    T: fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("PhantomMember")
+            .field("type", &self.get())
+            .field("OLD", &OLD)
+            .field("NEW", &NEW)
+            .finish()
+    }
 }
 
 impl<T, const OLD: isize, const NEW: isize> Clone for PhantomMember<T, OLD, NEW> {

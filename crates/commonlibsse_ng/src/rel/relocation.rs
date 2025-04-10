@@ -311,6 +311,7 @@ pub const unsafe fn relocate_member_if<T>(
 /// - This function may return an error if the module's state cannot be accessed, or if the `map_active` call fails when fetching the current version.
 /// - If the pointer is null
 /// - If the pointer is unaligned
+#[inline]
 pub unsafe fn relocate_member_if_newer<THIS, T>(
     version: Version,
     this: &THIS,
@@ -364,6 +365,8 @@ pub unsafe fn raw_pointer_as_ref<'a, T>(ptr: *const T) -> Result<&'a T, RawPoint
 
     if !ptr.is_aligned() {
         return Err(RawPointerError::MisalignedPointer {
+            addr: ptr.addr(),
+            expected_align: core::mem::align_of::<T>(),
             misaligned_type: core::any::type_name::<T>(),
         });
     };
@@ -388,6 +391,8 @@ pub unsafe fn raw_pointer_as_mut<'a, T>(ptr: *mut T) -> Result<&'a mut T, RawPoi
 
     if !ptr.is_aligned() {
         return Err(RawPointerError::MisalignedPointer {
+            addr: ptr.addr(),
+            expected_align: core::mem::align_of::<T>(),
             misaligned_type: core::any::type_name::<T>(),
         });
     }
@@ -414,6 +419,8 @@ pub enum RawPointerError {
     NullPointer,
 
     /// Misaligned pointer.
-    #[snafu(display("Pointer is misaligned for type {misaligned_type}."))]
-    MisalignedPointer { misaligned_type: &'static str },
+    #[snafu(display(
+        "This pointer of `{misaligned_type}` was expected to have an alignment of {expected_align}, but the actual address was {addr:X}."
+    ))]
+    MisalignedPointer { addr: usize, expected_align: usize, misaligned_type: &'static str },
 }

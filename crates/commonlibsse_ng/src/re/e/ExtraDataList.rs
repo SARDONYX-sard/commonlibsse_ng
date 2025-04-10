@@ -23,6 +23,11 @@ pub struct ExtraDataList {
     extra_data: BaseExtraList,
     /// Zero-size dummy member
     lock: PhantomMember<BSReadWriteLock, 0x10, 0x18>,
+
+    /// # Attention when inheriting
+    /// Because it contains 1 byte of dummy size for zero-size classes,
+    /// this size disappears when inheriting, so it would be dangerous to use it as it is for inheritance.
+    dummy: usize,
 }
 
 impl ExtraDataList {
@@ -217,15 +222,11 @@ impl ExtraDataList {
     }
 }
 
-/// # Attention when inheriting
-/// Because it contains 1 byte of dummy size for zero-size classes,
-/// this size disappears when inheriting, so it would be dangerous to use it as it is for inheritance.
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct BaseExtraList {
     /// - SE: partial Data
     /// - AE: dummy empty class size
-    opaque: [u8; 1],
     data: Data,
     presence: PhantomMember<*mut PresenceBitfield, 0x8, 0x10>,
 }

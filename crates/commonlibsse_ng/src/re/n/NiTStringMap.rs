@@ -4,7 +4,7 @@
 //! simulating the base map and its template inheritance behavior.
 
 use crate::re::NiTMap::NiTMap;
-use core::ffi::c_char;
+use core::{ffi::c_char, fmt};
 
 /// Represents a string template map.
 ///
@@ -42,12 +42,28 @@ const _: () = {
 ///
 /// - `V`: Map value type
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NiTStringMap<V> {
     pub __base: NiTStringTemplateMap<NiTMap<*const c_char, V>, V>,
 }
-
 const _: () = {
     assert!(core::mem::offset_of!(NiTStringMap::<()>, __base) == 0x00);
     assert!(core::mem::size_of::<NiTStringMap::<()>>() == 0x28);
 };
+
+impl<V: fmt::Debug> fmt::Debug for NiTStringMap<V> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut map = f.debug_map();
+        for (key, value) in self.__base.__base.iter() {
+            let key_str = unsafe {
+                if key.is_null() {
+                    "<null>"
+                } else {
+                    core::ffi::CStr::from_ptr(*key).to_str().unwrap_or("<invalid utf8>")
+                }
+            };
+            map.entry(&key_str, value);
+        }
+        map.finish()
+    }
+}

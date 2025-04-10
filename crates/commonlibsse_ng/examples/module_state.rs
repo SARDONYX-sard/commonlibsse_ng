@@ -1,7 +1,5 @@
-use commonlibsse_ng::skse::{
-    self,
-    interfaces::messaging::{Message, MessageType},
-};
+use commonlibsse_ng::skse;
+use commonlibsse_ng::skse::interfaces::messaging::{Message, MessageType};
 
 #[commonlibsse_ng::skse_plugin_main(plugin_name = "module_state")]
 fn plugin_main() {
@@ -22,9 +20,9 @@ fn plugin_main() {
 fn skse_event_listener(message: &Message) {
     if let Some(msg_type) = message.msg_type.to_enum() {
         if msg_type == MessageType::PostLoadGame {
-            record_game_ini();
+            record_game_date();
             record_player_character();
-            // record_game_date();
+            record_game_ini();
         }
     }
 }
@@ -32,6 +30,7 @@ fn skse_event_listener(message: &Message) {
 #[allow(unused)]
 fn record_game_date() {
     use commonlibsse_ng::re::Calendar::Calendar;
+
     if let Some(calendar) = Calendar::get_singleton() {
         #[cfg(feature = "tracing")]
         tracing::trace!("{calendar:#?}");
@@ -75,15 +74,7 @@ fn record_game_ini() {
         #[cfg(feature = "tracing")]
         {
             tracing::trace!("game_setting addr = {:p}", game_setting);
-
-            let is_valid_range = {
-                let game_setting_ptr = (game_setting as *const GameSettingCollection).cast();
-                const GAME_SETTING_LEN: usize = core::mem::size_of::<GameSettingCollection>();
-                commonlibsse_ng::rex::win32::is_valid_range(game_setting_ptr, GAME_SETTING_LEN)
-            };
-            tracing::trace!("game_setting.is_valid_range() = {is_valid_range}");
-
-            tracing::trace!("game_setting_refr = {game_setting:#?}");
+            tracing::trace!("game_setting = {:#?}", game_setting.to_hashmap());
         }
     };
 }

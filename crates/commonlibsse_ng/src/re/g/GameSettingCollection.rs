@@ -3,7 +3,10 @@
 //! This module defines the `GameSettingCollection` struct, inheriting from `SettingCollectionMap<Setting>`.
 //! It represents the game's settings collection, including methods for interacting with settings and handling.
 
-use crate::re::Setting::Setting;
+use core::fmt;
+use std::collections::HashMap;
+
+use crate::re::Setting::{Setting, SettingValue};
 use crate::re::SettingCollectionMap::SettingCollectionMap;
 use crate::re::offsets_rtti::RTTI_GameSettingCollection;
 use crate::re::offsets_vtable::VTABLE_GameSettingCollection;
@@ -17,15 +20,32 @@ use crate::rel::id::VariantID;
 /// - `__base`: Base class `SettingCollectionMap<Setting>`
 /// - `handle`: Handle used for settings management
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct GameSettingCollection {
     pub __base: SettingCollectionMap<Setting>, // 0x000
 }
-
 const _: () = {
     assert!(core::mem::offset_of!(GameSettingCollection, __base) == 0x0);
     assert!(core::mem::size_of::<GameSettingCollection>() == 0x140);
 };
+
+impl fmt::Debug for GameSettingCollection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut map = f.debug_map();
+        for (key, value) in self.__base.settings.__base.__base.__base.iter() {
+            let key_str = unsafe {
+                if key.is_null() {
+                    "<null>"
+                } else {
+                    core::ffi::CStr::from_ptr(*key).to_str().unwrap_or("<invalid utf8>")
+                }
+            };
+            let value = unsafe { value.as_ref().map(|p| p.get_value()).unwrap_or_default() };
+            map.entry(&key_str, &value);
+        }
+        map.finish()
+    }
+}
 
 impl GameSettingCollection {
     /// Address & Offset of the runtime type information (RTTI) identifier.
@@ -42,6 +62,22 @@ impl GameSettingCollection {
     )]
     pub fn get_singleton() -> Option<&'static GameSettingCollection> {
         |as_type: AsType| unsafe { as_type.as_ref() }
+    }
+
+    pub fn to_hashmap(&self) -> HashMap<&str, SettingValue<'_>> {
+        let mut map = std::collections::HashMap::new();
+        for (key, value) in self.__base.settings.__base.__base.__base.iter() {
+            let key_str = unsafe {
+                if key.is_null() {
+                    "<null>"
+                } else {
+                    core::ffi::CStr::from_ptr(*key).to_str().unwrap_or("<invalid utf8>")
+                }
+            };
+            let value = unsafe { value.as_ref().map(|p| p.get_value()).unwrap_or_default() };
+            map.insert(key_str, value);
+        }
+        map
     }
 }
 

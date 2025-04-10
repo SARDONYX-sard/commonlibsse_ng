@@ -67,15 +67,31 @@ pub enum Type {
 }
 
 /// A safe wrapper for accessing the value in a `Setting`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Default, Clone, PartialEq)]
 pub enum SettingValue<'a> {
     Bool(bool),
     Float(f32),
     SignedInteger(i32),
     Color(Color),
+    /// Maybe utf-8
     String(&'a CStr),
     UnsignedInteger(u32),
+    #[default]
     Unknown,
+}
+
+impl fmt::Debug for SettingValue<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Bool(arg0) => f.debug_tuple("Bool").field(arg0).finish(),
+            Self::Float(arg0) => f.debug_tuple("Float").field(arg0).finish(),
+            Self::SignedInteger(arg0) => f.debug_tuple("SignedInteger").field(arg0).finish(),
+            Self::Color(arg0) => f.debug_tuple("Color").field(arg0).finish(),
+            Self::String(arg0) => f.debug_tuple("String").field(&arg0.to_str()).finish(),
+            Self::UnsignedInteger(arg0) => f.debug_tuple("UnsignedInteger").field(arg0).finish(),
+            Self::Unknown => write!(f, "Unknown"),
+        }
+    }
 }
 
 /// Union representing various setting values.
