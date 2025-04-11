@@ -1,5 +1,8 @@
 use core::{ffi::c_char, ptr::NonNull};
 
+use crate::re::Actor::Actor;
+use crate::re::BGSEntryPointFunction::ENTRY_POINT_FUNCTION_TYPE_CEnum;
+
 #[commonlibsse_ng_derive_internal::ffi_enum]
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -118,39 +121,35 @@ pub struct EntryPointParameters {
 }
 const _: () = assert!(core::mem::size_of::<EntryPointParameters>() == 0x10);
 
-// This is a placeholder. You will need to define this enum appropriately.
-#[repr(u32)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum EntryPointFunctionType {
-    // Example variant(s)
-    Example = 0,
-}
-
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct EntryPoint {
-    pub name: *const c_char,                  // 0x00
-    pub parameters: EntryPointParameters,     // 0x08
-    pub functionType: EntryPointFunctionType, // 0x18
-    pub pad1C: u32,                           // 0x1C
+    pub name: *const c_char,                           // 0x00
+    pub parameters: EntryPointParameters,              // 0x08
+    pub functionType: ENTRY_POINT_FUNCTION_TYPE_CEnum, // 0x18
+    pub pad1C: u32,                                    // 0x1C
 }
 const _: () = assert!(core::mem::size_of::<EntryPoint>() == 0x20);
 
 // Equivalent to: static EntryPoint* GetEntryPoint(...)
-pub fn get_entry_point(entry_point: ENTRY_POINT) -> Option<NonNull<EntryPoint>> {
-    if (entry_point as u32) < ENTRY_POINT_CEnum::count() as u32 {
-        entry_points(entry_point)
-    } else {
-        None
-    }
-}
-
 #[commonlibsse_ng_derive_internal::relocate(
     cast_as = "*mut EntryPoint",
     default = "None",
     id(se = 675707, ae = 368994)
 )]
 #[inline]
-fn entry_points(entry_point: ENTRY_POINT) -> Option<NonNull<EntryPoint>> {
-    |as_type| unsafe { NonNull::new(as_type.add(entry_point as usize)) }
+pub fn get_entry_point(entry_point: ENTRY_POINT) -> Option<NonNull<EntryPoint>> {
+    |as_type: AsType| unsafe { NonNull::new(as_type.add(entry_point as usize)) }
 }
+
+/// - Unsupported variadic args on Rust.
+///
+///   `ENTRY_POINT a_entryPoint, Actor* a_perkOwner, Args... a_args`
+///
+/// # Safety
+/// valid address
+///
+/// # Panics
+/// If invalid address.
+#[commonlibsse_ng_derive_internal::relocate_fn(se_id = 23073, ae_id = 23526)]
+pub unsafe fn handle_entry_point(entry_point: ENTRY_POINT, perk_owner: *mut Actor) {}

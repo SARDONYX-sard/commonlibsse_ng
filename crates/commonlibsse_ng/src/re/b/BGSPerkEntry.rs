@@ -41,7 +41,7 @@ impl BGSPerkEntry {
 
 #[repr(C)]
 pub struct BGSPerkEntryVtbl {
-    ChechkDonditionFilters: fn(this: &mut BGSPerkEntry, num_args: u32, args: *mut c_void) -> bool, // 00 - { return false; }
+    CheckConditionFilters: fn(this: &mut BGSPerkEntry, num_args: u32, args: *mut c_void) -> bool, // 00 - { return false; }
     GetFunction: fn(this: &mut BGSPerkEntry) -> EntryPoint, // 01 - { return 0; }
     GetFunctionData: fn(this: &BGSPerkEntry) -> *mut c_void, // 02 - { return 0; }
     CxxDrop: fn(this: &mut BGSPerkEntry),

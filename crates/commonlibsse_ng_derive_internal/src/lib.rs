@@ -178,6 +178,8 @@ pub fn relocate_fn(attrs: TokenStream, item: TokenStream) -> TokenStream {
 ///     C = 4,
 /// }
 ///
+/// assert_eq!(MyEnum_CEnum::count(), 3);
+///
 /// // FFI -> Enum
 /// let valid = MyEnum_CEnum::A;
 /// assert_eq!(core::mem::size_of::<MyEnum_CEnum>(), core::mem::size_of::<i32>());

@@ -50,7 +50,7 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
     let discriminant_count = to_enum_arms.len();
     let discriminant_count_doc = format!("Returns `{discriminant_count}`");
 
-    let struct_doc = format!("`{enum_ident}` for FFI usage type.");
+    let struct_doc = format!("Auto-generated FFI type for `{enum_ident}`.");
     let to_enum_doc =
         format!("Returns `Some({enum_ident})` if the value is valid, otherwise `None`.");
 
@@ -58,15 +58,23 @@ fn ffi_enum_(args: attr_args::MacroArgs, item_enum: ItemEnum) -> syn::Result<Tok
         #item_enum
 
         #[doc = #struct_doc]
+        /// # When use this?
+        /// C's enum is really just a number and there is no guarantee that it will fit within the enum.
+        /// Therefore, it is used for the following cases that **cannot be controlled** by Rust.
+        /// - C++ members
+        /// - Function return values.
         ///
-        /// Automatically generated type for FFI affinity with C enum.
+        /// # When not to use it?
+        /// Mainly those that can be controlled for safety on the Rust side.
+        /// - Function Arguments
+        ///
+        /// # Convenient methods
+        /// - `to_enum`/`from_enum`: To inter-convert enums.
+        /// - `count`: Returns the number of defined discriminants.
+        ///
+        /// # Memory Layout
         /// It will always have `#[repr(transparent)]`.
-        ///
-        /// # Why use NewType?
-        /// This is because as long as it is an FFI type, there is always the possibility of an invalid C enum (number) coming in,
-        /// and if an unexpected number comes into Rust's enum, it will result in undefined behavior.
-        ///
-        /// Use `to_enum`/`from_enum` to inter-convert enums.
+        /// In other words, it is equivalent to the size specified in `repr`.
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
         #[repr(transparent)]
         #vis struct #flags_ident(#vis #bitflags_type);

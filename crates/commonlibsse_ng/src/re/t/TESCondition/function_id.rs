@@ -752,13 +752,21 @@ pub struct FunctionData {
 }
 const _: () = assert!(std::mem::size_of::<FunctionData>() == 0x18);
 
-impl Default for FunctionData {
-    fn default() -> Self {
+impl FunctionData {
+    #[inline]
+    pub const fn new() -> Self {
         Self {
             function: FunctionID_CEnum(u16::MAX),
             pad02: 0,
             pad04: 0,
             params: [core::ptr::null_mut(); 2],
         }
+    }
+}
+
+impl Default for FunctionData {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
     }
 }
