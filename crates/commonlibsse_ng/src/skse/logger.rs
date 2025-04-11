@@ -1,6 +1,5 @@
 use crate::rel::module::ModuleState;
 use crate::rex::win32::document_dir;
-use crate::skse::version::RUNTIME_SSE_1_6_1170;
 use snafu::ResultExt as _;
 use std::path::{Path, PathBuf};
 #[cfg(feature = "tracing")]
@@ -25,17 +24,17 @@ pub fn log_directory() -> Result<PathBuf, LogInitError> {
     let mut path = document_dir().map_err(|_| LogInitError::NotFoundDocumentDir)?;
     path.push("My Games");
 
-    let (runtime, version) =
-        ModuleState::map_or_init(|module| (module.runtime, module.version.clone()))
-            .context(UnexpectedModuleStateSnafu)?;
+    let runtime =
+        ModuleState::map_or_init(|module| module.runtime).context(UnexpectedModuleStateSnafu)?;
 
     if runtime.is_vr() {
         path.push("Skyrim VR");
     } else if Path::new("steam_api64.dll").exists() {
         if Path::new("openvr_api.dll").exists() {
             path.push("Skyrim VR");
-        } else if version >= RUNTIME_SSE_1_6_1170 {
-            path.push("Skyrim.INI");
+
+        // ? The behavior of writing to `Skyrim.INI` seems to be incorrect.
+        // - See: https://www.nexusmods.com/skyrimspecialedition/mods/144932?tab=description
         } else {
             path.push("Skyrim Special Edition");
         }
