@@ -93,12 +93,13 @@ impl PlayerCharacter {
 
     /// Returns the singleton instance of `Self`.
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "NiPointer<PlayerCharacter>",
+        cast_as = "*mut NiPointer<PlayerCharacter>",
         default = "None",
+        deref_once,
         id(se = 517014, ae = 403521)
     )]
     pub fn get_singleton() -> Option<&'static PlayerCharacter> {
-        |as_type: AsType| unsafe { as_type.as_ptr().map(|p| p.as_ref()) }
+        |deref_type: DerefType| unsafe { deref_type.as_ptr().map(|p| p.as_ref()) }
     }
 
     #[commonlibsse_ng_derive_internal::relocate(

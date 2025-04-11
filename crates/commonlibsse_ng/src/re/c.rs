@@ -4,5 +4,6 @@ pub mod Character;
 pub mod CollisionLayer;
 pub mod Color;
 pub mod CompactingStore;
+pub mod Console;
 pub mod Crime;
 pub mod CrosshairPickData;

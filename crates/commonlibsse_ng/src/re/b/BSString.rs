@@ -32,6 +32,7 @@ pub struct BSString {
     _pad0C: u32,
     marker: PhantomData<Vec<u8>>,
 }
+const _: () = assert!(core::mem::size_of::<BSString>() == 0x10);
 
 impl BSString {
     /// Creates a new, empty `BSString`.

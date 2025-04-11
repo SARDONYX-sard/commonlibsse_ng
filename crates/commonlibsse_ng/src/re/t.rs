@@ -17,3 +17,4 @@ pub mod TESQuest;
 pub mod TESTexture;
 pub mod TESTrackedStatsEvent;
 pub mod TESWorldSpace;
+pub mod TLSData;

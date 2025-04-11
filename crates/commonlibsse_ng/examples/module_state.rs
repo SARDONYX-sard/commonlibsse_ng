@@ -52,6 +52,7 @@ fn record_player_character() {
         #[cfg(feature = "tracing")]
         {
             tracing::trace!("player addr = {player:p}");
+            commonlibsse_ng::console_println!("player addr = {player:p}");
 
             let is_valid_range = {
                 let player_ptr = (player as *const PlayerCharacter).cast();
@@ -60,8 +61,10 @@ fn record_player_character() {
             };
             tracing::trace!("player.is_valid_range() = {is_valid_range}");
 
-            let refr = &player.__base.__base.__base;
-            tracing::trace!("player_refr = {refr:#?}");
+            if is_valid_range {
+                let refr = &player.__base.__base.__base;
+                tracing::trace!("player_refr = {refr:#?}");
+            }
         }
     };
 }
