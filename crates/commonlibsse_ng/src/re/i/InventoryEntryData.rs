@@ -1,39 +1,29 @@
-use std::option::Option;
-use std::sync::Arc;
-
+use crate::re::Actor::Actor;
 use crate::re::BSTList::BSSimpleList;
 use crate::re::ExtraDataList::ExtraDataList;
 use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
-
-#[derive(Debug, Clone)]
-pub struct EnchantmentItem; // Placeholder for EnchantmentItem
-#[derive(Debug, Clone)]
-pub struct Actor; // Placeholder for Actor
-#[derive(Debug, Clone)]
-pub struct AlchemyItem; // Placeholder for AlchemyItem
+use crate::re::{AlchemyItem, EnchantmentItem, SoulLevel};
 
 #[derive(Debug, Clone)]
 pub struct InventoryEntryData {
     pub object: *mut TESBoundObject,
-    pub extra_lists: *mut BSSimpleList<ExtraDataList>,
-    pub count_delta: i32,
-    #[allow(unused)]
-    pad14: u32,
+    pub extraLists: *mut BSSimpleList<ExtraDataList>,
+    pub countDelta: i32,
+    pub pad14: u32,
 }
-
 const_assert_eq!(core::mem::size_of::<InventoryEntryData>(), 0x18);
 
 impl InventoryEntryData {
     pub const fn new(object: *mut TESBoundObject, count_delta: i32) -> Self {
-        Self { object, extra_lists: core::ptr::null_mut(), count_delta, pad14: 0 }
+        Self { object, extraLists: core::ptr::null_mut(), countDelta: count_delta, pad14: 0 }
     }
 
     pub fn add_extra_list(&mut self, extra: ExtraDataList) {
-        if self.extra_lists.is_null() {
-            self.extra_lists = Box::into_raw(Box::new(BSSimpleList::new()));
+        if self.extraLists.is_null() {
+            self.extraLists = Box::into_raw(Box::new(BSSimpleList::new()));
         }
-        unsafe { self.extra_lists.as_mut().map(|list| list.push_front(extra)) };
+        unsafe { self.extraLists.as_mut().map(|list| list.push_front(extra)) };
     }
 
     pub fn can_item_be_taken(
@@ -100,7 +90,7 @@ impl InventoryEntryData {
         todo!()
     }
 
-    pub fn is_owned_by(&self, test_owner: Option<Arc<Actor>>, default_to: bool) -> bool {
+    pub fn is_owned_by(&self, test_owner: *mut Actor, default_to: bool) -> bool {
         let _ = test_owner;
         let _ = default_to;
         todo!()
@@ -110,14 +100,9 @@ impl InventoryEntryData {
         todo!()
     }
 
-    pub fn poison_object(&mut self, alchemy_item: Option<Arc<AlchemyItem>>, count: u32) {
+    pub fn poison_object(&mut self, alchemy_item: *mut AlchemyItem, count: u32) {
         let _ = alchemy_item;
         let _ = count;
         todo!()
     }
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum SoulLevel {
-    // Placeholder for SoulLevel enum
 }

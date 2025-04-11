@@ -74,12 +74,13 @@ pub fn GetArmorFinalRating(
 }
 
 #[commonlibsse_ng_derive_internal::relocate(
-    cast_as = "u32",
+    cast_as = "*mut u32",
     default = "None",
+    deref_once,
     id(se = 523662, ae = 410201)
 )]
 pub fn GetDurationOfApplicationRunTime() -> Option<u32> {
-    |as_type: AsType| Some(as_type)
+    |deref_type: DerefType| Some(deref_type)
 }
 
 pub fn GetINISetting(name: &CStr) -> Option<&'static Setting> {
@@ -93,12 +94,13 @@ pub fn GetINISetting(name: &CStr) -> Option<&'static Setting> {
 }
 
 #[commonlibsse_ng_derive_internal::relocate(
-    cast_as = "*mut f32",
+    cast_as = "*mut *mut f32",
     default = "None",
+    deref_once,
     id(se = 523660, ae = 410199)
 )]
 pub fn GetSecondsSinceLastFrame() -> Option<f32> {
-    |as_type: AsType| unsafe { as_type.as_ref().copied() }
+    |deref_type: DerefType| unsafe { deref_type.as_ref().copied() }
 }
 
 #[inline]

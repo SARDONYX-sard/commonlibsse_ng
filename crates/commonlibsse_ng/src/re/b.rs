@@ -3,6 +3,8 @@ pub mod BGSActorEvent;
 pub mod BGSAddToPlayerInventoryEvent;
 pub mod BGSDirectionalAmbientLightingColors;
 pub mod BGSEncounterZone;
+pub mod BGSEntryPoint;
+pub mod BGSEntryPointFunction;
 pub mod BGSEquipSlot;
 pub mod BGSEquipType;
 pub mod BGSKeyword;

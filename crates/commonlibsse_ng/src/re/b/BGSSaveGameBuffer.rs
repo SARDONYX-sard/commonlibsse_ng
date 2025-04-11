@@ -1,7 +1,7 @@
 use core::ffi::c_void;
 use core::ptr::NonNull;
 
-use crate::re::InventoryEntryData::Actor;
+use crate::re::Actor::Actor;
 use crate::re::TESForm::TESForm;
 use crate::re::TESObjectREFR::TESObjectREFR;
 use crate::re::offsets_rtti::RTTI_BGSSaveGameBuffer;

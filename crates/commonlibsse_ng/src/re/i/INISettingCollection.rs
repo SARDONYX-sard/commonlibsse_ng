@@ -25,12 +25,14 @@ impl INISettingCollection {
 
     /// Gets the singleton instance of `INISettingCollection`.
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "*mut INISettingCollection",
+        cast_as = "*mut *mut INISettingCollection",
         default = "None",
+        deref_once,
         id(se = 524557, ae = 411155)
     )]
+    #[inline]
     pub fn get_singleton() -> Option<&'static INISettingCollection> {
-        |as_type: AsType| unsafe { as_type.as_ref() }
+        |deref_type: DerefType| unsafe { deref_type.as_ref() }
     }
 
     pub fn get_setting(&self, name: &CStr) -> Option<&Setting> {

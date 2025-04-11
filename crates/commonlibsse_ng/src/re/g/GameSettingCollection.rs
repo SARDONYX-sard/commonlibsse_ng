@@ -56,12 +56,13 @@ impl GameSettingCollection {
 
     /// Gets the singleton instance of `GameSettingCollection`.
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "*mut GameSettingCollection",
+        cast_as = "*mut *mut GameSettingCollection",
         default = "None",
+        deref_once,
         id(se = 514622, ae = 400782)
     )]
     pub fn get_singleton() -> Option<&'static GameSettingCollection> {
-        |as_type: AsType| unsafe { as_type.as_ref() }
+        |deref_type: DerefType| unsafe { deref_type.as_ref() }
     }
 
     pub fn to_hashmap(&self) -> HashMap<&str, SettingValue<'_>> {

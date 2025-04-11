@@ -2,6 +2,8 @@
 pub(crate) struct MacroArgs {
     pub cast_as: String,
     pub default: String,
+    #[darling(default)]
+    pub deref_once: Option<bool>,
     pub id: RelocationId,
 }
 

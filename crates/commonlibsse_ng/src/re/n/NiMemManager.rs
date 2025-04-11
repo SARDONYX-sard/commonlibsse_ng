@@ -14,22 +14,24 @@ const _: () = assert!(core::mem::size_of::<NiMemManager>() == 0x8);
 impl NiMemManager {
     /// Returns the singleton instance of `Self`.
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "*mut NiMemManager",
+        cast_as = "*mut *mut NiMemManager",
         default = "None",
+        deref_once,
         id(se = 523759, ae = 410319)
     )]
     pub fn get_singleton() -> Option<&'static NiMemManager> {
-        |as_type: AsType| unsafe { as_type.as_ref() }
+        |deref_type: DerefType| unsafe { deref_type.as_ref() }
     }
 
     /// Returns the singleton instance of `Self`.
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "*mut NiMemManager",
+        cast_as = "*mut *mut NiMemManager",
+        deref_once,
         default = "None",
         id(se = 523759, ae = 410319)
     )]
     pub fn get_singleton_mut() -> Option<&'static mut NiMemManager> {
-        |as_type: AsType| unsafe { as_type.as_mut() }
+        |deref_type: DerefType| unsafe { deref_type.as_mut() }
     }
 
     pub fn allocate(

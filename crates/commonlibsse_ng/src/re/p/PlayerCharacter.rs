@@ -102,12 +102,14 @@ impl PlayerCharacter {
     }
 
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "bool",
+        cast_as = "*mut bool",
         default = "false",
+        deref_once,
         id(se = 517711, ae = 404238)
     )]
+    #[inline]
     pub fn is_god_mode() -> bool {
-        |as_type: AsType| as_type
+        |deref_type: DerefType| deref_type
     }
 
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 39471, ae_id = 40548)]

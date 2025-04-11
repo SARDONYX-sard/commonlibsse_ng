@@ -1,4 +1,9 @@
+use core::ffi::c_void;
+
+use crate::re::Actor::Actor;
+use crate::re::BGSEntryPoint::EntryPoint;
 use crate::re::FormTypes::FormType;
+use crate::re::TESFile::TESFile;
 use crate::re::offsets_rtti::RTTI_BGSPerkEntry;
 use crate::re::offsets_vtable::VTABLE_BGSPerkEntry;
 use crate::rel::id::VariantID;
@@ -22,11 +27,32 @@ impl BGSPerkEntry {
 
     /// The `FormType` value for BGSPerkEntry.
     pub const FORM_TYPE: FormType = FormType::Perk;
+
+    #[inline]
+    pub const fn get_rank(&self) -> u8 {
+        self.header.rank
+    }
+
+    #[inline]
+    pub const fn get_priority(&self) -> u8 {
+        self.header.priority
+    }
 }
 
 #[repr(C)]
 pub struct BGSPerkEntryVtbl {
-    GetType: fn(this: &BGSPerkEntry),
+    ChechkDonditionFilters: fn(this: &mut BGSPerkEntry, num_args: u32, args: *mut c_void) -> bool, // 00 - { return false; }
+    GetFunction: fn(this: &mut BGSPerkEntry) -> EntryPoint, // 01 - { return 0; }
+    GetFunctionData: fn(this: &BGSPerkEntry) -> *mut c_void, // 02 - { return 0; }
+    CxxDrop: fn(this: &mut BGSPerkEntry),
+    GetType: fn(this: &BGSPerkEntry) -> PERK_ENTRY_TYPE_CEnum, // 0x04
+    ClearData: fn(this: &mut BGSPerkEntry),                    // 0x05 - { return; }
+    InitItem: fn(this: &mut BGSPerkEntry, owner: *mut TESFile), // 0x06 - { return; }
+    Load: fn(this: &mut BGSPerkEntry, file: *mut TESFile) -> bool, // 0x07 - { return true; }
+    SetParent: fn(this: &mut BGSPerkEntry),                    // 0x08 - { return; }
+    GetID: fn(this: &BGSPerkEntry) -> u16,                     // 0x09 - { return 0xFFFF; }
+    ApplyPerkEntry: fn(this: &mut BGSPerkEntry, actor: *mut Actor), // 0x0A
+    RemovePerkEntry: fn(this: &mut BGSPerkEntry, actor: *mut Actor), // 0x0B
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]

@@ -3,14 +3,13 @@ use crate::re::BSPointerHandle::{ActorHandle, ObjectRefHandle};
 use crate::re::BSTArray::BSTArray;
 use crate::re::BSTSmartPointer::BSTSmartPointer;
 use crate::re::Crime::CRIME_TYPE;
-use crate::re::InventoryEntryData::AlchemyItem;
 use crate::re::NiAVObject::NiAVObject;
 use crate::re::NiSmartPointer::NiPointer;
 use crate::re::PlayerCharacter::crime::TeleportPath;
 use crate::re::PlayerCharacter::skill::PlayerSkills;
 use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
-use crate::re::{BSLight, BipedAnim, CombatGroup, NiNode, TESClass};
+use crate::re::{AlchemyItem, BSLight, BipedAnim, CombatGroup, NiNode, TESClass};
 
 const _: () = assert!(7 == CRIME_TYPE::TOTAL);
 

@@ -48,11 +48,12 @@ const _: () = assert!(core::mem::size_of::<CrosshairPickData>() == 0x88);
 
 impl CrosshairPickData {
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "*mut CrosshairPickData",
+        cast_as = "*mut *mut CrosshairPickData",
         default = "None",
+        deref_once,
         id(se = 515446, ae = 401585)
     )]
     pub fn get_singleton() -> Option<&'static CrosshairPickData> {
-        |as_type: AsType| unsafe { as_type.as_ref() }
+        |deref_type: DerefType| unsafe { deref_type.as_ref() }
     }
 }

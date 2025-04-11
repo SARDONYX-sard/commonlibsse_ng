@@ -27,11 +27,12 @@ const _: () = assert!(core::mem::size_of::<BGSAddToPlayerInventoryEvent>() == 0x
 
 impl BGSAddToPlayerInventoryEvent {
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "*mut u32",
+        cast_as = "*mut *mut u32",
         default = "None",
+        deref_once,
         id(se = 508412, ae = 380074)
     )]
     pub fn get_index() -> Option<u32> {
-        |as_type: AsType| unsafe { as_type.as_ref().map(|p| *p) }
+        |deref_type: DerefType| unsafe { deref_type.as_ref().copied() }
     }
 }

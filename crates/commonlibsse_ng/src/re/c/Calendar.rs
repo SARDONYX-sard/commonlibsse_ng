@@ -33,29 +33,15 @@ const _: () = {
 };
 
 impl Calendar {
-    /// Returns the singleton instance of `Calendar`.
-    pub fn get_singleton() -> Option<&'static Self> {
-        use crate::rel::{ResolvableAddress as _, id::RelocationID};
-
-        // TODO: To make the address static with OnceLock, Send + Sync safety of the raw pointer must be established
-        const SE_ID: u64 = 514287;
-        const AE_ID: u64 = 400447;
-        let address = match RelocationID::from_se_ae_id(SE_ID, AE_ID).address() {
-            Ok(address) => address,
-            Err(_err) => {
-                #[cfg(feature = "tracing")]
-                tracing::error!("Failed to get address(se_id={SE_ID}, ae_id={AE_ID}): {_err}");
-                return None;
-            }
-        };
-
-        unsafe {
-            let calendar_ptr: *mut *mut Self = core::mem::transmute(address.as_ptr());
-
-            // NOTE: Always use `read_unaligned`. If use `as_ref`, a definite crash occurs.
-            let calendar_ptr = calendar_ptr.read_unaligned();
-            calendar_ptr.as_ref()
-        }
+    /// Gets the singleton instance of `Calendar`.
+    #[commonlibsse_ng_derive_internal::relocate(
+        cast_as = "*mut *mut Calendar",
+        default = "None",
+        deref_once,
+        id(se = 5514287, ae = 400447)
+    )]
+    pub fn get_singleton() -> Option<&'static Calendar> {
+        |deref_type: DerefType| unsafe { deref_type.as_ref() }
     }
 
     /// Gets the current game time.

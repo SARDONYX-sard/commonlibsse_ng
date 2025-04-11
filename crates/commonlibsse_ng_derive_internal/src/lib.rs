@@ -3,7 +3,7 @@
 
 use proc_macro::TokenStream;
 
-/// Relocates a address using Skyrim runtime-specific relocation IDs.
+/// Relocates an address using Skyrim runtime-specific relocation IDs.
 ///
 /// The `#[relocate]` attribute macro enables dynamic resolution of a pointer using relocation
 /// IDs for Skyrim Special Edition (SE), Anniversary Edition (AE), and optionally VR. It injects code
@@ -12,57 +12,73 @@ use proc_macro::TokenStream;
 ///
 /// # Attributes
 ///
-/// | Attribute    | Type      | Required | Description                                                               |
-/// |--------------|-----------|----------|---------------------------------------------------------------------------|
-/// | `cast_as`    | `&str`    | Yes      | The type to cast the resolved pointer to (e.g., `"bool"`).                |
-/// | `default`    | `&str`    | Yes      | The fallback value returned if resolution fails (e.g., `"false"`).        |
-/// | `id.se`      | `u64`     | Yes      | Relocation ID for Skyrim Special Edition.                                 |
-/// | `id.ae`      | `u64`     | Yes      | Relocation ID for Skyrim Anniversary Edition.                             |
-/// | `id.vr`      | `u64`     | No       | Relocation ID for Skyrim VR. Defaults to `se` if omitted.                 |
+/// | Attribute      | Type      | Required | Description                                                                      |
+/// |----------------|-----------|----------|----------------------------------------------------------------------------------|
+/// | `cast_as`      | `&str`    | Yes      | The type to cast the resolved pointer to (e.g., `"*mut bool"`, `"*mut T"`).      |
+/// | `default`      | `&str`    | Yes      | The fallback value returned if resolution fails (e.g., `"false"`, `None`).       |
+/// | `deref_once`   | `bool`    | No       | If specified, the casted pointer will be dereferenced once(by `read_unaligned`). |
+/// | `id.se`        | `u64`     | Yes      | Relocation ID for Skyrim Special Edition.                                        |
+/// | `id.ae`        | `u64`     | Yes      | Relocation ID for Skyrim Anniversary Edition.                                    |
+/// | `id.vr`        | `u64`     | No       | Relocation ID for Skyrim VR. Defaults to `se` if omitted.                        |
+///
+/// If `deref_once` is specified and the `cast_as` type is a multi-level pointer (e.g., `*mut *mut T`),
+/// the macro will automatically strip one level and define a helper type alias `DerefType`:
+///
+/// ```rust
+/// type DerefType = *mut T;
+/// ```
+///
+/// This type alias can then be used as the parameter type in the closure.
 ///
 /// # Function Body
 ///
-/// The body must be a single closure of the form:
+/// The function body must be a single closure of the form:
 ///
 /// ```rust
-/// |ptr: AsType| { ... }
+/// |as_type: AsType| { ... }
 /// ```
 ///
-/// where `AsType` is the dereferenced value of the casted pointer.
-/// This closure will only be called if the relocation address is resolved successfully.
+/// where `AsType` is either the raw casted pointer or the dereferenced value, depending on `deref_once`.
 ///
-/// If resolution fails, the `default` value will be returned instead (after parsing the literal).
+/// If resolution fails, the `default` value will be returned instead (parsed as a Rust expression).
 ///
-/// # Example
+/// # Examples
 ///
+/// ## Without deref_once
 /// ```rust
 /// #[commonlibsse_ng_derive_internal::relocate(
-///     cast_as = "bool",
-///     default = "false",
-///     id(se = 517711, ae = 404238)
+///     cast_as = "*mut EntryPoint",
+///     default = "None",
+///     id(se = 675707, ae = 368994)
 /// )]
-/// pub fn is_god_mode() -> bool {
-///     |ptr: bool| ptr
+/// #[inline]
+/// fn entry_points(entry_point: ENTRY_POINT) -> Option<NonNull<EntryPoint>> {
+///     |as_type| unsafe { NonNull::new(as_type.add(entry_point as usize)) }
 /// }
 /// ```
 ///
-/// In this case, the macro will:
-/// - Resolve the relocation address by using the given `se`/`ae` ID.
-/// - Cast it to `*mut bool`, dereference it, and pass the value into the closure.
-/// - If resolution fails, return `false`.
+/// ## With deref_once and pointed pointer(e.g. `GetSingleton`)
+/// ```rust
+/// #[commonlibsse_ng_derive_internal::relocate(
+///     cast_as = "*mut *mut INIPrefSettingCollection",
+///     default = "None",
+///     deref_once,
+///     id(se = 524557, ae = 411155)
+/// )]
+/// pub fn get_singleton() -> Option<&'static INIPrefSettingCollection> {
+///     |deref_type: DerefType| unsafe { deref_type.as_ref() }
+/// }
+/// ```
 ///
 /// # Notes
 ///
-/// - The macro requires `once_cell`, `Unique`, and `rel::ResolvableAddress` system to work.
-/// - You must ensure the type provided in `cast_as` is safe to dereference.
-/// - This pattern encourages a declarative and readable way to define relocation logic without
-///   repetitive boilerplate.
-/// - `SelfSignature`: Function signature for self. like C++ `decltype(T)`
+/// - `cast_as` must be a valid Rust type (pointer types encouraged for safety).
+/// - `deref_once` is especially useful for singletons and global pointers.
+/// - This pattern avoids boilerplate and enables declarative relocation definitions.
 ///
 /// # See Also
 ///
-/// - `#[relocate_fn]` if you want to relocate and *call* a function with arguments instead of
-///   resolving and evaluating a pointer.
+/// - [`#[relocate_fn]`](relocate_fn) — relocate and invoke a function with arguments instead of reading a pointer.
 #[proc_macro_attribute]
 pub fn relocate(attrs: TokenStream, item: TokenStream) -> TokenStream {
     let item_fn = syn::parse_macro_input!(item as syn::ItemFn);

@@ -361,3 +361,9 @@ pub struct TESClass;
 pub struct EffectItem;
 pub struct EffectSetting;
 pub struct Effect;
+#[derive(Debug, Clone)]
+pub struct EnchantmentItem;
+#[derive(Debug, Clone)]
+pub struct AlchemyItem;
+#[derive(Debug, Clone, Copy)]
+pub enum SoulLevel {}

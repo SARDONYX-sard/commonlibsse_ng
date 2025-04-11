@@ -103,7 +103,7 @@ impl TESObjectREFR {
             let entry_ref = unsafe { entry.as_ref()? };
             let object = entry_ref.object;
             if filter(unsafe { object.as_ref()? }) {
-                inventory.insert(object, (entry_ref.count_delta, Box::new(entry_ref.clone())));
+                inventory.insert(object, (entry_ref.countDelta, Box::new(entry_ref.clone())));
             }
         }
 
