@@ -2,8 +2,8 @@ mod enums;
 mod local_map;
 mod runtime_data;
 
-pub use enums::*;
-pub use local_map::*;
+pub use self::enums::*;
+pub use self::local_map::*;
 
 use crate::re::BSAnimationGraphEvent::BSAnimationGraphEvent;
 use crate::re::BSCoreTypes::RefHandle;
@@ -11,10 +11,13 @@ use crate::re::BSTEvent::BSTEventSink;
 use crate::re::FormTypes::FormType;
 use crate::re::Misc::LookupReferenceByHandle_ActorImpl;
 use crate::re::NiSmartPointer::NiPointer;
+use crate::re::SpellItem::SpellItem;
+use crate::re::TESFaction;
 use crate::re::TESObjectREFR::{TESObjectREFR, TESObjectREFRVtbl};
 use crate::re::offsets_rtti::RTTI_Actor;
 use crate::re::offsets_vtable::VTABLE_Actor;
 use crate::rel::id::VariantID;
+use core::ptr::NonNull;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -81,6 +84,18 @@ impl Actor {
 
         false
     }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 37787, ae_id = 38736)]
+    pub fn add_cast_power(&mut self, power: Option<NonNull<SpellItem>>) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 36218, ae_id = 3719371937198)]
+    pub fn add_death_items(&mut self) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 37771, ae_id = 38716)]
+    pub fn add_spell(&mut self, spell: Option<NonNull<SpellItem>>) {}
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 36678, ae_id = 37686)]
+    pub fn add_to_faction(&mut self, faction: Option<NonNull<TESFaction>>, rank: u8) {}
 }
 
 impl crate::re::NiSmartPointer::RefCountable for Actor {

@@ -367,3 +367,39 @@ pub struct EnchantmentItem;
 pub struct AlchemyItem;
 #[derive(Debug, Clone, Copy)]
 pub enum SoulLevel {}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct AIProcess;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ActorMover;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct CombatController;
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct AITimeStamp {
+    dummy: [u8; 4],
+}
+
+#[commonlibsse_ng_derive_internal::ffi_enum]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(u32)]
+pub enum EmotionType {
+    Dummy,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct MovementControllerNPC;
+impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for MovementControllerNPC {
+    fn inc_ref(&self) -> u32 {
+        todo!()
+    }
+
+    fn dec_ref(&self) -> u32 {
+        todo!()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ActorMagicCaster;

@@ -5,55 +5,18 @@ use crate::re::BSTArray::BSTSmallArray;
 use crate::re::BSTSmartPointer::BSTSmartPointer;
 use crate::re::MagicItem::MagicItem;
 use crate::re::NiPoint3::NiPoint3;
+use crate::re::SpellItem::SpellItem;
 use crate::re::TESForm::TESForm;
-use crate::re::{BGSDialogueBranch, BGSLocation, BipedAnim, TESFaction, TESRace};
+use crate::re::{
+    AIProcess, AITimeStamp, ActorMagicCaster, ActorMover, BGSDialogueBranch, BGSLocation,
+    BipedAnim, CombatController, EmotionType, MovementControllerNPC, TESFaction, TESPackage,
+    TESRace,
+};
 
 use super::{
     ACTOR_CRITICAL_STAGE_CEnum, ActorValueStorage, BOOL_BITS, BOOL_FLAGS, Modifiers,
     SlotTypes_CEnum,
 };
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct AIProcess;
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct ActorMover;
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct TESPackage;
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct CombatController;
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct AITimeStamp {
-    dummy: [u8; 4],
-}
-
-#[commonlibsse_ng_derive_internal::ffi_enum]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(u32)]
-pub enum EmotionType {
-    Dummy,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct SpellItem;
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct MovementControllerNPC;
-impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for MovementControllerNPC {
-    fn inc_ref(&self) -> u32 {
-        todo!()
-    }
-
-    fn dec_ref(&self) -> u32 {
-        todo!()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct ActorMagicCaster;
 
 const _: () = assert!(SlotTypes_CEnum::count() == 4);
 
