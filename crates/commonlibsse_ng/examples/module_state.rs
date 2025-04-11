@@ -52,7 +52,7 @@ fn record_player_character() {
         #[cfg(feature = "tracing")]
         {
             tracing::trace!("player addr = {player:p}");
-            commonlibsse_ng::console_println!("player addr = {player:p}");
+            // commonlibsse_ng::console_println!("player addr = {player:p}");
 
             let is_accessible_struct = commonlibsse_ng::rex::win32::is_accessible_struct(player);
             tracing::trace!("player.is_accessible_struct() = {is_accessible_struct}");
@@ -63,24 +63,6 @@ fn record_player_character() {
 
             let refr = &player.__base.__base.__base;
             tracing::trace!("player_refr = {refr:#?}");
-
-            use commonlibsse_ng::re::IMessageBoxCallback::Message;
-            use commonlibsse_ng::re::Misc::{DebugMessageBoxWithConfig, MessageBoxConfig};
-            use std::ffi::CString;
-
-            fn task(_message: Message) {
-                commonlibsse_ng::debug_message_box!("OK button pressed, running task!");
-            };
-
-            let message = CString::new(format!("player_refr = {refr:#?}")).unwrap();
-            let config = MessageBoxConfig {
-                message: &message,
-                button_text: c"Yes",
-                secondary_button_text: Some(c"No"),
-                task: Some(task),
-            };
-
-            DebugMessageBoxWithConfig(config);
             // commonlibsse_ng::debug_message_box!("player_refr = {refr:#?}");
         }
     };
