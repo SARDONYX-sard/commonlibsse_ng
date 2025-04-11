@@ -86,15 +86,15 @@ pub fn DebugMessageBoxWithConfig(config: MessageBoxConfig) {
 
     // FIXME: Currently not running as it crashes mysteriously.
     // If a task is provided, create a callback for it
-    use crate::re::OldMessageBoxCallback::OldMessageBoxCallback;
-    let callback_ptr = config
-        .task
-        .map_or(ptr::null_mut(), |task| Box::into_raw(Box::new(OldMessageBoxCallback::new(task))));
+    // use crate::re::OldMessageBoxCallback::OldMessageBoxCallback;
+    // let callback_ptr = config
+    //     .task
+    //     .map_or(ptr::null_mut(), |task| Box::into_raw(Box::new(OldMessageBoxCallback::new(task))));
 
     CreateMessage(
         config.message.as_ptr(),
-        callback_ptr.cast(),
-        // ptr::null_mut(),
+        // callback_ptr.cast(),
+        ptr::null_mut(),
         0,
         4,
         10,
