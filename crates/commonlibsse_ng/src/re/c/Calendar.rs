@@ -38,7 +38,7 @@ impl Calendar {
         cast_as = "*mut *mut Calendar",
         default = "None",
         deref_once,
-        id(se = 5514287, ae = 400447)
+        id(se = 514287, ae = 400447)
     )]
     pub fn get_singleton() -> Option<&'static Calendar> {
         |deref_type: DerefType| unsafe { deref_type.as_ref() }
