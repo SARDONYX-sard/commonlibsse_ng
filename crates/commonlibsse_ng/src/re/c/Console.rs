@@ -54,7 +54,7 @@ impl Console {
     /// ```no_run
     /// use commonlibsse_ng::re::Console::Console;
     ///
-    /// if let Some(console) = Console::get_singleton_mut() {
+    /// if let Some(console) = unsafe { Console::get_singleton_mut() } {
     ///     console.print(c"Hello World!".as_ptr());
     /// };
     /// ```
