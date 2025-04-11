@@ -56,15 +56,11 @@ impl Default for MessageBoxConfig<'_> {
 ///
 /// let message = CString::new(format!("This is a {}", "message")).unwrap();
 ///
-/// let task = |_| {
-///     commonlibsse_ng::debug_message_box!("OK button pressed, running task!");
-/// };
-///
 /// let config = MessageBoxConfig {
 ///     message: &message,
 ///     button_text: c"Yes",
 ///     secondary_button_text: Some(c"No"),
-///     task: Some(Box::new(task)),
+///     task: None,
 /// };
 ///
 /// DebugMessageBoxWithConfig(config);

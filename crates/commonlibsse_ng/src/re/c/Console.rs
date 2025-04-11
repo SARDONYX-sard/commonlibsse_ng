@@ -33,8 +33,6 @@ impl Console {
     }
 
     /// Returns the mutable singleton instance of `Self`.
-    ///
-    ///
     #[commonlibsse_ng_derive_internal::relocate(
         cast_as = "*mut *mut Console",
         default = "None",
@@ -56,8 +54,9 @@ impl Console {
     /// ```no_run
     /// use commonlibsse_ng::re::Console::Console;
     ///
-    /// let console = Console::get_singleton_mut();
-    /// console.print(c"Hello World!".as_ptr());
+    /// if let Some(console) = Console::get_singleton_mut() {
+    ///     console.print(c"Hello World!".as_ptr());
+    /// };
     /// ```
     ///
     /// # Note
