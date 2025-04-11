@@ -54,37 +54,34 @@ fn record_player_character() {
             tracing::trace!("player addr = {player:p}");
             commonlibsse_ng::console_println!("player addr = {player:p}");
 
-            let is_valid_range = {
-                let player_ptr = (player as *const PlayerCharacter).cast();
-                const PLAYER_LEN: usize = core::mem::size_of::<PlayerCharacter>();
-                commonlibsse_ng::rex::win32::is_valid_range(player_ptr, PLAYER_LEN)
-            };
-            tracing::trace!("player.is_valid_range() = {is_valid_range}");
+            let is_accessible_struct = commonlibsse_ng::rex::win32::is_accessible_struct(player);
+            tracing::trace!("player.is_accessible_struct() = {is_accessible_struct}");
 
-            if is_valid_range {
-                let refr = &player.__base.__base.__base;
-                tracing::trace!("player_refr = {refr:#?}");
-
-                use commonlibsse_ng::re::Misc::{DebugMessageBoxWithConfig, MessageBoxConfig};
-                use std::ffi::CString;
-
-                let message = CString::new(format!("player_refr = {refr:#?}")).unwrap();
-
-                let task = |_| {
-                    commonlibsse_ng::debug_message_box!("OK button pressed, running task!");
-                };
-
-                let config = MessageBoxConfig {
-                    message: &message,
-                    button_text: c"Yes",
-                    secondary_button_text: Some(c"No"),
-                    task: Some(Box::new(task)),
-                };
-
-                DebugMessageBoxWithConfig(config);
-
-                // commonlibsse_ng::debug_message_box!("player_refr = {refr:#?}");
+            if !is_accessible_struct {
+                return;
             }
+
+            let refr = &player.__base.__base.__base;
+            tracing::trace!("player_refr = {refr:#?}");
+
+            use commonlibsse_ng::re::IMessageBoxCallback::Message;
+            use commonlibsse_ng::re::Misc::{DebugMessageBoxWithConfig, MessageBoxConfig};
+            use std::ffi::CString;
+
+            fn task(_message: Message) {
+                commonlibsse_ng::debug_message_box!("OK button pressed, running task!");
+            };
+
+            let message = CString::new(format!("player_refr = {refr:#?}")).unwrap();
+            let config = MessageBoxConfig {
+                message: &message,
+                button_text: c"Yes",
+                secondary_button_text: Some(c"No"),
+                task: Some(task),
+            };
+
+            DebugMessageBoxWithConfig(config);
+            // commonlibsse_ng::debug_message_box!("player_refr = {refr:#?}");
         }
     };
 }

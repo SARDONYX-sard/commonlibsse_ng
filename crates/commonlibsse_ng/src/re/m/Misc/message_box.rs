@@ -1,7 +1,6 @@
 use core::ffi::{CStr, c_char};
 use core::ptr;
 
-use super::message_callback::MessageBoxCallback;
 use crate::re::GameSettingCollection::GameSettingCollection;
 use crate::re::IMessageBoxCallback::{IMessageBoxCallback, Message};
 use crate::re::Setting::SettingValue;
@@ -29,7 +28,9 @@ pub struct MessageBoxConfig<'a> {
     /// Text for the secondary button (no secondary button if None)
     pub secondary_button_text: Option<&'a CStr>,
     /// Optional task (closure) to execute when a button is pressed
-    pub task: Option<Box<dyn Fn(Message) + Send>>,
+    ///
+    /// FIXME: Currently not running as it crashes mysteriously.
+    pub task: Option<fn(Message)>,
 }
 
 impl Default for MessageBoxConfig<'_> {
@@ -83,18 +84,24 @@ pub fn DebugMessageBoxWithConfig(config: MessageBoxConfig) {
     let secondary_button_text =
         config.secondary_button_text.map_or(ptr::null(), |cstr| cstr.as_ptr());
 
+    // FIXME: Currently not running as it crashes mysteriously.
     // If a task is provided, create a callback for it
-    let callback_ptr = config.task.map_or(ptr::null_mut(), |task| MessageBoxCallback::new(task));
+    use crate::re::OldMessageBoxCallback::OldMessageBoxCallback;
+    let callback_ptr = config
+        .task
+        .map_or(ptr::null_mut(), |task| Box::into_raw(Box::new(OldMessageBoxCallback::new(task))));
 
     CreateMessage(
         config.message.as_ptr(),
         callback_ptr.cast(),
+        // ptr::null_mut(),
         0,
         4,
         10,
         config.button_text.as_ptr(),
         secondary_button_text,
     );
+    // drop(unsafe { Box::from_raw(callback_ptr) });
 }
 
 /// Display a simple dialog box with the given message.
@@ -110,7 +117,7 @@ pub fn DebugMessageBoxWithConfig(config: MessageBoxConfig) {
 ///
 /// # Example
 /// ```no_run
-/// DebugMessageBox(c"This is a message");
+/// commonlibsse_ng::re::Misc::DebugMessageBox(c"This is a message");
 /// ```
 #[inline]
 pub fn DebugMessageBox(message: &CStr) {

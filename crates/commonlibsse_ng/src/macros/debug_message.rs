@@ -6,6 +6,8 @@
 /// # Example
 ///
 /// ```no_run
+/// let x= 0;
+/// let y= 1;
 /// commonlibsse_ng::debug_message_box!("Player position: x = {}, y = {}", x, y);
 /// ```
 ///

@@ -1,5 +1,4 @@
 mod message_box;
-mod message_callback;
 
 pub use message_box::{
     CreateMessage, DebugMessageBox, DebugMessageBoxWithConfig, DebugMessageOkBox, MessageBoxConfig,

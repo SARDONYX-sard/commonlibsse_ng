@@ -54,7 +54,7 @@ impl Console {
     /// Print argument c-string.
     /// # Example
     /// ```no_run
-    /// use commonlibsse_ng::re::Console;
+    /// use commonlibsse_ng::re::Console::Console;
     ///
     /// let console = Console::get_singleton_mut();
     /// console.print(c"Hello World!".as_ptr());
