@@ -1,16 +1,20 @@
+mod message_box;
+mod message_callback;
+
+pub use message_box::{
+    CreateMessage, DebugMessageBox, DebugMessageBoxWithConfig, DebugMessageOkBox, MessageBoxConfig,
+};
+
 use core::ffi::{CStr, c_char};
-use core::ptr;
 
 use crate::re::Actor::Actor;
 use crate::re::BSCoreTypes::RefHandle;
-use crate::re::GameSettingCollection::GameSettingCollection;
-use crate::re::IMessageBoxCallback::IMessageBoxCallback;
 use crate::re::INIPrefSettingCollection::INIPrefSettingCollection;
 use crate::re::INISettingCollection::INISettingCollection;
 use crate::re::InventoryEntryData::InventoryEntryData;
 use crate::re::NiPoint3::NiPoint3;
 use crate::re::NiSmartPointer::NiPointer;
-use crate::re::Setting::{Setting, SettingValue};
+use crate::re::Setting::Setting;
 use crate::re::TESObjectREFR::TESObjectREFR;
 
 #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 12204, ae_id = 12332)]
@@ -27,18 +31,6 @@ pub fn LookupReferenceByHandle_RefrImpl(
 ) -> bool {
 }
 
-#[commonlibsse_ng_derive_internal::relocate_fn(se_id = 51420, ae_id = 52269)]
-pub fn CreateMessage(
-    message: *const c_char,
-    callback: *mut IMessageBoxCallback,
-    arg3: u32,
-    arg4: u32,
-    arg5: u32,
-    button_text: *const c_char,
-    secondary_button_text: *const c_char,
-) {
-}
-
 #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 12193, ae_id = 12326)]
 pub fn CreateRefHandle(handle_out: *mut RefHandle, ref_to: *mut TESObjectREFR) {}
 
@@ -48,21 +40,6 @@ pub fn DebugNotification(
     sound_to_play: *const c_char,
     cancel_if_already_queued: bool,
 ) {
-}
-
-pub fn DebugMessageBox(message: *const c_char) {
-    unsafe {
-        let ok = GameSettingCollection::get_singleton()
-            .and_then(|gsc| gsc.__base.settings.__base.__base.__base.get(&c"sOk".as_ptr()))
-            .and_then(|setting| {
-                if let SettingValue::String(string) = setting.as_ref()?.get_value() {
-                    return Some(string);
-                }
-                None
-            })
-            .unwrap_or(c"");
-        CreateMessage(message, ptr::null_mut(), 0, 4, 10, ok.as_ptr(), ptr::null());
-    }
 }
 
 #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 15779, ae_id = 16017)]

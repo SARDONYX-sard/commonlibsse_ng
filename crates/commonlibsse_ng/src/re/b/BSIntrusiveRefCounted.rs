@@ -7,6 +7,13 @@ pub struct BSIntrusiveRefCounted {
 }
 const _: () = assert!(core::mem::size_of::<BSIntrusiveRefCounted>() == 0x4);
 
+impl BSIntrusiveRefCounted {
+    #[inline]
+    pub const fn new() -> Self {
+        Self { refCount: AtomicU32::new(0) }
+    }
+}
+
 pub trait BSIntrusiveRefCountedTrait {
     fn inc_ref(&self) -> u32;
     fn dec_ref(&self) -> u32;

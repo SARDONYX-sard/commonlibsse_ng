@@ -54,6 +54,8 @@ impl Console {
     /// Print argument c-string.
     /// # Example
     /// ```no_run
+    /// use commonlibsse_ng::re::Console;
+    ///
     /// let console = Console::get_singleton_mut();
     /// console.print(c"Hello World!".as_ptr());
     /// ```
@@ -74,9 +76,7 @@ impl Console {
 ///
 /// ```no_run
 /// use commonlibsse_ng::re::Console::print_fmt;
-///
-/// let args = format_args!("Health: {}", 100);
-/// print_fmt(args);
+/// print_fmt(format_args!("Health: {}", 100));
 /// ```
 ///
 /// # Notes

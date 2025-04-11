@@ -8,6 +8,7 @@ use crate::rel::id::VariantID;
 pub struct IMessageBoxCallback {
     pub vtable: *const IMessageBoxCallbackVtbl,
     pub __base: BSIntrusiveRefCounted, // 0x000
+    pub unk0C: u32,
 }
 const _: () = assert!(core::mem::size_of::<IMessageBoxCallback>() == 0x10);
 
@@ -25,8 +26,8 @@ impl IMessageBoxCallback {
 #[repr(C)]
 pub struct IMessageBoxCallbackVtbl {
     /// - C++ destructor: `~IMessageBoxCallback`
-    CxxDrop: fn(this: *mut IMessageBoxCallback), // 0x0
-    Run: fn(this: *mut IMessageBoxCallback, msg: Message), // 0x1
+    pub CxxDrop: fn(this: *mut IMessageBoxCallback), // 0x0
+    pub Run: fn(this: *mut IMessageBoxCallback, msg: Message), // 0x1
 }
 
 #[commonlibsse_ng_derive_internal::ffi_enum]

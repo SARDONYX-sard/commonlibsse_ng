@@ -22,7 +22,7 @@ fn skse_event_listener(message: &Message) {
         if msg_type == MessageType::PostLoadGame {
             record_game_date();
             record_player_character();
-            record_game_ini();
+            // record_game_ini();
         }
     }
 }
@@ -64,6 +64,26 @@ fn record_player_character() {
             if is_valid_range {
                 let refr = &player.__base.__base.__base;
                 tracing::trace!("player_refr = {refr:#?}");
+
+                use commonlibsse_ng::re::Misc::{DebugMessageBoxWithConfig, MessageBoxConfig};
+                use std::ffi::CString;
+
+                let message = CString::new(format!("player_refr = {refr:#?}")).unwrap();
+
+                let task = |_| {
+                    commonlibsse_ng::debug_message_box!("OK button pressed, running task!");
+                };
+
+                let config = MessageBoxConfig {
+                    message: &message,
+                    button_text: c"Yes",
+                    secondary_button_text: Some(c"No"),
+                    task: Some(Box::new(task)),
+                };
+
+                DebugMessageBoxWithConfig(config);
+
+                // commonlibsse_ng::debug_message_box!("player_refr = {refr:#?}");
             }
         }
     };
