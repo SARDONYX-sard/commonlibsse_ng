@@ -57,23 +57,6 @@ where
         Self { __base: hkArrayBase::with_capacity(capacity) }
     }
 
-    /// Pushes a new element to the end of the array.
-    ///
-    /// # Panics
-    /// Panics if memory allocation fails.
-    ///
-    /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
-    ///
-    /// let mut array = hkArray::<u32, RustAllocator>::new();
-    /// array.push(42);
-    /// ```
-    #[inline]
-    pub fn push(&mut self, value: T) {
-        self.__base.push(value);
-    }
-
     /// Returns the number of elements in the array.
     ///
     /// # Example
@@ -134,14 +117,90 @@ where
         self.__base.reserve(new_capacity);
     }
 
+    /// Pushes a new element to the end of the array.
+    ///
+    /// # Panics
+    /// Panics if memory allocation fails.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    ///
+    /// let mut array = hkArray::<u32, RustAllocator>::new();
+    /// array.push(42);
+    /// ```
+    #[inline]
+    pub fn push(&mut self, value: T) {
+        self.__base.push(value);
+    }
+
+    /// Removes the last element from the array and returns it, or `None` if it's empty.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    ///
+    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// array.push(1);
+    /// assert_eq!(array.pop(), Some(1));
+    /// assert_eq!(array.pop(), None);
+    /// ```
+    #[inline]
+    pub const fn pop(&mut self) -> Option<T> {
+        self.__base.pop()
+    }
+
+    /// Returns a reference to the element at the given index, if it exists.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    ///
+    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// array.push(42);
+    /// assert_eq!(array.get(0), Some(&42));
+    /// assert_eq!(array.get(1), None);
+    /// ```
     #[inline]
     pub const fn get(&self, index: usize) -> Option<&T> {
         self.__base.get(index)
     }
 
+    /// Returns a mutable reference to the element at the given index, if it exists.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    ///
+    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// array.push(10);
+    /// if let Some(x) = array.get_mut(0) {
+    ///     *x += 1;
+    /// }
+    /// assert_eq!(array[0], 11);
+    /// ```
     #[inline]
     pub const fn get_mut(&mut self, index: usize) -> Option<&mut T> {
         self.__base.get_mut(index)
+    }
+
+    /// Clears the array, removing all elements but preserving the capacity.
+    ///
+    /// # Examples
+    /// ```
+    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    ///
+    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// array.push(1);
+    /// array.push(2);
+    /// assert_eq!(array.len(), 2);
+    /// array.clear();
+    /// assert_eq!(array.len(), 0);
+    /// assert_eq!(array.capacity(), 10); // Capacity is preserved
+    /// ```
+    #[inline]
+    pub fn clear(&mut self) {
+        self.__base.clear();
     }
 
     /// Checks if the array contains the given element.
@@ -234,6 +293,24 @@ where
         R: core::ops::RangeBounds<usize>,
     {
         self.__base.drain(range)
+    }
+
+    /// Return iterator
+    #[inline]
+    pub const fn iter(&self) -> hkArrayRefIterator<'_, T, A> {
+        self.__base.iter()
+    }
+
+    /// Return readonly slice.
+    #[inline]
+    pub const fn as_slice(&self) -> &[T] {
+        self.__base.as_slice()
+    }
+
+    /// Return mutable slice.
+    #[inline]
+    pub const fn as_mut_slice(&mut self) -> &mut [T] {
+        self.__base.as_mut_slice()
     }
 }
 

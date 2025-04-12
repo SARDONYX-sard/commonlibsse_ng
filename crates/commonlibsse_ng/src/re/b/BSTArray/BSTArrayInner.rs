@@ -95,8 +95,8 @@ pub struct BSTArray<T, A = BSTArrayHeapAllocator>
 where
     A: Allocator,
 {
-    pub __base: A,
-    pub __base1: BSTArrayBase,
+    __base: A,
+    __base1: BSTArrayBase,
     _marker: PhantomData<T>,
 }
 const _: () = assert!(core::mem::size_of::<BSTArray<()>>() == 0x18);

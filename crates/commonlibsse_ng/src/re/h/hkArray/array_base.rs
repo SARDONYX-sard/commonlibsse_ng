@@ -154,6 +154,50 @@ where
         self.size += 1;
     }
 
+    /// Removes the last element from the array and returns it, or `None` if it's empty.
+    #[inline]
+    pub const fn pop(&mut self) -> Option<T> {
+        let len = self.len();
+        if len == 0 {
+            None
+        } else {
+            self.size -= 1;
+            unsafe { Some(ptr::read(self.as_ptr().add(len - 1))) }
+        }
+    }
+
+    /// Returns a reference to the element at the given index, if it exists.
+    #[inline]
+    pub const fn get(&self, index: usize) -> Option<&T> {
+        if index < self.len() {
+            return unsafe { self.as_ptr().add(index).as_ref() };
+        }
+        None
+    }
+
+    /// Returns a mutable reference to the element at the given index, if it exists.
+    #[inline]
+    pub const fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+        if index < self.len() {
+            return unsafe { self.as_ptr().add(index).as_mut() };
+        }
+        None
+    }
+
+    /// Clears the array, removing all elements but preserving the capacity.
+    #[inline]
+    pub fn clear(&mut self) {
+        // Drop all elements in the array without changing capacity
+        for i in 0..self.len() {
+            unsafe {
+                // SAFETY: we're dropping each element in place
+                ptr::drop_in_place(self.as_ptr().add(i));
+            }
+        }
+
+        self.size = 0; // Reset the length, but keep the allocated capacity
+    }
+
     #[inline]
     pub const fn iter(&self) -> hkArrayRefIterator<'_, T, A> {
         hkArrayRefIterator { array: self, index: 0 }
@@ -173,22 +217,6 @@ where
             Some(data) => unsafe { core::slice::from_raw_parts_mut(data.as_ptr(), self.len()) },
             None => &mut [],
         }
-    }
-
-    #[inline]
-    pub const fn get(&self, index: usize) -> Option<&T> {
-        if index < self.len() {
-            return unsafe { self.as_ptr().add(index).as_ref() };
-        }
-        None
-    }
-
-    #[inline]
-    pub const fn get_mut(&mut self, index: usize) -> Option<&mut T> {
-        if index < self.len() {
-            return unsafe { self.as_ptr().add(index).as_mut() };
-        }
-        None
     }
 
     /// Checks if the array contains the given element.
