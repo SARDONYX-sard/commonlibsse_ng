@@ -11,6 +11,15 @@
 /// commonlibsse_ng::debug_message_box!("Player position: x = {}, y = {}", x, y);
 /// ```
 ///
+/// # Message Box Layout
+/// ```txt
+/// +--------------------------+
+/// |    This is a message     |
+/// |                          |
+/// |          [OK]            |  <-- Primary Buttons
+/// +--------------------------+
+/// ```
+///
 /// # Notes
 ///
 /// - The string is converted to a C-style string (`CString`), which **must not contain null bytes (`\0`)** in the middle.
