@@ -1,7 +1,9 @@
 pub mod hkArray;
 pub mod hkBaseObject;
 pub mod hkBaseTypes;
+pub mod hkContainerAllocators;
 pub mod hkMatrix3;
+pub mod hkMemoryAllocator;
 pub mod hkMotionState;
 pub mod hkQuaternion;
 pub mod hkRefPtr;
