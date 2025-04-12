@@ -1,6 +1,6 @@
 //! # hkArray
 //!
-//! This module defines the `hkArrayBase` struct, a dynamic array-like structure that
+//! This module defines the `hkArray` struct, a dynamic array-like structure that
 //! mimics the behavior of a C++ container with methods for array manipulation,
 //! including dynamic resizing, accessors, and iterators.
 mod allocator;
@@ -242,9 +242,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::hkArrayBase::{hkArrayBase, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
     ///
-    /// let mut array = hkArrayBase::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
