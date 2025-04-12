@@ -7,7 +7,7 @@ pub type hkTime = f32;
 /// Enumeration representing the result of a Havok operation.
 #[commonlibsse_ng_derive_internal::ffi_enum]
 #[repr(i32)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum hkResult {
     Success = 0,
     Failure = 1,

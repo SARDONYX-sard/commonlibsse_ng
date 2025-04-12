@@ -419,3 +419,14 @@ pub struct ActorMagicCaster;
 #[repr(C)]
 #[derive(Debug)]
 pub struct Projectile;
+impl crate::re::NiSmartPointer::RefCountable for Projectile {
+    #[inline]
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    #[inline]
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
