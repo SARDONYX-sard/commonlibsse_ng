@@ -10,37 +10,37 @@ const LAST_MESSAGE_BUFFER_SIZE: usize = 0x400;
 /// # Note
 /// The console has also confirmed that it does not support ANSI Color.
 #[repr(C)]
-pub struct Console {
+pub struct ConsoleLog {
     pub lastMessage: [c_char; LAST_MESSAGE_BUFFER_SIZE],
     pub pad401: u8,
     pad402: u16,
     pad404: u32,
     buffer: BSString,
 }
-const _: () = assert!(core::mem::size_of::<Console>() == 0x418);
+const _: () = assert!(core::mem::size_of::<ConsoleLog>() == 0x418);
 
-impl Console {
+impl ConsoleLog {
     /// Returns the singleton instance of `Self`.
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "*mut *mut Console",
+        cast_as = "*mut *mut ConsoleLog",
         default = "None",
         deref_once,
         id(se = 515064, ae = 401203)
     )]
     #[inline]
-    pub fn get_singleton() -> Option<&'static Console> {
+    pub fn get_singleton() -> Option<&'static ConsoleLog> {
         |deref_type: DerefType| unsafe { deref_type.as_ref() }
     }
 
     /// Returns the mutable singleton instance of `Self`.
     #[commonlibsse_ng_derive_internal::relocate(
-        cast_as = "*mut *mut Console",
+        cast_as = "*mut *mut ConsoleLog",
         default = "None",
         deref_once,
         id(se = 515064, ae = 401203)
     )]
     #[inline]
-    pub unsafe fn get_singleton_mut() -> Option<&'static mut Console> {
+    pub unsafe fn get_singleton_mut() -> Option<&'static mut ConsoleLog> {
         |deref_type: DerefType| unsafe { deref_type.as_mut() }
     }
 
@@ -52,9 +52,9 @@ impl Console {
     /// Print argument c-string.
     /// # Example
     /// ```no_run
-    /// use commonlibsse_ng::re::Console::Console;
+    /// use commonlibsse_ng::re::ConsoleLog::ConsoleLog;
     ///
-    /// if let Some(console) = unsafe { Console::get_singleton_mut() } {
+    /// if let Some(console) = unsafe { ConsoleLog::get_singleton_mut() } {
     ///     console.print(c"Hello World!".as_ptr());
     /// };
     /// ```
@@ -69,12 +69,12 @@ impl Console {
 /// Prints a formatted string to the in-game console (Skyrim).
 ///
 /// This function takes a [`fmt::Arguments`] object and formats it as a string,
-/// then passes it to the native `Console::print` function.
+/// then passes it to the native `ConsoleLog::print` function.
 ///
 /// # Examples
 ///
 /// ```no_run
-/// use commonlibsse_ng::re::Console::print_fmt;
+/// use commonlibsse_ng::re::ConsoleLog::print_fmt;
 /// print_fmt(format_args!("Health: {}", 100));
 /// ```
 ///
@@ -87,7 +87,7 @@ impl Console {
 /// Internally uses a mutable reference to the singleton `Console`, accessed via `unsafe`.
 #[inline]
 pub fn print_fmt(args: fmt::Arguments) {
-    if let Some(console) = unsafe { Console::get_singleton_mut() } {
+    if let Some(console) = unsafe { ConsoleLog::get_singleton_mut() } {
         let s = format!("{}", args);
 
         // We have confirmed that any attempt to `print` beyond this size will result in a definite crash.
