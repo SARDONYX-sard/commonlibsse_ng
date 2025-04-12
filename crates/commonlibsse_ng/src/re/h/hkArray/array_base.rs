@@ -258,7 +258,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::hkArrayBase::{hkArrayBase, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::{hkArrayBase, RustAllocator};
     ///
     /// let mut array = hkArrayBase::<i32, RustAllocator>::with_capacity(10);
     /// array.push(1);
