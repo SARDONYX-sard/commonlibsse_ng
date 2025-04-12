@@ -802,6 +802,18 @@ where
     }
 }
 
+impl<T, A> Extend<T> for BSTArray<T, A>
+where
+    A: Allocator,
+{
+    #[inline]
+    fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        for elem in iter {
+            self.push(elem);
+        }
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Standard derive
 

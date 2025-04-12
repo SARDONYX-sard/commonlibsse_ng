@@ -43,6 +43,7 @@ pub trait Allocator {
     unsafe fn free(ptr: *mut u8, num_bytes: i32);
 }
 
+/// The default allocator can only be used in-game, so a Rust allocator exists for use in CI and for testing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct RustAllocator;
 
@@ -73,6 +74,7 @@ impl Allocator for RustAllocator {
     }
 }
 
+/// An allocator for Skyrim that can only be used in-game.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SkyrimAllocator;
 

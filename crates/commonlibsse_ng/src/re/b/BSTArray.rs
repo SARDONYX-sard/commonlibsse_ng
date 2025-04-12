@@ -5,7 +5,9 @@ mod allocator;
 use core::ptr::NonNull;
 use core::slice;
 
-pub use self::BSTArrayInner::BSTArray;
+pub use self::BSTArrayInner::{
+    BSTArray, BSTArrayBase, BSTArrayIntoIterator, BSTArrayIterMut, BSTArrayIterator, BSTDrain,
+};
 pub use self::allocator::{
     Allocator, BSScrapArrayAllocator, BSTArrayHeapAllocator, BSTSmallArrayHeapAllocator,
     RustAllocator,

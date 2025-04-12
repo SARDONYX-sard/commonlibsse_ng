@@ -156,7 +156,7 @@ impl hkbCharacter {
     pub fn new() -> Self {
         Self {
             __base: hkReferencedObject::new(),
-            nearbyCharacters: hkArray::default(),
+            nearbyCharacters: hkArray::new(),
             currentLOD: 0,
             numTracksInLOD: 0,
             pad24: 0,

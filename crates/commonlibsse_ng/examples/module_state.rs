@@ -45,6 +45,8 @@ fn record_game_date() {
 fn record_player_character() {
     use commonlibsse_ng::re::PlayerCharacter::PlayerCharacter;
 
+    let array = commonlibsse_ng::hk_array![0, 1];
+
     #[cfg(feature = "tracing")]
     tracing::trace!("is_god_mode = {}", PlayerCharacter::is_god_mode());
 
