@@ -1,10 +1,9 @@
 use core::marker::PhantomData;
 
-use crate::re::{
-    Actor::Actor,
-    NiSmartPointer::{NiPointer, RefCountable},
-    TESObjectREFR::TESObjectREFR,
-};
+use crate::re::Actor::Actor;
+use crate::re::NiSmartPointer::{NiPointer, RefCountable};
+use crate::re::Projectile;
+use crate::re::TESObjectREFR::TESObjectREFR;
 
 // === BSUntypedPointerHandle ===
 #[repr(C)]
@@ -120,71 +119,34 @@ pub struct BSPointerHandleManagerInterface<T> {
 }
 
 impl<T> BSPointerHandleManagerInterface<T> {
-    pub extern "C" fn GetHandle(ptr: *mut T) -> BSPointerHandle<T> {
-        type SelfSignature = fn(*mut ()) -> u32; // NOTE: Since generics cannot be used with function pointers, use `void` instead.
-        {
-            static FUNC: std::sync::LazyLock<SelfSignature> = std::sync::LazyLock::new(|| {
-                use crate::rel::ResolvableAddress as _;
-                use crate::rel::id::RelocationID;
-                use core::ffi::c_void;
-                use core::ptr::NonNull;
-
-                const SE_ID: u64 = 15967;
-                const AE_ID: u64 = 16212;
-
-                let fn_ptr =
-                    RelocationID::new(SE_ID, AE_ID, SE_ID).address().unwrap_or_else(|err| {
-                        #[cfg(feature = "tracing")]
-                        tracing::error!("[Critical Error] Failed to resolve address: {err}");
-                        panic!("Failed to resolve address: {err}")
-                    });
-                unsafe { core::mem::transmute::<NonNull<c_void>, SelfSignature>(fn_ptr) }
-            });
-            BSPointerHandle::from_raw(FUNC(ptr.cast()))
-        }
+    pub fn GetHandle(ptr: *mut T) -> BSPointerHandle<T> {
+        BSPointerHandle::from_raw(Self::GetHandleRaw(ptr.cast()))
     }
+
+    /// C++ `GetHandle`
+    ///
+    /// NOTE: Since generics cannot be used with function pointers, use `c_void`(unit type) instead.
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 15967, ae_id = 16212)]
+    #[inline]
+    pub extern "C" fn GetHandleRaw(ptr: *mut ()) -> u32 {}
 }
 
 impl<T: RefCountable> BSPointerHandleManagerInterface<T> {
-    pub extern "C" fn GetSmartPointer(
-        handle: &BSPointerHandle<T>,
-        smart_ptr: &mut NiPointer<T>,
-    ) -> bool {
-        // NOTE: Since generics cannot be used with function pointers, use `void` instead.
-        type SelfSignature = fn(handle: *const (), smart_ptr: *mut ()) -> bool;
-        {
-            static FUNC: std::sync::LazyLock<SelfSignature> = std::sync::LazyLock::new(|| {
-                use crate::rel::ResolvableAddress as _;
-                use crate::rel::id::RelocationID;
-                use core::ffi::c_void;
-                use core::ptr::NonNull;
-
-                const SE_ID: u64 = 12204;
-                const AE_ID: u64 = 12332;
-
-                let fn_ptr =
-                    RelocationID::new(SE_ID, AE_ID, SE_ID).address().unwrap_or_else(|err| {
-                        #[cfg(feature = "tracing")]
-                        tracing::error!("[Critical Error] Failed to resolve address: {err}");
-                        panic!("Failed to resolve address: {err}")
-                    });
-                unsafe { core::mem::transmute::<NonNull<c_void>, SelfSignature>(fn_ptr) }
-            });
-            FUNC(
-                (handle as *const BSPointerHandle<T>).cast(),
-                (smart_ptr as *mut NiPointer<T>).cast(),
-            )
-        }
+    pub fn GetSmartPointer(handle: &BSPointerHandle<T>, smart_ptr: &mut NiPointer<T>) -> bool {
+        let handle = (handle as *const BSPointerHandle<T>).cast();
+        let smart_ptr = (smart_ptr as *mut NiPointer<T>).cast();
+        Self::GetSmartPointerRaw(handle, smart_ptr)
     }
+
+    /// C++ `GetSmartPointer`
+    ///
+    /// NOTE: Since generics cannot be used with function pointers, use `c_void`(unit type) instead.
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 12204, ae_id = 12332)]
+    #[inline]
+    pub extern "C" fn GetSmartPointerRaw(handle: *const (), smart_ptr: *mut ()) -> bool {}
 }
 
 // === Aliases ===
 pub type ActorHandle = BSPointerHandle<Actor>;
 pub type ProjectileHandle = BSPointerHandle<Projectile>;
 pub type ObjectRefHandle = BSPointerHandle<TESObjectREFR>;
-
-// === Extern C++ ABI Types ===
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct Projectile;

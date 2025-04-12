@@ -1,5 +1,7 @@
 pub mod TESBitArrayFile;
 pub mod TESBoundObject;
+pub mod TESCamera;
+pub mod TESCameraState;
 pub mod TESChildCell;
 pub mod TESCondition;
 pub mod TESDescription;

@@ -23,6 +23,22 @@ use std::sync::{LazyLock, RwLock};
 
 static MODULE: LazyLock<RwLock<ModuleState>> = LazyLock::new(|| RwLock::new(ModuleState::new()));
 
+/// Returns `true` if the current execution environment is `SkyrimVR.exe`.
+///
+/// ### When to use
+/// - Use this to simply distinguish VR from SE/AE, e.g., for branching based on class layout.
+///
+/// ### When *not* to use
+/// - If you also need other runtime info from [`ModuleState`].
+///   Calling this separately can cause redundant locking; prefer accessing [`ModuleState`] directly instead.
+///
+/// ### Note
+/// Internally uses [`ModuleState::map_or_init`]; returns `false` on init failure or if not VR.
+#[inline]
+pub fn is_vr() -> bool {
+    ModuleState::map_or_init(|m| m.runtime.is_vr()).ok().is_some_and(|is_vr| is_vr)
+}
+
 /// Represents the state of the module.
 ///
 /// This enum implements an API to manage a single global variable of internally managed module (e.g. `SkyrimSE.exe`) information.

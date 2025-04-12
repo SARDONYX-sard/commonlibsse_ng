@@ -245,6 +245,7 @@ where
 /// # Errors
 /// This function may return an error if the module's runtime is not available or if any error occurs while fetching the runtime state.
 /// Specifically, it calls `ModuleState::map_active`, which could result in an error.
+#[inline]
 pub fn relocate_member<THIS, T>(
     this: &THIS,
     se_ae_offset: isize,

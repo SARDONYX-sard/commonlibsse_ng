@@ -56,7 +56,7 @@ pub trait CxxVirtClass {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// dummies
+// === Extern C++ ABI Dummy Types ===
 
 pub struct GFxMovieView;
 pub struct GFxValue;
@@ -179,7 +179,17 @@ pub struct bhkBlendCollisionObject;
 pub struct bhkAttachmentCollisionObject;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct bhkRigidBody;
+impl NiSmartPointer::RefCountable for bhkRigidBody {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
 
 #[repr(C)]
 pub struct bhkLimitedHingeConstraint;
@@ -405,3 +415,7 @@ impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for MovementCo
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ActorMagicCaster;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct Projectile;

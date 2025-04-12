@@ -5,6 +5,7 @@
     "bindgen",
     "Bitfield",
     "bitflags",
+    "Bleedout",
     "BSCRC",
     "clippy",
     "Collidable",

@@ -10,6 +10,7 @@ pub mod NiMemManager;
 pub mod NiObject;
 pub mod NiObjectNET;
 pub mod NiPoint3;
+pub mod NiQuaternion;
 pub mod NiRTTI;
 pub mod NiRefObject;
 pub mod NiSmartPointer;

@@ -344,6 +344,7 @@ dependencies = [
  "commonlibsse_ng_derive_internal",
  "dashmap",
  "generic-array 1.2.0",
+ "num-traits",
  "once_cell",
  "pretty_assertions",
  "retour",
