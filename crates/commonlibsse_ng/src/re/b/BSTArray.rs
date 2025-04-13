@@ -20,7 +20,7 @@ pub use self::allocator::{
 ///It is effective when most of the memory can be fit in the stack, except for some exceptions, but it slows down the process if there are frequent fallbacks to the heap.
 ///
 /// - [`smallvec` crate](https://crates.io/crates/smallvec)
-pub type BSTSmallArray<T, const BYTES_LEN: usize = 1> =
+pub type BSTSmallArray<T, const BYTES_LEN: usize = 8> =
     BSTArray<T, BSTSmallArrayHeapAllocator<BYTES_LEN>>;
 const _: () = assert!(core::mem::size_of::<BSTSmallArray<u8, 8>>() == 0x18);
 

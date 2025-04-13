@@ -12,7 +12,7 @@ use core::ffi::c_void;
 pub struct IMenu {
     // NOTE: extract FxDelegateHandler size 0x10
     pub vtable: *const IMenuVtbl,                // 0x00
-    pub refCount: core::sync::atomic::AtomicU32, // 0x08
+    pub refCount: core::sync::atomic::AtomicU32, // 0x04
     pad0C: u16,                                  // 0x08
 
     pub uiMovie: GPtr<GFxMovieView>,    // 0x10

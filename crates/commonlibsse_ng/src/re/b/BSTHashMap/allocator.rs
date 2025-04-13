@@ -26,6 +26,8 @@ pub trait Allocator {
     unsafe fn deallocate_bytes(&mut self, ptr: *mut u8);
 
     /// Returns the minimum size that can be allocated by this allocator.
+    ///
+    /// Must be `> 0`.
     #[inline]
     fn min_size() -> u32 {
         1 << 3
