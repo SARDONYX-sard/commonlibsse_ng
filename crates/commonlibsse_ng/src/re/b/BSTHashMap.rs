@@ -13,11 +13,19 @@ use core::marker::PhantomData;
 pub struct BSTHashMap<K, V> {
     key: core::marker::PhantomData<K>,
     value: core::marker::PhantomData<V>,
+    dummy: [u8; 0x30],
 }
+const _: () = assert!(core::mem::size_of::<BSTHashMap<(), ()>>() == 0x30);
 
 impl<K, V> BSTHashMap<K, V> {
     pub fn get(&self, key: &K) -> Option<&V> {
         let _ = key;
+        todo!()
+    }
+
+    pub(crate) fn insert(&self, key: K, value: V) -> Option<(K, V)> {
+        let _ = key;
+        let _ = value;
         todo!()
     }
 }

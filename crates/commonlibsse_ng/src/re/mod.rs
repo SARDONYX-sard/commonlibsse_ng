@@ -16,6 +16,7 @@ mod o;
 mod p;
 mod s;
 mod t;
+mod u;
 
 pub mod rtti;
 
@@ -44,6 +45,7 @@ pub use self::o::*;
 pub use self::p::*;
 pub use self::s::*;
 pub use self::t::*;
+pub use self::u::*;
 
 use crate::rel::id::VariantID;
 
@@ -59,6 +61,23 @@ pub trait CxxVirtClass {
 // === Extern C++ ABI Dummy Types ===
 
 pub struct GFxMovieView;
+impl crate::re::GPtr::RefCounted for GFxMovieView {
+    fn add_ref(&mut self) {
+        todo!()
+    }
+    fn release(&mut self) {
+        todo!()
+    }
+}
+pub struct FxDelegate;
+impl crate::re::GPtr::RefCounted for FxDelegate {
+    fn add_ref(&mut self) {
+        todo!()
+    }
+    fn release(&mut self) {
+        todo!()
+    }
+}
 pub struct GFxValue;
 
 pub struct TesWaterForm;
@@ -430,3 +449,16 @@ impl crate::re::NiSmartPointer::RefCountable for Projectile {
         todo!()
     }
 }
+#[derive(Debug)]
+pub struct QueuedFile;
+impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for QueuedFile {
+    fn inc_ref(&self) -> u32 {
+        todo!()
+    }
+
+    fn dec_ref(&self) -> u32 {
+        todo!()
+    }
+}
+
+pub struct CallbackProcessor;

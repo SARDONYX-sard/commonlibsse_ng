@@ -1,3 +1,4 @@
+#[commonlibsse_ng_derive_internal::ffi_enum]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum COL_LAYER {
     Unidentified = 0,

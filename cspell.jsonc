@@ -7,6 +7,8 @@
     "bitflags",
     "Bleedout",
     "BSCRC",
+    "BSTSDM",
+    "BSUI",
     "clippy",
     "Collidable",
     "commonlibsse",

@@ -62,3 +62,4 @@ pub mod bhkRefObject;
 pub mod bhkSerializable;
 pub mod bhkUnaryAction;
 pub mod bhkWorld;
+pub mod BSTSingleton;

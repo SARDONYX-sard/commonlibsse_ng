@@ -1,7 +1,6 @@
 /// Represents the `BSTimer` class from C++.
-///
-/// # Memory Layout:
 #[repr(C)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct BSTimer {
     pub unk00: u64,
     pub lastPerformanceCount: u32,
@@ -50,20 +49,38 @@ const _: () = {
 };
 
 impl BSTimer {
-    /// Returns the singleton instance of `BSTimer`.
+    /// Gets the singleton instance of `BSTimer`.
+    #[commonlibsse_ng_derive_internal::relocate(
+        cast_as = "*mut BSTimer",
+        default = "None",
+        id(se = 523657, ae = 410196)
+    )]
     #[inline]
-    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 523657, ae_id = 410196)]
-    pub fn get_singleton() -> &'static mut BSTimer {}
+    pub fn get_singleton() -> Option<&'static BSTimer> {
+        |as_type: AsType| unsafe { as_type.as_ref() }
+    }
 
-    /// Retrieves the global time multiplier.
+    /// Gets the global time multiplier.
+    #[commonlibsse_ng_derive_internal::relocate(
+        cast_as = "*mut f32",
+        default = "None",
+        id(se = 511882, ae = 388442)
+    )]
     #[inline]
-    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 511882, ae_id = 388442)]
-    pub fn q_global_time_multiplier() -> f32 {}
+    pub fn q_global_time_multiplier() -> Option<f32> {
+        |as_type: AsType| unsafe { as_type.as_ref().copied() }
+    }
 
-    /// Retrieves the target global time multiplier.
+    /// Gets the target global time multiplier.
+    #[commonlibsse_ng_derive_internal::relocate(
+        cast_as = "*mut f32",
+        default = "None",
+        id(se = 511883, ae = 388443)
+    )]
     #[inline]
-    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 511883, ae_id = 388443)]
-    pub fn q_global_time_multiplier_target() -> f32 {}
+    pub fn q_global_time_multiplier_target() -> Option<f32> {
+        |as_type: AsType| unsafe { as_type.as_ref().copied() }
+    }
 
     /// Sets the global time multiplier.
     #[inline]

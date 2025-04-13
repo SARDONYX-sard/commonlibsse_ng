@@ -3,7 +3,6 @@ use crate::re::ActorValues::{ActorValue, ActorValue_CEnum};
 use crate::re::BGSKeywordForm::{BGSKeywordForm, BGSKeywordFormVtbl};
 use crate::re::BSTArray::BSTArray;
 use crate::re::BSTSmartPointer::BSTSmartPointer;
-use crate::re::MagicSystem;
 use crate::re::TESBoundObject::{TESBoundObject, TESBoundObjectVtbl};
 use crate::re::TESFile::TESFile;
 use crate::re::TESFullName::TESFullName;
@@ -12,19 +11,8 @@ use crate::re::TESObjectWEAP;
 use crate::re::offsets_rtti::RTTI_MagicItem;
 use crate::re::offsets_vtable::VTABLE_MagicItem;
 use crate::re::{EffectItem, EffectSetting};
+use crate::re::{MagicSystem, QueuedFile};
 use crate::rel::id::VariantID;
-
-#[derive(Debug)]
-pub struct QueuedFile;
-impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for QueuedFile {
-    fn inc_ref(&self) -> u32 {
-        todo!()
-    }
-
-    fn dec_ref(&self) -> u32 {
-        todo!()
-    }
-}
 
 #[repr(C)]
 #[derive(Debug)]
@@ -58,7 +46,7 @@ pub struct MagicItemVtbl {
     pub SetCastingType: extern "C" fn(this: *mut MagicItem, ty: MagicSystem::CastingType), // 0x54 - { return; }
     pub GetCastingType: extern "C" fn(this: *const MagicItem) -> MagicSystem::CastingType_CEnum, // 0x55
     pub SetDelivery: extern "C" fn(this: *mut MagicItem, delivery: MagicSystem::Delivery), // 0x56 - { return; }
-    pub GetDelivery: extern "C" fn(this: *const MagicItem) -> MagicSystem::Delivery_CEnum,  // 0x57
+    pub GetDelivery: extern "C" fn(this: *const MagicItem) -> MagicSystem::Delivery_CEnum, // 0x57
     pub IsValidDelivery:
         extern "C" fn(this: *const MagicItem, delivery: MagicSystem::Delivery) -> bool, // 0x58 - { return true; }
     pub GetFixedCastDuration: extern "C" fn(this: *const MagicItem) -> f32, // 0x59 - { return 0.0; }

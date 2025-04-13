@@ -168,6 +168,9 @@ mod u8_bytes {
         pub const DEFAULT: Self = Self { data: EMPTY_C_CHAR, marker: PhantomData };
 
         /// Creates a new `BSFixedString` from a `&CStr`.
+        ///
+        /// ## Memory allocation
+        /// - If the same string exists inside the allocator, no new memory allocation occurs.
         #[inline]
         pub fn new(data: &CStr) -> Self {
             unsafe { Self::new_unchecked(data.as_ptr()) }
@@ -177,6 +180,9 @@ mod u8_bytes {
         ///
         /// # Safety
         /// - `data` must be a valid null-terminated `char` string.
+        ///
+        /// ## Memory allocation
+        /// - If the same string exists inside the allocator, no new memory allocation occurs.
         #[inline]
         pub unsafe fn new_unchecked(data: *const c_char) -> Self {
             unsafe { ctor8(data) }
@@ -255,6 +261,12 @@ mod u8_bytes {
     impl fmt::Debug for BSFixedString {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             write!(f, "{:?}", self.as_c_str())
+        }
+    }
+
+    impl From<&CStr> for BSFixedString {
+        fn from(value: &CStr) -> Self {
+            Self::new(value)
         }
     }
 }
