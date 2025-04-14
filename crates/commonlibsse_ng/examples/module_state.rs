@@ -23,9 +23,9 @@ fn skse_event_listener(message: &Message) {
         if msg_type == MessageType::PostLoadGame {
             record_ui();
 
-            // record_game_date();
-            // record_player_character();
-            // record_game_ini();
+            record_game_date();
+            record_player_character();
+            record_game_ini();
         }
     }
 }
@@ -66,7 +66,7 @@ fn record_player_character() {
 
             let refr = &player.__base.__base.__base;
             tracing::trace!("player_refr = {refr:#?}");
-            // commonlibsse_ng::debug_message_box!("player_refr = {refr:#?}");
+            commonlibsse_ng::debug_message_box!("player_refr = {refr:#?}");
         }
     };
 }
@@ -92,17 +92,10 @@ fn record_ui() {
             let is_accessible_struct = commonlibsse_ng::rex::win32::is_accessible_struct(ui);
             tracing::trace!("player.is_accessible_struct() = {is_accessible_struct}");
 
-            let ptr = (ui as *const UI).cast::<u8>();
-            let ui_slice = unsafe { core::slice::from_raw_parts(ptr, core::mem::size_of::<UI>()) };
-            tracing::trace!("ui_slice = {:#?}", ui_slice);
-
             tracing::trace!("ui_addr = {:p}", ui);
-            tracing::trace!("ui.uiTImer = {:#?}", ui.uiTimer);
 
-            // tracing::trace!("ui.__base1 = {:#?}", ui.__base1);
-            // tracing::trace!("ui.__base2 = {:#?}", ui.__base2);
-            // tracing::trace!("ui.__base3 = {:#?}", ui.__base3);
-            tracing::trace!("ui.menuMap = {:#?}", ui.menuMap);
+            // tracing::trace!("ui.menuMap = {:#?}", ui.menuMap);
+            tracing::trace!("ui = {:#?}", ui);
         }
     };
 }

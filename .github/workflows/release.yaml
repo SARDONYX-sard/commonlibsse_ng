@@ -17,11 +17,11 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1.13.0
 
       - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11.5
+        uses: lukka/run-vcpkg@v7.6
         with:
           vcpkgGitCommitId: 7f9f0e44db287e8e67c0e888141bfa200ab45121
       - name: Cache
-        uses: actions/cache@v4.2.1
+        uses: actions/cache@v4.2.3
         with:
           path: |
             vcpkg_installed
@@ -41,7 +41,7 @@ jobs:
           Compress-Archive -Path './build/*' -DestinationPath './CommonLibSSE-NG-prebuilt.zip'
 
       - name: Release
-        uses: ncipollo/release-action@v1.15.0
+        uses: ncipollo/release-action@v1.16.0
         with:
           allowUpdates: true
           artifacts: ./CommonLibSSE-NG-prebuilt.zip

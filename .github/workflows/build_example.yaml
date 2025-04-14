@@ -1,0 +1,41 @@
+name: Build Example
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["*"]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          # - { target: aarch64-apple-darwin, os: macos-latest }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest }
+          # - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest }
+    runs-on: ${{ matrix.job.os }}
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@stable
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2.7.8
+        with:
+          prefix-key: cargo-debug-${{ matrix.job.target }}
+
+      - name: Test
+        run: cargo xtask example --dest-mode build
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: module_state
+          path: |
+            ./build/mods/module_state_example/

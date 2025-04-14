@@ -24,7 +24,7 @@ jobs:
         with:
           vcpkgGitCommitId: 7f9f0e44db287e8e67c0e888141bfa200ab45121
       - name: Cache vcpkg
-        uses: actions/cache@v4.2.1
+        uses: actions/cache@v4.2.3
         with:
           path: |
             vcpkg_installed
@@ -38,14 +38,14 @@ jobs:
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
       - name: Rust cache
-        uses: Swatinem/rust-cache@v2.7.7
+        uses: Swatinem/rust-cache@v2.7.8
         with:
           prefix-key: cargo-debug-x86_64-pc-windows-msvc--vcpkg
       - name: Build
         run: cargo build -p commonlibsse_ng_sys --features vcpkg --no-default-features
 
       # - name: Upload a Build Artifact
-      #   uses: actions/upload-artifact@v4.6.1
+      #   uses: actions/upload-artifact@v4.6.2
       #   with:
       #     name: CommonLibSSE-NG
       #     path: |
@@ -64,7 +64,7 @@ jobs:
         run: cd ./crates/commonlibsse_ng_sys
 
       - name: Cache vcpkg
-        uses: actions/cache@v4.2.1
+        uses: actions/cache@v4.2.3
         with:
           path: |
             vcpkg_installed
@@ -75,7 +75,7 @@ jobs:
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
       - name: Rust cache
-        uses: Swatinem/rust-cache@v2.7.7
+        uses: Swatinem/rust-cache@v2.7.8
         with:
           prefix-key: cargo-debug-x86_64-pc-windows-msvc--prebuilt
       - name: Build
