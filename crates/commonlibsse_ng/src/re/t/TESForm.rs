@@ -93,7 +93,7 @@ impl TESForm {
     }
 
     /// Search for TESForm based on FormID
-    pub fn lookup_by_id(&self, form_id: FormID) -> Option<*mut Self> {
+    pub fn lookup_by_id(form_id: FormID) -> Option<*mut Self> {
         let AllFormsIDLock { map, lock: _lock } = Self::get_all_forms().as_ref().ok()?;
 
         if let Some(map) = unsafe { map.as_ref().as_ref() } {
