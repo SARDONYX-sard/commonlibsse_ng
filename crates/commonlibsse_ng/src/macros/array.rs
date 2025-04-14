@@ -125,7 +125,7 @@ macro_rules! bst_array {
     }};
 
     ($($elem:expr),+ $(,)?) => {{
-        let _count = <[()]>::len(&[$(bst_array![@count $elem]),+]);
+        let _count = <[()]>::len(&[$($crate::bst_array![@count $elem]),+]);
         let mut arr: $crate::re::BSTArray::BSTArray<_> = $crate::re::BSTArray::BSTArray::with_capacity(_count);
         $(
             arr.push($elem);
@@ -142,7 +142,7 @@ macro_rules! bst_array {
     }};
 
     (with_allocator: $alloc:ty => $($elem:expr),+ $(,)?) => {{
-        let _count = <[()]>::len(&[$(bst_array![@count $elem]),+]);
+        let _count = <[()]>::len(&[$($crate::bst_array![@count $elem]),+]);
         let mut arr = $crate::re::BSTArray::BSTArray::<_, $alloc>::with_capacity(_count);
         $(
             arr.push($elem);

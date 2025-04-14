@@ -1,9 +1,11 @@
 mod allocator;
+mod entry;
 
 use crate::re::CRC::Crc32Hasher;
 
 pub use self::allocator::{Allocator, BSTScatterTableHeapAllocator, BSTStaticHashMapBaseAllocator};
 
+use self::entry::{EntryType, Iter};
 use core::fmt;
 use core::hash::Hash;
 use core::marker::PhantomData;
@@ -29,17 +31,23 @@ where
             for i in 0..self.0.capacity {
                 unsafe {
                     let entry = entries.add(i as usize).as_ref();
+                    if entry.is_sentinel() {
+                        break;
+                    }
+
                     if let Some((k, v)) = entry.value_data.as_ref() {
                         map.entry(k, v);
+
                         let mut next = entry.next;
                         while let Some(n) = next {
                             let e = n.as_ref();
-                            if let Some((k, v)) = e.value_data.as_ref() {
-                                map.entry(k, v);
-                            }
                             if e.is_sentinel() {
                                 break;
                             }
+                            if let Some((k, v)) = e.value_data.as_ref() {
+                                map.entry(k, v);
+                            }
+
                             next = e.next;
                         }
                     }
@@ -62,6 +70,8 @@ where
 impl<K, V> BSTHashMap<K, V>
 where
     K: Hash + Eq,
+    // K: fmt::Debug,
+    // V: fmt::Debug,
 {
     pub fn new() -> Self {
         Self(BSTScatterTable::default())
@@ -78,23 +88,32 @@ where
     }
 
     // TODO: Return prev Option<(K, V)>
-    pub fn insert(&mut self, key: K, value: V) -> bool {
-        self.0.do_insert((key, value)).1
+    pub fn insert(&mut self, key: K, value: V) -> (Iter<(K, V)>, bool) {
+        let (pair, res) = self.0.do_insert((key, value));
+
+        // dbg!(unsafe {
+        //     let ty = pair.current.as_ref().unwrap().as_ref();
+        //     ty
+        // });
+        (pair, res)
     }
 
     pub fn clear(&mut self) {
         self.0.clear();
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = &(K, V)> {
-        self.0.get_entry_start().into_iter().flat_map(|entries| {
-            (0..self.0.capacity).filter_map(move |i| {
-                let entry = unsafe { entries.add(i as usize).as_ref() };
-                let pair = entry.value_data.as_ref()?;
-                Some(pair)
-            })
-        })
-    }
+    // pub fn iter(&self) -> impl Iterator<Item = &(K, V)> {
+    //     self.0.get_entry_start().into_iter().flat_map(|entries| {
+    //         (0..self.0.capacity).filter_map(move |i| {
+    //             let entry = unsafe { entries.add(i as usize).as_ref() };
+    //             if entry.is_sentinel() {
+    //                 return None;
+    //             }
+    //             let pair = entry.value_data.as_ref()?;
+    //             Some(pair)
+    //         })
+    //     })
+    // }
 
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut (K, V)> {
         self.0.get_entry_start().into_iter().flat_map(|entries| {
@@ -445,6 +464,12 @@ where
         self.capacity - self.free
     }
 
+    /// Get entries start.
+    pub fn get_entry_start(&self) -> Option<NonNull<EntryType<S::Pair>>> {
+        let base_ptr: *mut EntryType<S::Pair> = self.allocator.get_entries().cast();
+        NonNull::new(base_ptr)
+    }
+
     fn clear(&mut self) {
         if self.is_empty() {
             return;
@@ -456,12 +481,6 @@ where
         self.good = 0;
 
         debug_assert!(self.is_empty());
-    }
-
-    /// Get entries start.
-    pub fn get_entry_start(&self) -> Option<NonNull<EntryType<S::Pair>>> {
-        let base_ptr: *mut EntryType<S::Pair> = self.allocator.get_entries().cast();
-        NonNull::new(base_ptr)
     }
 
     fn for_each_valid_entry_mut<F>(&self, mut f: F)
@@ -483,205 +502,79 @@ where
     }
 }
 
-/// Data storage unidirectional linked list of hashmaps formed on the heap or stack.
-///
-/// There is a possibility that this storage may always be zero
-/// because of the timing of the zero initialization when the `reserve` method of the hashmap is called.
-///
-/// Therefore, use [`Option`].
-#[repr(C)]
-pub struct EntryType<Pair> {
-    /// key, value pair
-    value_data: Option<Pair>,
-    next: Option<NonNull<EntryType<Pair>>>,
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Iterator
+pub struct BSTHashMapIter<'a, K, V>
+where
+    K: Hash + Eq,
+{
+    entries: Option<NonNull<EntryType<(K, V)>>>,
+    capacity: u32,
+    index: usize,
+    current: Option<&'a EntryType<(K, V)>>,
 }
-const _: () = {
-    // To avoid memory access violations, the smallest type (e.g., u8) other than the zero size
-    // type must be larger than the sentinel size (4 bytes). or larger.
-    const SIZE: usize = core::mem::size_of::<EntryType<u8>>();
-    assert!(SIZE == 0x10);
-};
 
-impl<Pair> EntryType<Pair> where Pair: Default {}
-
-impl<Pair> Default for EntryType<Pair> {
-    fn default() -> Self {
-        Self::new()
+impl<K, V> BSTHashMap<K, V>
+where
+    K: Hash + Eq,
+{
+    pub fn iter(&self) -> BSTHashMapIter<'_, K, V> {
+        let entries = self.0.get_entry_start();
+        BSTHashMapIter { entries, capacity: self.0.capacity, index: 0, current: None }
     }
 }
 
-impl<Pair> EntryType<Pair> {
-    /// Used as a sentinel value(a special value indicating the end of a table) used within a table
-    pub const BST_SCATTER_TABLE_SENTINEL: [u8; 4] = [0xde, 0xad, 0xbe, 0xef];
-
-    /// Create a new `EntryType<V>` as alloc zeroed
-    #[inline]
-    pub const fn new() -> Self {
-        Self { value_data: None, next: None }
-    }
-
-    /// Is iter end
-    pub fn is_sentinel(&self) -> bool {
-        let is_zst = core::mem::size_of::<Self>() == 0;
-        if is_zst {
-            return false;
-        }
-
-        let bytes = Self::BST_SCATTER_TABLE_SENTINEL.as_slice();
-        // Safety: Except for the zero size type, the size is 16 bytes even for the smallest type u8.
-        // SENTINEL is 4bytes, so it is not an access violation.
-        let entry_bytes = unsafe {
-            let ptr: *const u8 = (self as *const Self).cast();
-            core::slice::from_raw_parts(ptr, Self::BST_SCATTER_TABLE_SENTINEL.len())
-        };
-        bytes == entry_bytes
-    }
-
-    /// Has `next`?
-    pub const fn has_next(&self) -> bool {
-        self.next.is_some()
-    }
-
-    pub fn destroy(&mut self) {
-        if self.has_next() {
-            let _ = self.value_data.take();
-            self.next = None;
-        }
-        debug_assert!(!self.has_next());
-    }
-
-    /// Set value_data & next
-    pub fn push(&mut self, value: Pair, next: Option<NonNull<Self>>) {
-        self.value_data = Some(value);
-        self.next = next;
-        // debug_assert!(self.has_next());
-    }
-
-    #[inline]
-    pub const fn steal(&mut self) -> Option<Pair> {
-        self.value_data.take()
-    }
-
-    #[inline]
-    pub fn iter(&self) -> Iter<'_, Pair> {
-        Iter { current: Some(NonNull::from(self)), _marker: PhantomData }
-    }
-}
-
-pub struct Iter<'a, Pair> {
-    current: Option<NonNull<EntryType<Pair>>>,
-    _marker: PhantomData<&'a Pair>,
-}
-
-impl<Pair> Iter<'_, Pair> {
-    #[inline]
-    pub const fn new(current: Option<NonNull<EntryType<Pair>>>) -> Self {
-        Self { current, _marker: PhantomData }
-    }
-}
-
-impl<'a, Pair> Iterator for Iter<'a, Pair> {
-    type Item = &'a EntryType<Pair>;
+impl<'a, K, V> Iterator for BSTHashMapIter<'a, K, V>
+where
+    K: Hash + Eq,
+{
+    type Item = (&'a K, &'a V);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let current_ptr = self.current?;
-        let current_ref = unsafe { current_ptr.as_ref() };
-        self.current = current_ref.next;
-        Some(current_ref)
-    }
-}
+        unsafe {
+            loop {
+                // Process the next chain entry, if any
+                if let Some(curr) = self.current {
+                    if let Some(next) = curr.next {
+                        let next_ref = next.as_ref();
+                        if next_ref.is_sentinel() {
+                            self.current = None;
+                            continue;
+                        }
 
-impl<'a, Pair> IntoIterator for &'a EntryType<Pair> {
-    type Item = &'a EntryType<Pair>;
-    type IntoIter = Iter<'a, Pair>;
+                        self.current = Some(next_ref);
+                        if let Some((k, v)) = next_ref.value_data.as_ref() {
+                            return Some((k, v));
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        self.current = None;
+                    }
+                }
 
-    fn into_iter(self) -> Self::IntoIter {
-        Iter { current: Some(NonNull::from(self)), _marker: PhantomData }
-    }
-}
+                // Next entry after the chain is finished.
+                if self.index >= (self.capacity as usize) {
+                    return None;
+                }
 
-pub struct IterMut<'a, Pair> {
-    current: Option<NonNull<EntryType<Pair>>>,
-    _marker: PhantomData<&'a mut Pair>,
-}
+                let entry = self.entries?.add(self.index).as_ref();
 
-impl<'a, Pair> Iterator for IterMut<'a, Pair> {
-    type Item = &'a mut EntryType<Pair>;
+                self.index += 1;
+                if entry.is_sentinel() {
+                    return None;
+                }
 
-    fn next(&mut self) -> Option<Self::Item> {
-        let mut current_ptr = self.current?;
-        let current_mut = unsafe { current_ptr.as_mut() };
-        self.current = current_mut.next;
-        Some(current_mut)
-    }
-}
-
-impl<'a, Pair> IntoIterator for &'a mut EntryType<Pair> {
-    type Item = &'a mut EntryType<Pair>;
-    type IntoIter = IterMut<'a, Pair>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        IterMut { current: Some(NonNull::from(self)), _marker: PhantomData }
-    }
-}
-
-pub struct IntoIter<Pair> {
-    current: Option<NonNull<EntryType<Pair>>>,
-    _marker: PhantomData<EntryType<Pair>>,
-}
-
-impl<Pair> Iterator for IntoIter<Pair> {
-    type Item = Pair;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let ptr = self.current?;
-        let owned_entry = unsafe { ptr.as_ptr().read() };
-        self.current = owned_entry.next;
-        owned_entry.value_data
-    }
-}
-
-impl<Pair> IntoIterator for EntryType<Pair> {
-    type Item = Pair;
-    type IntoIter = IntoIter<Pair>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        let ptr = NonNull::new(&self as *const _ as *mut Self);
-        #[allow(clippy::mem_forget)]
-        core::mem::forget(self); // prevent drop
-        IntoIter { current: ptr, _marker: PhantomData }
-    }
-}
-
-impl<Pair> core::ops::Index<u32> for EntryType<Pair> {
-    type Output = Self;
-
-    fn index(&self, mut index: u32) -> &Self::Output {
-        let mut current = self;
-
-        while index > 0 {
-            let next_ptr = current.next.expect("Index out of bounds");
-            current = unsafe { next_ptr.as_ref() };
-            index -= 1;
+                if let Some((k, v)) = entry.value_data.as_ref() {
+                    self.current = Some(entry);
+                    return Some((k, v));
+                }
+            }
         }
-
-        current
     }
 }
 
-impl<Pair> core::ops::IndexMut<u32> for EntryType<Pair> {
-    fn index_mut(&mut self, mut index: u32) -> &mut Self::Output {
-        let mut current = self;
-
-        while index > 0 {
-            let mut next_ptr = current.next.expect("Index out of bounds");
-            current = unsafe { next_ptr.as_mut() };
-            index -= 1;
-        }
-
-        current
-    }
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #[cfg(test)]
 mod tests {

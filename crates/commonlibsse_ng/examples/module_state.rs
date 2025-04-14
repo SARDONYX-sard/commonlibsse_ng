@@ -1,3 +1,4 @@
+#![allow(unused)]
 use commonlibsse_ng::skse;
 use commonlibsse_ng::skse::interfaces::messaging::{Message, MessageType};
 
@@ -20,14 +21,15 @@ fn plugin_main() {
 fn skse_event_listener(message: &Message) {
     if let Some(msg_type) = message.msg_type.to_enum() {
         if msg_type == MessageType::PostLoadGame {
-            record_game_date();
-            record_player_character();
+            record_ui();
+
+            // record_game_date();
+            // record_player_character();
             // record_game_ini();
         }
     }
 }
 
-#[allow(unused)]
 fn record_game_date() {
     use commonlibsse_ng::re::Calendar::Calendar;
 
@@ -41,7 +43,6 @@ fn record_game_date() {
     };
 }
 
-#[allow(unused)]
 fn record_player_character() {
     use commonlibsse_ng::re::PlayerCharacter::PlayerCharacter;
 
@@ -70,7 +71,6 @@ fn record_player_character() {
     };
 }
 
-#[allow(unused)]
 fn record_game_ini() {
     use commonlibsse_ng::re::GameSettingCollection::GameSettingCollection;
 
@@ -79,6 +79,30 @@ fn record_game_ini() {
         {
             tracing::trace!("game_setting addr = {:p}", game_setting);
             tracing::trace!("game_setting = {:#?}", game_setting.to_hashmap());
+        }
+    };
+}
+
+fn record_ui() {
+    use commonlibsse_ng::re::UI::UI;
+
+    if let Some(ui) = UI::get_singleton() {
+        #[cfg(feature = "tracing")]
+        {
+            let is_accessible_struct = commonlibsse_ng::rex::win32::is_accessible_struct(ui);
+            tracing::trace!("player.is_accessible_struct() = {is_accessible_struct}");
+
+            let ptr = (ui as *const UI).cast::<u8>();
+            let ui_slice = unsafe { core::slice::from_raw_parts(ptr, core::mem::size_of::<UI>()) };
+            tracing::trace!("ui_slice = {:#?}", ui_slice);
+
+            tracing::trace!("ui_addr = {:p}", ui);
+            tracing::trace!("ui.uiTImer = {:#?}", ui.uiTimer);
+
+            // tracing::trace!("ui.__base1 = {:#?}", ui.__base1);
+            // tracing::trace!("ui.__base2 = {:#?}", ui.__base2);
+            // tracing::trace!("ui.__base3 = {:#?}", ui.__base3);
+            tracing::trace!("ui.menuMap = {:#?}", ui.menuMap);
         }
     };
 }

@@ -60,6 +60,7 @@ pub trait CxxVirtClass {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // === Extern C++ ABI Dummy Types ===
 
+#[derive(Debug)]
 pub struct GFxMovieView;
 impl crate::re::GPtr::RefCounted for GFxMovieView {
     fn add_ref(&mut self) {
@@ -69,6 +70,7 @@ impl crate::re::GPtr::RefCounted for GFxMovieView {
         todo!()
     }
 }
+#[derive(Debug)]
 pub struct FxDelegate;
 impl crate::re::GPtr::RefCounted for FxDelegate {
     fn add_ref(&mut self) {

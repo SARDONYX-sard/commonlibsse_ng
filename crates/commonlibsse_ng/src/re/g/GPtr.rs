@@ -4,7 +4,10 @@ pub trait RefCounted {
     fn release(&mut self);
 }
 
-/// Smart pointer that behaves like RE::GPtr
+/// Similar to `Arc`, but does not call `release` while the reference count is
+/// greater than or equal to zero.
+///
+/// It differs from `Arc` in that it does not have its own reference-counting field. In other words, it manipulates the pointer it holds via an external reference count and drop implementation.
 #[repr(transparent)]
 pub struct GPtr<T: RefCounted> {
     ptr: *mut T,
@@ -134,16 +137,27 @@ impl<T: RefCounted> Default for GPtr<T> {
     }
 }
 
-impl<T: RefCounted> core::fmt::Debug for GPtr<T> {
-    #[inline]
+// impl<T: RefCounted> core::fmt::Debug for GPtr<T> {
+//     #[inline]
+//     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+//         f.debug_struct("GPtr").field("ptr", &self.ptr).finish()
+//     }
+// }
+impl<T: RefCounted + core::fmt::Debug> core::fmt::Debug for GPtr<T> {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.debug_struct("GPtr").field("ptr", &self.ptr).finish()
+        match self.as_ref() {
+            Some(value) => {
+                f.debug_struct("GPtr").field("ptr", &self.ptr).field("value", value).finish()
+            }
+            None => f.debug_struct("GPtr").field("ptr", &self.ptr).finish(),
+        }
     }
 }
 
 /// Factory function: `make_g_ptr`
 #[inline]
 pub fn make_g_ptr<T: RefCounted>(value: T) -> GPtr<T> {
+    // FIXME: Write NiMemoryManager
     let boxed = Box::new(value);
     let raw = Box::into_raw(boxed);
     let ptr = GPtr::from_raw(raw);
