@@ -49,12 +49,15 @@ pub struct TESForm {
 }
 const_assert_eq!(core::mem::size_of::<TESForm>(), 0x20);
 
-pub struct FormsLock<K> {
+pub struct FormsLock<K>
+where
+    K: core::hash::Hash + Eq,
+{
     pub map: NonNull<*mut BSTHashMap<K, *mut TESForm>>,
     pub lock: NonNull<BSReadWriteLock>,
 }
-unsafe impl<K> Send for FormsLock<K> {}
-unsafe impl<K> Sync for FormsLock<K> {}
+unsafe impl<K> Send for FormsLock<K> where K: core::hash::Hash + Eq {}
+unsafe impl<K> Sync for FormsLock<K> where K: core::hash::Hash + Eq {}
 
 /// Pointer of `BSTHashMap<FormID, *mut TESForm>` & Pointer of `BSReadWriteLock`
 type AllFormsIDLock = FormsLock<FormID>;
