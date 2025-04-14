@@ -504,13 +504,25 @@ where
     /// Returns a slice of all elements in the array.
     #[inline]
     pub fn as_slice(&self) -> &[T] {
-        unsafe { slice::from_raw_parts(self.as_ptr(), self.len()) }
+        let ptr = self.as_ptr();
+        let len = self.len();
+
+        if ptr.is_null() || (len == 0) {
+            return &[];
+        }
+        unsafe { slice::from_raw_parts(ptr, len) }
     }
 
     /// Returns a mutable slice of all elements in the array.
     #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
-        unsafe { slice::from_raw_parts_mut(self.as_mut_ptr(), self.len()) }
+        let ptr = self.as_mut_ptr();
+        let len = self.len();
+
+        if ptr.is_null() || (len == 0) {
+            return &mut [];
+        }
+        unsafe { slice::from_raw_parts_mut(ptr, len) }
     }
 
     /// Returns an iterator over the elements of the array.
