@@ -21,6 +21,7 @@ use crate::rel::relocation::{
 use crate::skse::version::RUNTIME_SSE_1_6_629;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct BSAnimationGraphManager {
     pub __base: BSTEventSink<BSAnimationGraphEvent>,
     pub __base1: BSIntrusiveRefCounted,

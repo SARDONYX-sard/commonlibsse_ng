@@ -4,11 +4,13 @@ mod runtime_data;
 
 pub use self::enums::*;
 pub use self::local_map::*;
+pub use self::runtime_data::ACTOR_RUNTIME_DATA;
 
 use crate::re::BSAnimationGraphEvent::BSAnimationGraphEvent;
 use crate::re::BSCoreTypes::RefHandle;
 use crate::re::BSTEvent::BSTEventSink;
 use crate::re::FormTypes::FormType;
+use crate::re::InventoryEntryData::InventoryEntryData;
 use crate::re::Misc::LookupReferenceByHandle_ActorImpl;
 use crate::re::NiSmartPointer::NiPointer;
 use crate::re::SpellItem::SpellItem;
@@ -17,6 +19,10 @@ use crate::re::TESObjectREFR::{TESObjectREFR, TESObjectREFRVtbl};
 use crate::re::offsets_rtti::RTTI_Actor;
 use crate::re::offsets_vtable::VTABLE_Actor;
 use crate::rel::id::VariantID;
+use crate::rel::relocation::RelocationError;
+use crate::rel::relocation::relocate_member_if_newer;
+use crate::rel::relocation::relocate_member_if_newer_mut;
+use crate::skse::version::RUNTIME_SSE_1_6_629;
 use core::ptr::NonNull;
 
 #[repr(C)]
@@ -37,6 +43,30 @@ impl Actor {
 
     /// The `FormType` value for Actor.
     pub const FORM_TYPE: FormType = FormType::ActorCharacter;
+
+    /// Get runtime offset definition fields.
+    ///
+    /// # Errors
+    /// - This function may return an error if the module's state cannot be accessed, or if the `map_active` call fails when fetching the current version.
+    /// - If the pointer is null
+    /// - If the pointer is unaligned
+    #[inline]
+    pub fn get_actor_runtime_data(&self) -> Result<&ACTOR_RUNTIME_DATA, RelocationError> {
+        unsafe { relocate_member_if_newer(RUNTIME_SSE_1_6_629, self, 0xE0, 0xE8) }
+    }
+
+    /// Get mutable runtime offset definition fields.
+    ///
+    /// # Errors
+    /// - This function may return an error if the module's state cannot be accessed, or if the `map_active` call fails when fetching the current version.
+    /// - If the pointer is null
+    /// - If the pointer is unaligned
+    #[inline]
+    pub fn get_actor_runtime_data_mut(
+        &mut self,
+    ) -> Result<&mut ACTOR_RUNTIME_DATA, RelocationError> {
+        unsafe { relocate_member_if_newer_mut(RUNTIME_SSE_1_6_629, self, 0xE0, 0xE8) }
+    }
 
     #[inline]
     pub fn lookup_reference_by_handle(ref_handle: RefHandle) -> NiPointer<Self> {
@@ -96,6 +126,18 @@ impl Actor {
 
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 36678, ae_id = 37686)]
     pub fn add_to_faction(&mut self, faction: Option<NonNull<TESFaction>>, rank: u8) {}
+
+    #[inline]
+    pub fn get_equipped_entry_data(&self, left_hand: bool) -> Option<NonNull<InventoryEntryData>> {
+        let proc = unsafe {
+            let current_process = self.get_actor_runtime_data().ok()?.currentProcess.as_ref()?;
+            current_process.middleHigh.as_ref()
+        }?;
+        match left_hand {
+            true => NonNull::new(proc.leftHand),
+            false => NonNull::new(proc.rightHand),
+        }
+    }
 }
 
 impl crate::re::NiSmartPointer::RefCountable for Actor {

@@ -278,7 +278,9 @@ impl BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for BipedAnim {
     }
 }
 
+#[derive(Debug)]
 pub struct BSAnimationGraphManagerPtr;
+#[derive(Debug)]
 pub struct BSAnimationCache;
 
 #[repr(C)]
@@ -402,9 +404,6 @@ pub struct AlchemyItem;
 pub enum SoulLevel {}
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct AIProcess;
-
-#[derive(Debug, Clone, PartialEq)]
 pub struct ActorMover;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -453,6 +452,15 @@ impl crate::re::NiSmartPointer::RefCountable for Projectile {
 }
 #[derive(Debug)]
 pub struct QueuedFile;
+impl crate::re::NiSmartPointer::RefCountable for QueuedFile {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
 impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for QueuedFile {
     fn inc_ref(&self) -> u32 {
         todo!()
@@ -464,3 +472,89 @@ impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for QueuedFile
 }
 
 pub struct CallbackProcessor;
+
+/// NOTE: Type unknown even in original implementation.
+#[derive(Debug)]
+#[repr(C)]
+pub struct ActorPackageData;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct ActiveEffect;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct BSLightingShaderProperty;
+impl crate::re::NiSmartPointer::RefCountable for BSLightingShaderProperty {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct HitData;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct TESIdleForm;
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct bhkCharacterController;
+impl crate::re::NiSmartPointer::RefCountable for bhkCharacterController {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct bhkRagdollPenetrationUtil;
+impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for bhkRagdollPenetrationUtil {
+    fn inc_ref(&self) -> u32 {
+        todo!()
+    }
+
+    fn dec_ref(&self) -> u32 {
+        todo!()
+    }
+}
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct BSCloneReserver;
+impl crate::re::NiSmartPointer::RefCountable for BSCloneReserver {
+    fn inc_ref_count(&self) {
+        todo!()
+    }
+
+    fn dec_ref_count(&mut self) {
+        todo!()
+    }
+}
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct AnimResponse;
+impl crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait for AnimResponse {
+    fn inc_ref(&self) -> u32 {
+        todo!()
+    }
+
+    fn dec_ref(&self) -> u32 {
+        todo!()
+    }
+}
+
+#[repr(C)]
+#[derive(Debug)]
+pub struct HighProcessData;
