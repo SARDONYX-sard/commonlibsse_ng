@@ -1,9 +1,9 @@
-use crate::re::{
-    BGSEquipSlot::BGSEquipSlot, ExtraDataList::ExtraDataList, SpellItem::SpellItem,
-    TESBoundObject::TESBoundObject,
-};
-
-use super::Actor::Actor;
+use crate::re::Actor::Actor;
+use crate::re::BGSEquipSlot::BGSEquipSlot;
+use crate::re::ExtraDataList::ExtraDataList;
+use crate::re::SpellItem::SpellItem;
+use crate::re::TESBoundObject::TESBoundObject;
+use crate::re::TESShout::TESShout;
 
 #[derive(Debug)]
 pub struct ActorEquipManager {
@@ -81,5 +81,3 @@ impl ActorEquipManager {
     ) {
     }
 }
-
-pub struct TESShout;
