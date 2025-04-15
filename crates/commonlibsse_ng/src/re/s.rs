@@ -4,3 +4,4 @@ pub mod SettingCollection;
 pub mod SettingCollectionList;
 pub mod SettingCollectionMap;
 pub mod SpellItem;
+pub mod StandardItemData;

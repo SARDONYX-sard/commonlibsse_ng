@@ -8,8 +8,8 @@ unsafe fn get_event_source() -> BSTEventSource<Event> {}
 #[derive(Debug)]
 #[repr(C)]
 pub struct Event {
-    obj_refr: TESObjectREFR,
-    entry_data: InventoryEntryData,
-    next_count: i32,
-    prev_count: i32,
+    objRefr: TESObjectREFR,
+    entryData: InventoryEntryData,
+    nextCount: i32,
+    prevCount: i32,
 }

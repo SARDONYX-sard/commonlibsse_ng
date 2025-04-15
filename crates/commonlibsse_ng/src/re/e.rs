@@ -8,3 +8,4 @@ pub mod ExtraEncounterZone;
 pub mod ExtraHealth;
 pub mod ExtraReferenceHandle;
 pub mod ExtraTextDisplayData;
+pub mod ExtraUniqueID;
