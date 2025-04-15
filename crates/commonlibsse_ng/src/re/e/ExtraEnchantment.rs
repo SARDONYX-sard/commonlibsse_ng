@@ -1,7 +1,7 @@
 use core::ptr::NonNull;
 
 use crate::re::BSExtraData::{BSExtraData, BSExtraDataVtbl, DerivedBSExtraData};
-use crate::re::EnchantmentItem;
+use crate::re::EnchantmentItem::EnchantmentItem;
 use crate::re::ExtraDataType::ExtraDataType;
 use crate::re::offsets_rtti::RTTI_ExtraEnchantment;
 use crate::re::offsets_vtable::VTABLE_ExtraEnchantment;

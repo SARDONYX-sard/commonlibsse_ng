@@ -9,6 +9,16 @@ pub struct BaseFormComponent {
     pub vtbl: *const BaseFormComponentVtbl,
 }
 
+const _: () = {
+    assert!(core::mem::size_of::<BaseFormComponent>() == 0x8);
+    assert!(core::mem::align_of::<BaseFormComponent>() == 8);
+};
+
+impl BaseFormComponent {
+    pub const RTTI: VariantID = RTTI_BaseFormComponent;
+    pub const VTABLE: [VariantID; 1] = VTABLE_BaseFormComponent;
+}
+
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BaseFormComponentVtbl {
@@ -22,15 +32,4 @@ pub struct BaseFormComponentVtbl {
     /// - `BaseFormComponent`: always return `c_void`
     pub CopyComponent: extern "C" fn(this: *mut c_void, _rhs: *mut c_void),
 }
-
-const _: () = {
-    assert!(core::mem::size_of::<BaseFormComponent>() == 0x8);
-    assert!(core::mem::align_of::<BaseFormComponent>() == 8);
-
-    assert!(core::mem::size_of::<BaseFormComponentVtbl>() == 32); // 4 * 8
-};
-
-impl BaseFormComponent {
-    pub const RTTI: VariantID = RTTI_BaseFormComponent;
-    pub const VTABLE: [VariantID; 1] = VTABLE_BaseFormComponent;
-}
+const _: () = assert!(core::mem::size_of::<BaseFormComponentVtbl>() == 32); // 4 * 8

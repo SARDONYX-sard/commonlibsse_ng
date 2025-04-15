@@ -1,4 +1,6 @@
+pub mod EnchantmentItem;
 pub mod ExtraAshPileRef;
+pub mod ExtraCharge;
 pub mod ExtraContainerChanges;
 pub mod ExtraCount;
 pub mod ExtraDataList;

@@ -1,4 +1,5 @@
-#[repr(C)]
+#[commonlibsse_ng_derive_internal::ffi_enum]
+#[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum FormType {
     None = 0,                   // 0x00 NONE TESForm
@@ -140,7 +141,7 @@ pub enum FormType {
     LensSprite,                 // 0x88 LSPR
     VolumetricLighting,         // 0x89 VOLI BGSVolumetricLighting
 
-    Max, //	8A
+    Max, //	0x8A
 }
 
 impl FormType {

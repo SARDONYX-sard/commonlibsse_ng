@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: (c) The Rust Project Contributors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 // - https://github.com/rust-lang/rust/blob/master/LICENSE-MIT
-mod alloc;
+pub mod alloc;
 
 use core::ops;
 

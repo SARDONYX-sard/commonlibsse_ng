@@ -5,11 +5,12 @@
 // - https://github.com/rust-lang/rust/blob/master/LICENSE-MIT
 use core::ptr;
 use core::{alloc::Layout, hint, ptr::NonNull};
-use std::alloc::{alloc, alloc_zeroed, dealloc, realloc};
 
-use super::{AllocError, Allocator, non_null_dangling};
+use crate::rex::stdx::alloc::{AllocError, Allocator, non_null_dangling};
 
-/// The global memory allocator.
+use super::{alloc, alloc_zeroed, dealloc, realloc};
+
+/// The Skyrim global memory allocator using `MemoryManager` C++ class.
 ///
 /// This type implements the [`Allocator`] trait by forwarding calls
 /// to the allocator registered with the `#[global_allocator]` attribute
@@ -17,9 +18,10 @@ use super::{AllocError, Allocator, non_null_dangling};
 ///
 /// Note: while this type is unstable, the functionality it provides can be
 /// accessed through the [free functions in `alloc`](self#functions).
-pub struct Global;
+#[derive(Default, Clone, PartialEq)]
+pub struct TESGlobalAlloc;
 
-impl Global {
+impl TESGlobalAlloc {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     #[allow(clippy::unused_self)]
@@ -84,7 +86,7 @@ impl Global {
     }
 }
 
-unsafe impl Allocator for Global {
+unsafe impl Allocator for TESGlobalAlloc {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
@@ -173,5 +175,22 @@ unsafe impl Allocator for Global {
                 Ok(new_ptr)
             },
         }
+    }
+}
+
+unsafe impl core::alloc::GlobalAlloc for TESGlobalAlloc {
+    #[inline]
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        unsafe { alloc(layout) }
+    }
+
+    #[inline]
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        unsafe { dealloc(ptr, layout) }
+    }
+
+    #[inline]
+    unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+        unsafe { realloc(ptr, layout, new_size) }
     }
 }

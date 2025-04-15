@@ -130,14 +130,11 @@ bitflags::bitflags! {
 }
 
 impl DerivedTESForm for BGSEncounterZone {
+    const FORM_TYPE: FormType = Self::FORM_TYPE;
+
     #[inline]
     fn get_form(&self) -> &TESForm {
         &self.__base
-    }
-
-    #[inline]
-    fn get_form_type() -> FormType {
-        Self::FORM_TYPE
     }
 }
 

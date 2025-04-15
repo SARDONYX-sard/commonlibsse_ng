@@ -7,7 +7,7 @@ use crate::re::TESBoundObject::{TESBoundObject, TESBoundObjectVtbl};
 use crate::re::TESFile::TESFile;
 use crate::re::TESFullName::TESFullName;
 use crate::re::TESModel::TESModel;
-use crate::re::TESObjectWEAP;
+use crate::re::TESObjectWEAP::TESObjectWEAP;
 use crate::re::offsets_rtti::RTTI_MagicItem;
 use crate::re::offsets_vtable::VTABLE_MagicItem;
 use crate::re::{EffectItem, EffectSetting};

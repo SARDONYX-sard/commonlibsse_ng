@@ -165,6 +165,11 @@ impl<T> BSSimpleList<T> {
     pub const fn iter(&self) -> Iter<T> {
         Iter { current: self.list_head.next, _marker: PhantomData }
     }
+
+    #[inline]
+    pub const fn iter_mut(&mut self) -> IterMut<T> {
+        IterMut { current: self.list_head.next, _marker: PhantomData }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,13 +191,42 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
+pub struct IterMut<'a, T> {
+    current: Option<NonNull<Node<T>>>,
+    _marker: PhantomData<&'a T>,
+}
+
+impl<'a, T> Iterator for IterMut<'a, T> {
+    type Item = &'a mut T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.current.take().map(|mut node_ptr| {
+            let node_ref = unsafe { node_ptr.as_mut() };
+            self.current = node_ref.next;
+            unsafe { node_ref.item.as_mut() }
+        })
+    }
+}
+
 impl<'a, T> IntoIterator for &'a BSSimpleList<T> {
     type Item = &'a T;
 
     type IntoIter = Iter<'a, T>;
 
+    #[inline]
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
+    }
+}
+
+impl<'a, T> IntoIterator for &'a mut BSSimpleList<T> {
+    type Item = &'a mut T;
+
+    type IntoIter = IterMut<'a, T>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
     }
 }
 

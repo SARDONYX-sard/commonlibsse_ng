@@ -19,7 +19,7 @@ pub struct ExtraAshPileRef {
 
     /// The object reference handle pointing to the ash pile.
     /// - Offset: `0x10`
-    pub ash_pile_ref: ObjectRefHandle,
+    pub ashPileRef: ObjectRefHandle,
 
     /// Padding to maintain memory alignment.
     /// - Offset: `0x14`
@@ -28,7 +28,7 @@ pub struct ExtraAshPileRef {
 
 const _: () = {
     assert!(core::mem::offset_of!(ExtraAshPileRef, __base) == 0x0);
-    assert!(core::mem::offset_of!(ExtraAshPileRef, ash_pile_ref) == 0x10);
+    assert!(core::mem::offset_of!(ExtraAshPileRef, ashPileRef) == 0x10);
     assert!(core::mem::offset_of!(ExtraAshPileRef, pad14) == 0x14);
     assert!(core::mem::size_of::<ExtraAshPileRef>() == 0x18);
 };
@@ -69,7 +69,7 @@ impl ExtraAshPileRef {
     /// - `pad14`: Zeroed padding
     #[inline]
     pub fn new() -> Self {
-        Self { __base: BSExtraData::new(), ash_pile_ref: ObjectRefHandle::default(), pad14: 0 }
+        Self { __base: BSExtraData::new(), ashPileRef: ObjectRefHandle::default(), pad14: 0 }
     }
 
     /// Creates a new `ExtraAshPileRef` instance with a specific `ObjectRefHandle`.
@@ -80,7 +80,7 @@ impl ExtraAshPileRef {
     /// An instance of `ExtraAshPileRef` with the specified reference handle.
     #[inline]
     pub const fn with_ref(ash_pile_ref: ObjectRefHandle) -> Self {
-        Self { __base: BSExtraData::new(), ash_pile_ref, pad14: 0 }
+        Self { __base: BSExtraData::new(), ashPileRef: ash_pile_ref, pad14: 0 }
     }
 
     /// Retrieves the extra data type, always returning `ExtraDataType::kAshPileRef`.

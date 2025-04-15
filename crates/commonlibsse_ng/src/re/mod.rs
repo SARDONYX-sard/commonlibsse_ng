@@ -370,9 +370,6 @@ pub struct BGSActorDeathEvent;
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UserEventEnabledEvent;
-#[repr(C)]
-#[derive(Debug)]
-pub struct TESObjectWEAP;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -399,8 +396,6 @@ pub struct TESClass;
 pub struct EffectItem;
 pub struct EffectSetting;
 pub struct Effect;
-#[derive(Debug, Clone)]
-pub struct EnchantmentItem;
 #[derive(Debug, Clone)]
 pub struct AlchemyItem;
 #[derive(Debug, Clone, Copy)]

@@ -6,6 +6,23 @@
 //! Unstable Memory allocation APIs
 pub mod global;
 
+/// Unstable rust
+pub const fn non_null_dangling<T>(layout: Layout) -> NonNull<T> {
+    let addr = {
+        let this = layout.align();
+        // This transmutes directly to avoid the UbCheck in `NonZero::new_unchecked`
+        // since there's no way for the user to trip that check anyway -- the
+        // validity invariant of the type would have to have been broken earlier --
+        // and emitting it in an otherwise simple method is bad for compile time.
+
+        // SAFETY: All the discriminants are non-zero.
+        unsafe { ::core::num::NonZero::new_unchecked(this) }
+    };
+    let pointer: *const T = ptr::without_provenance(addr.get());
+    // SAFETY: we know `addr` is non-zero.
+    unsafe { NonNull::new_unchecked(pointer.cast_mut()) }
+}
+
 // #![stable(feature = "alloc_module", since = "1.28.0")]
 
 // mod global;

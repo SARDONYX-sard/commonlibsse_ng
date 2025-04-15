@@ -149,10 +149,12 @@ impl ExtraTextDisplayData {
     }
 
     /// Gets the display name based on the form and temper factor.
+    ///
+    /// - lifetime: `'a form` -> `'a c_char`
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 12626, ae_id = 12768)]
     pub unsafe fn get_display_name(
         &mut self,
-        form: *mut TESBoundObject,
+        form: *const TESBoundObject, // FIXME: maybe const?
         temper_factor: c_float,
     ) -> *const c_char {
     }

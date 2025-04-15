@@ -10,14 +10,14 @@ use crate::re::BSFixedString::BSFixedString;
 use crate::re::BSTArray::BSStaticArray;
 use crate::re::BSTHashMap::BSTHashMap;
 use crate::re::BaseFormComponent::BaseFormComponent;
-use crate::re::FormTypes::FormType;
+use crate::re::FormTypes::{FormType, FormType_CEnum};
 use crate::re::TESFile::TESFile;
 use crate::re::offsets_rtti::RTTI_TESForm;
 use crate::re::offsets_vtable::VTABLE_TESForm;
 use crate::rel::ResolvableAddress as _;
 use crate::rel::id::RelocationID;
 use crate::rel::id::{DataBaseError, VariantID};
-use core::ffi::c_char;
+use core::ffi::CStr;
 use core::ptr::NonNull;
 use std::sync::LazyLock;
 
@@ -42,28 +42,52 @@ pub struct TESForm {
     pub sourceFiles: TESFileContainer,
     pub formFlags: u32,
     pub formID: FormID,
-    pub inGameFormFlags: u16,
-    pub formType: u8,
+    pub inGameFormFlags: InGameFormFlag,
+    pub formType: FormType_CEnum,
     pub pad1B: u8,
     pub pad1C: u32,
 }
 const_assert_eq!(core::mem::size_of::<TESForm>(), 0x20);
 
-pub struct FormsLock<K>
+pub struct FormMapLockPtr<K>
 where
     K: core::hash::Hash + Eq,
 {
-    pub map: NonNull<*mut BSTHashMap<K, *mut TESForm>>,
-    pub lock: NonNull<BSReadWriteLock>,
+    pub map_ptr: NonNull<*mut BSTHashMap<K, Option<NonNull<TESForm>>>>,
+    pub lock_ptr: NonNull<BSReadWriteLock>,
 }
-unsafe impl<K> Send for FormsLock<K> where K: core::hash::Hash + Eq {}
-unsafe impl<K> Sync for FormsLock<K> where K: core::hash::Hash + Eq {}
+unsafe impl<K> Send for FormMapLockPtr<K> where K: core::hash::Hash + Eq {}
+unsafe impl<K> Sync for FormMapLockPtr<K> where K: core::hash::Hash + Eq {}
 
 /// Pointer of `BSTHashMap<FormID, *mut TESForm>` & Pointer of `BSReadWriteLock`
-type AllFormsIDLock = FormsLock<FormID>;
+pub struct IDAllFormsMapPtr(FormMapLockPtr<FormID>);
+impl IDAllFormsMapPtr {
+    #[inline]
+    pub fn get(&self, form_id: FormID) -> Option<NonNull<TESForm>> {
+        let _guard = unsafe { self.0.lock_ptr.as_ref().read() };
+        let map = unsafe { self.0.map_ptr.as_ref().as_ref()? };
+
+        if let Some(form) = map.get(&form_id) {
+            return *form;
+        }
+        None
+    }
+}
 
 /// Pointer of `BSTHashMap<BSFixedString, *mut TESForm>` & Pointer of `BSReadWriteLock`
-type AllFormsStringLock = FormsLock<BSFixedString>;
+pub struct StringAllFormsMapPtr(FormMapLockPtr<BSFixedString>);
+impl StringAllFormsMapPtr {
+    #[inline]
+    pub fn get(&self, editor_id: &CStr) -> Option<NonNull<TESForm>> {
+        let _guard = unsafe { self.0.lock_ptr.as_ref().read() };
+        let map = unsafe { self.0.map_ptr.as_ref().as_ref()? };
+
+        if let Some(form) = map.get(&editor_id.into()) {
+            return *form;
+        }
+        None
+    }
+}
 
 impl TESForm {
     pub const RTTI: VariantID = RTTI_TESForm;
@@ -73,42 +97,50 @@ impl TESForm {
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 14509, ae_id = 14667)]
     pub unsafe fn add_compile_index(id: FormID, file: TESFile) {}
 
-    pub fn get_all_forms() -> &'static Result<AllFormsIDLock, DataBaseError> {
-        static PTR_LOCK: LazyLock<Result<AllFormsIDLock, DataBaseError>> = LazyLock::new(|| {
-            let map = RelocationID::from_se_ae_id(514351, 400507).address()?.cast();
-            let lock = RelocationID::from_se_ae_id(514360, 400517).address()?.cast();
-            Ok(AllFormsIDLock { map, lock })
+    pub fn get_all_forms() -> &'static Result<IDAllFormsMapPtr, DataBaseError> {
+        static PTR_LOCK: LazyLock<Result<IDAllFormsMapPtr, DataBaseError>> = LazyLock::new(|| {
+            let map_ptr = RelocationID::from_se_ae_id(514351, 400507).address()?.cast();
+            let lock_ptr = RelocationID::from_se_ae_id(514360, 400517).address()?.cast();
+            Ok(IDAllFormsMapPtr(FormMapLockPtr { map_ptr, lock_ptr }))
         });
         &PTR_LOCK
     }
 
-    pub fn get_all_by_editor_id() -> &'static Result<AllFormsStringLock, DataBaseError> {
-        static PTR_LOCK: LazyLock<Result<AllFormsStringLock, DataBaseError>> =
+    pub fn get_all_forms_by_editor_id() -> &'static Result<StringAllFormsMapPtr, DataBaseError> {
+        static PTR_LOCK: LazyLock<Result<StringAllFormsMapPtr, DataBaseError>> =
             LazyLock::new(|| {
-                let map = RelocationID::from_se_ae_id(514352, 400509).address()?.cast();
-                let lock = RelocationID::from_se_ae_id(514361, 400518).address()?.cast();
-                Ok(AllFormsStringLock { map, lock })
+                Ok(StringAllFormsMapPtr(FormMapLockPtr {
+                    map_ptr: RelocationID::from_se_ae_id(514352, 400509).address()?.cast(),
+                    lock_ptr: RelocationID::from_se_ae_id(514361, 400518).address()?.cast(),
+                }))
             });
         &PTR_LOCK
     }
 
-    /// Search for TESForm based on FormID
-    pub fn lookup_by_id(form_id: FormID) -> Option<*mut Self> {
-        let AllFormsIDLock { map, lock: _lock } = Self::get_all_forms().as_ref().ok()?;
-
-        if let Some(map) = unsafe { map.as_ref().as_ref() } {
-            if let Some(entry) = map.get(&form_id) {
-                return Some(*entry);
-            }
-        }
-        None
+    /// Search for TESForm based on FormID.
+    #[inline]
+    pub fn lookup_by_id(form_id: FormID) -> Option<NonNull<Self>> {
+        let all_form_map = Self::get_all_forms().as_ref().ok()?;
+        all_form_map.get(form_id)
     }
 
-    /// Dummy yet.
-    #[allow(clippy::missing_const_for_fn)]
-    pub fn get_name(&self) -> *const c_char {
-        c"".as_ptr()
+    /// Search for TESForm based on editor ID.
+    #[inline]
+    pub fn lookup_by_editor_id(editor_id: &CStr) -> Option<NonNull<Self>> {
+        let all_form_map = Self::get_all_forms_by_editor_id().as_ref().ok()?;
+        all_form_map.get(editor_id)
     }
+
+    // #[deprecated = "The NG branch implementation of VR typecasts `TESForm` to `TESFullName`, which is invalid because there is no inheritance relationship."]
+    // #[inline]
+    // #[allow(clippy::missing_const_for_fn)]
+    // pub fn get_name(&self) -> Option<&CStr> {
+    //     // let fullname = unsafe { (self as *const Self).cast::<TESFullName>().as_ref() }?; // <- Invalid cast
+    //     // Some(fullname.fullName.as_c_str())
+    // }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 14809, ae_id = 14988)]
+    pub fn get_weight(&self) -> f32 {}
 
     /// Dummy yet.
     #[allow(clippy::missing_const_for_fn)]
@@ -118,18 +150,16 @@ impl TESForm {
 }
 
 pub trait DerivedTESForm {
+    const FORM_TYPE: FormType;
+
     fn get_form(&self) -> &TESForm;
-    fn get_form_type() -> FormType;
 }
 
 impl DerivedTESForm for TESForm {
+    const FORM_TYPE: FormType = FormType::None;
+
     #[inline]
     fn get_form(&self) -> &TESForm {
         self
-    }
-
-    #[inline]
-    fn get_form_type() -> FormType {
-        Self::FORM_TYPE
     }
 }

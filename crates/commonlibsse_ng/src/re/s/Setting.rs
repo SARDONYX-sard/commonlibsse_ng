@@ -138,6 +138,8 @@ impl Setting {
 
     /// Returns the name as `&CStr` if available.
     ///
+    /// e.g. key: `"sOk"` -> value: `"OK"` then, return `"sOk`
+    ///
     /// # Errors
     /// Returns `None` if the pointer is null.
     #[inline]

@@ -175,6 +175,25 @@ pub enum ActorValue {
     ReflectDamage = 163,
 }
 
+/// Since ActorValueType is separated by u32 and u8, we have no choice but to have a separate type.
+///
+/// Use `to_enum`/`from_enum`
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
+pub struct ActorValue_u8(pub u8);
+
+impl ActorValue_u8 {
+    #[inline]
+    pub const fn to_enum(self) -> Option<ActorValue> {
+        ActorValue_CEnum(self.0 as u32).to_enum()
+    }
+
+    #[inline]
+    pub const fn from_enum(value: ActorValue) -> Self {
+        Self(ActorValue_CEnum::from_enum(value).0 as u8)
+    }
+}
+
 #[commonlibsse_ng_derive_internal::ffi_enum]
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

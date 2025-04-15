@@ -1,6 +1,8 @@
 pub mod SimpleArray;
+mod alloc;
 
-use core::alloc::Layout;
+pub use self::alloc::{alloc, alloc_zeroed, dealloc, global, global::TESGlobalAlloc, realloc};
+
 use core::ffi::c_void;
 use core::ptr;
 
@@ -133,110 +135,11 @@ pub unsafe fn malloc(size: usize) -> *mut c_void {
 }
 
 /// # Safety
-///
-/// # NOTE
-/// `alignment` <= `i32::MAX`
-#[inline]
-pub unsafe fn aligned_malloc(layout: Layout) -> *mut c_void {
-    let (size, alignment) = (layout.size(), layout.align());
-    unsafe {
-        MemoryManager::GetSingleton()
-            .as_mut()
-            .map_or(ptr::null_mut(), |heap| heap.Allocate(size, alignment as i32, true))
-    }
-}
-
-/// # Safety
-#[inline]
-pub unsafe fn calloc(num: usize, size: usize) -> *mut c_void {
-    let total_size = num * size;
-    if total_size == 0 {
-        return ptr::null_mut();
-    }
-
-    if total_size == 0 {
-        return ptr::null_mut();
-    }
-
-    let ret = unsafe { malloc(total_size) };
-    if !ret.is_null() {
-        unsafe { ptr::write_bytes(ret, 0, total_size) };
-    }
-
-    ret
-}
-
-/// # Safety
-#[inline]
-pub unsafe fn calloc_bytes(count: usize) -> *mut c_void {
-    if count == 0 {
-        return ptr::null_mut();
-    }
-
-    let ret = unsafe { malloc(count) };
-    if !ret.is_null() {
-        unsafe { ptr::write_bytes(ret, 0, count) };
-    }
-
-    ret
-}
-
-/// # Safety
-#[inline]
-pub unsafe fn realloc(ptr: *mut c_void, size: usize) -> *mut c_void {
-    unsafe { MemoryManager::GetSingleton().as_mut() }
-        .map_or(ptr::null_mut(), |heap| unsafe { heap.Reallocate(ptr, size, 0, false) })
-}
-
-/// # Safety
-///
-/// # NOTE
-/// `alignment` <= `i32::MAX`
-#[inline]
-pub unsafe fn aligned_realloc(ptr: *mut c_void, layout: Layout, new_size: usize) -> *mut c_void {
-    let alignment = layout.align() as i32;
-    unsafe {
-        MemoryManager::GetSingleton()
-            .as_mut()
-            .map_or(ptr::null_mut(), |heap| heap.Reallocate(ptr, new_size, alignment, true))
-    }
-}
-
-/// # Safety
 #[inline]
 pub unsafe fn free(ptr: *mut c_void) {
     unsafe {
         if let Some(heap) = MemoryManager::GetSingleton().as_mut() {
             heap.Deallocate(ptr, false);
         };
-    }
-}
-
-/// # Safety
-///
-/// # NOTE
-/// `alignment` <= `i32::MAX`
-#[inline]
-pub unsafe fn aligned_free(ptr: *mut c_void) {
-    unsafe {
-        if let Some(heap) = MemoryManager::GetSingleton().as_mut() {
-            heap.Deallocate(ptr, true);
-        };
-    }
-}
-
-/// Allocator for Rust using Skyrim's `malloc` & `free`.
-pub struct TESAllocator;
-unsafe impl core::alloc::GlobalAlloc for TESAllocator {
-    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        unsafe { aligned_malloc(layout).cast::<u8>() }
-    }
-
-    unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
-        unsafe { aligned_free(ptr.cast::<c_void>()) };
-    }
-
-    unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
-        unsafe { aligned_realloc(ptr.cast::<c_void>(), layout, new_size).cast::<u8>() }
     }
 }

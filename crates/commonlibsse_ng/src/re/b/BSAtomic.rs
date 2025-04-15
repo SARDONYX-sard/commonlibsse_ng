@@ -179,6 +179,11 @@ impl BSReadWriteLock {
     pub fn write(&self) -> BSWriteLockGuard<'_> {
         BSWriteLockGuard::new(self)
     }
+
+    #[inline]
+    pub fn read(&self) -> BSReadLockGuard<'_> {
+        BSReadLockGuard::new(self)
+    }
 }
 
 #[repr(C)]

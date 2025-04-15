@@ -26,10 +26,11 @@ use crate::re::TESForm::TESForm;
 use crate::re::TESObject::TESObject;
 use crate::re::TESObjectCELL::TESObjectCELL;
 use crate::re::TESObjectREFR::TESObjectREFR;
+use crate::re::TESObjectWEAP::TESObjectWEAP;
 use crate::re::TESTrackedStatsEvent::TESTrackedStatsEvent;
 use crate::re::offsets_rtti::RTTI_PlayerCharacter;
 use crate::re::offsets_vtable::VTABLE_PlayerCharacter;
-use crate::re::{BGSActorDeathEvent, TESFaction, TESObjectWEAP, TESRace};
+use crate::re::{BGSActorDeathEvent, TESFaction, TESRace};
 use crate::re::{Effect, MagicSystem, UserEventEnabledEvent};
 use crate::rel::id::VariantID;
 

@@ -1,4 +1,4 @@
-use core::ffi::c_char;
+use core::ffi::CStr;
 use core::ptr::{self, NonNull};
 
 use crate::re::BGSEncounterZone::BGSEncounterZone;
@@ -15,6 +15,7 @@ use crate::re::ExtraHealth::ExtraHealth;
 use crate::re::ExtraReferenceHandle::ExtraReferenceHandle;
 use crate::re::ExtraTextDisplayData::ExtraTextDisplayData;
 use crate::re::TESBoundObject::TESBoundObject;
+use crate::re::TESBox::TESBox;
 use crate::rel::relocation::PhantomMember;
 
 #[repr(C)]
@@ -119,14 +120,15 @@ impl ExtraDataList {
         removed
     }
 
+    /// Add `item` to `Self`'s list. & Return prev?
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 12176, ae_id = 12315)]
-    pub fn add(&mut self, to_add: *mut BSExtraData) -> *mut BSExtraData {}
+    pub fn add(&mut self, item: *mut BSExtraData) -> *mut BSExtraData {}
 
     pub fn get_ash_pile_ref(&mut self) -> ObjectRefHandle {
         let ash_ref = self.get_by_type_as::<ExtraAshPileRef>();
         ash_ref
             .map(|ash_ref| unsafe { ash_ref.as_ref() })
-            .map_or_else(ObjectRefHandle::default, |ash_ref| ash_ref.ash_pile_ref.clone())
+            .map_or_else(ObjectRefHandle::default, |ash_ref| ash_ref.ashPileRef.clone())
     }
 
     pub fn get_count(&self) -> i32 {
@@ -135,40 +137,23 @@ impl ExtraDataList {
     }
 
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
-    pub fn get_display_name(&mut self, base_object: *mut TESBoundObject) -> *const c_char {
-        let mut result = ptr::null();
-
+    pub fn get_display_name<'a>(&mut self, base_object: &'a TESBoundObject) -> Option<&'a CStr> {
         let health = self
             .get_by_type_as::<ExtraHealth>()
             .map_or(1.0, |x_health| unsafe { x_health.as_ref().health });
 
         let df_health = if health <= 1.0 { (1.0 - health) < 0.001 } else { (health - 1.0) < 0.001 };
+
         let mut x_text = self.get_extra_text_display_data();
         if x_text.is_none() && !df_health {
-            x_text = Some(unsafe {
-                NonNull::new_unchecked(Box::into_raw(Box::new(ExtraTextDisplayData::new())))
-            });
-            if let Some(x_text) = x_text {
-                self.add(x_text.as_ptr().cast());
-            }
+            let x_text_ptr = TESBox::into_non_null(TESBox::new(ExtraTextDisplayData::new()));
+            x_text.get_or_insert(x_text_ptr);
+            self.add(x_text_ptr.as_ptr().cast());
         }
 
-        match x_text {
-            Some(mut x_text) => {
-                result = unsafe { x_text.as_mut().get_display_name(base_object, health) };
-            }
-            None => {
-                if let Some(name) =
-                    unsafe { base_object.as_ref() }.map(|o| o.__base.__base.get_name())
-                {
-                    result = name;
-                };
-            }
-        }
-
-        // if result.is_null() || unsafe { result.read() } == 0 {}
-
-        result
+        let c_char_ptr =
+            unsafe { x_text?.as_mut().get_display_name(base_object, health).as_ref() }?;
+        unsafe { Some(CStr::from_ptr(c_char_ptr)) }
     }
 
     #[inline]

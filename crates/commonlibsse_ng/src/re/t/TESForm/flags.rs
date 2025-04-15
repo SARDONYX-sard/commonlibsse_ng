@@ -1,67 +1,70 @@
-bitflags::bitflags! {
-    #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-    pub struct RecordFlag : u32 {
-        const DESTRUCTIBLE = 1 << 0;
-        const MASTER = 1 << 0;
-        const UNLOCKED = 1 << 0;
+#[commonlibsse_ng_derive_internal::to_bitflags]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(u32)]
+pub enum RecordFlag {
+    Destructible = 1 << 0,
+    Master = 1 << 0,
+    Unlocked = 1 << 0,
 
-        const ALTERED = 1 << 1;
-        const PLAYABLE = 1 << 2;
-        const INITIALIZED = 1 << 3;
-        const NONOCCLUDER = 1 << 4;
-        const DELETED = 1 << 5;
+    Altered = 1 << 1,
+    Playable = 1 << 2,
+    Initialized = 1 << 3,
+    Nonoccluder = 1 << 4,
+    Deleted = 1 << 5,
 
-        const BORDER_REGION = 1 << 6;
-        const GLOBAL_CONSTANT = 1 << 6;
-        const HAS_SPOKEN_FLAG = 1 << 6;
-        const KNOWN = 1 << 6;
-        const IN_PLACEABLE_WATER = 1 << 6;
+    BorderRegion = 1 << 6,
+    GlobalConstant = 1 << 6,
+    HasSpokenFlag = 1 << 6,
+    Known = 1 << 6,
+    InPlaceableWater = 1 << 6,
 
-        const FireOff = 1 << 7;
-        const MustUpdate = 1 << 8;
-        const OnLocalMap = 1 << 9;
-        const Persistent = 1 << 10;
+    FireOff = 1 << 7,
+    MustUpdate = 1 << 8,
+    OnLocalMap = 1 << 9,
+    Persistent = 1 << 10,
 
-        const Disabled = 1 << 11;
-        const UsedAsMovingPlatform = 1 << 11;
+    Disabled = 1 << 11,
+    UsedAsMovingPlatform = 1 << 11,
 
-        const Ignored = 1 << 12;
+    Ignored = 1 << 12,
 
-        const Empty = 1 << 13;
-        const ResetDestruction = 1 << 13;
+    Empty = 1 << 13,
+    ResetDestruction = 1 << 13,
 
-        const Temporary = 1 << 14;
-        const MustBeVisibleDistant = 1 << 15;
-        const RandomAnim = 1 << 16;
-        const Dangerous = 1 << 17;
-        const HasCurrents = 1 << 19;
-        const IgnoreFriendlyHits = 1 << 20;
-        const StillLoading = 1 << 21;
-        const FormRetainsID = 1 << 22;
-        const Destroyed = 1 << 23;
+    Temporary = 1 << 14,
+    MustBeVisibleDistant = 1 << 15,
+    RandomAnim = 1 << 16,
+    Dangerous = 1 << 17,
+    HasCurrents = 1 << 19,
+    IgnoreFriendlyHits = 1 << 20,
+    StillLoading = 1 << 21,
+    FormRetainsID = 1 << 22,
+    Destroyed = 1 << 23,
 
-        const Unk24 = 1 << 24;
+    Unk24 = 1 << 24,
 
-        const NoAIAcquire = 1 << 25;
-        const Obstacle = 1 << 25;
+    NoAIAcquire = 1 << 25,
+    Obstacle = 1 << 25,
 
-        const VATSTargetOverride = 1 << 26;
-        const DisableFade = 1 << 27;
+    VATSTargetOverride = 1 << 26,
+    DisableFade = 1 << 27,
 
-        const ReflectedByAutoWater = 1 << 28;
-        const ShowOnWorldMap = 1 << 28;
+    ReflectedByAutoWater = 1 << 28,
+    ShowOnWorldMap = 1 << 28,
 
-        const ChildCanUse = 1 << 2;
-    }
+    ChildCanUse = 1 << 2,
+}
 
-    #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-    pub struct InGameFormFlag: u16 {
-        const NONE = 0;
-        const WANTS_DELETE = 1 << 0;
-        const FORCED_PERSISTENT = 1 << 1;
-        const NO_FAVOR_ALLOWED = 1 << 4;
-        const IS_SKY_OBJECT = 1 << 5;
-        const REF_ORIGINAL_PERSISTENT = 1 << 6;
-        const REF_PERMANENTLY_DELETED = 1 << 7;
-    }
+#[commonlibsse_ng_derive_internal::to_bitflags]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(u16)]
+pub enum InGameFormFlag {
+    #[default]
+    None = 0,
+    WantsDelete = 1 << 0,
+    ForcedPersistent = 1 << 1,
+    NoFavorAllowed = 1 << 4,
+    IsSkyObject = 1 << 5,
+    RefOriginalPersistent = 1 << 6,
+    RefPermanentlyDeleted = 1 << 7,
 }

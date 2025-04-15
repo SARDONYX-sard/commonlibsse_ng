@@ -29,7 +29,7 @@ pub enum CastingSource {
 }
 
 #[commonlibsse_ng_derive_internal::ffi_enum]
-#[repr(u32)]
+#[repr(u16)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CastingType {
     ConstantEffect = 0,

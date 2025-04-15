@@ -25,6 +25,7 @@ use crate::re::{ObjectHandle, TesWaterForm};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#[repr(C)]
 #[derive(Debug)]
 pub struct OBJ_REFR {
     pub objectReference: *mut TESBoundObject, // 00
@@ -32,10 +33,9 @@ pub struct OBJ_REFR {
     pub location: NiPoint3,                   // 14
 }
 
-const _: () = {
-    assert!(core::mem::size_of::<OBJ_REFR>() == 0x20);
-};
+const _: () = assert!(core::mem::size_of::<OBJ_REFR>() == 0x20);
 
+#[derive(Debug)]
 #[repr(C)]
 pub struct LOADED_REF_DATA {
     pub unk00: BSTSmallArray<*mut c_void>, // handleList?
