@@ -15,7 +15,7 @@
 //! Move a value from the stack to the heap by creating a [`Box`]:
 //!
 //! ```
-//! # use commonlibsse_ng::TESBox::TESBox;
+//! # use commonlibsse_ng::re::TESBox::TESBox;
 //! let val: u8 = 5;
 //! let boxed: TESBox<u8> = TESBox::new(val);
 //! ```
@@ -23,7 +23,7 @@
 //! Move a value from a [`Box`] back to the stack by [dereferencing]:
 //!
 //! ```
-//! # use commonlibsse_ng::TESBox::TESBox;
+//! # use commonlibsse_ng::re::TESBox::TESBox;
 //! let boxed: TESBox<u8> = TESBox::new(5);
 //! let val: u8 = *boxed;
 //! ```
@@ -31,7 +31,7 @@
 //! Creating a recursive data structure:
 //!
 //! ```
-//! # use commonlibsse_ng::TESBox::TESBox;
+//! # use commonlibsse_ng::re::TESBox::TESBox;
 //! # #[allow(dead_code)]
 //! #[derive(Debug)]
 //! enum List<T> {
@@ -102,7 +102,7 @@
 //! cannot be null.
 //!
 //! ```
-//! # use commonlibsse_ng::TESBox::TESBox;
+//! # use commonlibsse_ng::re::TESBox::TESBox;
 //! #[repr(C)]
 //! pub struct Foo;
 //!
@@ -153,7 +153,7 @@
 //! 2024:
 //!
 //! ```rust,edition2021
-//! # use commonlibsse_ng::TESBox::TESBox;
+//! # use commonlibsse_ng::re::TESBox::TESBox;
 //! // Rust 2015, 2018, and 2021:
 //!
 //! # #![allow(boxed_slice_into_iter)] // override our `deny(warnings)`
@@ -237,7 +237,7 @@ impl<T> TESBox<T> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let five = TESBox::new(5);
     /// ```
     #[inline(always)]
@@ -252,7 +252,7 @@ impl<T> TESBox<T> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let mut five = TESBox::<u32>::new_uninit();
     /// // Deferred initialization:
     /// five.write(5);
@@ -274,7 +274,7 @@ impl<T> TESBox<T> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let five = TESBox::try_new(5)?;
     /// # Ok::<(), stdx::alloc::AllocError>(())
@@ -293,7 +293,7 @@ impl<T, A: Allocator> TESBox<T, A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// use stdx::alloc::Global;
     ///
@@ -318,7 +318,7 @@ impl<T, A: Allocator> TESBox<T, A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// use stdx::alloc::Global;
     ///
@@ -340,7 +340,7 @@ impl<T, A: Allocator> TESBox<T, A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// use stdx::alloc::Global;
     ///
@@ -371,7 +371,7 @@ impl<T, A: Allocator> TESBox<T, A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// use stdx::alloc::Global;
     ///
@@ -434,7 +434,7 @@ impl<T, A: Allocator> TESBox<mem::MaybeUninit<T>, A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let mut five = TESBox::<u32>::new_uninit();
     /// // Deferred initialization:
     /// five.write(5);
@@ -458,7 +458,7 @@ impl<T, A: Allocator> TESBox<mem::MaybeUninit<T>, A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let big_box = TESBox::<[usize; 1024]>::new_uninit();
     ///
@@ -500,7 +500,7 @@ impl<T, A: Allocator> TESBox<[mem::MaybeUninit<T>], A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let mut values = TESBox::<[u32]>::new_uninit_slice(3);
     /// // Deferred initialization:
     /// values[0].write(1);
@@ -916,7 +916,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// [`Box::from_non_null_in`] for automatic cleanup:
     /// ```
     ///
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// use stdx::alloc::Global;
     ///
     /// let x = TESBox::new_in(String::from("Hello"), Global);
@@ -1006,7 +1006,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// Due to the aliasing guarantee, the following code is legal:
     ///
     /// ```rust
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// unsafe {
     ///     let mut v = TESBox::new(0);
@@ -1064,7 +1064,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// Simple usage:
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let x = TESBox::new(41);
     /// let static_ref: &'static mut usize = TESBox::leak(x);
     /// *static_ref += 1;
@@ -1077,7 +1077,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// Unsized data:
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let x = vec![1, 2, 3].into_boxed_slice();
     /// let static_ref = TESBox::leak(x);
     /// static_ref[0] = 4;
@@ -1114,7 +1114,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     ///
     /// ```compile_fail
     /// # use std::pin::Pin;
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// struct Foo; // A type defined in this crate.
     /// impl From<TESBox<()>> for Pin<Foo> {
     ///     fn from(_: TESBox<()>) -> Pin<Foo> {
@@ -1181,7 +1181,7 @@ impl<T: Clone, A: Allocator + Clone> Clone for TESBox<T, A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let x = TESBox::new(5);
     /// let y = x.clone();
     ///
@@ -1202,7 +1202,7 @@ impl<T: Clone, A: Allocator + Clone> Clone for TESBox<T, A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let x = TESBox::new(5);
     /// let mut y = TESBox::new(10);
     /// let yp: *const i32 = &*y;
@@ -1244,7 +1244,7 @@ impl<T: Clone, A: Allocator + Clone> Clone for TESBox<[T], A> {
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let x = TESBox::new([5, 6, 7]);
     /// let mut y = TESBox::new([8, 9, 10]);
     /// let yp: *const [i32] = &*y;
