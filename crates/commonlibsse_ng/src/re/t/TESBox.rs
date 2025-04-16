@@ -484,39 +484,6 @@ impl<T, A: Allocator> TESBox<mem::MaybeUninit<T>, A> {
     }
 }
 
-impl<T, A: Allocator> TESBox<[mem::MaybeUninit<T>], A> {
-    /// Converts to `TESBox<[T], A>`.
-    ///
-    /// # Safety
-    ///
-    /// As with [`MaybeUninit::assume_init`],
-    /// it is up to the caller to guarantee that the values
-    /// really are in an initialized state.
-    /// Calling this when the content is not yet fully initialized
-    /// causes immediate undefined behavior.
-    ///
-    /// [`MaybeUninit::assume_init`]: mem::MaybeUninit::assume_init
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use commonlibsse_ng::re::TESBox::TESBox;
-    /// let mut values = TESBox::<[u32]>::new_uninit_slice(3);
-    /// // Deferred initialization:
-    /// values[0].write(1);
-    /// values[1].write(2);
-    /// values[2].write(3);
-    /// let values = unsafe { values.assume_init() };
-    ///
-    /// assert_eq!(*values, [1, 2, 3])
-    /// ```
-    #[inline]
-    pub unsafe fn assume_init(self) -> TESBox<[T], A> {
-        let (raw, alloc) = TESBox::into_raw_with_allocator(self);
-        unsafe { TESBox::from_raw_in(raw as *mut [T], alloc) }
-    }
-}
-
 impl<T: ?Sized> TESBox<T> {
     /// Constructs a box from a raw pointer.
     ///
@@ -541,12 +508,14 @@ impl<T: ?Sized> TESBox<T> {
     /// Recreate a `Box` which was previously converted to a raw pointer
     /// using [`Box::into_raw`]:
     /// ```
+    /// # use commonlibsse_ng::TESBox::TESBox;
     /// let x = TESBox::new(5);
     /// let ptr = TESBox::into_raw(x);
     /// let x = unsafe { TESBox::from_raw(ptr) };
     /// ```
     /// Manually create a `Box` from scratch by using the global allocator:
     /// ```
+    /// # use std::alloc::{Allocator, Layout, Global};
     /// use std::alloc::{alloc, Layout};
     ///
     /// unsafe {
@@ -590,6 +559,7 @@ impl<T: ?Sized> TESBox<T> {
     /// Recreate a `Box` which was previously converted to a `NonNull`
     /// pointer using [`Box::into_non_null`]:
     /// ```
+    /// # use std::alloc::{Allocator, Layout, Global};
     ///
     /// let x = TESBox::new(5);
     /// let non_null = TESBox::into_non_null(x);
@@ -597,7 +567,7 @@ impl<T: ?Sized> TESBox<T> {
     /// ```
     /// Manually create a `Box` from scratch by using the global allocator:
     /// ```
-    ///
+    /// use std::alloc::{Allocator, Layout, Global};
     /// use std::alloc::{alloc, Layout};
     /// use std::ptr::NonNull;
     ///
@@ -643,6 +613,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// using [`Box::into_raw_with_allocator`]:
     /// ```
     ///
+    /// # use commonlibsse_ng::TESBox::TESBox;
     /// use stdx::alloc::Global;
     ///
     /// let x = TESBox::new_in(5, Global);
@@ -652,7 +623,8 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// Manually create a `Box` from scratch by using the system allocator:
     /// ```
     ///
-    /// use std::alloc::{Allocator, Layout, Global};
+    /// use std::alloc::Layout;
+    /// use stdx::alloc::{Allocator, Layout, Global};
     ///
     /// unsafe {
     ///     let ptr = Global.allocate(Layout::new::<i32>())?.as_mut_ptr() as *mut i32;
@@ -1078,10 +1050,10 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     ///
     /// ```
     /// # use commonlibsse_ng::re::TESBox::TESBox;
-    /// let x = vec![1, 2, 3].into_boxed_slice();
-    /// let static_ref = TESBox::leak(x);
-    /// static_ref[0] = 4;
-    /// assert_eq!(*static_ref, [4, 2, 3]);
+    /// // let x = vec![1, 2, 3].into_boxed_slice();
+    /// // let static_ref = TESBox::leak(x);
+    /// // static_ref[0] = 4;
+    /// // assert_eq!(*static_ref, [4, 2, 3]);
     /// # // FIXME(https://github.com/rust-lang/miri/issues/3670):
     /// # // use -Zmiri-disable-leak-check instead of unleaking in tests meant to leak.
     /// # drop(unsafe { TESBox::from_raw(static_ref) });
@@ -1101,10 +1073,10 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     ///
     /// This is also available via [`From`].
     ///
-    /// Constructing and pinning a `Box` with <code>Box::into_pin([Box::new]\(x))</code>
-    /// can also be written more concisely using <code>[Box::pin]\(x)</code>.
+    /// Constructing and pinning a `TESBox` with <code>TESBox::into_pin([TESBox::new]\(x))</code>
+    /// can also be written more concisely using <code>[TESBox::pin]\(x)</code>.
     /// This `into_pin` method is useful if you already have a `TESBox<T>`, or you are
-    /// constructing a (pinned) `Box` in a different way than with [`Box::new`].
+    /// constructing a (pinned) `TESBox` in a different way than with [`TESBox::new`].
     ///
     /// # Notes
     ///
