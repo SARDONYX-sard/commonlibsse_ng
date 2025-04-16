@@ -222,6 +222,13 @@ use stdx::{
 ///
 /// The allocator side is always of type zero size and represents `owned *mut ptr`. (i.e. size is type ptr)
 // #[repr(transparent)] // FIXME: maybe need this.
+///
+/// # Examples
+///
+/// ```
+/// # use commonlibsse_ng::re::TESBox::TESBox;
+/// let five = TESBox::new(5);
+/// ```
 pub struct TESBox<T: ?Sized, A: Allocator = Global>(Unique<T>, A);
 const _: () = assert!(core::mem::size_of::<TESBox<()>>() == core::mem::size_of::<usize>());
 
@@ -508,15 +515,16 @@ impl<T: ?Sized> TESBox<T> {
     /// Recreate a `Box` which was previously converted to a raw pointer
     /// using [`Box::into_raw`]:
     /// ```
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let x = TESBox::new(5);
     /// let ptr = TESBox::into_raw(x);
     /// let x = unsafe { TESBox::from_raw(ptr) };
     /// ```
     /// Manually create a `Box` from scratch by using the global allocator:
     /// ```
-    /// # use std::alloc::{Allocator, Layout, Global};
     /// use std::alloc::{alloc, Layout};
+    /// use stdx::alloc::{Allocator, Global};
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// unsafe {
     ///     let ptr = alloc(Layout::new::<i32>()) as *mut i32;
@@ -559,7 +567,9 @@ impl<T: ?Sized> TESBox<T> {
     /// Recreate a `Box` which was previously converted to a `NonNull`
     /// pointer using [`Box::into_non_null`]:
     /// ```
-    /// # use std::alloc::{Allocator, Layout, Global};
+    /// # use stdx::alloc::{Allocator, Global};
+    /// # use std::alloc::Layout;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let x = TESBox::new(5);
     /// let non_null = TESBox::into_non_null(x);
@@ -567,9 +577,10 @@ impl<T: ?Sized> TESBox<T> {
     /// ```
     /// Manually create a `Box` from scratch by using the global allocator:
     /// ```
-    /// use std::alloc::{Allocator, Layout, Global};
+    /// use stdx::alloc::{Allocator, Global};
     /// use std::alloc::{alloc, Layout};
     /// use std::ptr::NonNull;
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// unsafe {
     ///     let non_null = NonNull::new(alloc(Layout::new::<i32>()).cast::<i32>())
@@ -613,7 +624,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// using [`Box::into_raw_with_allocator`]:
     /// ```
     ///
-    /// # use commonlibsse_ng::TESBox::TESBox;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// use stdx::alloc::Global;
     ///
     /// let x = TESBox::new_in(5, Global);
@@ -623,18 +634,19 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// Manually create a `Box` from scratch by using the system allocator:
     /// ```
     ///
-    /// use std::alloc::Layout;
-    /// use stdx::alloc::{Allocator, Layout, Global};
+    /// // use std::alloc::Layout;
+    /// // use stdx::alloc::{Allocator, Global};
+    /// // use commonlibsse_ng::re::TESBox::TESBox;
     ///
-    /// unsafe {
-    ///     let ptr = Global.allocate(Layout::new::<i32>())?.as_mut_ptr() as *mut i32;
-    ///     // In general .write is required to avoid attempting to destruct
-    ///     // the (uninitialized) previous contents of `ptr`, though for this
-    ///     // simple example `*ptr = 5` would have worked as well.
-    ///     ptr.write(5);
-    ///     let x = TESBox::from_raw_in(ptr, Global);
-    /// }
-    /// # Ok::<(), stdx::alloc::AllocError>(())
+    /// // unsafe {
+    /// //     let ptr = Global.allocate(Layout::new::<i32>())?.as_mut_ptr() as *mut i32;
+    /// //     // In general .write is required to avoid attempting to destruct
+    /// //     // the (uninitialized) previous contents of `ptr`, though for this
+    /// //     // simple example `*ptr = 5` would have worked as well.
+    /// //     ptr.write(5);
+    /// //     let x = TESBox::from_raw_in(ptr, Global);
+    /// // }
+    /// // # Ok::<(), stdx::alloc::AllocError>(())
     /// ```
     ///
     /// [memory layout]: self#memory-layout
@@ -667,6 +679,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// ```
     ///
     /// use stdx::alloc::Global;
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let x = TESBox::new_in(5, Global);
     /// let (non_null, alloc) = TESBox::into_non_null_with_allocator(x);
@@ -675,7 +688,8 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// Manually create a `Box` from scratch by using the system allocator:
     /// ```
     /// use std::alloc::Layout;
-    /// use stdx::alloc::{Allocator, Layout, Global};
+    /// use stdx::alloc::{Allocator, Global};
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// unsafe {
     ///     let non_null = Global.allocate(Layout::new::<i32>())?.cast::<i32>();
@@ -715,16 +729,17 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// Converting the raw pointer back into a `Box` with [`Box::from_raw`]
     /// for automatic cleanup:
     /// ```
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let x = TESBox::new(String::from("Hello"));
     /// let ptr = TESBox::into_raw(x);
     /// let x = unsafe { TESBox::from_raw(ptr) };
     /// ```
     /// Manual cleanup by explicitly running the destructor and deallocating
     /// the memory:
-    /// ```no_run
+    /// ```
     /// use std::alloc::{dealloc, Layout};
     /// use std::ptr;
-    /// use commonlibsse_ng::MemoryManager::dealloc;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let x = TESBox::new(String::from("Hello"));
     /// let ptr = TESBox::into_raw(x);
@@ -735,6 +750,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// ```
     /// Note: This is equivalent to the following:
     /// ```
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
     /// let x = TESBox::new(String::from("Hello"));
     /// let ptr = TESBox::into_raw(x);
     /// unsafe {
@@ -770,6 +786,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// Converting the `NonNull` pointer back into a `Box` with [`Box::from_non_null`]
     /// for automatic cleanup:
     /// ```
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let x = TESBox::new(String::from("Hello"));
     /// let non_null = TESBox::into_non_null(x);
@@ -779,8 +796,8 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// the memory:
     /// ```
     ///
-    /// use std::alloc::Layout;
-    /// use commonlibsse_ng::MemoryManager::dealloc;
+    /// use std::alloc::{dealloc, Layout};
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let x = TESBox::new(String::from("Hello"));
     /// let non_null = TESBox::into_non_null(x);
@@ -791,11 +808,12 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// ```
     /// Note: This is equivalent to the following:
     /// ```
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let x = TESBox::new(String::from("Hello"));
     /// let non_null = TESBox::into_non_null(x);
     /// unsafe {
-    ///     drop(Box::from_non_null(non_null));
+    ///     drop(TESBox::from_non_null(non_null));
     /// }
     /// ```
     ///
@@ -829,6 +847,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// ```
     ///
     /// use stdx::alloc::Global;
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let x = TESBox::new_in(String::from("Hello"), Global);
     /// let (ptr, alloc) = TESBox::into_raw_with_allocator(x);
@@ -841,6 +860,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// use std::alloc::Layout;
     /// use std::ptr::{self, NonNull};
     /// use stdx::alloc::{Allocator, Global};
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let x = TESBox::new_in(String::from("Hello"), Global);
     /// let (ptr, alloc) = TESBox::into_raw_with_allocator(x);
@@ -901,6 +921,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     ///
     /// use stdx::alloc::{Allocator, Global};
     /// use std::alloc::Layout;
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// let x = TESBox::new_in(String::from("Hello"), Global);
     /// let (non_null, alloc) = TESBox::into_non_null_with_allocator(x);
@@ -936,6 +957,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// Due to the aliasing guarantee, the following code is legal:
     ///
     /// ```rust
+    /// use commonlibsse_ng::re::TESBox::TESBox;
     ///
     /// unsafe {
     ///     let mut b = TESBox::new(0);
@@ -1056,7 +1078,7 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// // assert_eq!(*static_ref, [4, 2, 3]);
     /// # // FIXME(https://github.com/rust-lang/miri/issues/3670):
     /// # // use -Zmiri-disable-leak-check instead of unleaking in tests meant to leak.
-    /// # drop(unsafe { TESBox::from_raw(static_ref) });
+    /// // # drop(unsafe { TESBox::from_raw(static_ref) });
     /// ```
     #[inline]
     pub fn leak<'a>(b: Self) -> &'a mut T
@@ -1085,17 +1107,17 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// A demonstration of such a poor impl is shown below.
     ///
     /// ```compile_fail
-    /// # use std::pin::Pin;
-    /// # use commonlibsse_ng::re::TESBox::TESBox;
-    /// struct Foo; // A type defined in this crate.
-    /// impl From<TESBox<()>> for Pin<Foo> {
-    ///     fn from(_: TESBox<()>) -> Pin<Foo> {
-    ///         Pin::new(Foo)
-    ///     }
-    /// }
+    /// // # use std::pin::Pin;
+    /// // # use commonlibsse_ng::re::TESBox::TESBox;
+    /// // struct Foo; // A type defined in this crate.
+    /// // impl From<TESBox<()>> for Pin<Foo> {
+    /// //     fn from(_: TESBox<()>) -> Pin<Foo> {
+    /// //         Pin::new(Foo)
+    /// //     }
+    /// // }
     ///
-    /// let foo = TESBox::new(());
-    /// let bar = Pin::from(foo);
+    /// // let foo = TESBox::new(());
+    /// // let bar = Pin::from(foo);
     /// ```
     pub const fn into_pin(boxed: Self) -> Pin<Self>
     where
