@@ -12,6 +12,16 @@ use core::marker::PhantomData;
 use core::mem::MaybeUninit;
 use core::ptr::{self, NonNull};
 
+/// dummy type
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
+pub struct UnkKey(i32);
+
+/// dummy value
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
+pub struct UnkValue(i32);
+
 #[repr(transparent)]
 pub struct BSTHashMap<K, V>(
     BSTScatterTable<BSTScatterKeyExtractor<K, V>, BSTScatterTableHeapAllocator>,

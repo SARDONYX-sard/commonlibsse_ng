@@ -1,8 +1,13 @@
+use super::TESForm;
 use crate::re::BGSLoadFormBuffer::BGSLoadFormBuffer;
 use crate::re::BGSSaveFormBuffer::BGSSaveFormBuffer;
+use crate::re::BSCoreTypes::FormID;
+use crate::re::BSFixedString::BSFixedString;
+use crate::re::FORM::{FORM, FORM_GROUP};
 use crate::re::FormTypes::FormType;
+use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESFile::TESFile;
-use super::TESForm;
+use crate::re::TESObjectREFR::TESObjectREFR;
 use core::ffi::c_char;
 
 /// Virtual function table for `TESForm`
@@ -50,7 +55,7 @@ pub struct TESFormVtbl {
 
     /// # C++
     /// - method nth: 0x08
-    /// - { return Load(a_mod); }
+    /// - { return Load(mod); }
     pub LoadEdit: fn(this: &mut TESForm, mod_file: *mut TESFile) -> bool,
 
     /// # C++
@@ -166,4 +171,148 @@ pub struct TESFormVtbl {
     /// - method nth: 0x20
     /// - { return (flags >> 8) & 1; }
     pub GetMustUpdate: fn(this: &TESForm) -> bool,
+
+    /// # C++
+    /// - method nth: 0x21
+    /// - { if (set) flags &= 0xFFFFFDFF; else flags |= 0x200; }
+    pub SetOnLocalMap: fn(this: &mut TESForm, set: bool),
+
+    /// # C++
+    /// - method nth: 0x22
+    /// - { return false; }
+    pub GetIgnoredBySandbox: fn(this: &TESForm) -> bool,
+
+    /// # C++
+    /// - method nth: 0x23
+    /// - { bool result = (flags >> 5) & 1; if (result != set) { if (set) flags |= 0x20; else flags &= 0xFFFFFFDF; AddChange(1); return result; }
+    pub SetDelete: fn(this: &mut TESForm, set: bool),
+
+    /// # C++
+    /// - method nth: 0x24
+    pub SetAltered: fn(this: &mut TESForm, set: bool),
+
+    /// # C++
+    /// - method nth: 0x25
+    /// - { return; }
+    pub SaveObjectBound: fn(this: &mut TESForm),
+
+    /// # C++
+    /// - method nth: 0x26
+    /// - { return; }
+    pub LoadObjectBound: fn(this: &mut TESForm, mod_: *mut TESFile),
+
+    /// # C++
+    /// - method nth: 0x27
+    /// - { return false; }
+    pub IsBoundObject: fn(this: &TESForm) -> bool,
+
+    /// # C++
+    /// - method nth: 0x28
+    /// - { return false; }
+    pub IsObject: fn(this: &TESForm) -> bool,
+
+    /// # C++
+    /// - method nth: 0x29
+    /// - { return false; }
+    pub IsMagicItem: fn(this: &TESForm) -> bool,
+
+    /// # C++
+    /// - method nth: 0x2A
+    /// - { return false; }
+    pub IsWater: fn(this: &TESForm) -> bool,
+
+    /// # C++
+    /// - method nth: 0x2B
+    /// - { return 0; }
+    pub AsReference1: fn(this: &mut TESForm) -> *mut TESObjectREFR,
+
+    /// # C++
+    /// - method nth: 0x2C
+    /// - { return 0; }
+    pub AsReference2: fn(this: &TESForm) -> *const TESObjectREFR,
+
+    /// # C++
+    /// - method nth: 0x2D
+    /// - { return 0; }
+    pub GetRefCount: fn(this: &TESForm) -> u32,
+
+    /// # C++
+    /// - method nth: 0x2E
+    pub GetTextForParsedSubTag: fn(this: &TESForm, tag: &BSFixedString) -> *const c_char,
+
+    /// # C++
+    /// - method nth: 0x2F
+    /// - { return; }
+    pub Copy: fn(this: &mut TESForm, src_form: *const TESForm),
+
+    /// # C++
+    /// - method nth: 0x30
+    pub BelongsInGroup: fn(
+        this: &TESForm,
+        form: *const FORM,
+        allow_parent_groups: bool,
+        current_only: bool,
+    ) -> bool,
+
+    /// # C++
+    /// - method nth: 0x31
+    pub CreateGroupData: fn(this: &TESForm, form: *const FORM, group: *mut FORM_GROUP),
+
+    /// # C++
+    /// - method nth: 0x32
+    /// - { return ""; }
+    pub GetFormEditorID: fn(this: &TESForm) -> *const c_char,
+
+    /// # C++
+    /// - method nth: 0x33
+    /// - { return true; }
+    pub SetFormEditorID: fn(this: &mut TESForm, str: *const c_char) -> bool,
+
+    /// # C++
+    /// - method nth: 0x34
+    /// - { return false; }
+    pub IsParentForm: fn(this: &TESForm) -> bool,
+
+    /// # C++
+    /// - method nth: 0x35
+    /// - { return false; }
+    pub IsParentFormTree: fn(this: &TESForm) -> bool,
+
+    /// # C++
+    /// - method nth: 0x36
+    /// - { return false; }
+    pub IsFormTypeChild: fn(this: &TESForm, type_: FormType) -> bool,
+
+    /// # C++
+    /// - method nth: 0x37
+    /// - { return false; }
+    pub Activate: fn(
+        this: &mut TESForm,
+        target_ref: *mut TESObjectREFR,
+        activator_ref: *mut TESObjectREFR,
+        arg3: u8,
+        object: *mut TESBoundObject,
+        target_count: i32,
+    ) -> bool,
+
+    /// # C++
+    /// - method nth: 0x38
+    pub SetFormID: fn(this: &mut TESForm, id: FormID, update_file: bool),
+
+    /// # C++
+    /// - method nth: 0x39
+    /// - { return ""; }
+    pub GetObjectTypeName: fn(this: &TESForm) -> *const c_char,
+
+    /// # C++
+    /// - method nth: 0x3A
+    /// - { return true; }
+    pub QAvailableInGame: fn(this: &TESForm) -> bool,
 }
+const _: () = {
+    const VFUNC_COUNT: usize = 0x3A + 1;
+
+    const EXPECTED_SIZE: usize = VFUNC_COUNT * core::mem::size_of::<usize>();
+    const ACTUAL_SIZE: usize = core::mem::size_of::<TESFormVtbl>();
+    assert!(ACTUAL_SIZE == EXPECTED_SIZE);
+};

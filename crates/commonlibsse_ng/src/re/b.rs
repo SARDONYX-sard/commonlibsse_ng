@@ -23,6 +23,8 @@ pub mod BGSSaveGameBuffer;
 pub mod BGSSoundCategory;
 pub mod BGSSoundDescriptor;
 pub mod BGSSoundDescriptorForm;
+pub mod BGSStoryManagerTreeForm;
+pub mod BGSStoryTeller;
 pub mod BGSTextureSet;
 pub mod BSAnimationGraphChannel;
 pub mod BSAnimationGraphEvent;

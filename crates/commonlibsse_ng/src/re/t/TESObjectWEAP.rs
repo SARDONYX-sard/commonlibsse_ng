@@ -19,6 +19,10 @@ use crate::re::TESModel::TESModel;
 use crate::re::TESModelTextSwap::TESModelTextureSwap;
 use crate::re::TESValueForm::TESValueForm;
 use crate::re::TESWeightForm::TESWeightForm;
+use crate::re::{
+    BGSBlockBashData, BGSDestructibleObjectForm, BGSImpactDataSet, BGSMessageIcon,
+    BGSPickupPutdownSounds, BGSPreloadable, TESEffectShader, TESObjectSTAT,
+};
 
 #[commonlibsse_ng_derive_internal::to_bitflags]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -99,56 +103,3 @@ pub struct TESObjectWEAP {
     pub pad21C: u32,                                  // 0x21C
 }
 const _: () = assert!(core::mem::size_of::<TESObjectWEAP>() == 0x220);
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct BGSDestructibleObjectForm {
-    _data: [u8; 0x10], // 0x0D0 - 0x0C0 = 0x10
-}
-const _: () = assert!(core::mem::size_of::<BGSDestructibleObjectForm>() == 0x10);
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct BGSPreloadable {
-    _data: [u8; 0x08], // 0x0F0 - 0x0E8 = 0x08
-}
-const _: () = assert!(core::mem::size_of::<BGSPreloadable>() == 0x08);
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct BGSMessageIcon {
-    _data: [u8; 0x18], // 0x110 - 0x0F8 = 0x18
-}
-const _: () = assert!(core::mem::size_of::<BGSMessageIcon>() == 0x18);
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct BGSPickupPutdownSounds {
-    _data: [u8; 0x18], // 0x128 - 0x110 = 0x18
-}
-const _: () = assert!(core::mem::size_of::<BGSPickupPutdownSounds>() == 0x18);
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct BGSBlockBashData {
-    _data: [u8; 0x18], // 0x140 - 0x128 = 0x18
-}
-const _: () = assert!(core::mem::size_of::<BGSBlockBashData>() == 0x18);
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct BGSImpactDataSet {
-    _data: [u8; 0x08],
-}
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct TESObjectSTAT {
-    _data: [u8; 0x08],
-}
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct TESEffectShader {
-    _data: [u8; 0x08],
-}

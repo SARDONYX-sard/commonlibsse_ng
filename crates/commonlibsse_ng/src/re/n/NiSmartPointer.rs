@@ -1,3 +1,4 @@
+use core::fmt;
 use std::cmp::Eq;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
@@ -10,10 +11,15 @@ pub trait RefCountable {
     fn dec_ref_count(&mut self);
 }
 
-#[derive(Debug)]
 pub struct NiPointer<T: RefCountable> {
     ptr: Option<NonNull<T>>,
     _marker: PhantomData<T>,
+}
+
+impl<T: RefCountable> fmt::Debug for NiPointer<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("NiPointer").field("ptr", &self.ptr).field("_marker", &self._marker).finish()
+    }
 }
 
 impl<T: RefCountable> Default for NiPointer<T> {

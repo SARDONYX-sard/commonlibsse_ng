@@ -68,7 +68,7 @@ impl<K, V, A> NiTMapBase<K, V, A> {
 
     #[inline]
     fn vtable(&self) -> &NiTMapBaseVtbl<K, V, A> {
-        debug_assert!(!self.vtable.is_null());
+        debug_assert!(!self.vtable.is_null(), "NiTMapBaseVtbl ptr must not be null ptr");
         unsafe { &*self.vtable }
     }
 

@@ -94,6 +94,17 @@ impl TESForm {
     pub const VTABLE: [VariantID; 1] = VTABLE_TESForm;
     pub const FORM_TYPE: FormType = FormType::None;
 
+    #[inline]
+    pub const fn vtable(&self) -> &TESFormVtbl {
+        debug_assert!(!self.__base.vtable.is_null(), "TESFormVtbl ptr must not be null ptr");
+        unsafe { &*self.__base.vtable.cast() }
+    }
+
+    #[inline]
+    pub fn vtable_from_addr(&self) -> Option<&'static TESFormVtbl> {
+        Some(unsafe { Self::VTABLE[0].address().ok()?.cast().as_ref() })
+    }
+
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 14509, ae_id = 14667)]
     pub unsafe fn add_compile_index(id: FormID, file: TESFile) {}
 
@@ -147,6 +158,9 @@ impl TESForm {
     pub fn is_deleted(&self) -> bool {
         false
     }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 14482, ae_id = 14639)]
+    pub fn set_player_knowns(&self, known: bool) {}
 }
 
 pub trait DerivedTESForm {

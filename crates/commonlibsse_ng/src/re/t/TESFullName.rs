@@ -27,7 +27,7 @@ impl TESFullName {
     /// Panics if the vtable pointer is null.
     #[inline]
     fn get_vtable(&self) -> &TESFullNameVtbl {
-        let vtbl = self.__base.vtbl.cast::<TESFullNameVtbl>();
+        let vtbl = self.__base.vtable.cast::<TESFullNameVtbl>();
         if vtbl.is_null() {
             #[cfg(feature = "tracing")]
             tracing::error!("TESFullName::vtbl is null — object: {:p}", self);

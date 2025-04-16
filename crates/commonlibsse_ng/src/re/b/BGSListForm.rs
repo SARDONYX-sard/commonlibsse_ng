@@ -26,7 +26,7 @@ impl BGSListForm {
     pub const FORM_TYPE: FormType = FormType::FormList;
 
     pub const fn vtable(&self) -> *const BGSListFormVtbl {
-        self.__base.__base.vtbl.cast()
+        self.__base.__base.vtable.cast()
     }
 
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 20470, ae_id = 20913)]
@@ -95,12 +95,6 @@ impl BGSListForm {
 pub struct BGSListFormVtbl {
     pub base: TESFormVtbl,
 }
-
-const _: () = {
-    const VFUNC_COUNT: usize = 0x20 + 1;
-    const EXPECTED_SIZE: usize = VFUNC_COUNT * core::mem::size_of::<usize>();
-    assert!(core::mem::size_of::<BGSListFormVtbl>() == EXPECTED_SIZE);
-};
 
 #[commonlibsse_ng_derive_internal::to_bitflags]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

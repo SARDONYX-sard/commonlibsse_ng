@@ -13,6 +13,7 @@
     "Collidable",
     "commonlibsse",
     "ctypes",
+    "Daedric",
     "dashmap",
     "declspec",
     "Decommits",
