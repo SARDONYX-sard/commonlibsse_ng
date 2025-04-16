@@ -156,7 +156,7 @@
 //! # use commonlibsse_ng::re::TESBox::TESBox;
 //! // Rust 2015, 2018, and 2021:
 //!
-//! # #![allow(boxed_slice_into_iter)] // override our `deny(warnings)`
+//! // # #![allow(boxed_slice_into_iter)] // override our `deny(warnings)`
 //! let boxed_slice: Box<[i32]> = vec![0; 3].into_boxed_slice();
 //!
 //! // This creates a slice iterator, producing references to each value.
@@ -1107,17 +1107,17 @@ impl<T: ?Sized, A: Allocator> TESBox<T, A> {
     /// A demonstration of such a poor impl is shown below.
     ///
     /// ```compile_fail
-    /// // # use std::pin::Pin;
-    /// // # use commonlibsse_ng::re::TESBox::TESBox;
-    /// // struct Foo; // A type defined in this crate.
-    /// // impl From<TESBox<()>> for Pin<Foo> {
-    /// //     fn from(_: TESBox<()>) -> Pin<Foo> {
-    /// //         Pin::new(Foo)
-    /// //     }
-    /// // }
+    /// # use std::pin::Pin;
+    /// # use commonlibsse_ng::re::TESBox::TESBox;
+    /// struct Foo; // A type defined in this crate.
+    /// impl From<TESBox<()>> for Pin<Foo> {
+    ///     fn from(_: TESBox<()>) -> Pin<Foo> {
+    ///         Pin::new(Foo)
+    ///     }
+    /// }
     ///
-    /// // let foo = TESBox::new(());
-    /// // let bar = Pin::from(foo);
+    /// let foo = TESBox::new(());
+    /// let bar = Pin::from(foo);
     /// ```
     pub const fn into_pin(boxed: Self) -> Pin<Self>
     where
