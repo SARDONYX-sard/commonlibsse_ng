@@ -157,7 +157,7 @@
 //! // Rust 2015, 2018, and 2021:
 //!
 //! # #![allow(boxed_slice_into_iter)] // override our `deny(warnings)`
-//! let boxed_slice: TESBox<[i32]> = vec![0; 3].into_boxed_slice();
+//! let boxed_slice: Box<[i32]> = vec![0; 3].into_boxed_slice();
 //!
 //! // This creates a slice iterator, producing references to each value.
 //! for item in boxed_slice.into_iter().enumerate() {
