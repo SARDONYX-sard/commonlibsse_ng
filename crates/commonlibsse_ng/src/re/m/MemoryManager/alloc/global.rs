@@ -1,23 +1,29 @@
-// Unstable Rust code
-//
 // SPDX-FileCopyrightText: (c) The Rust Project Contributors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 // - https://github.com/rust-lang/rust/blob/master/LICENSE-MIT
+//
+//! Rust's Allocator compatible memory allocator for Skyrim.
+use core::alloc::GlobalAlloc;
 use core::ptr;
 use core::{alloc::Layout, hint, ptr::NonNull};
 
-use crate::rex::stdx::alloc::{AllocError, Allocator, non_null_dangling};
+use stdx::alloc::{AllocError, Allocator, non_null_from_layout_dangling};
 
+#[cfg(not(feature = "test_on_ci"))]
 use super::{alloc, alloc_zeroed, dealloc, realloc};
+#[cfg(feature = "test_on_ci")] // Since TESAllocator is not available for CI, use Rust's.
+use std::alloc::{alloc, alloc_zeroed, dealloc, realloc};
 
 /// The Skyrim global memory allocator using `MemoryManager` C++ class.
 ///
-/// This type implements the [`Allocator`] trait by forwarding calls
-/// to the allocator registered with the `#[global_allocator]` attribute
-/// if there is one, or the `std` crate’s default.
+/// It implements [`Allocator`] and [`GlobalAlloc`], so it can be used for `#[global_allocator]` and other Allocator changeable arrays.
 ///
 /// Note: while this type is unstable, the functionality it provides can be
 /// accessed through the [free functions in `alloc`](self#functions).
+///
+/// # CI
+/// Skyrim `MemoryManager` is not available for CI,
+/// Therefore, the `test_on_ci` feature is enabled, it will automatically fall back to Rust's [`Global`](std::alloc::Global).
 #[derive(Default, Clone, PartialEq)]
 pub struct TESGlobalAlloc;
 
@@ -27,7 +33,7 @@ impl TESGlobalAlloc {
     #[allow(clippy::unused_self)]
     fn alloc_impl(&self, layout: Layout, zeroed: bool) -> Result<NonNull<[u8]>, AllocError> {
         match layout.size() {
-            0 => Ok(NonNull::slice_from_raw_parts(non_null_dangling(layout), 0)),
+            0 => Ok(NonNull::slice_from_raw_parts(non_null_from_layout_dangling(layout), 0)),
             // SAFETY: `layout` is non-zero in size,
             size => unsafe {
                 let raw_ptr = if zeroed { alloc_zeroed(layout) } else { alloc(layout) };
@@ -150,7 +156,7 @@ unsafe impl Allocator for TESGlobalAlloc {
             // SAFETY: conditions must be upheld by the caller
             0 => {
                 unsafe { self.deallocate(ptr, old_layout) };
-                Ok(NonNull::slice_from_raw_parts(non_null_dangling(new_layout), 0))
+                Ok(NonNull::slice_from_raw_parts(non_null_from_layout_dangling(new_layout), 0))
             }
 
             // SAFETY: `new_size` is non-zero. Other conditions must be upheld by the caller
@@ -178,7 +184,7 @@ unsafe impl Allocator for TESGlobalAlloc {
     }
 }
 
-unsafe impl core::alloc::GlobalAlloc for TESGlobalAlloc {
+unsafe impl GlobalAlloc for TESGlobalAlloc {
     #[inline]
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         unsafe { alloc(layout) }

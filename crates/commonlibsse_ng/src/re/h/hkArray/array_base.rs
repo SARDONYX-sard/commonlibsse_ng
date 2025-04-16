@@ -332,7 +332,7 @@ where
         R: core::ops::RangeBounds<usize>,
     {
         let len = self.len();
-        let core::ops::Range { start, end } = crate::rex::stdx::range(range, ..len);
+        let core::ops::Range { start, end } = stdx::slice::range(range, ..len);
         debug_assert!(start <= end);
         debug_assert!(end <= len);
 

@@ -7,7 +7,6 @@ use core::{
 };
 
 use crate::re::BSTArray::{BSTArrayHeapAllocator, allocator::Allocator};
-use crate::rex::stdx;
 
 #[repr(C)]
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -484,7 +483,7 @@ where
         R: RangeBounds<usize>,
     {
         let len = self.len();
-        let Range { start, end } = stdx::range(range, ..len);
+        let Range { start, end } = stdx::slice::range(range, ..len);
         debug_assert!(start <= end);
         debug_assert!(end <= len);
 

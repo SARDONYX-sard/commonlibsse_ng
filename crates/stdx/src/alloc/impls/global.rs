@@ -7,7 +7,7 @@ use core::ptr;
 use core::{alloc::Layout, hint, ptr::NonNull};
 use std::alloc::{alloc, alloc_zeroed, dealloc, realloc};
 
-use super::{AllocError, Allocator, non_null_dangling};
+use crate::alloc::{AllocError, Allocator, non_null_from_layout_dangling};
 
 /// The global memory allocator.
 ///
@@ -25,7 +25,7 @@ impl Global {
     #[allow(clippy::unused_self)]
     fn alloc_impl(&self, layout: Layout, zeroed: bool) -> Result<NonNull<[u8]>, AllocError> {
         match layout.size() {
-            0 => Ok(NonNull::slice_from_raw_parts(non_null_dangling(layout), 0)),
+            0 => Ok(NonNull::slice_from_raw_parts(non_null_from_layout_dangling(layout), 0)),
             // SAFETY: `layout` is non-zero in size,
             size => unsafe {
                 let raw_ptr = if zeroed { alloc_zeroed(layout) } else { alloc(layout) };
@@ -148,7 +148,7 @@ unsafe impl Allocator for Global {
             // SAFETY: conditions must be upheld by the caller
             0 => {
                 unsafe { self.deallocate(ptr, old_layout) };
-                Ok(NonNull::slice_from_raw_parts(non_null_dangling(new_layout), 0))
+                Ok(NonNull::slice_from_raw_parts(non_null_from_layout_dangling(new_layout), 0))
             }
 
             // SAFETY: `new_size` is non-zero. Other conditions must be upheld by the caller

@@ -36,8 +36,7 @@ pub struct RwLock {
 
                       // _reserved38: u64, // 0x38: Wrapper field(poison: bool + u8 + u32)
 }
-
-static_assertions::assert_eq_size!(RwLock, [u8; 64 - 8]);
+const _: () = assert!(core::mem::size_of::<RwLock>() == 64 - 8);
 
 const READ_LOCKED: Primitive = 1;
 const MASK: Primitive = (1 << 30) - 1;

@@ -1,13 +1,35 @@
-// Unstable Rust code
-//
-// SPDX-FileCopyrightText: (c) The Rust Project Contributors
-// SPDX-License-Identifier: Apache-2.0 OR MIT
-// - https://github.com/rust-lang/rust/blob/master/LICENSE-MIT
-//! Unstable Memory allocation APIs
-pub mod global;
+use core::alloc::Layout;
+use core::error::Error;
+use core::fmt;
+use core::ptr::{self, NonNull};
 
-/// Unstable rust
-pub const fn non_null_dangling<T>(layout: Layout) -> NonNull<T> {
+/// Creates a dangling `NonNull<T>` pointer from a given [`Layout`].
+///
+/// This is similar to `NonNull::dangling()`, but uses the alignment from the provided [`Layout`]
+/// to construct the dangling pointer. This is useful when the alignment must match a specific type,
+/// such as when working with allocators or raw memory buffers.
+///
+/// # Safety
+///
+/// The pointer returned is *not* valid for dereferencing. It is only intended for use in
+/// situations where a non-null but invalid pointer is needed (e.g., for type information or alignment).
+///
+/// Internally, this avoids the `NonZero` validity check for performance reasons, assuming that the
+/// `Layout` is already valid (i.e., has a non-zero alignment).
+///
+/// # Examples
+///
+/// ```rust
+/// use std::alloc::{Layout};
+/// use std::ptr::NonNull;
+/// use stdx::alloc::non_null_from_layout_dangling
+///
+/// let layout = Layout::from_size_align(0, 8).unwrap();
+/// let ptr: NonNull<u8> = non_null_from_layout_dangling(layout);
+/// assert!(!ptr.as_ptr().is_null());
+/// ```
+#[inline]
+pub const fn non_null_from_layout_dangling<T>(layout: Layout) -> NonNull<T> {
     let addr = {
         let this = layout.align();
         // This transmutes directly to avoid the UbCheck in `NonZero::new_unchecked`
@@ -23,33 +45,6 @@ pub const fn non_null_dangling<T>(layout: Layout) -> NonNull<T> {
     unsafe { NonNull::new_unchecked(pointer.cast_mut()) }
 }
 
-// #![stable(feature = "alloc_module", since = "1.28.0")]
-
-// mod global;
-// mod layout;
-
-// #[stable(feature = "global_alloc", since = "1.28.0")]
-// pub use self::global::GlobalAlloc;
-// #[stable(feature = "alloc_layout", since = "1.28.0")]
-// pub use self::layout::Layout;
-pub use std::alloc::Layout;
-// #[stable(feature = "alloc_layout", since = "1.28.0")]
-// #[deprecated(
-//     since = "1.52.0",
-//     note = "Name does not follow std convention, use LayoutError",
-//     suggestion = "LayoutError"
-// )]
-// #[allow(deprecated, deprecated_in_future)]
-// pub use self::layout::LayoutErr;
-// #[stable(feature = "alloc_layout_error", since = "1.50.0")]
-// pub use self::layout::LayoutError;
-// use crate::error::Error;
-// use crate::fmt;
-// use crate::ptr::{self, NonNull};
-use core::error::Error;
-use core::fmt;
-use core::ptr::{self, NonNull};
-
 /// The `AllocError` error indicates an allocation failure
 /// that may be due to resource exhaustion or to
 /// something wrong when combining the given input arguments with this
@@ -58,11 +53,6 @@ use core::ptr::{self, NonNull};
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct AllocError;
 
-// #[unstable(
-//     feature = "allocator_api",
-//     reason = "the precise API and guarantees it provides may be tweaked.",
-//     issue = "32838"
-// )]
 impl Error for AllocError {}
 
 // (we need this for downstream impl of trait Error)

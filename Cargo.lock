@@ -350,12 +350,11 @@ dependencies = [
  "retour",
  "shared_rwlock",
  "snafu",
- "static_assertions",
+ "stdx",
  "tracing",
  "tracing-appender",
  "tracing-subscriber",
  "typenum",
- "unique",
  "windows",
 ]
 
@@ -1855,9 +1854,7 @@ name = "shared_rwlock"
 version = "0.1.0"
 dependencies = [
  "snafu",
- "static_assertions",
  "tracing",
- "unique",
  "windows",
 ]
 
@@ -1932,10 +1929,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
-name = "static_assertions"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+name = "stdx"
+version = "0.1.0"
 
 [[package]]
 name = "strsim"
@@ -2267,12 +2262,6 @@ name = "unicode-ident"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "00e2473a93778eb0bad35909dff6a10d28e63f792f16ed15e404fca9d5eeedbe"
-
-[[package]]
-name = "unique"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d360722e1f3884f5b14d332185f02ff111f771f0c76a313268fe6af1409aba96"
 
 [[package]]
 name = "untrusted"

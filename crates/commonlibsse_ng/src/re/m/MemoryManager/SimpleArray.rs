@@ -1,10 +1,14 @@
+use core::alloc::Layout;
 use core::cmp::Ordering;
 use core::hash::{Hash, Hasher};
-use core::marker::PhantomData;
-use core::mem::{self, MaybeUninit};
+use core::mem::MaybeUninit;
 use core::ptr::{self, NonNull};
 use core::slice;
-use std::alloc::{Layout, alloc, dealloc};
+use std::alloc::handle_alloc_error;
+
+use crate::re::MemoryManager::TESGlobalAlloc;
+use stdx::alloc::Allocator;
+use stdx::unique::Unique;
 
 /// Array whose first pointer is only a pointer to the length.
 ///
@@ -25,10 +29,11 @@ use std::alloc::{Layout, alloc, dealloc};
 /// let array: SimpleArray<i32> = SimpleArray::new();
 /// assert_eq!(array.len(), 0);
 /// ```
-pub struct SimpleArray<T> {
-    data: Option<NonNull<T>>,
-    marker: PhantomData<T>,
+pub struct SimpleArray<T, A: Allocator = TESGlobalAlloc> {
+    data: Option<Unique<T>>,
+    alloc: A,
 }
+const _: () = assert!(core::mem::size_of::<SimpleArray<i32>>() == core::mem::size_of::<usize>());
 
 impl<T> SimpleArray<T> {
     /// Creates a new empty `SimpleArray`.
@@ -41,7 +46,7 @@ impl<T> SimpleArray<T> {
     /// ```
     #[inline]
     pub const fn new() -> Self {
-        Self { data: None, marker: PhantomData }
+        Self { data: None, alloc: TESGlobalAlloc }
     }
 
     /// Creates a new `SimpleArray` with the specified capacity.
@@ -63,6 +68,26 @@ impl<T> SimpleArray<T> {
         array.resize(count);
         array
     }
+}
+
+impl<T, A> SimpleArray<T, A>
+where
+    A: Allocator,
+{
+    /// Creates a new empty `SimpleArray` with Allocator.
+    ///
+    /// # Example
+    /// ```rust
+    /// use commonlibsse_ng::re::MemoryManager::SimpleArray::SimpleArray;
+    /// use stdx::alloc::Global; // Since TESAllocator is not available for CI, use Rust's.
+    ///
+    /// let array: SimpleArray<i32, Global> = SimpleArray::new_in(None, Global);
+    /// assert_eq!(array.len(), 0);
+    /// ```
+    #[inline]
+    pub const fn new_in(data: Option<Unique<T>>, alloc: A) -> Self {
+        Self { data, alloc }
+    }
 
     /// Returns the length of the array (the number of elements currently stored).
     ///
@@ -77,7 +102,7 @@ impl<T> SimpleArray<T> {
     #[inline]
     pub const fn len(&self) -> usize {
         match self.data {
-            Some(ptr) => unsafe { *Self::head(ptr) },
+            Some(ptr) => unsafe { Self::head(ptr).read() },
             None => 0,
         }
     }
@@ -110,9 +135,12 @@ impl<T> SimpleArray<T> {
     #[inline]
     pub fn clear(&mut self) {
         if let Some(ptr) = self.data.take() {
-            unsafe {
-                ptr::drop_in_place(slice::from_raw_parts_mut(ptr.as_ptr(), self.len()));
-                dealloc(Self::head(ptr).cast(), Self::layout(self.len()));
+            let len = self.len();
+            if len > 0 {
+                unsafe {
+                    ptr::drop_in_place(self.as_mut_slice());
+                    self.alloc.deallocate(Self::head(ptr).cast(), Self::layout(len));
+                }
             }
         }
     }
@@ -136,30 +164,32 @@ impl<T> SimpleArray<T> {
         }
 
         unsafe {
-            let new_head = alloc(Self::layout(count)).cast::<usize>();
-            if new_head.is_null() {
-                panic!("Allocation failed");
-            }
-            *new_head = count; // The first pointer is the length.
+            let layout = Self::layout(count);
+            let Ok(new_head) = self.alloc.allocate(layout) else { handle_alloc_error(layout) };
+            let new_head = new_head.cast::<usize>();
+            new_head.write(count); // The first pointer is the length.
 
             let new_data = new_head.add(1).cast::<T>();
 
-            if let Some(ptr) = self.data {
-                let ptr = ptr.as_ptr();
+            // clone to new array.
+            if let Some(prev_data) = self.data {
+                let prev_data = prev_data.as_ptr();
+                let new_data = new_data.as_ptr();
                 if count < old_size {
-                    ptr::copy_nonoverlapping(ptr, new_data, count);
+                    ptr::copy_nonoverlapping(prev_data, new_data, count);
                 } else {
-                    ptr::copy_nonoverlapping(ptr, new_data, old_size);
+                    ptr::copy_nonoverlapping(prev_data, new_data, old_size);
                     for i in old_size..count {
                         ptr::write(new_data.add(i), MaybeUninit::zeroed().assume_init());
                     }
                 }
             } else {
-                ptr::write_bytes(new_data, MaybeUninit::zeroed().assume_init(), count);
+                ptr::write_bytes(new_data.as_ptr(), MaybeUninit::zeroed().assume_init(), count);
             }
 
-            self.clear();
-            self.data = Some(NonNull::new_unchecked(new_data));
+            self.clear(); // clear prev data array.
+
+            self.data = Some(Unique::from(new_data));
         }
     }
 
@@ -177,9 +207,7 @@ impl<T> SimpleArray<T> {
     /// ```
     #[inline]
     pub fn get(&self, index: usize) -> Option<&T> {
-        self.data.and_then(|ptr| {
-            if index < self.len() { unsafe { Some(ptr.add(index).as_ref()) } } else { None }
-        })
+        if index < self.len() { unsafe { Some(self.data()?.add(index).as_ref()) } } else { None }
     }
 
     /// Gets a mutable reference to the element at the given index.
@@ -198,9 +226,7 @@ impl<T> SimpleArray<T> {
     /// ```
     #[inline]
     pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
-        self.data.and_then(|ptr| {
-            if index < self.len() { Some(unsafe { ptr.add(index).as_mut() }) } else { None }
-        })
+        if index < self.len() { unsafe { Some(self.data()?.add(index).as_mut()) } } else { None }
     }
 
     /// Returns a raw pointer to the data.
@@ -235,8 +261,13 @@ impl<T> SimpleArray<T> {
     /// ```
     #[inline]
     pub const fn as_mut_slice(&mut self) -> &mut [T] {
+        let len = self.len();
+        if len == 0 {
+            return &mut [];
+        }
+
         match self.data {
-            Some(ptr) => unsafe { slice::from_raw_parts_mut(ptr.as_ptr(), self.len()) },
+            Some(ptr) => unsafe { slice::from_raw_parts_mut(ptr.as_ptr(), len) },
             None => &mut [],
         }
     }
@@ -255,21 +286,44 @@ impl<T> SimpleArray<T> {
     /// ```
     #[inline]
     pub const fn as_slice(&self) -> &[T] {
+        let len = self.len();
+        if len == 0 {
+            return &[];
+        }
+
         match self.data {
-            Some(ptr) => unsafe { slice::from_raw_parts(ptr.as_ptr(), self.len()) },
+            Some(ptr) => unsafe { slice::from_raw_parts(ptr.as_ptr(), len) },
             None => &[],
         }
     }
 
-    const unsafe fn head(ptr: NonNull<T>) -> *mut usize {
-        unsafe { ptr.as_ptr().cast::<usize>().sub(1) }
+    /// Return len storage ptr.
+    #[inline]
+    const unsafe fn head(ptr: Unique<T>) -> NonNull<usize> {
+        unsafe { ptr.as_non_null_ptr().cast::<usize>().sub(1) }
+    }
+
+    /// Return data ptr.
+    #[inline]
+    const fn data(&self) -> Option<NonNull<T>> {
+        match self.data {
+            Some(data) => Some(data.as_non_null_ptr()),
+            None => None,
+        }
     }
 
     /// Size + Element * N
+    ///
+    /// # Error
+    /// If need count(alloc size) > isize::MAX.
     fn layout(count: usize) -> Layout {
-        const LEN_SIZE: usize = mem::size_of::<usize>();
-        let size = LEN_SIZE + (mem::size_of::<T>() * count);
-        Layout::from_size_align(size, mem::align_of::<T>()).unwrap()
+        const LEN_SIZE: usize = core::mem::size_of::<usize>();
+        let size = LEN_SIZE + (core::mem::size_of::<T>() * count);
+        let layout = Layout::from_size_align(size, core::mem::align_of::<T>());
+        match layout {
+            Ok(layout) => layout,
+            Err(err) => panic!("SimpleArray alloc overflow: need size > isize::MAX: {err}"),
+        }
     }
 
     /// Creates an iterator that borrows the elements of the `SimpleArray`.
@@ -292,12 +346,12 @@ impl<T> SimpleArray<T> {
     /// assert_eq!(sum, 60);
     /// ```
     #[inline]
-    pub const fn iter(&self) -> SimpleArrayIterator<'_, T> {
+    pub const fn iter(&self) -> SimpleArrayIterator<'_, T, A> {
         SimpleArrayIterator { array: self, index: 0, len: self.len() }
     }
 }
 
-impl<T> Drop for SimpleArray<T> {
+impl<T, A: Allocator> Drop for SimpleArray<T, A> {
     fn drop(&mut self) {
         self.clear();
     }
@@ -310,7 +364,7 @@ impl<T> Default for SimpleArray<T> {
     }
 }
 
-impl<T: PartialEq> PartialEq for SimpleArray<T> {
+impl<T: PartialEq, A: Allocator> PartialEq for SimpleArray<T, A> {
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() {
             return false;
@@ -324,9 +378,9 @@ impl<T: PartialEq> PartialEq for SimpleArray<T> {
     }
 }
 
-impl<T: Eq> Eq for SimpleArray<T> {}
+impl<T: Eq, A: Allocator> Eq for SimpleArray<T, A> {}
 
-impl<T: PartialOrd> PartialOrd for SimpleArray<T> {
+impl<T: PartialOrd, A: Allocator> PartialOrd for SimpleArray<T, A> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self.len() != other.len() {
@@ -343,7 +397,7 @@ impl<T: PartialOrd> PartialOrd for SimpleArray<T> {
     }
 }
 
-impl<T: Ord> Ord for SimpleArray<T> {
+impl<T: Ord, A: Allocator> Ord for SimpleArray<T, A> {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         if self.len() != other.len() {
@@ -359,7 +413,7 @@ impl<T: Ord> Ord for SimpleArray<T> {
     }
 }
 
-impl<T: Hash> Hash for SimpleArray<T> {
+impl<T: Hash, A: Allocator> Hash for SimpleArray<T, A> {
     #[inline]
     fn hash<H: Hasher>(&self, state: &mut H) {
         for i in 0..self.len() {
@@ -368,38 +422,41 @@ impl<T: Hash> Hash for SimpleArray<T> {
     }
 }
 
-impl<T> core::ops::Index<usize> for SimpleArray<T> {
+impl<T, A: Allocator> core::ops::Index<usize> for SimpleArray<T, A> {
     type Output = T;
 
     #[inline]
     fn index(&self, index: usize) -> &Self::Output {
         assert!(index < self.len(), "Index out of bounds");
-        unsafe { self.data.expect("Accessing empty array").add(index).as_ref() }
+        unsafe { self.data().expect("Accessing empty array").add(index).as_ref() }
     }
 }
 
-impl<T> core::ops::IndexMut<usize> for SimpleArray<T> {
+impl<T, A: Allocator> core::ops::IndexMut<usize> for SimpleArray<T, A> {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         assert!(index < self.len(), "Index out of bounds");
-        unsafe { self.data.expect("Accessing empty array").add(index).as_mut() }
+        unsafe { self.data().expect("Accessing empty array").add(index).as_mut() }
     }
 }
 
 // Iterator for borrowing `SimpleArray`
-pub struct SimpleArrayIterator<'a, T> {
-    array: &'a SimpleArray<T>,
+pub struct SimpleArrayIterator<'a, T, A>
+where
+    A: Allocator,
+{
+    array: &'a SimpleArray<T, A>,
     index: usize,
     len: usize, // store the length to avoid redundant calculations
 }
 
-impl<'a, T> Iterator for SimpleArrayIterator<'a, T> {
+impl<'a, T, A: Allocator> Iterator for SimpleArrayIterator<'a, T, A> {
     type Item = &'a T;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.len {
-            let item = unsafe { self.array.data?.add(self.index).as_ref() };
+            let item = unsafe { self.array.data()?.add(self.index).as_ref() };
             self.index += 1;
             Some(item)
         } else {
@@ -409,19 +466,19 @@ impl<'a, T> Iterator for SimpleArrayIterator<'a, T> {
 }
 
 // IntoIterator for consuming `SimpleArray`
-pub struct SimpleArrayIntoIterator<T> {
-    array: SimpleArray<T>,
+pub struct SimpleArrayIntoIterator<T, A: Allocator> {
+    array: SimpleArray<T, A>,
     index: usize,
     len: usize, // store the length to avoid redundant calculations
 }
 
-impl<T> Iterator for SimpleArrayIntoIterator<T> {
+impl<T, A: Allocator> Iterator for SimpleArrayIntoIterator<T, A> {
     type Item = T;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.len {
-            let item = unsafe { ptr::read(self.array.data?.add(self.index).as_ptr()) };
+            let item = unsafe { ptr::read(self.array.data()?.add(self.index).as_ptr()) };
             self.index += 1;
             Some(item)
         } else {
@@ -430,9 +487,9 @@ impl<T> Iterator for SimpleArrayIntoIterator<T> {
     }
 }
 
-impl<T> IntoIterator for SimpleArray<T> {
+impl<T, A: Allocator> IntoIterator for SimpleArray<T, A> {
     type Item = T;
-    type IntoIter = SimpleArrayIntoIterator<T>;
+    type IntoIter = SimpleArrayIntoIterator<T, A>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
@@ -441,9 +498,9 @@ impl<T> IntoIterator for SimpleArray<T> {
     }
 }
 
-impl<'a, T> IntoIterator for &'a SimpleArray<T> {
+impl<'a, T, A: Allocator> IntoIterator for &'a SimpleArray<T, A> {
     type Item = &'a T;
-    type IntoIter = SimpleArrayIterator<'a, T>;
+    type IntoIter = SimpleArrayIterator<'a, T, A>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {

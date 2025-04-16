@@ -37,8 +37,7 @@ struct SharedCell<T: ?Sized> {
     // - an element of array
     // - an element of array
 }
-
-static_assertions::assert_eq_size!(SharedCell<u64>, [u8; 64 + 8]);
+const _: () = assert!(core::mem::size_of::<SharedCell<u64>>() == 64 + 8);
 
 const RWLOCK_LOCK_STATE_SIZE: usize = 64;
 

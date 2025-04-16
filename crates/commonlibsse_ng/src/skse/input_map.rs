@@ -9,7 +9,6 @@
 
 use std::borrow::Cow;
 
-use windows::core::HSTRING;
 use windows::Win32::Devices::HumanInterfaceDevice::{
     DIK_DELETE, DIK_DIVIDE, DIK_DOWNARROW, DIK_END, DIK_HOME, DIK_INSERT, DIK_LEFTARROW,
     DIK_NUMPADENTER, DIK_PGDN, DIK_PGUP, DIK_RALT, DIK_RCONTROL, DIK_RIGHTARROW, DIK_UPARROW,
@@ -22,6 +21,7 @@ use windows::Win32::UI::Input::XboxController::{
     XINPUT_GAMEPAD_RIGHT_SHOULDER, XINPUT_GAMEPAD_RIGHT_THUMB, XINPUT_GAMEPAD_START,
     XINPUT_GAMEPAD_X, XINPUT_GAMEPAD_Y,
 };
+use windows::core::HSTRING;
 
 pub const MACRO_KEYBOARD_OFFSET: u32 = 0; // Not actually used, just for self-documentation
 pub const MACRO_NUM_KEYBOARD_KEYS: u32 = 256;
@@ -57,7 +57,7 @@ pub enum GamepadButtonOffset {
     Lt,
     Rt, // 281
 }
-static_assertions::const_assert_eq!(GamepadButtonOffset::Rt as u32, 281);
+const _: () = assert!(GamepadButtonOffset::Rt as u32 == 281);
 
 impl GamepadButtonOffset {
     const fn from_xinput(key_mask: XINPUT_GAMEPAD_BUTTON_FLAGS) -> Option<Self> {

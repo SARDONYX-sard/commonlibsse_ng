@@ -1,10 +1,7 @@
-// Unstable Rust code
-//
 // SPDX-FileCopyrightText: (c) The Rust Project Contributors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 // - https://github.com/rust-lang/rust/blob/master/LICENSE-MIT
-pub mod alloc;
-
+//! Unstable Rust code
 use core::ops;
 
 #[track_caller]
