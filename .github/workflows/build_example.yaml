@@ -11,7 +11,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test:
+  build_example:
     strategy:
       fail-fast: false
       matrix:
@@ -30,7 +30,7 @@ jobs:
         with:
           prefix-key: cargo-debug-${{ matrix.job.target }}
 
-      - name: Test
+      - name: Build Example dll
         run: cargo xtask example --dest-mode build
 
       - name: Upload a Build Artifact
