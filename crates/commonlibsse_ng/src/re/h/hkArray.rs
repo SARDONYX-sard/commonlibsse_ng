@@ -16,9 +16,9 @@ use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::Selfle
 ///
 /// # Example
 /// ```
-/// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+/// use commonlibsse_ng::re::hkArray::hkArray;
 ///
-/// let mut array = hkArray::<i32, RustAllocator>::new();
+/// let mut array = hkArray::<i32>::new();
 /// array.push(1);
 /// array.push(2);
 /// assert_eq!(array.len(), 2);
@@ -41,9 +41,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let array: hkArray<u32, RustAllocator> = hkArray::new();
+    /// let array: hkArray<u32> = hkArray::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
@@ -60,9 +60,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let array = hkArray::<u32, RustAllocator>::new();
+    /// let array = hkArray::<u32>::new();
     /// assert_eq!(array.len(), 0);
     /// ```
     #[inline]
@@ -74,9 +74,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let array = hkArray::<u32, RustAllocator>::new();
+    /// let array = hkArray::<u32>::new();
     /// assert_eq!(array.capacity(), 0);
     /// ```
     #[inline]
@@ -88,9 +88,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let array = hkArray::<u32, RustAllocator>::new();
+    /// let array = hkArray::<u32>::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
@@ -105,9 +105,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let mut array = hkArray::<u32, RustAllocator>::new();
+    /// let mut array = hkArray::<u32>::new();
     /// array.reserve(10);
     /// assert!(array.capacity() >= 10);
     /// ```
@@ -123,9 +123,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let mut array = hkArray::<u32, RustAllocator>::new();
+    /// let mut array = hkArray::<u32>::new();
     /// array.push(42);
     /// ```
     #[inline]
@@ -137,9 +137,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// let mut array = hkArray::<i32>::new();
     /// array.push(1);
     /// assert_eq!(array.pop(), Some(1));
     /// assert_eq!(array.pop(), None);
@@ -153,9 +153,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// let mut array = hkArray::<i32>::new();
     /// array.push(42);
     /// assert_eq!(array.get(0), Some(&42));
     /// assert_eq!(array.get(1), None);
@@ -169,9 +169,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::new();
+    /// let mut array = hkArray::<i32>::new();
     /// array.push(10);
     /// if let Some(x) = array.get_mut(0) {
     ///     *x += 1;
@@ -187,9 +187,9 @@ where
     ///
     /// # Examples
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// use commonlibsse_ng::re::BSTArray::{BSTArray};
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert_eq!(array.len(), 2);
@@ -209,9 +209,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = hkArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert!(array.contains(&1));
@@ -241,9 +241,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = hkArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -268,9 +268,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let mut array = hkArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = hkArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -325,9 +325,9 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArray, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArray;
     ///
-    /// let mut array = hkArray::<u32, RustAllocator>::new();
+    /// let mut array = hkArray::<u32>::new();
     /// array.resize(3, 7);
     /// assert_eq!(array.len(), 3);
     /// assert_eq!(array[0], 7);
