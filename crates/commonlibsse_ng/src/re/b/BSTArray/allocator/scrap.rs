@@ -1,14 +1,15 @@
+use core::alloc::Layout;
 use core::ffi::c_void;
-use core::ptr::{self, copy_nonoverlapping, null_mut};
-use std::alloc::Layout;
+use core::ptr::{NonNull, copy_nonoverlapping, null_mut};
+use std::alloc::handle_alloc_error;
 
 use crate::re::BSTArray::Allocator;
-use crate::re::MemoryManager::MemoryManager;
+use crate::re::MemoryManager::alloc::scrap_alloc;
 use crate::re::ScrapHeap::ScrapHeap;
 
 #[derive(Debug)]
 pub struct BSScrapArrayAllocator {
-    allocator: *mut ScrapHeap,
+    allocator: Option<NonNull<ScrapHeap>>,
     data: *mut c_void,
     capacity: u32,
 }
@@ -17,7 +18,7 @@ const _: () = assert!(core::mem::size_of::<BSScrapArrayAllocator>() == 0x18);
 unsafe impl Allocator for BSScrapArrayAllocator {
     #[inline]
     fn new() -> Self {
-        Self { allocator: null_mut(), data: null_mut(), capacity: 0 }
+        Self { allocator: None, data: null_mut(), capacity: 0 }
     }
 
     #[inline]
@@ -37,28 +38,21 @@ unsafe impl Allocator for BSScrapArrayAllocator {
 
     #[inline]
     unsafe fn allocate(&mut self, layout: Layout) -> *mut c_void {
-        if !self.allocator.is_null() {
-            if let Some(heap) = unsafe { MemoryManager::GetSingleton().as_mut() } {
-                self.allocator = unsafe { heap.GetThreadScrapHeap() };
-            };
-        }
-        assert!(!self.allocator.is_null(), "allocator must not be null");
-
-        let (size, alignment) = (layout.size(), layout.align());
-        let mem = unsafe {
-            self.allocator.as_mut().map_or(ptr::null_mut(), |heap| heap.allocate(size, alignment))
+        let Ok((scrap_heap, ptr)) = (match self.allocator {
+            Some(allocator) => unsafe { scrap_alloc::realloc(allocator, layout) },
+            None => unsafe { scrap_alloc::alloc_zeroed(layout) },
+        }) else {
+            handle_alloc_error(layout)
         };
-        assert!(!mem.is_null(), "mem must not be null");
-        unsafe { ptr::write_bytes(mem, 0, size) };
-
-        mem
+        self.allocator = Some(scrap_heap);
+        ptr.cast().as_ptr()
     }
 
     #[inline]
     unsafe fn deallocate(&mut self, ptr: *mut c_void) {
-        if let Some(allocator) = unsafe { self.allocator.as_mut() } {
+        if let Some(allocator) = self.allocator.as_mut() {
             if !ptr.is_null() {
-                unsafe { allocator.deallocate(ptr) };
+                unsafe { allocator.as_mut().deallocate(ptr) };
             }
         }
     }
