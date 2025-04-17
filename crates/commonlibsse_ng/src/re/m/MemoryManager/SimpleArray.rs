@@ -12,17 +12,14 @@ use stdx::unique::Unique;
 
 /// Array whose first pointer is only a pointer to the length.
 ///
-/// The array follows a specific layout:
-///
-/// | Index | Value      |
-/// |-------|------------|
-/// |       | Length (N) |
-/// | 0     | Element 1  | <- Ptr pointed `self.data`
-/// | 1     | Element 2  |
-/// | 2     | Element 3  |
-/// | ...   | ...        |
-/// | N     | Element N  |
-///
+/// Memory layout:
+/// ```txt
+/// ┌────────────┬────────────┬────────────┬──────┬────────────┐
+/// │ len: usize │ T[0]       │ T[1]       │ ...  │ T[N - 1]   │
+/// └────────────┴────────────┴────────────┴──────┴────────────┘
+///                   ↑
+///   data: Unique<T> ┘
+/// ```
 /// # Example
 /// ```rust
 /// use commonlibsse_ng::re::MemoryManager::SimpleArray::SimpleArray;
@@ -300,6 +297,7 @@ where
     /// Return len storage ptr.
     #[inline]
     const unsafe fn head(ptr: Unique<T>) -> NonNull<usize> {
+        // Safety: allocated size in allocate function.
         unsafe { ptr.as_non_null_ptr().cast::<usize>().sub(1) }
     }
 
@@ -317,9 +315,21 @@ where
     /// # Error
     /// If need count(alloc size) > isize::MAX.
     fn layout(count: usize) -> Layout {
-        const LEN_SIZE: usize = core::mem::size_of::<usize>();
-        let size = LEN_SIZE + (core::mem::size_of::<T>() * count);
-        let layout = Layout::from_size_align(size, core::mem::align_of::<T>());
+        let layout = {
+            const LEN_SIZE: usize = core::mem::size_of::<usize>(); // 8
+            const LEN_ALIGN: usize = core::mem::align_of::<usize>(); // x64 => 8
+
+            // Heap head is filled with usize len information
+            let alloc_size = LEN_SIZE + (core::mem::size_of::<T>() * count);
+
+            // IMPORTANT: Avoid undefined behavior.
+            // When T alignment is less than or equal to usize, undefined behavior occurs when storing usize if alignment is made based on T criteria.
+            // Therefore, the alignment must be kept above usize.
+            let alignment = LEN_ALIGN.max(core::mem::align_of::<T>());
+
+            Layout::from_size_align(alloc_size, alignment)
+        };
+
         match layout {
             Ok(layout) => layout,
             Err(err) => panic!("SimpleArray alloc overflow: need size > isize::MAX: {err}"),

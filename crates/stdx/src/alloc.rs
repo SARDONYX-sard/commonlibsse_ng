@@ -7,7 +7,5 @@
 mod allocator;
 mod impls;
 
-pub use self::allocator::{
-    AllocError, Allocator, non_null_empty_slice, non_null_from_layout_dangling,
-};
+pub use self::allocator::{AllocError, Allocator, non_null_empty_slice};
 pub use self::impls::global::Global;

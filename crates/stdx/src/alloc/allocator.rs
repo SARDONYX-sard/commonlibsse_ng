@@ -16,20 +16,8 @@ use core::ptr::{self, NonNull};
 ///
 /// Internally, this avoids the `NonZero` validity check for performance reasons, assuming that the
 /// `Layout` is already valid (i.e., has a non-zero alignment).
-///
-/// # Examples
-///
-/// ```rust
-/// use std::alloc::{Layout};
-/// use std::ptr::NonNull;
-/// use stdx::alloc::non_null_from_layout_dangling
-///
-/// let layout = Layout::from_size_align(0, 8).unwrap();
-/// let ptr: NonNull<u8> = non_null_from_layout_dangling(layout);
-/// assert!(!ptr.as_ptr().is_null());
-/// ```
 #[inline]
-pub const fn non_null_from_layout_dangling<T>(layout: Layout) -> NonNull<T> {
+const fn non_null_from_layout_dangling<T>(layout: Layout) -> NonNull<T> {
     let addr = {
         let this = layout.align();
         // This transmutes directly to avoid the UbCheck in `NonZero::new_unchecked`

@@ -1,5 +1,4 @@
 pub mod global;
-
 mod rust_api;
 pub mod scrap_alloc;
 

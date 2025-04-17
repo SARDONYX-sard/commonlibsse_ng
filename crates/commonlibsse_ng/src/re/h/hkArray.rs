@@ -3,15 +3,14 @@
 //! This module defines the `hkArray` struct, a dynamic array-like structure that
 //! mimics the behavior of a C++ container with methods for array manipulation,
 //! including dynamic resizing, accessors, and iterators.
-mod allocator;
 mod array_base;
 
 use core::ops::{Index, IndexMut};
 
-pub use self::allocator::{Allocator, RustAllocator, SkyrimAllocator};
 pub use self::array_base::{
     hkArrayBase, hkArrayDrain, hkArrayIterMut, hkArrayIterator, hkArrayRefIterator,
 };
+use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
 
 /// A dynamic array container C++'s `hkArray`, backed by a custom allocator.
 ///
@@ -30,13 +29,13 @@ pub use self::array_base::{
 /// For examples outside of the game, use `RustAllocator`.
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct hkArray<T, A: Allocator = SkyrimAllocator> {
+pub struct hkArray<T, A: SelflessAllocator = TESGlobalAlloc> {
     __base: hkArrayBase<T, A>,
 }
 
 impl<T, A> hkArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     /// Creates a new empty array.
     ///
@@ -317,7 +316,7 @@ where
 impl<T, A> hkArray<T, A>
 where
     T: Clone,
-    A: Allocator,
+    A: SelflessAllocator,
 {
     /// Resizes the array to the specified length, filling new elements with the given value.
     ///
@@ -341,7 +340,7 @@ where
 
 impl<T, A> Default for hkArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn default() -> Self {
@@ -351,7 +350,7 @@ where
 
 impl<T, A> IntoIterator for hkArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = T;
     type IntoIter = hkArrayIterator<T, A>;
@@ -364,7 +363,7 @@ where
 
 impl<T, A> Index<usize> for hkArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Output = T;
 
@@ -376,7 +375,7 @@ where
 
 impl<T, A> IndexMut<usize> for hkArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
@@ -386,9 +385,11 @@ where
 
 #[cfg(test)]
 mod tests {
+    use stdx::alloc::Global;
+
     use super::{hkArray as hkArray_, *};
 
-    type hkArray<T> = hkArray_<T, RustAllocator>;
+    type hkArray<T> = hkArray_<T, Global>;
 
     #[test]
     fn test_hk_array_new() {

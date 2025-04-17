@@ -1,5 +1,6 @@
 pub mod SimpleArray;
 pub mod alloc;
+pub mod selfless_alloc;
 
 pub use self::alloc::global::TESGlobalAlloc;
 

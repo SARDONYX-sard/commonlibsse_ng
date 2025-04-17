@@ -3,43 +3,32 @@
 // - https://github.com/rust-lang/rust/blob/master/LICENSE-MIT
 //
 //! Rust's Allocator compatible memory allocator for Skyrim.
-use core::alloc::GlobalAlloc;
 use core::ptr;
 use core::{alloc::Layout, hint, ptr::NonNull};
 
-use stdx::alloc::{AllocError, Allocator, non_null_empty_slice};
+use stdx::alloc::{AllocError, Global, non_null_empty_slice};
 
-use crate::re::MemoryManager::alloc::{alloc, dealloc, realloc};
+use crate::re::MemoryManager::alloc::{dealloc, realloc};
 
-/// The Skyrim global memory allocator using `MemoryManager` C++ class.
-///
-/// It implements [`Allocator`] and [`GlobalAlloc`], so it can be used for `#[global_allocator]` and other Allocator changeable arrays.
-///
-/// Note: while this type is unstable, the functionality it provides can be
-/// accessed through the [free functions in `alloc`](self#functions).
-///
-/// # CI
-/// Skyrim `MemoryManager` is not available for CI,
-/// Therefore, the `test_on_ci` feature is enabled, it will automatically fall back to Rust's [`Global`](std::alloc::Global).
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct TESGlobalAlloc;
+use super::allocator::SelflessAllocator;
+use super::{alloc_impl, grow_impl};
 
-unsafe impl Allocator for TESGlobalAlloc {
+unsafe impl SelflessAllocator for Global {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
-        Self::alloc_impl(layout, false)
+    fn allocate(layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+        alloc_impl(layout, false)
     }
 
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    fn allocate_zeroed(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
-        Self::alloc_impl(layout, true)
+    fn allocate_zeroed(layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+        alloc_impl(layout, true)
     }
 
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    unsafe fn deallocate(&self, ptr: NonNull<u8>, layout: Layout) {
+    unsafe fn deallocate(ptr: NonNull<u8>, layout: Layout) {
         if layout.size() != 0 {
             // SAFETY: `layout` is non-zero in size,
             // other conditions must be upheld by the caller
@@ -50,31 +39,28 @@ unsafe impl Allocator for TESGlobalAlloc {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     unsafe fn grow(
-        &self,
         ptr: NonNull<u8>,
         old_layout: Layout,
         new_layout: Layout,
     ) -> Result<NonNull<[u8]>, AllocError> {
         // SAFETY: all conditions must be upheld by the caller
-        unsafe { Self::grow_impl(ptr, old_layout, new_layout, false) }
+        unsafe { grow_impl(ptr, old_layout, new_layout, false) }
     }
 
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     unsafe fn grow_zeroed(
-        &self,
         ptr: NonNull<u8>,
         old_layout: Layout,
         new_layout: Layout,
     ) -> Result<NonNull<[u8]>, AllocError> {
         // SAFETY: all conditions must be upheld by the caller
-        unsafe { Self::grow_impl(ptr, old_layout, new_layout, true) }
+        unsafe { grow_impl(ptr, old_layout, new_layout, true) }
     }
 
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     unsafe fn shrink(
-        &self,
         ptr: NonNull<u8>,
         old_layout: Layout,
         new_layout: Layout,
@@ -87,7 +73,7 @@ unsafe impl Allocator for TESGlobalAlloc {
         match new_layout.size() {
             // SAFETY: conditions must be upheld by the caller
             0 => {
-                unsafe { self.deallocate(ptr, old_layout) };
+                unsafe { Self::deallocate(ptr, old_layout) };
                 Ok(non_null_empty_slice(new_layout))
             }
 
@@ -107,28 +93,11 @@ unsafe impl Allocator for TESGlobalAlloc {
             // `new_ptr`. Thus, the call to `copy_nonoverlapping` is safe. The safety contract
             // for `dealloc` must be upheld by the caller.
             new_size => unsafe {
-                let new_ptr = self.allocate(new_layout)?;
+                let new_ptr = Self::allocate(new_layout)?;
                 ptr::copy_nonoverlapping(ptr.as_ptr(), new_ptr.cast().as_ptr(), new_size);
-                self.deallocate(ptr, old_layout);
+                Self::deallocate(ptr, old_layout);
                 Ok(new_ptr)
             },
         }
-    }
-}
-
-unsafe impl GlobalAlloc for TESGlobalAlloc {
-    #[inline]
-    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        unsafe { alloc(layout) }
-    }
-
-    #[inline]
-    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
-        unsafe { dealloc(ptr, layout) }
-    }
-
-    #[inline]
-    unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
-        unsafe { realloc(ptr, layout, new_size) }
     }
 }

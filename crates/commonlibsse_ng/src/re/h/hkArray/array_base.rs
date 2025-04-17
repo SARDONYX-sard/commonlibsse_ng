@@ -1,13 +1,15 @@
 use core::{
+    alloc::Layout,
     marker::PhantomData,
     ptr::{self, NonNull},
 };
+use std::alloc::handle_alloc_error;
 
-use super::{Allocator, SkyrimAllocator};
+use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
 
 /// Represents a base class for a dynamic array of type `T`.
 #[repr(C)]
-pub struct hkArrayBase<T, A: Allocator = SkyrimAllocator> {
+pub struct hkArrayBase<T, A: SelflessAllocator = TESGlobalAlloc> {
     pub(super) data: Option<NonNull<T>>,
     size: i32,
     capacityAndFlags: i32,
@@ -15,12 +17,12 @@ pub struct hkArrayBase<T, A: Allocator = SkyrimAllocator> {
 }
 const _: () = assert!(core::mem::size_of::<hkArrayBase<*mut ()>>() == 0x10);
 
-unsafe impl<T: Send, A> Send for hkArrayBase<T, A> where A: Allocator {}
-unsafe impl<T: Sync, A> Sync for hkArrayBase<T, A> where A: Allocator {}
+unsafe impl<T: Send, A> Send for hkArrayBase<T, A> where A: SelflessAllocator {}
+unsafe impl<T: Sync, A> Sync for hkArrayBase<T, A> where A: SelflessAllocator {}
 
 impl<T, A> Default for hkArrayBase<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn default() -> Self {
@@ -30,7 +32,7 @@ where
 
 impl<T, A> hkArrayBase<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     /// Constant for capacity mask.
     const CAPACITY_MASK: i32 = 0x3FFFFFFF;
@@ -46,13 +48,11 @@ where
     /// # panics
     /// If failed to allocate heap memory.
     fn allocate_new_memory(&self, new_capacity: i32, copy_len: i32) -> NonNull<T> {
-        let element_one_size = core::mem::size_of::<T>() as i32;
+        let new_layout = Layout::array::<T>(new_capacity as usize)
+            .expect("hkArrayBase has expected new_capacity < isize::MAX");
 
-        let new_mem = unsafe {
-            let new_size = new_capacity * element_one_size;
-            let ptr = A::alloc_zeroed(new_size).cast::<T>();
-            NonNull::new(ptr).expect("[hkArray] new_mem must be non null")
-        };
+        let Ok(new_mem) = A::allocate_zeroed(new_layout) else { handle_alloc_error(new_layout) };
+        let new_mem = new_mem.cast();
 
         if let Some(data) = self.data {
             if copy_len > 0 {
@@ -61,8 +61,9 @@ where
                 }
             }
             if self.need_dealloc() {
-                let old_size = self.size * element_one_size;
-                unsafe { A::free(data.as_ptr().cast(), old_size) };
+                let old_layout = Layout::array::<T>(self.capacity() as usize)
+                    .expect("hkArrayBase has expected new_capacity < isize::MAX");
+                unsafe { A::deallocate(data.cast(), old_layout) };
             }
         }
 
@@ -122,7 +123,7 @@ where
     /// # Panics
     #[inline]
     pub fn reserve(&mut self, new_capacity: i32) {
-        assert!(new_capacity <= Self::CAPACITY_MASK);
+        assert!((new_capacity) <= Self::CAPACITY_MASK);
         if new_capacity <= self.capacity() {
             return;
         }
@@ -353,7 +354,7 @@ where
 impl<T, A> hkArrayBase<T, A>
 where
     T: Clone,
-    A: Allocator,
+    A: SelflessAllocator,
 {
     /// Resizes the array to hold `a_count` elements.
     ///
@@ -397,7 +398,7 @@ where
 /// Iterator returned by `hkArray::drain()`
 pub struct hkArrayDrain<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     tail_start: usize, // = range.end
     tail_len: usize,   // = original_len - range.end
@@ -407,7 +408,7 @@ where
 
 impl<T, A> Iterator for hkArrayDrain<'_, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = T;
 
@@ -424,7 +425,7 @@ where
 
 impl<T, A> DoubleEndedIterator for hkArrayDrain<'_, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn next_back(&mut self) -> Option<Self::Item> {
@@ -434,7 +435,7 @@ where
 
 impl<T, A> ExactSizeIterator for hkArrayDrain<'_, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn len(&self) -> usize {
@@ -442,7 +443,7 @@ where
     }
 }
 
-impl<T, A: Allocator> Drop for hkArrayDrain<'_, T, A> {
+impl<T, A: SelflessAllocator> Drop for hkArrayDrain<'_, T, A> {
     fn drop(&mut self) {
         // Copyright (c) 2018 The Servo Project Developers
         // SPDX-License-Identifier: Apache-2.0 OR MIT
@@ -476,7 +477,7 @@ impl<T, A: Allocator> Drop for hkArrayDrain<'_, T, A> {
 
 pub struct hkArrayIterator<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     array: hkArrayBase<T, A>,
     index: usize,
@@ -484,7 +485,7 @@ where
 
 impl<T, A> Iterator for hkArrayIterator<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = T;
 
@@ -508,7 +509,7 @@ where
 
 pub struct hkArrayRefIterator<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     array: &'a hkArrayBase<T, A>,
     index: usize,
@@ -516,7 +517,7 @@ where
 
 impl<'a, T, A> Iterator for hkArrayRefIterator<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = &'a T;
 
@@ -540,7 +541,7 @@ where
 
 pub struct hkArrayIterMut<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     array: &'a mut hkArrayBase<T, A>,
     index: usize,
@@ -548,7 +549,7 @@ where
 
 impl<'a, T, A> Iterator for hkArrayIterMut<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = &'a mut T;
 
@@ -574,7 +575,7 @@ where
 
 impl<T, A> IntoIterator for hkArrayBase<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = T;
     type IntoIter = hkArrayIterator<T, A>;
@@ -587,7 +588,7 @@ where
 
 impl<'a, T, A> IntoIterator for &'a hkArrayBase<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = &'a T;
     type IntoIter = hkArrayRefIterator<'a, T, A>;
@@ -600,7 +601,7 @@ where
 
 impl<'a, T, A> IntoIterator for &'a mut hkArrayBase<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = &'a mut T;
     type IntoIter = hkArrayIterMut<'a, T, A>;
@@ -613,7 +614,7 @@ where
 
 impl<T, A> Extend<T> for hkArrayBase<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
@@ -626,7 +627,7 @@ where
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Implement standard trait
 
-impl<T: core::fmt::Debug, A: Allocator> core::fmt::Debug for hkArrayBase<T, A> {
+impl<T: core::fmt::Debug, A: SelflessAllocator> core::fmt::Debug for hkArrayBase<T, A> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("hkArrayBase")
             .field("data", &self.iter().collect::<Vec<_>>())
@@ -636,7 +637,7 @@ impl<T: core::fmt::Debug, A: Allocator> core::fmt::Debug for hkArrayBase<T, A> {
     }
 }
 
-impl<T: Clone, A: Allocator> Clone for hkArrayBase<T, A> {
+impl<T: Clone, A: SelflessAllocator> Clone for hkArrayBase<T, A> {
     fn clone(&self) -> Self {
         let mut new = Self::new();
         new.reserve(self.capacity());
@@ -650,7 +651,7 @@ impl<T: Clone, A: Allocator> Clone for hkArrayBase<T, A> {
     }
 }
 
-impl<T: PartialEq, A: Allocator> PartialEq for hkArrayBase<T, A> {
+impl<T: PartialEq, A: SelflessAllocator> PartialEq for hkArrayBase<T, A> {
     fn eq(&self, other: &Self) -> bool {
         if self.len() != other.len() {
             return false;
@@ -668,9 +669,9 @@ impl<T: PartialEq, A: Allocator> PartialEq for hkArrayBase<T, A> {
     }
 }
 
-impl<T: Eq, A: Allocator> Eq for hkArrayBase<T, A> {}
+impl<T: Eq, A: SelflessAllocator> Eq for hkArrayBase<T, A> {}
 
-impl<T: PartialOrd, A: Allocator> PartialOrd for hkArrayBase<T, A> {
+impl<T: PartialOrd, A: SelflessAllocator> PartialOrd for hkArrayBase<T, A> {
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         for i in 0..self.len().min(other.len()) {
             unsafe {
@@ -686,7 +687,7 @@ impl<T: PartialOrd, A: Allocator> PartialOrd for hkArrayBase<T, A> {
     }
 }
 
-impl<T: Ord, A: Allocator> Ord for hkArrayBase<T, A> {
+impl<T: Ord, A: SelflessAllocator> Ord for hkArrayBase<T, A> {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         for i in 0..self.len().min(other.len()) {
             unsafe {
@@ -702,7 +703,7 @@ impl<T: Ord, A: Allocator> Ord for hkArrayBase<T, A> {
     }
 }
 
-impl<T: core::hash::Hash, A: Allocator> core::hash::Hash for hkArrayBase<T, A> {
+impl<T: core::hash::Hash, A: SelflessAllocator> core::hash::Hash for hkArrayBase<T, A> {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         for i in 0..self.len() {
             unsafe {
@@ -715,7 +716,7 @@ impl<T: core::hash::Hash, A: Allocator> core::hash::Hash for hkArrayBase<T, A> {
 
 impl<T, A> core::ops::Index<usize> for hkArrayBase<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Output = T;
 
@@ -728,7 +729,7 @@ where
 
 impl<T, A> core::ops::IndexMut<usize> for hkArrayBase<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
