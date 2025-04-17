@@ -87,4 +87,4 @@ jobs:
         uses: taiki-e/install-action@nextest
 
       - name: Search undefined behavior
-        run: cargo miri nextest --no-fail-fast --target ${{ matrix.job.target }}  --features test_on_ci --no-default-features
+        run: cargo miri nextest run --no-fail-fast --target ${{ matrix.job.target }}  --features test_on_ci --no-default-features
