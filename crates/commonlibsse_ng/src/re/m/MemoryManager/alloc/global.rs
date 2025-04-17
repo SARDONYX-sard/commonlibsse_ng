@@ -9,10 +9,7 @@ use core::{alloc::Layout, hint, ptr::NonNull};
 
 use stdx::alloc::{AllocError, Allocator, non_null_from_layout_dangling};
 
-#[cfg(not(feature = "test_on_ci"))]
-use super::{alloc, alloc_zeroed, dealloc, realloc};
-#[cfg(feature = "test_on_ci")] // Since TESAllocator is not available for CI, use Rust's.
-use std::alloc::{alloc, alloc_zeroed, dealloc, realloc};
+use crate::re::MemoryManager::alloc::{alloc, alloc_zeroed, dealloc, realloc};
 
 /// The Skyrim global memory allocator using `MemoryManager` C++ class.
 ///
