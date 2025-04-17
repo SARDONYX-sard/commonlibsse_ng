@@ -3,7 +3,7 @@ use core::ffi::c_void;
 use core::ptr::{NonNull, copy_nonoverlapping, null_mut};
 use std::alloc::handle_alloc_error;
 
-use crate::re::BSTArray::Allocator;
+use super::Allocator;
 use crate::re::MemoryManager::alloc::scrap_alloc;
 use crate::re::ScrapHeap::ScrapHeap;
 

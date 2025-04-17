@@ -1,13 +1,14 @@
 use core::{
     alloc::Layout,
+    marker::PhantomData,
     ops::{Index, IndexMut, Range, RangeBounds},
     ptr::{self, NonNull},
 };
 use std::alloc::handle_alloc_error;
 
-use stdx::{alloc::Allocator, unique::Unique};
+use stdx::unique::Unique;
 
-use crate::re::MemoryManager::TESGlobalAlloc;
+use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
 
 /// A binary-compatible, growable array used in Havok serialization.
 ///
@@ -49,9 +50,10 @@ use crate::re::MemoryManager::TESGlobalAlloc;
 /// # Example
 ///
 /// ```rust
-/// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+/// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+/// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
 ///
-/// let mut array = BSTArray::<i32, RustAllocator>::new();
+/// let mut array = BSTArray::<i32>::new();
 /// array.push(1);
 /// array.push(2);
 /// assert_eq!(array.len(), 2);
@@ -66,7 +68,7 @@ use crate::re::MemoryManager::TESGlobalAlloc;
 #[repr(C)]
 pub struct BSTArray<T, A = TESGlobalAlloc>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     // BSTArrayHeapAllocator
     /// null check safe `*mut T`.
@@ -81,99 +83,48 @@ where
     // length of elements
     size: u32, // 0x010
 
-    // Assumed Zero size type.(NonZero type is MemoryLayout violation)
-    alloc: A,
+    // Assumed Zero size type.
+    alloc: PhantomData<A>,
 }
 const _: () = assert!(core::mem::size_of::<BSTArray<()>>() == 0x18);
 
-impl<T> BSTArray<T> {
+impl<T, A> BSTArray<T, A>
+where
+    A: SelflessAllocator,
+{
     /// Creates a new, empty `BSTArray<T, A>` with the specified allocator.
     ///
     /// The array will not allocate until elements are pushed.
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let array = BSTArray::<i32, RustAllocator>::new();
+    /// let array = BSTArray::<i32>::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
     pub const fn new() -> Self {
-        Self::new_in(TESGlobalAlloc)
+        Self { data: None, capacity: 0, pad08: 0, size: 0, alloc: PhantomData }
     }
 
     /// Creates a new, empty `BSTArray<T, A>` with the capacity.
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let array = BSTArray::<i32, RustAllocator>::with_capacity(5);
+    /// let array = BSTArray::<i32>::with_capacity(5);
     /// assert_eq!(array.capacity(), 5);
     /// ```
     pub fn with_capacity(capacity: usize) -> Self {
-        let new_data = TESGlobalAlloc.allocate(Self::new_layout(capacity)).ok();
+        let new_data = A::allocate(Self::new_layout(capacity)).ok();
         let data = new_data.map(|p| unsafe { Unique::new_unchecked(p.cast::<T>().as_ptr()) });
         let capacity = capacity as u32;
 
-        Self { data, capacity, pad08: 0, size: 0, alloc: TESGlobalAlloc }
-    }
-}
-
-impl<T, A> BSTArray<T, A>
-where
-    A: Allocator,
-{
-    /// Creates a layout describing the record for a `[T; n]`.
-    ///
-    /// # Panics
-    /// On arithmetic overflow or when the total size would exceed
-    /// `isize::MAX`, panic.
-    fn new_layout(n: usize) -> Layout {
-        Layout::array::<T>(n).expect("BSTArray need: alloc size < isize::MAX")
-    }
-
-    /// Gets a layout self.
-    ///
-    /// # Panics
-    /// On arithmetic overflow or when the total size would exceed
-    /// `isize::MAX`, panic.
-    fn layout(&self) -> Layout {
-        Self::new_layout(self.capacity())
-    }
-
-    /// Creates a new, empty `BSTArray<T, A>` with the specified allocator.
-    ///
-    /// The array will not allocate until elements are pushed.
-    ///
-    /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
-    ///
-    /// let array = BSTArray::<i32, _>::new_in(RustAllocator);
-    /// assert!(array.is_empty());
-    /// ```
-    #[inline]
-    pub const fn new_in(alloc: A) -> Self {
-        Self { data: None, capacity: 0, pad08: 0, size: 0, alloc }
-    }
-
-    /// Creates a new, empty `BSTArray<T, A>` with the capacity.
-    ///
-    /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
-    ///
-    /// let array = BSTArray::<i32, _>::with_capacity(5, RustAllocator);
-    /// assert_eq!(array.capacity(), 5);
-    /// ```
-    pub fn with_capacity_in(capacity: usize, alloc: A) -> Self {
-        let new_data = alloc.allocate(Self::new_layout(capacity)).ok();
-        let data = new_data.map(|p| unsafe { Unique::new_unchecked(p.cast::<T>().as_ptr()) });
-        let capacity = capacity as u32;
-
-        Self { data, capacity, pad08: 0, size: 0, alloc }
+        Self { data, capacity, pad08: 0, size: 0, alloc: PhantomData }
     }
 
     /// Returns the number of elements in the array.
@@ -182,9 +133,10 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let array = BSTArray::<i32, RustAllocator>::new();
+    /// let array = BSTArray::<i32>::new();
     /// assert_eq!(array.len(), 0);
     /// ```
     #[inline]
@@ -196,9 +148,10 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let array = BSTArray::<i32, RustAllocator>::new();
+    /// let array = BSTArray::<i32>::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
@@ -212,9 +165,10 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32>::with_capacity(10);
     /// assert!(array.capacity() >= 10);
     /// ```
     #[inline]
@@ -229,9 +183,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// assert_eq!(array.len(), 1);
     /// array.shrink_to_fit();
@@ -250,9 +205,10 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::new();
+    /// let mut array = BSTArray::<i32>::new();
     /// array.push(5);
     /// assert_eq!(array[0], 5);
     /// ```
@@ -275,9 +231,10 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::new();
+    /// let mut array = BSTArray::<i32>::new();
     /// array.push(1);
     /// assert_eq!(array.pop(), Some(1));
     /// assert_eq!(array.pop(), None);
@@ -297,9 +254,10 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::new();
+    /// let mut array = BSTArray::<i32>::new();
     /// array.push(42);
     /// assert_eq!(array.get(0), Some(&42));
     /// assert_eq!(array.get(1), None);
@@ -316,9 +274,10 @@ where
     ///
     /// # Example
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::new();
+    /// let mut array = BSTArray::<i32>::new();
     /// array.push(10);
     /// if let Some(x) = array.get_mut(0) {
     ///     *x += 1;
@@ -337,9 +296,10 @@ where
     ///
     /// # Examples
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert_eq!(array.len(), 2);
@@ -378,9 +338,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert!(array.contains(&1));
@@ -410,9 +371,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -421,6 +383,9 @@ where
     /// assert!(array.contains(&2));
     /// assert!(array.contains(&3));
     /// ```
+    ///
+    /// # Panics
+    /// array ptr is null
     #[inline]
     pub fn retain<F>(&mut self, mut f: F)
     where
@@ -459,9 +424,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.resize(5, 0);
@@ -496,9 +462,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -586,9 +553,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
+    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSTArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// let sum: i32 = array.iter().sum();
@@ -615,9 +583,7 @@ where
         }
         let new_data = {
             let layout = Self::new_layout(new_capacity);
-            self.alloc
-                .allocate(layout)
-                .map_or_else(|_| handle_alloc_error(layout), |data| data.cast::<T>())
+            A::allocate(layout).map_or_else(|_| handle_alloc_error(layout), |data| data.cast::<T>())
         };
 
         if let Some(old_data) = self.as_non_null_ptr() {
@@ -627,17 +593,35 @@ where
             unsafe { ptr::copy_nonoverlapping(old_data.as_ptr(), new_data.as_ptr(), copy_count) };
 
             let old_layout = self.layout();
-            unsafe { self.alloc.deallocate(old_data.cast(), old_layout) };
+            unsafe { A::deallocate(old_data.cast(), old_layout) };
         }
 
         self.data = Some(Unique::from(new_data));
         self.capacity = new_capacity as u32;
     }
+
+    /// Creates a layout describing the record for a `[T; n]`.
+    ///
+    /// # Panics
+    /// On arithmetic overflow or when the total size would exceed
+    /// `isize::MAX`, panic.
+    fn new_layout(n: usize) -> Layout {
+        Layout::array::<T>(n).expect("BSTArray need: alloc size < isize::MAX")
+    }
+
+    /// Gets a layout self.
+    ///
+    /// # Panics
+    /// On arithmetic overflow or when the total size would exceed
+    /// `isize::MAX`, panic.
+    fn layout(&self) -> Layout {
+        Self::new_layout(self.capacity())
+    }
 }
 
 impl<T, A> Index<usize> for BSTArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Output = T;
 
@@ -650,7 +634,7 @@ where
 
 impl<T, A> IndexMut<usize> for BSTArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
@@ -665,7 +649,7 @@ where
 /// Iterator returned by `BSTArray::drain()`
 pub struct BSTDrain<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     tail_start: usize, // = range.end
     tail_len: usize,   // = original_len - range.end
@@ -675,7 +659,7 @@ where
 
 impl<T, A> Iterator for BSTDrain<'_, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = T;
 
@@ -692,7 +676,7 @@ where
 
 impl<T, A> DoubleEndedIterator for BSTDrain<'_, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn next_back(&mut self) -> Option<Self::Item> {
@@ -702,7 +686,7 @@ where
 
 impl<T, A> ExactSizeIterator for BSTDrain<'_, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn len(&self) -> usize {
@@ -710,7 +694,7 @@ where
     }
 }
 
-impl<T, A: Allocator> Drop for BSTDrain<'_, T, A> {
+impl<T, A: SelflessAllocator> Drop for BSTDrain<'_, T, A> {
     fn drop(&mut self) {
         // Copyright (c) 2018 The Servo Project Developers
         // SPDX-License-Identifier: Apache-2.0 OR MIT
@@ -744,7 +728,7 @@ impl<T, A: Allocator> Drop for BSTDrain<'_, T, A> {
 
 pub struct BSTArrayIterator<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     array: &'a BSTArray<T, A>,
     index: usize,
@@ -752,7 +736,7 @@ where
 
 impl<'a, T, A> Iterator for BSTArrayIterator<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = &'a T;
 
@@ -770,7 +754,7 @@ where
 
 pub struct BSTArrayIntoIterator<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     array: BSTArray<T, A>,
     index: usize,
@@ -778,7 +762,7 @@ where
 
 impl<T, A> Iterator for BSTArrayIntoIterator<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = T;
 
@@ -796,7 +780,7 @@ where
 
 impl<T, A> IntoIterator for BSTArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = T;
     type IntoIter = BSTArrayIntoIterator<T, A>;
@@ -809,7 +793,7 @@ where
 
 impl<'a, T, A> IntoIterator for &'a BSTArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = &'a T;
     type IntoIter = BSTArrayIterator<'a, T, A>;
@@ -822,7 +806,7 @@ where
 
 pub struct BSTArrayIterMut<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     array: &'a mut BSTArray<T, A>,
     index: usize,
@@ -830,7 +814,7 @@ where
 
 impl<'a, T, A> Iterator for BSTArrayIterMut<'a, T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = &'a mut T;
 
@@ -856,7 +840,7 @@ where
 
 impl<'a, T, A> IntoIterator for &'a mut BSTArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     type Item = &'a mut T;
     type IntoIter = BSTArrayIterMut<'a, T, A>;
@@ -869,7 +853,7 @@ where
 
 impl<T, A> Extend<T> for BSTArray<T, A>
 where
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
@@ -885,7 +869,7 @@ where
 impl<T, A> core::fmt::Debug for BSTArray<T, A>
 where
     T: core::fmt::Debug,
-    A: Allocator,
+    A: SelflessAllocator,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_list().entries(self.as_slice()).finish()
@@ -901,28 +885,28 @@ impl<T> Default for BSTArray<T> {
 
 impl<T, A> Clone for BSTArray<T, A>
 where
-    A: Allocator + Clone,
+    A: SelflessAllocator + Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
         // heap clone
         let data = self.as_non_null_ptr().map(|src_ptr| {
             let layout = self.layout();
-            let Ok(dst_ptr) = self.alloc.allocate(layout) else { handle_alloc_error(layout) };
+            let Ok(dst_ptr) = A::allocate(layout) else { handle_alloc_error(layout) };
             let dst_ptr = dst_ptr.cast::<T>();
             unsafe { ptr::copy_nonoverlapping(src_ptr.as_ptr(), dst_ptr.as_ptr(), layout.size()) };
 
             Unique::from(dst_ptr)
         });
 
-        Self { data, capacity: self.capacity, pad08: 0, size: self.size, alloc: self.alloc.clone() }
+        Self { data, capacity: self.capacity, pad08: 0, size: self.size, alloc: PhantomData }
     }
 }
 
 impl<T, A> PartialEq for BSTArray<T, A>
 where
     T: PartialEq,
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn eq(&self, other: &Self) -> bool {
@@ -932,7 +916,7 @@ where
 impl<T, A> PartialEq<Vec<T>> for BSTArray<T, A>
 where
     T: PartialEq,
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn eq(&self, other: &Vec<T>) -> bool {
@@ -943,7 +927,7 @@ where
 impl<T, A> PartialEq<&[T]> for BSTArray<T, A>
 where
     T: PartialEq,
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn eq(&self, other: &&[T]) -> bool {
@@ -954,14 +938,14 @@ where
 impl<T, A> Eq for BSTArray<T, A>
 where
     T: Eq,
-    A: Allocator,
+    A: SelflessAllocator,
 {
 }
 
 impl<T, A> PartialOrd for BSTArray<T, A>
 where
     T: PartialOrd,
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
@@ -972,7 +956,7 @@ where
 impl<T, A> Ord for BSTArray<T, A>
 where
     T: Ord,
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
@@ -983,7 +967,7 @@ where
 impl<T, A> core::hash::Hash for BSTArray<T, A>
 where
     T: core::hash::Hash,
-    A: Allocator,
+    A: SelflessAllocator,
 {
     #[inline]
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
@@ -997,11 +981,13 @@ where
 mod tests {
     use stdx::alloc::Global;
 
-    use super::*;
+    use super::BSTArray as BSTArray_;
+
+    type BSTArray<T> = BSTArray_<T, Global>;
 
     #[test]
     fn test_drain() {
-        let mut array = BSTArray::with_capacity_in(10, Global);
+        let mut array = BSTArray::with_capacity(10);
         array.push(1);
         array.push(2);
         array.push(3);

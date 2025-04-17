@@ -14,8 +14,7 @@ pub enum GrabbingType {
 #[repr(C)]
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct GrabData {
-    /// - `0x8(hkRefPtr) * 4(N) = 32 = 0x20`
-    grabSpring: BSTSmallArray<hkRefPtr<bhkMouseSpringAction>, 0x20>,
+    grabSpring: BSTSmallArray<hkRefPtr<bhkMouseSpringAction>, 4>,
     grabbedObject: ObjectRefHandle,
     grabObjectWeight: f32,
     grabDistance: f32,

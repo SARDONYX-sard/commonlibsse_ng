@@ -17,8 +17,7 @@ pub struct Unk120 {
 }
 const _: () = assert!(core::mem::size_of::<Unk120>() == 0x10);
 
-const TEMP_RETURN_STATES_TOTAL: usize =
-    core::mem::size_of::<*mut TESCameraState>() * CameraStateSE_CEnum::count();
+const TEMP_RETURN_STATES_TOTAL: usize = CameraStateSE_CEnum::count();
 const CAMERA_STATES_SIZE: usize = CameraStateSE_CEnum::count();
 
 #[repr(C)]
@@ -40,8 +39,7 @@ const _: () = {
     assert!(core::mem::size_of::<RUNTIME_DATA>() == 0x100);
 };
 
-const VR_TEMP_RETURN_STATES_TOTAL: usize =
-    core::mem::size_of::<*mut TESCameraState>() * CameraStateVR_CEnum::count();
+const VR_TEMP_RETURN_STATES_TOTAL: usize = CameraStateVR_CEnum::count();
 const VR_CAMERA_STATES_SIZE: usize = CameraStateVR_CEnum::count();
 
 #[repr(C)]

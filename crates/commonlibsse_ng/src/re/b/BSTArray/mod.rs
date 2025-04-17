@@ -1,32 +1,14 @@
 mod BSTArrayInner;
 pub mod IAllocatorFunctor;
 mod allocator;
-mod v2;
+mod heap;
+mod small_heap;
 
 use core::ptr::NonNull;
 use core::slice;
 
-pub use self::BSTArrayInner::{
-    BSTArray, BSTArrayBase, BSTArrayIntoIterator, BSTArrayIterMut, BSTArrayIterator, BSTDrain,
-};
-pub use self::allocator::{
-    Allocator, BSScrapArrayAllocator, BSTArrayHeapAllocator, BSTSmallArrayHeapAllocator,
-    RustAllocator,
-};
-
-///Use stack while within the specified size, and use heap if it is larger.
-///
-///This is the same purpose as `smallvec` crate and other optimizations, except that the memory layout is for TES.
-///
-///It is effective when most of the memory can be fit in the stack, except for some exceptions, but it slows down the process if there are frequent fallbacks to the heap.
-///
-/// - [`smallvec` crate](https://crates.io/crates/smallvec)
-pub type BSTSmallArray<T, const BYTES_LEN: usize = 8> =
-    BSTArray<T, BSTSmallArrayHeapAllocator<BYTES_LEN>>;
-const _: () = assert!(core::mem::size_of::<BSTSmallArray<u8, 8>>() == 0x18);
-
-pub type BSScrapArray<T> = BSTArray<T, BSScrapArrayAllocator>;
-const _: () = assert!(core::mem::size_of::<BSScrapArray<u8>>() == 0x20);
+pub use self::BSTArrayInner::BSScrapArray;
+pub use self::{heap::BSTArray, small_heap::BSTSmallArray};
 
 #[repr(C)]
 #[derive(Debug, PartialEq)]

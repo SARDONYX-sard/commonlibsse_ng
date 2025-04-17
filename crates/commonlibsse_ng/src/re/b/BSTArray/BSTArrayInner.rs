@@ -6,7 +6,9 @@ use core::{
     slice,
 };
 
-use crate::re::BSTArray::{BSTArrayHeapAllocator, allocator::Allocator};
+use crate::re::BSTArray::allocator::Allocator;
+
+use super::allocator::BSScrapArrayAllocator;
 
 #[repr(C)]
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -20,18 +22,6 @@ impl BSTArrayBase {
     #[inline]
     pub const fn new() -> Self {
         Self { size: 0 }
-    }
-
-    /// Create a with size.
-    #[inline]
-    pub const fn with_size(size: u32) -> Self {
-        Self { size }
-    }
-
-    /// C++ `BSTArrayBase::empty`
-    #[inline]
-    pub const fn is_empty(&self) -> bool {
-        self.size == 0
     }
 }
 
@@ -90,7 +80,7 @@ impl BSTArrayBase {
 /// - [`Box<[T]>`]
 /// - Havok documentation for `BSTArray<T>` layout.
 #[repr(C)]
-pub struct BSTArray<T, A = BSTArrayHeapAllocator>
+pub struct BSScrapArray<T, A = BSScrapArrayAllocator>
 where
     A: Allocator,
 {
@@ -98,9 +88,9 @@ where
     __base1: BSTArrayBase,
     _marker: PhantomData<T>,
 }
-const _: () = assert!(core::mem::size_of::<BSTArray<()>>() == 0x18);
+const _: () = assert!(core::mem::size_of::<BSScrapArray<u8>>() == 0x20);
 
-impl<T, A> BSTArray<T, A>
+impl<T, A> BSScrapArray<T, A>
 where
     A: Allocator,
 {
@@ -582,7 +572,7 @@ where
     }
 }
 
-impl<T, A> Index<usize> for BSTArray<T, A>
+impl<T, A> Index<usize> for BSScrapArray<T, A>
 where
     A: Allocator,
 {
@@ -595,7 +585,7 @@ where
     }
 }
 
-impl<T, A> IndexMut<usize> for BSTArray<T, A>
+impl<T, A> IndexMut<usize> for BSScrapArray<T, A>
 where
     A: Allocator,
 {
@@ -617,7 +607,7 @@ where
     tail_start: usize, // = range.end
     tail_len: usize,   // = original_len - range.end
     iter: core::slice::Iter<'a, T>,
-    array: NonNull<BSTArray<T, A>>,
+    array: NonNull<BSScrapArray<T, A>>,
 }
 
 impl<T, A> Iterator for BSTDrain<'_, T, A>
@@ -692,7 +682,7 @@ pub struct BSTArrayIterator<'a, T, A>
 where
     A: Allocator,
 {
-    array: &'a BSTArray<T, A>,
+    array: &'a BSScrapArray<T, A>,
     index: usize,
 }
 
@@ -718,7 +708,7 @@ pub struct BSTArrayIntoIterator<T, A>
 where
     A: Allocator,
 {
-    array: BSTArray<T, A>,
+    array: BSScrapArray<T, A>,
     index: usize,
 }
 
@@ -740,7 +730,7 @@ where
     }
 }
 
-impl<T, A> IntoIterator for BSTArray<T, A>
+impl<T, A> IntoIterator for BSScrapArray<T, A>
 where
     A: Allocator,
 {
@@ -753,7 +743,7 @@ where
     }
 }
 
-impl<'a, T, A> IntoIterator for &'a BSTArray<T, A>
+impl<'a, T, A> IntoIterator for &'a BSScrapArray<T, A>
 where
     A: Allocator,
 {
@@ -770,7 +760,7 @@ pub struct BSTArrayIterMut<'a, T, A>
 where
     A: Allocator,
 {
-    array: &'a mut BSTArray<T, A>,
+    array: &'a mut BSScrapArray<T, A>,
     index: usize,
 }
 
@@ -800,7 +790,7 @@ where
     }
 }
 
-impl<'a, T, A> IntoIterator for &'a mut BSTArray<T, A>
+impl<'a, T, A> IntoIterator for &'a mut BSScrapArray<T, A>
 where
     A: Allocator,
 {
@@ -813,7 +803,7 @@ where
     }
 }
 
-impl<T, A> Extend<T> for BSTArray<T, A>
+impl<T, A> Extend<T> for BSScrapArray<T, A>
 where
     A: Allocator,
 {
@@ -828,7 +818,7 @@ where
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Standard derive
 
-impl<T, A> core::fmt::Debug for BSTArray<T, A>
+impl<T, A> core::fmt::Debug for BSScrapArray<T, A>
 where
     T: core::fmt::Debug,
     A: Allocator,
@@ -838,7 +828,7 @@ where
     }
 }
 
-impl<T, A> Default for BSTArray<T, A>
+impl<T, A> Default for BSScrapArray<T, A>
 where
     A: Allocator,
 {
@@ -848,7 +838,7 @@ where
     }
 }
 
-impl<T, A> Clone for BSTArray<T, A>
+impl<T, A> Clone for BSScrapArray<T, A>
 where
     A: Allocator + Clone,
 {
@@ -866,7 +856,7 @@ where
     }
 }
 
-impl<T, A> PartialEq for BSTArray<T, A>
+impl<T, A> PartialEq for BSScrapArray<T, A>
 where
     T: PartialEq,
     A: Allocator,
@@ -876,7 +866,7 @@ where
         self.as_slice() == other.as_slice()
     }
 }
-impl<T, A> PartialEq<Vec<T>> for BSTArray<T, A>
+impl<T, A> PartialEq<Vec<T>> for BSScrapArray<T, A>
 where
     T: PartialEq,
     A: Allocator,
@@ -887,7 +877,7 @@ where
     }
 }
 
-impl<T, A> PartialEq<&[T]> for BSTArray<T, A>
+impl<T, A> PartialEq<&[T]> for BSScrapArray<T, A>
 where
     T: PartialEq,
     A: Allocator,
@@ -898,14 +888,14 @@ where
     }
 }
 
-impl<T, A> Eq for BSTArray<T, A>
+impl<T, A> Eq for BSScrapArray<T, A>
 where
     T: Eq,
     A: Allocator,
 {
 }
 
-impl<T, A> PartialOrd for BSTArray<T, A>
+impl<T, A> PartialOrd for BSScrapArray<T, A>
 where
     T: PartialOrd,
     A: Allocator,
@@ -916,7 +906,7 @@ where
     }
 }
 
-impl<T, A> Ord for BSTArray<T, A>
+impl<T, A> Ord for BSScrapArray<T, A>
 where
     T: Ord,
     A: Allocator,
@@ -927,7 +917,7 @@ where
     }
 }
 
-impl<T, A> core::hash::Hash for BSTArray<T, A>
+impl<T, A> core::hash::Hash for BSScrapArray<T, A>
 where
     T: core::hash::Hash,
     A: Allocator,
@@ -935,33 +925,5 @@ where
     #[inline]
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.as_slice().hash(state);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::re::BSTArray::RustAllocator;
-
-    #[test]
-    fn test_drain() {
-        let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
-        array.push(1);
-        array.push(2);
-        array.push(3);
-        array.push(4);
-        array.push(5);
-
-        let drained = array.drain(1..3);
-        // for i in drained {
-        //     println!("{:?}", i);
-        // }
-        assert_eq!(drained.collect::<Vec<_>>(), vec![2, 3]);
-        assert_eq!(array.len(), 3);
-        assert_eq!(array[0], 1);
-        assert_eq!(array[1], 4);
-        assert_eq!(array[2], 5);
     }
 }
