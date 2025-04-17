@@ -45,6 +45,26 @@ pub const fn non_null_from_layout_dangling<T>(layout: Layout) -> NonNull<T> {
     unsafe { NonNull::new_unchecked(pointer.cast_mut()) }
 }
 
+/// Creates a dangling `NonNull<[u8]>` slice of size 0 with the specified layout alignment.
+///
+/// This function is useful for placeholder or sentinel values where a
+/// `NonNull<[u8]>` is required, but no actual memory needs to be allocated.
+///
+/// # Examples
+///
+/// ```
+/// use core::alloc::Layout;
+/// use core::ptr::NonNull;
+///
+/// let layout = Layout::from_size_align(16, 8).unwrap();
+/// let empty = non_null_empty_slice(layout);
+/// assert_eq!(empty.len(), 0);
+/// ```
+#[inline]
+pub const fn non_null_empty_slice(layout: Layout) -> NonNull<[u8]> {
+    NonNull::slice_from_raw_parts(non_null_from_layout_dangling(layout), 0)
+}
+
 /// The `AllocError` error indicates an allocation failure
 /// that may be due to resource exhaustion or to
 /// something wrong when combining the given input arguments with this
