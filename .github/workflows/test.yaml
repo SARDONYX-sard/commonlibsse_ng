@@ -82,5 +82,9 @@ jobs:
           rustup toolchain install nightly --component miri
           rustup override set nightly
           cargo miri setup
+      # https://nexte.st/docs/installation/pre-built-binaries/#using-nextest-in-github-actions
+      - name: Install nextest(Parallel Test Execution CLI)
+        uses: taiki-e/install-action@nextest
+
       - name: Search undefined behavior
-        run: cargo miri test --target ${{ matrix.job.target }}  --features test_on_ci --no-default-features
+        run: cargo miri nextest --no-fail-fast --target ${{ matrix.job.target }}  --features test_on_ci --no-default-features
