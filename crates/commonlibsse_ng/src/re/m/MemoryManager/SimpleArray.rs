@@ -152,6 +152,11 @@ where
     /// assert_eq!(array.len(), 5);
     /// ```
     pub fn resize(&mut self, count: usize) {
+        if count == 0 {
+            self.clear();
+            return;
+        }
+
         let old_size = self.len();
         if old_size == count {
             return;
@@ -384,8 +389,14 @@ where
 
 impl<T, A: Allocator> Drop for SimpleArray<T, A> {
     fn drop(&mut self) {
+        if self.data.is_none() && self.is_empty() {
+            return;
+        }
+
+        // NOTE: If `self.clear()` is used here, len will be set to 0 before deallocate, and layout inconsistency will occur.
+        //       Therefore, `self.clear()` is not used.
         if let Some(len_ptr) = self.len_ptr_mut() {
-            self.clear();
+            unsafe { ptr::drop_in_place(self.as_mut_slice()) };
             unsafe { self.alloc.deallocate(len_ptr.cast(), Self::layout(self.len())) };
         }
     }
