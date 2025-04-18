@@ -87,6 +87,7 @@ jobs:
         uses: taiki-e/install-action@nextest
 
       # use `--filter`: Because miri does not support OS API.
+      # How to pass the test cmc args: https://github.com/rust-lang/miri/pull/1415/files
       - name: Search undefined behavior
         run: |
-          cargo +nightly miri nextest run --no-fail-fast --target ${{ matrix.job.target }} --features test_on_ci --no-default-features -- test-suite-filter re::
+          cargo +nightly miri nextest run --no-fail-fast --target ${{ matrix.job.target }} --features test_on_ci --no-default-features -- -- --filter re::
