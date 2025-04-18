@@ -320,9 +320,7 @@ where
                 self.data.heap.map(|ptr| NonNull::new_unchecked(ptr.as_ptr()))
             },
             StorageType::Inline => {
-                let ptr = unsafe {
-                    core::mem::transmute::<*mut [T; N], *mut T>((*self.data.inline).as_mut_ptr())
-                };
+                let ptr = unsafe { (*self.data.inline).as_mut_ptr() }.cast::<T>();
                 Some(unsafe { NonNull::new_unchecked(ptr) })
             }
         }
@@ -334,9 +332,7 @@ where
         match self.storage_type() {
             StorageType::Heap => unsafe { self.data.heap.map(ConstNonNull::from_unique) },
             StorageType::Inline => {
-                let ptr = unsafe {
-                    core::mem::transmute::<*const [T; N], *const T>(self.data.inline.as_ptr())
-                };
+                let ptr = (unsafe { self.data.inline.as_ptr() }).cast::<T>();
                 Some(unsafe { ConstNonNull::new_unchecked(ptr) })
             }
         }
@@ -541,7 +537,6 @@ where
 
     /// Returns a mutable slice of all elements in the array.
     #[inline]
-    #[allow(clippy::needless_pass_by_ref_mut)]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         let ptr = self.as_non_null_ptr();
         let len = self.len();
@@ -676,9 +671,8 @@ where
                         self.size <= N as u32,
                         "[BSTSmallArray] size is larger than stack capacity. Wrong Implementation."
                     );
-                    let inline_ptr = (*self.data.inline).as_mut_ptr();
-                    for i in 0..self.size as usize {
-                        drop_in_place(inline_ptr.add(i));
+                    for i in self.as_mut_slice() {
+                        drop_in_place(i);
                     }
                     // No need to deallocate inline storage
                 }
