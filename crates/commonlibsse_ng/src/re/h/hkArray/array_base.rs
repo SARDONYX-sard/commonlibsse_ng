@@ -48,8 +48,8 @@ where
     /// # panics
     /// If failed to allocate heap memory.
     fn allocate_new_memory(&self, new_capacity: i32, copy_len: i32) -> NonNull<T> {
-        let new_layout = Layout::array::<T>(new_capacity as usize)
-            .expect("hkArrayBase has expected new_capacity < isize::MAX");
+        // .expect("hkArrayBase has expected new_capacity < isize::MAX");
+        let new_layout = Self::new_layout(new_capacity);
 
         let Ok(new_mem) = A::allocate_zeroed(new_layout) else { handle_alloc_error(new_layout) };
         let new_mem = new_mem.cast();
@@ -61,8 +61,7 @@ where
                 }
             }
             if self.need_dealloc() {
-                let old_layout = Layout::array::<T>(self.capacity() as usize)
-                    .expect("hkArrayBase has expected new_capacity < isize::MAX");
+                let old_layout = self.layout();
                 unsafe { A::deallocate(data.cast(), old_layout) };
             }
         }
@@ -189,10 +188,9 @@ where
     #[inline]
     pub fn clear(&mut self) {
         // Drop all elements in the array without changing capacity
-        for i in 0..self.len() {
+        for elem in self.as_mut_slice() {
             unsafe {
-                // SAFETY: we're dropping each element in place
-                ptr::drop_in_place(self.as_ptr().add(i));
+                ptr::drop_in_place(elem); // SAFETY: we're dropping each element in place
             }
         }
 
@@ -347,6 +345,37 @@ where
             tail_start: end,
             tail_len: len - end,
             array: unsafe { NonNull::new_unchecked(self as *mut Self) },
+        }
+    }
+
+    /// Creates a layout describing the record for a `[T; n]`.
+    ///
+    /// # Panics
+    /// On arithmetic overflow or when the total size would exceed
+    /// `isize::MAX`, panic.
+    fn new_layout(n: i32) -> Layout {
+        Layout::array::<T>(n as usize).expect("hkArrayBase need: alloc size < isize::MAX")
+    }
+
+    /// Gets a layout self.
+    ///
+    /// # Panics
+    /// On arithmetic overflow or when the total size would exceed
+    /// `isize::MAX`, panic.
+    fn layout(&self) -> Layout {
+        Self::new_layout(self.capacity())
+    }
+}
+
+impl<T, A> Drop for hkArrayBase<T, A>
+where
+    A: SelflessAllocator,
+{
+    #[inline]
+    fn drop(&mut self) {
+        self.clear();
+        if let Some(data) = self.data {
+            unsafe { A::deallocate(data.cast(), self.layout()) }
         }
     }
 }
