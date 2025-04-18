@@ -181,6 +181,7 @@ where
 
         let new_layout = Self::new_layout(len);
 
+        let mut reuse = false;
         let new_ptr = unsafe {
             match self.data {
                 Some(old_ptr) => {
@@ -190,6 +191,7 @@ where
                             .map_err(|_| BSStringError::AllocFailed)?
                             .cast()
                     } else {
+                        reuse = true;
                         old_ptr.as_non_null_ptr() // Current buffer is sufficient, so reuse as is
                     }
                 }
@@ -201,7 +203,9 @@ where
 
         self.data = Some(Unique::from(new_ptr));
         self.size = len;
-        self.capacity = len;
+        if !reuse {
+            self.capacity = len;
+        }
         Ok(())
     }
 

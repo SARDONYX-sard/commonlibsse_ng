@@ -117,34 +117,6 @@ where
         }
     }
 
-    /// Creates a new, empty `BSTSmallArray<T, N, A>` with the capacity.
-    ///
-    /// # Example
-    /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
-    ///
-    /// let array = BSTSmallArray::<i32>::with_capacity(5);
-    /// assert_eq!(array.capacity(), 5);
-    /// ```
-    pub fn with_capacity(capacity: u32) -> Self {
-        let data = if capacity > (N as u32) {
-            let layout = Self::new_layout(capacity);
-            let Ok(heap_ptr) = A::allocate(layout) else { handle_alloc_error(layout) };
-            RawBSTSmallArray::new_heap(heap_ptr.cast())
-        } else {
-            RawBSTSmallArray::new() // stack
-        };
-
-        Self {
-            data,
-            capacity,
-            storage_type: StorageType_CEnum::from_enum(StorageType::Inline),
-            size: 0,
-            alloc: PhantomData,
-        }
-    }
-
     /// Returns the number of elements in the array.
     ///
     /// This is also referred to as the array’s "length".
@@ -1104,7 +1076,7 @@ mod tests {
 
     #[test]
     fn test_drain() {
-        let mut array = BSTSmallArray::<_>::with_capacity(10);
+        let mut array = BSTSmallArray::<_>::new();
         array.push(1);
         array.push(2);
         array.push(3);
