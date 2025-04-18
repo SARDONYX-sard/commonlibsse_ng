@@ -6,7 +6,7 @@
 
 use core::ffi::{CStr, c_float};
 
-use crate::re::BSString::BSString;
+use crate::re::BSString::{BSString, BSStringError};
 use crate::re::FormTypes::FormType;
 use crate::re::TESForm::{TESForm, TESFormVtbl};
 use crate::re::offsets_rtti::RTTI_TESGlobal;
@@ -80,10 +80,14 @@ impl TESGlobal {
     }
 
     /// Sets the form editor ID.
+    ///
+    /// # Errors
+    /// - If the string is too long to fit in a `u16`, or if allocation fails.
+    /// - If allocations fail.
     #[inline]
-    pub fn set_form_editor_id(&mut self, id: &CStr) -> bool {
-        self.form_editor_id = BSString::from_c_str(id);
-        true
+    pub fn set_form_editor_id(&mut self, id: &CStr) -> Result<(), BSStringError> {
+        self.form_editor_id = BSString::from_c_str(id)?;
+        Ok(())
     }
 }
 
