@@ -11,7 +11,7 @@ use core::{
 };
 use std::alloc::handle_alloc_error;
 
-use stdx::unique::Unique;
+use stdx::{ptr::const_non_null::ConstNonNull, unique::Unique};
 
 use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
 
@@ -94,16 +94,16 @@ impl<T, const N: usize, A> BSTSmallArray<T, N, A>
 where
     A: SelflessAllocator,
 {
-    /// Creates a new, empty `BSTArray<T, N, A>` with the specified allocator.
+    /// Creates a new, empty `BSTSmallArray<T, N, A>` with the specified allocator.
     ///
     /// The array will not allocate until elements are pushed.
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let array = BSTArray::<i32>::new();
+    /// let array = BSTSmallArray::<i32>::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
@@ -117,14 +117,14 @@ where
         }
     }
 
-    /// Creates a new, empty `BSTArray<T, N, A>` with the capacity.
+    /// Creates a new, empty `BSTSmallArray<T, N, A>` with the capacity.
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let array = BSTArray::<i32>::with_capacity(5);
+    /// let array = BSTSmallArray::<i32>::with_capacity(5);
     /// assert_eq!(array.capacity(), 5);
     /// ```
     pub fn with_capacity(capacity: u32) -> Self {
@@ -151,10 +151,10 @@ where
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let array = BSTArray::<i32>::new();
+    /// let array = BSTSmallArray::<i32>::new();
     /// assert_eq!(array.len(), 0);
     /// ```
     #[inline]
@@ -166,10 +166,10 @@ where
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let array = BSTArray::<i32>::new();
+    /// let array = BSTSmallArray::<i32>::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
@@ -183,10 +183,10 @@ where
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
     /// assert!(array.capacity() >= 10);
     /// ```
     #[inline]
@@ -201,10 +201,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// assert_eq!(array.len(), 1);
     /// array.shrink_to_fit();
@@ -222,10 +222,10 @@ where
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::new();
+    /// let mut array = BSTSmallArray::<i32>::new();
     /// array.push(5);
     /// assert_eq!(array[0], 5);
     /// ```
@@ -248,10 +248,10 @@ where
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::new();
+    /// let mut array = BSTSmallArray::<i32>::new();
     /// array.push(1);
     /// assert_eq!(array.pop(), Some(1));
     /// assert_eq!(array.pop(), None);
@@ -271,10 +271,10 @@ where
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::new();
+    /// let mut array = BSTSmallArray::<i32>::new();
     /// array.push(42);
     /// assert_eq!(array.get(0), Some(&42));
     /// assert_eq!(array.get(1), None);
@@ -282,7 +282,7 @@ where
     #[inline]
     pub fn get(&self, index: usize) -> Option<&T> {
         if index < self.len() {
-            return unsafe { Some(self.as_non_null_ptr()?.add(index).as_ref()) };
+            return unsafe { Some(self.as_const_non_null_ptr()?.add(index).as_ref()) };
         }
         None
     }
@@ -291,10 +291,10 @@ where
     ///
     /// # Example
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::new();
+    /// let mut array = BSTSmallArray::<i32>::new();
     /// array.push(10);
     /// if let Some(x) = array.get_mut(0) {
     ///     *x += 1;
@@ -313,10 +313,10 @@ where
     ///
     /// # Examples
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert_eq!(array.len(), 2);
@@ -342,16 +342,30 @@ where
     /// Returns a non null pointer of the array’s buffer.
     #[inline]
     #[allow(clippy::missing_const_for_fn)] // Wrong lint. cannot use const when use deref
-    #[allow(clippy::as_ptr_cast_mut)]
-    pub fn as_non_null_ptr(&self) -> Option<NonNull<T>> {
+    pub fn as_non_null_ptr(&mut self) -> Option<NonNull<T>> {
         match self.storage_type() {
             StorageType::Heap => unsafe {
                 self.data.heap.map(|ptr| NonNull::new_unchecked(ptr.as_ptr()))
             },
             StorageType::Inline => {
-                // `&MaybeUninit<[T; N]>` → `*mut T`
-                let ptr = unsafe { (*self.data.inline).as_ptr() as *mut T };
+                let ptr = unsafe {
+                    core::mem::transmute::<*mut [T; N], *mut T>((*self.data.inline).as_mut_ptr())
+                };
                 Some(unsafe { NonNull::new_unchecked(ptr) })
+            }
+        }
+    }
+
+    /// Returns a non null pointer of the array’s buffer.
+    #[inline]
+    pub fn as_const_non_null_ptr(&self) -> Option<ConstNonNull<T>> {
+        match self.storage_type() {
+            StorageType::Heap => unsafe { self.data.heap.map(ConstNonNull::from_unique) },
+            StorageType::Inline => {
+                let ptr = unsafe {
+                    core::mem::transmute::<*const [T; N], *const T>(self.data.inline.as_ptr())
+                };
+                Some(unsafe { ConstNonNull::new_unchecked(ptr) })
             }
         }
     }
@@ -363,10 +377,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert!(array.contains(&1));
@@ -396,10 +410,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -449,10 +463,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.resize(5, 0);
@@ -487,10 +501,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -539,14 +553,14 @@ where
     /// Returns a slice of all elements in the array.
     #[inline]
     pub fn as_slice(&self) -> &[T] {
-        let ptr = self.as_non_null_ptr();
+        let ptr = self.as_const_non_null_ptr();
         let len = self.len();
 
         if ptr.is_none() || (len == 0) {
             return &[];
         }
 
-        if let Some(src) = self.as_non_null_ptr() {
+        if let Some(src) = self.as_const_non_null_ptr() {
             unsafe { core::slice::from_raw_parts(src.as_ptr(), len) }
         } else {
             &[]
@@ -578,18 +592,18 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use commonlibsse_ng::re::BSTArray::BSTArray as BSTArray_;
-    /// # type BSTArray<T> = BSTArray_<T, stdx::alloc::Global>;
+    /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// let sum: i32 = array.iter().sum();
     /// assert_eq!(sum, 3);
     /// ```
     #[inline]
-    pub const fn iter(&self) -> BSTArrayIterator<'_, T, N, A> {
-        BSTArrayIterator { array: self, index: 0 }
+    pub const fn iter(&self) -> BSTSmallArrayIterator<'_, T, N, A> {
+        BSTSmallArrayIterator { array: self, index: 0 }
     }
 
     fn grow(&mut self) {
@@ -648,7 +662,7 @@ where
     /// On arithmetic overflow or when the total size would exceed
     /// `isize::MAX`, panic.
     fn new_layout(n: u32) -> Layout {
-        Layout::array::<T>(n as usize).expect("BSTArray need: alloc size < isize::MAX")
+        Layout::array::<T>(n as usize).expect("BSTSmallArray need: alloc size < isize::MAX")
     }
 
     /// Gets a current layout self.
@@ -677,7 +691,7 @@ where
     #[inline]
     fn index(&self, index: usize) -> &Self::Output {
         assert!(index < self.len(), "Index out of bounds");
-        unsafe { self.as_non_null_ptr().unwrap().add(index).as_ref() }
+        unsafe { self.as_const_non_null_ptr().unwrap().add(index).as_ref() }
     }
 }
 
@@ -695,7 +709,7 @@ where
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Iterator
 
-/// Iterator returned by `BSTArray::drain()`
+/// Iterator returned by `BSTSmallArray::drain()`
 pub struct BSTDrain<'a, T, const N: usize, A>
 where
     A: SelflessAllocator,
@@ -775,7 +789,7 @@ impl<T, const N: usize, A: SelflessAllocator> Drop for BSTDrain<'_, T, N, A> {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-pub struct BSTArrayIterator<'a, T, const N: usize, A>
+pub struct BSTSmallArrayIterator<'a, T, const N: usize, A>
 where
     A: SelflessAllocator,
 {
@@ -783,7 +797,7 @@ where
     index: usize,
 }
 
-impl<'a, T, const N: usize, A> Iterator for BSTArrayIterator<'a, T, N, A>
+impl<'a, T, const N: usize, A> Iterator for BSTSmallArrayIterator<'a, T, N, A>
 where
     A: SelflessAllocator,
 {
@@ -792,7 +806,7 @@ where
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.array.len() {
-            let item = unsafe { self.array.as_non_null_ptr()?.add(self.index).as_ref() };
+            let item = unsafe { self.array.as_const_non_null_ptr()?.add(self.index).as_ref() };
             self.index += 1;
             Some(item)
         } else {
@@ -801,7 +815,7 @@ where
     }
 }
 
-pub struct BSTArrayIntoIterator<T, const N: usize, A>
+pub struct BSTSmallArrayIntoIterator<T, const N: usize, A>
 where
     A: SelflessAllocator,
 {
@@ -809,7 +823,7 @@ where
     index: usize,
 }
 
-impl<T, const N: usize, A> Iterator for BSTArrayIntoIterator<T, N, A>
+impl<T, const N: usize, A> Iterator for BSTSmallArrayIntoIterator<T, N, A>
 where
     A: SelflessAllocator,
 {
@@ -832,11 +846,11 @@ where
     A: SelflessAllocator,
 {
     type Item = T;
-    type IntoIter = BSTArrayIntoIterator<T, N, A>;
+    type IntoIter = BSTSmallArrayIntoIterator<T, N, A>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        BSTArrayIntoIterator { array: self, index: 0 }
+        BSTSmallArrayIntoIterator { array: self, index: 0 }
     }
 }
 
@@ -845,15 +859,15 @@ where
     A: SelflessAllocator,
 {
     type Item = &'a T;
-    type IntoIter = BSTArrayIterator<'a, T, N, A>;
+    type IntoIter = BSTSmallArrayIterator<'a, T, N, A>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        BSTArrayIterator { array: self, index: 0 }
+        BSTSmallArrayIterator { array: self, index: 0 }
     }
 }
 
-pub struct BSTArrayIterMut<'a, T, const N: usize, A>
+pub struct BSTSmallArrayIterMut<'a, T, const N: usize, A>
 where
     A: SelflessAllocator,
 {
@@ -861,7 +875,7 @@ where
     index: usize,
 }
 
-impl<'a, T, const N: usize, A> Iterator for BSTArrayIterMut<'a, T, N, A>
+impl<'a, T, const N: usize, A> Iterator for BSTSmallArrayIterMut<'a, T, N, A>
 where
     A: SelflessAllocator,
 {
@@ -892,11 +906,11 @@ where
     A: SelflessAllocator,
 {
     type Item = &'a mut T;
-    type IntoIter = BSTArrayIterMut<'a, T, N, A>;
+    type IntoIter = BSTSmallArrayIterMut<'a, T, N, A>;
 
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
-        BSTArrayIterMut { array: self, index: 0 }
+        BSTSmallArrayIterMut { array: self, index: 0 }
     }
 }
 

@@ -6,11 +6,11 @@ use core::{
 };
 use std::alloc::handle_alloc_error;
 
-use stdx::unique::Unique;
+use stdx::{ptr::const_non_null::ConstNonNull, unique::Unique};
 
 use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
 
-/// A binary-compatible, growable array used in Havok serialization.
+/// A binary-compatible, growable array.
 ///
 /// `BSTArray<T, A>` is a contiguous, heap-allocated collection of elements of type `T`
 /// with memory layout designed to match Havok's native `BSTArray`. This type is similar
@@ -265,7 +265,7 @@ where
     #[inline]
     pub fn get(&self, index: usize) -> Option<&T> {
         if index < self.len() {
-            return unsafe { Some(self.as_non_null_ptr()?.add(index).as_ref()) };
+            return unsafe { Some(self.as_const_non_null_ptr()?.add(index).as_ref()) };
         }
         None
     }
@@ -324,9 +324,18 @@ where
 
     /// Returns a non null pointer of the array’s buffer.
     #[inline]
-    pub const fn as_non_null_ptr(&self) -> Option<NonNull<T>> {
+    pub const fn as_non_null_ptr(&mut self) -> Option<NonNull<T>> {
         match self.data {
             Some(p) => Some(p.as_non_null_ptr()),
+            None => None,
+        }
+    }
+
+    /// Returns a non null pointer of the array’s buffer.
+    #[inline]
+    pub const fn as_const_non_null_ptr(&self) -> Option<ConstNonNull<T>> {
+        match self.data {
+            Some(p) => Some(ConstNonNull::from_unique(p)),
             None => None,
         }
     }
@@ -514,14 +523,14 @@ where
     /// Returns a slice of all elements in the array.
     #[inline]
     pub const fn as_slice(&self) -> &[T] {
-        let ptr = self.as_non_null_ptr();
+        let ptr = self.as_const_non_null_ptr();
         let len = self.len();
 
         if ptr.is_none() || (len == 0) {
             return &[];
         }
 
-        if let Some(src) = self.as_non_null_ptr() {
+        if let Some(src) = self.as_const_non_null_ptr() {
             unsafe { core::slice::from_raw_parts(src.as_ptr(), len) }
         } else {
             &[]
@@ -628,7 +637,7 @@ where
     #[inline]
     fn index(&self, index: usize) -> &Self::Output {
         assert!(index < self.len(), "Index out of bounds");
-        unsafe { self.as_non_null_ptr().unwrap().add(index).as_ref() }
+        unsafe { self.as_const_non_null_ptr().unwrap().add(index).as_ref() }
     }
 }
 
@@ -743,7 +752,7 @@ where
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.array.len() {
-            let item = unsafe { self.array.as_non_null_ptr()?.add(self.index).as_ref() };
+            let item = unsafe { self.array.as_const_non_null_ptr()?.add(self.index).as_ref() };
             self.index += 1;
             Some(item)
         } else {
@@ -890,7 +899,7 @@ where
     #[inline]
     fn clone(&self) -> Self {
         // heap clone
-        let data = self.as_non_null_ptr().map(|src_ptr| {
+        let data = self.as_const_non_null_ptr().map(|src_ptr| {
             let layout = self.layout();
             let Ok(dst_ptr) = A::allocate(layout) else { handle_alloc_error(layout) };
             let dst_ptr = dst_ptr.cast::<T>();
