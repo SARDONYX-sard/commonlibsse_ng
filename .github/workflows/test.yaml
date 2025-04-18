@@ -89,4 +89,4 @@ jobs:
       # use `--filter`: Because miri does not support OS API.
       - name: Search undefined behavior
         run: |
-          cargo miri nextest run --no-fail-fast --target ${{ matrix.job.target }} --features test_on_ci --no-default-features -- --filter re::
+          cargo +nightly miri nextest run --no-fail-fast --target ${{ matrix.job.target }} --features test_on_ci --no-default-features -- test-suite-filter re::
