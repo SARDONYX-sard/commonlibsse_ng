@@ -8,6 +8,7 @@ use std::alloc::handle_alloc_error;
 
 use crate::re::MemoryManager::TESGlobalAlloc;
 use stdx::alloc::Allocator;
+use stdx::ptr::const_non_null::ConstNonNull;
 use stdx::unique::Unique;
 
 /// Array whose first pointer is only a pointer to the length.
@@ -98,8 +99,8 @@ where
     /// ```
     #[inline]
     pub const fn len(&self) -> usize {
-        match self.data {
-            Some(ptr) => unsafe { Self::head(ptr).read() },
+        match self.len_ptr() {
+            Some(ptr) => unsafe { ptr.read() },
             None => 0,
         }
     }
@@ -131,14 +132,10 @@ where
     /// ```
     #[inline]
     pub fn clear(&mut self) {
-        if let Some(ptr) = self.data.take() {
-            let len = self.len();
-            if len > 0 {
-                unsafe {
-                    ptr::drop_in_place(self.as_mut_slice());
-                    self.alloc.deallocate(Self::head(ptr).cast(), Self::layout(len));
-                }
-            }
+        if self.data.is_some() && !self.is_empty() {
+            unsafe { ptr::drop_in_place(self.as_mut_slice()) };
+            self.set_len(0);
+            // reuse data memory. Therefore, no need to deallocate.
         }
     }
 
@@ -296,9 +293,33 @@ where
 
     /// Return len storage ptr.
     #[inline]
-    const unsafe fn head(ptr: Unique<T>) -> NonNull<usize> {
+    const fn len_ptr(&self) -> Option<ConstNonNull<usize>> {
+        match self.data {
+            Some(data) => unsafe {
+                let ptr = data.as_non_null_ptr().cast::<usize>().sub(1);
+                ConstNonNull::new(ptr.as_ptr())
+            },
+            None => None,
+        }
+    }
+
+    /// Return len storage ptr.(allocated top pointer)
+    #[inline]
+    const fn len_ptr_mut(&mut self) -> Option<NonNull<usize>> {
+        match self.data.as_mut() {
+            Some(data) => unsafe { Some(data.as_non_null_ptr().cast::<usize>().sub(1)) },
+            None => None,
+        }
+    }
+
+    /// Set length to self storage.
+    #[inline]
+    const fn set_len(&mut self, len: usize) {
         // Safety: allocated size in allocate function.
-        unsafe { ptr.as_non_null_ptr().cast::<usize>().sub(1) }
+        if let Some(data) = self.data.as_mut() {
+            let len_ptr = unsafe { data.as_non_null_ptr().cast::<usize>().sub(1) };
+            unsafe { len_ptr.write(len) };
+        }
     }
 
     /// Return data ptr.
@@ -363,7 +384,10 @@ where
 
 impl<T, A: Allocator> Drop for SimpleArray<T, A> {
     fn drop(&mut self) {
-        self.clear();
+        if let Some(len_ptr) = self.len_ptr_mut() {
+            self.clear();
+            unsafe { self.alloc.deallocate(len_ptr.cast(), Self::layout(self.len())) };
+        }
     }
 }
 
