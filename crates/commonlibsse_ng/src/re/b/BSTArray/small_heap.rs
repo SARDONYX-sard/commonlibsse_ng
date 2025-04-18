@@ -7,7 +7,7 @@ use core::{
     marker::PhantomData,
     mem::{ManuallyDrop, MaybeUninit},
     ops::{Index, IndexMut, Range, RangeBounds},
-    ptr::{self, NonNull},
+    ptr::{self, NonNull, drop_in_place},
 };
 use std::alloc::handle_alloc_error;
 
@@ -678,6 +678,39 @@ where
         match self.storage_type.to_enum() {
             Some(value) => value,
             None => StorageType::Inline,
+        }
+    }
+}
+
+impl<T, const N: usize, A> Drop for BSTSmallArray<T, N, A>
+where
+    A: SelflessAllocator,
+{
+    fn drop(&mut self) {
+        unsafe {
+            match self.storage_type() {
+                StorageType::Heap => {
+                    if let Some(ptr) = self.data.heap {
+                        // Drop each element
+                        let ptr = ptr.as_non_null_ptr();
+                        for i in 0..self.size as usize {
+                            drop_in_place(ptr.add(i).as_ptr());
+                        }
+                        A::deallocate(ptr.cast(), self.layout());
+                    }
+                }
+                StorageType::Inline => {
+                    debug_assert!(
+                        self.size <= N as u32,
+                        "[BSTSmallArray] size is larger than stack capacity. Wrong Implementation."
+                    );
+                    let inline_ptr = (*self.data.inline).as_mut_ptr();
+                    for i in 0..self.size as usize {
+                        drop_in_place(inline_ptr.add(i));
+                    }
+                    // No need to deallocate inline storage
+                }
+            }
         }
     }
 }

@@ -628,6 +628,24 @@ where
     }
 }
 
+impl<T, A> Drop for BSTArray<T, A>
+where
+    A: SelflessAllocator,
+{
+    fn drop(&mut self) {
+        unsafe {
+            if let Some(ptr) = self.data {
+                // Drop each element
+                let ptr = ptr.as_non_null_ptr();
+                for i in 0..self.size as usize {
+                    ptr::drop_in_place(ptr.add(i).as_ptr());
+                }
+                A::deallocate(ptr.cast(), self.layout());
+            }
+        }
+    }
+}
+
 impl<T, A> Index<usize> for BSTArray<T, A>
 where
     A: SelflessAllocator,
