@@ -15,21 +15,38 @@ use stdx::{ptr::const_non_null::ConstNonNull, unique::Unique};
 
 use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
 
-///Use stack while within the specified size, and use heap if it is larger.
+/// Use stack while within the specified size, and use heap if it is larger.
 ///
-///This is the same purpose as `smallvec` crate and other optimizations, except that the memory layout is for TES.
+/// This is the same purpose as `smallvec` crate and other optimizations, except that the memory layout is for TES.
 ///
-///It is effective when most of the memory can be fit in the stack, except for some exceptions, but it slows down the process if there are frequent fallbacks to the heap.
+/// It is effective when most of the memory can be fit in the stack, except for some exceptions, but it slows down the process if there are frequent fallbacks to the heap.
 ///
 /// - [`smallvec` crate](https://crates.io/crates/smallvec)
 ///
 /// - `N`: element length (not bytes size)
+///
+/// # Examples
+/// ```
+/// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
+/// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
+///
+/// let mut array = BSTSmallArray::<i32, 1>::new();
+/// array.push(1); // push on stack.
+/// array.push(2); // change to heap.
+/// assert_eq!(array[0], 1);
+/// assert_eq!(array[1], 2);
+/// assert_eq!(array.len(), 2);
+/// array.clear(); // reuse heap. grow to capacity 4.
+/// assert_eq!(array.len(), 0);
+/// assert_eq!(array.capacity(), 4); // Capacity is preserved
+/// ```
 #[repr(C)]
 pub struct BSTSmallArray<T, const N: usize = 1, A = TESGlobalAlloc>
 where
     A: SelflessAllocator,
 {
     // BSTSmallArrayHeapAllocator
+    /// Capacity is at least 4 and increases in multiples of 2.(In `self.grow`)
     capacity: u32, // 0x00,
 
     /// Indicates whether the data is stored locally (on the stack).
@@ -101,16 +118,16 @@ where
     /// # Example
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let array = BSTSmallArray::<i32>::new();
+    /// let array = BSTSmallArray::<i32, 10>::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
     pub const fn new() -> Self {
         Self {
             data: RawBSTSmallArray::new(),
-            capacity: N as u32,
+            capacity: N as u32, // ?INFO: The NG branch of the VR version is at 0.
             storage_type: StorageType_CEnum::from_enum(StorageType::Inline),
             size: 0,
             alloc: PhantomData,
@@ -124,9 +141,9 @@ where
     /// # Example
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let array = BSTSmallArray::<i32>::new();
+    /// let array = BSTSmallArray::<i32, 10>::new();
     /// assert_eq!(array.len(), 0);
     /// ```
     #[inline]
@@ -139,9 +156,9 @@ where
     /// # Example
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let array = BSTSmallArray::<i32>::new();
+    /// let array = BSTSmallArray::<i32, 10>::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
@@ -156,10 +173,10 @@ where
     /// # Example
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
-    /// assert!(array.capacity() >= 10);
+    /// let mut array = BSTSmallArray::<i32, 10>::new();
+    /// assert!(array.capacity() == 10); // stack size
     /// ```
     #[inline]
     pub const fn capacity(&self) -> usize {
@@ -174,13 +191,17 @@ where
     ///
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<_, 4>::new(); // auto i32
     /// array.push(1);
-    /// assert_eq!(array.len(), 1);
+    /// array.push(2);
+    /// array.push(3);
+    /// array.push(4);
+    /// array.push(5); // change to heap
+    /// assert_eq!(array.len(), 5);
     /// array.shrink_to_fit();
-    /// assert!(array.capacity() >= array.len());
+    /// assert!(array.capacity() == array.len());
     /// ```
     #[inline]
     pub fn shrink_to_fit(&mut self) {
@@ -195,18 +216,21 @@ where
     /// # Example
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::new();
+    /// let mut array = BSTSmallArray::<i32, 10>::new();
     /// array.push(5);
     /// assert_eq!(array[0], 5);
     /// ```
     #[inline]
     pub fn push(&mut self, value: T) {
         let size = self.size;
+        dbg!(size, self.capacity);
         if size == self.capacity {
+            dbg!("Glow");
             self.grow();
         }
+        dbg!(size, self.capacity);
         unsafe {
             if let Some(ptr) = self.as_non_null_ptr() {
                 ptr.add(size as usize).write(value);
@@ -221,9 +245,9 @@ where
     /// # Example
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::new();
+    /// let mut array = BSTSmallArray::<i32, 10>::new();
     /// array.push(1);
     /// assert_eq!(array.pop(), Some(1));
     /// assert_eq!(array.pop(), None);
@@ -244,9 +268,9 @@ where
     /// # Example
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::new();
+    /// let mut array = BSTSmallArray::<i32, 10>::new();
     /// array.push(42);
     /// assert_eq!(array.get(0), Some(&42));
     /// assert_eq!(array.get(1), None);
@@ -264,9 +288,9 @@ where
     /// # Example
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::new();
+    /// let mut array = BSTSmallArray::<i32, 1>::new();
     /// array.push(10);
     /// if let Some(x) = array.get_mut(0) {
     ///     *x += 1;
@@ -286,15 +310,15 @@ where
     /// # Examples
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
-    /// array.push(1);
-    /// array.push(2);
+    /// let mut array = BSTSmallArray::<i32, 1>::new();
+    /// array.push(1); // push on stack.
+    /// array.push(2); // change to heap.
     /// assert_eq!(array.len(), 2);
-    /// array.clear();
+    /// array.clear(); // reuse heap.
     /// assert_eq!(array.len(), 0);
-    /// assert_eq!(array.capacity(), 10); // Capacity is preserved
+    /// assert_eq!(array.capacity(), 4); // Capacity is preserved
     /// ```
     #[inline]
     pub fn clear(&mut self) {
@@ -346,9 +370,9 @@ where
     ///
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32, 10>::new();
     /// array.push(1);
     /// array.push(2);
     /// assert!(array.contains(&1));
@@ -379,9 +403,9 @@ where
     ///
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32, 10>::new();
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -432,9 +456,9 @@ where
     ///
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32, 10>::new();
     /// array.push(1);
     /// array.push(2);
     /// array.resize(5, 0);
@@ -470,9 +494,9 @@ where
     ///
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32, 10>::new();
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -560,9 +584,9 @@ where
     ///
     /// ```
     /// # use commonlibsse_ng::re::BSTArray::BSTSmallArray as BSTSmallArray_;
-    /// # type BSTSmallArray<T> = BSTSmallArray_<T, stdx::alloc::Global>;
+    /// # type BSTSmallArray<T, const N: usize> = BSTSmallArray_<T, N, stdx::alloc::Global>;
     ///
-    /// let mut array = BSTSmallArray::<i32>::with_capacity(10);
+    /// let mut array = BSTSmallArray::<i32, 10>::new();
     /// array.push(1);
     /// array.push(2);
     /// let sum: i32 = array.iter().sum();
@@ -573,16 +597,27 @@ where
         BSTSmallArrayIterator { array: self, index: 0 }
     }
 
+    /// Grows the array's capacity when the current size exceeds the limit.
+    ///
+    /// Doubles the current capacity, or sets it to a minimum threshold if it's too small.
+    ///
+    /// # Note
+    /// - If `new_capacity` <= `N` and in stack mode, then do nothing
     fn grow(&mut self) {
         const MIN_CAPACITY: u32 = 4;
         const GROWTH_FACTOR: u32 = 2;
 
         let old_capacity = self.capacity;
         let new_capacity =
-            if old_capacity == 0 { MIN_CAPACITY } else { old_capacity * GROWTH_FACTOR };
+            if old_capacity < MIN_CAPACITY { MIN_CAPACITY } else { old_capacity * GROWTH_FACTOR };
         self.change_capacity(new_capacity);
     }
 
+    /// Changes the capacity of the array to the specified value.
+    ///
+    /// # Note
+    /// - If `new_capacity` is 0, the function does nothing.
+    /// - If `new_capacity` <= `N` and in stack mode, then do nothing
     fn change_capacity(&mut self, new_capacity: u32) {
         if new_capacity == 0 {
             return;
@@ -1070,7 +1105,7 @@ mod tests {
 
     #[test]
     fn test_drain() {
-        let mut array = BSTSmallArray::<_>::new();
+        let mut array = BSTSmallArray::<_, 10>::new();
         array.push(1);
         array.push(2);
         array.push(3);
@@ -1086,5 +1121,42 @@ mod tests {
         assert_eq!(array[0], 1);
         assert_eq!(array[1], 4);
         assert_eq!(array[2], 5);
+    }
+
+    #[test]
+    fn test_shrink_to_fit_on_stack() {
+        let mut array = BSTSmallArray::<_, 10>::new();
+        array.push(1);
+        array.push(2);
+        array.push(3);
+        array.push(4);
+        array.push(5);
+
+        assert_eq!(array.len(), 5);
+        assert_eq!(array.capacity(), 10);
+
+        array.shrink_to_fit();
+
+        assert_eq!(array.len(), 5);
+        // In the case of stack, it is determined at compile time, so nothing is done.
+        assert_eq!(array.capacity(), 10);
+    }
+
+    #[test]
+    fn test_shrink_to_fit_on_heap() {
+        let mut array = BSTSmallArray::<_, 4>::new();
+        array.push(1);
+        array.push(2);
+        array.push(3);
+        array.push(4);
+        array.push(5); // heap
+
+        assert_eq!(array.len(), 5);
+        assert_eq!(array.capacity(), 4 * 2); // grow to 8
+
+        array.shrink_to_fit();
+
+        assert_eq!(array.len(), 5);
+        assert_eq!(array.capacity(), 5);
     }
 }
