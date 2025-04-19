@@ -74,7 +74,7 @@ where
     /// let empty_node = Node::<i32>::new_empty();
     /// ```
     #[inline]
-    const fn new_empty() -> Self {
+    pub const fn new_empty() -> Self {
         Self { item: UntaggedOption::none(), next: None, marker: PhantomData }
     }
 
