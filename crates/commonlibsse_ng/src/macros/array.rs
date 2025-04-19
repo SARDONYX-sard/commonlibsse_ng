@@ -18,8 +18,8 @@
 /// Create an array with a custom allocator:
 /// ```
 /// # use commonlibsse_ng::hk_array;
-/// use commonlibsse_ng::re::hkArray::RustAllocator;
-/// let arr = hk_array![with_allocator: RustAllocator => "a", "b", "c"];
+/// use stdx::alloc::Global;
+/// let arr = hk_array![with_allocator: Global => "a", "b", "c"];
 /// ```
 #[macro_export]
 macro_rules! hk_array {
@@ -92,15 +92,15 @@ macro_rules! hk_array {
 /// Create an array with a custom allocator:
 /// ```
 /// # use commonlibsse_ng::bst_array;
-/// use commonlibsse_ng::re::BSTArray::RustAllocator;
-/// let arr = bst_array![with_allocator: RustAllocator => 10, 20];
+/// use stdx::alloc::Global;
+/// let arr = bst_array![with_allocator: Global => 10, 20];
 /// ```
 ///
 /// Create a repeated array with a custom allocator:
 /// ```
 /// # use commonlibsse_ng::bst_array;
-/// use commonlibsse_ng::re::BSTArray::RustAllocator;
-/// let arr = bst_array![with_allocator: RustAllocator => 7; 3];
+/// use stdx::alloc::Global;
+/// let arr = bst_array![with_allocator: Global => 7; 3];
 /// ```
 ///
 /// # Note
