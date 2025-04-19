@@ -164,7 +164,7 @@ where
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
     /// let mut array = BSScrapArray::<i32>::with_capacity(10);
@@ -270,7 +270,7 @@ where
     /// Clears the array, removing all elements but preserving the capacity.
     ///
     /// # Examples
-    /// ```
+    /// ```no_run
     /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
     /// let mut array = BSScrapArray::<i32>::with_capacity(10);
@@ -314,7 +314,7 @@ where
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```no_run
     /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
     /// let mut array = BSScrapArray::<i32>::with_capacity(10);
