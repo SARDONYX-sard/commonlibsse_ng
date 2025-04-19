@@ -41,12 +41,6 @@ use stdx::{ptr::const_non_null::ConstNonNull, unique::Unique};
 /// - Reserving more capacity than is possible
 /// - Pushing to a full fixed-capacity array (if applicable)
 ///
-/// # Safety
-///
-/// This type may be `#[repr(C)]` or `#[repr(transparent)]` depending on your implementation,
-/// and is intended to be FFI-safe and bitwise-deserializable when used correctly. Use
-/// caution when modifying the layout or manually constructing instances.
-///
 /// # Example
 ///
 /// ```rust
@@ -64,7 +58,6 @@ use stdx::{ptr::const_non_null::ConstNonNull, unique::Unique};
 ///
 /// - [`Vec<T>`]
 /// - [`Box<[T]>`]
-/// - Havok documentation for `BSTArray<T>` layout.
 #[repr(C)]
 pub struct BSTArray<T, A = TESGlobalAlloc>
 where
