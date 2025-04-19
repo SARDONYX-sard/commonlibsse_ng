@@ -35,7 +35,7 @@ use core::ptr;
 /// let opt = UntaggedOption::some(MyInt(123));
 /// assert!(opt.is_some());
 /// ```
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 #[repr(transparent)]
 pub struct UntaggedOption<T: Zeroable> {
     value: T,
@@ -117,7 +117,9 @@ where
 
         unsafe {
             let value_bytes = from_raw_parts((&self.value as *const T) as *const u8, Self::T_SIZE);
-            let zero_bytes = from_raw_parts((&Self::ZEROED as *const T) as *const u8, Self::T_SIZE);
+
+            let zero_slice = Self::ZEROED; // NOTE: This is necessary because of dangling UB if not bound to a variable!
+            let zero_bytes = from_raw_parts((&zero_slice as *const T) as *const u8, Self::T_SIZE);
             value_bytes == zero_bytes
         }
     }
@@ -241,6 +243,16 @@ where
         match value {
             Some(v) => Self::some(v),
             None => Self::none(),
+        }
+    }
+}
+
+impl<T: PartialEq + Zeroable> PartialEq for UntaggedOption<T> {
+    fn eq(&self, other: &Self) -> bool {
+        match (self.is_some(), other.is_some()) {
+            (false, false) => true,
+            (true, true) => self.value == other.value,
+            _ => false,
         }
     }
 }
