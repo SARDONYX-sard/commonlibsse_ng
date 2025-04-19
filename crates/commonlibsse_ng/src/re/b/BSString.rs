@@ -112,7 +112,7 @@ where
     /// ```rust
     /// # use commonlibsse_ng::re::BSString::BSString;
     /// let bs = BSString::from_c_str(c"Hello");
-    /// assert_eq!(bs.as_c_str(), c"Hello");
+    /// assert_eq!(bs.as_c_str(), Ok(c"Hello"));
     /// ```
     ///
     /// # Errors
