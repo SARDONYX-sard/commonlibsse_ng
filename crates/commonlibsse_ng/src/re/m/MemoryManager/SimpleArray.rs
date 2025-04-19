@@ -132,10 +132,14 @@ where
     /// ```
     #[inline]
     pub fn clear(&mut self) {
-        if self.data.is_some() && !self.is_empty() {
+        if self.data.is_none() && self.is_empty() {
+            return;
+        }
+
+        if let Some(len_ptr) = self.len_ptr_mut() {
             unsafe { ptr::drop_in_place(self.as_mut_slice()) };
-            self.set_len(0);
-            // reuse data memory. Therefore, no need to deallocate.
+            unsafe { self.alloc.deallocate(len_ptr.cast(), Self::layout(self.len())) };
+            self.data = None; // FIXME: Use after free?
         }
     }
 
@@ -314,16 +318,6 @@ where
         match self.data.as_mut() {
             Some(data) => unsafe { Some(data.as_non_null_ptr().cast::<usize>().sub(1)) },
             None => None,
-        }
-    }
-
-    /// Set length to self storage.
-    #[inline]
-    const fn set_len(&mut self, len: usize) {
-        // Safety: allocated size in allocate function.
-        if let Some(data) = self.data.as_mut() {
-            let len_ptr = unsafe { data.as_non_null_ptr().cast::<usize>().sub(1) };
-            unsafe { len_ptr.write(len) };
         }
     }
 
@@ -599,6 +593,7 @@ mod tests {
 
     #[test]
     fn test_clear() {
+        // alloc (len: 8 + (u32: 4 * count: 3) = 20bytes)
         let mut array = SimpleArray::<u32>::with_capacity(3);
         array.clear();
         assert_eq!(array.len(), 0);
