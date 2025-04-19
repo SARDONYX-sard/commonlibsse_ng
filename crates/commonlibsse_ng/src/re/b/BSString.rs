@@ -111,8 +111,9 @@ where
     ///
     /// ```rust
     /// # use commonlibsse_ng::re::BSString::BSString;
-    /// let bs = BSString::from_c_str(c"Hello");
-    /// assert_eq!(bs.as_c_str(), Ok(c"Hello"));
+    /// use stdx::alloc::Global;
+    /// let bs = BSString::<Global>::from_c_str(c"Hello").unwrap();
+    /// assert_eq!(bs.as_c_str(), c"Hello");
     /// ```
     ///
     /// # Errors
@@ -381,6 +382,15 @@ where
 {
     fn eq(&self, other: &BSString<B>) -> bool {
         self.as_c_str() == other.as_c_str()
+    }
+}
+
+impl<A> PartialEq<CStr> for BSString<A>
+where
+    A: SelflessAllocator,
+{
+    fn eq(&self, other: &CStr) -> bool {
+        self.as_c_str() == other
     }
 }
 
