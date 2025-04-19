@@ -25,16 +25,7 @@ impl BSTArrayBase {
     }
 }
 
-/// A binary-compatible, growable array used in Havok serialization.
-///
-/// `BSTArray<T, A>` is a contiguous, heap-allocated collection of elements of type `T`
-/// with memory layout designed to match Havok's native `BSTArray`. This type is similar
-/// to [`Vec<T>`] in usage but may differ in layout due to alignment, padding, or
-/// platform-specific serialization constraints.
-///
-/// This array uses a custom allocator `A` (which implements [`Allocator`]) to control
-/// memory allocation. In contexts where allocation is fixed (e.g., read-only arrays or
-/// statically-sized blocks), capacity may be fixed or omitted entirely.
+///  `BSScrapArray<T, A>` is a growable array type that provides a dynamic array
 ///
 /// Internally, the array stores:
 /// - a pointer to the data buffer
@@ -56,18 +47,12 @@ impl BSTArrayBase {
 /// - Reserving more capacity than is possible
 /// - Pushing to a full fixed-capacity array (if applicable)
 ///
-/// # Safety
-///
-/// This type may be `#[repr(C)]` or `#[repr(transparent)]` depending on your implementation,
-/// and is intended to be FFI-safe and bitwise-deserializable when used correctly. Use
-/// caution when modifying the layout or manually constructing instances.
-///
 /// # Example
 ///
-/// ```rust
-/// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+/// ```no_run
+/// use commonlibsse_ng::re::BSTArray::BSScrapArray;
 ///
-/// let mut array = BSTArray::<i32, RustAllocator>::new();
+/// let mut array = BSScrapArray::<i32>::new();
 /// array.push(1);
 /// array.push(2);
 /// assert_eq!(array.len(), 2);
@@ -78,7 +63,6 @@ impl BSTArrayBase {
 ///
 /// - [`Vec<T>`]
 /// - [`Box<[T]>`]
-/// - Havok documentation for `BSTArray<T>` layout.
 #[repr(C)]
 pub struct BSScrapArray<T, A = BSScrapArrayAllocator>
 where
@@ -99,10 +83,10 @@ where
     /// The array will not allocate until elements are pushed.
     ///
     /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let array = BSTArray::<i32, RustAllocator>::new();
+    /// let array = BSScrapArray::<i32>::new();
     /// assert!(array.is_empty());
     /// ```
     pub fn new() -> Self {
@@ -112,10 +96,10 @@ where
     /// Creates a new, empty `BSTArray<T, A>` with the capacity.
     ///
     /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let array = BSTArray::<i32, RustAllocator>::with_capacity(5);
+    /// let array = BSScrapArray::<i32>::with_capacity(5);
     /// assert_eq!(array.capacity(), 5);
     /// ```
     pub fn with_capacity(capacity: usize) -> Self {
@@ -133,10 +117,10 @@ where
     /// This is also referred to as the array’s "length".
     ///
     /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let array = BSTArray::<i32, RustAllocator>::new();
+    /// let array = BSScrapArray::<i32>::new();
     /// assert_eq!(array.len(), 0);
     /// ```
     #[inline]
@@ -147,10 +131,10 @@ where
     /// Returns `true` if the array contains no elements.
     ///
     /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let array = BSTArray::<i32, RustAllocator>::new();
+    /// let array = BSScrapArray::<i32>::new();
     /// assert!(array.is_empty());
     /// ```
     #[inline]
@@ -163,10 +147,10 @@ where
     /// This is the allocated capacity, which may be larger than the current length.
     ///
     /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSScrapArray::<i32>::with_capacity(10);
     /// assert!(array.capacity() >= 10);
     /// ```
     #[inline]
@@ -181,9 +165,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSScrapArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// assert_eq!(array.len(), 1);
     /// array.shrink_to_fit();
@@ -201,10 +185,10 @@ where
     /// Panics if the array is at fixed capacity and cannot grow.
     ///
     /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::new();
+    /// let mut array = BSScrapArray::<i32>::new();
     /// array.push(5);
     /// assert_eq!(array[0], 5);
     /// ```
@@ -224,10 +208,10 @@ where
     /// Removes the last element from the array and returns it, or `None` if it's empty.
     ///
     /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::new();
+    /// let mut array = BSScrapArray::<i32>::new();
     /// array.push(1);
     /// assert_eq!(array.pop(), Some(1));
     /// assert_eq!(array.pop(), None);
@@ -246,10 +230,10 @@ where
     /// Returns a reference to the element at the given index, if it exists.
     ///
     /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::new();
+    /// let mut array = BSScrapArray::<i32>::new();
     /// array.push(42);
     /// assert_eq!(array.get(0), Some(&42));
     /// assert_eq!(array.get(1), None);
@@ -265,10 +249,10 @@ where
     /// Returns a mutable reference to the element at the given index, if it exists.
     ///
     /// # Example
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::new();
+    /// let mut array = BSScrapArray::<i32>::new();
     /// array.push(10);
     /// if let Some(x) = array.get_mut(0) {
     ///     *x += 1;
@@ -287,9 +271,9 @@ where
     ///
     /// # Examples
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSScrapArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert_eq!(array.len(), 2);
@@ -331,9 +315,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSScrapArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert!(array.contains(&1));
@@ -362,10 +346,10 @@ where
     ///
     /// # Examples
     ///
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSScrapArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -413,10 +397,10 @@ where
     ///
     /// # Examples
     ///
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSScrapArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.resize(5, 0);
@@ -448,10 +432,10 @@ where
     ///
     /// # Examples
     ///
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSScrapArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -520,10 +504,10 @@ where
     ///
     /// # Examples
     ///
-    /// ```
-    /// use commonlibsse_ng::re::BSTArray::{BSTArray, RustAllocator};
+    /// ```no_run
+    /// use commonlibsse_ng::re::BSTArray::BSScrapArray;
     ///
-    /// let mut array = BSTArray::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = BSScrapArray::<i32>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// let sum: i32 = array.iter().sum();

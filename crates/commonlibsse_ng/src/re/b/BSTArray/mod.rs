@@ -1,4 +1,4 @@
-mod BSTArrayInner;
+mod scrap;
 pub mod IAllocatorFunctor;
 mod allocator;
 mod heap;
@@ -7,7 +7,7 @@ mod small_heap;
 use core::ptr::NonNull;
 use core::slice;
 
-pub use self::BSTArrayInner::BSScrapArray;
+pub use self::scrap::BSScrapArray;
 pub use self::{heap::BSTArray, small_heap::BSTSmallArray};
 
 #[repr(C)]
