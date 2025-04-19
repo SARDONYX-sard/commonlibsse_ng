@@ -185,6 +185,9 @@ macro_rules! impl_handle_wrapper {
             #[derive(Debug, Clone, Default, PartialEq)]
             $vis struct $name(BSPointerHandle<$inner>);
 
+            // Safety: The handle can be reset to 0.
+            unsafe impl std_fork::zeroable::Zeroable for $name {}
+
             impl $name {
                 /// Creates a new, null handle.
                 #[inline]

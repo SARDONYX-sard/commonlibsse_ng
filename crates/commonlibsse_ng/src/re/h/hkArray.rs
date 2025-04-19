@@ -10,7 +10,8 @@ use core::ops::{Index, IndexMut};
 pub use self::array_base::{
     hkArrayBase, hkArrayDrain, hkArrayIterMut, hkArrayIterator, hkArrayRefIterator,
 };
-use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
+use crate::re::MemoryManager::TESGlobalAlloc;
+use std_fork::alloc::SelflessAllocator;
 
 /// A dynamic array container C++'s `hkArray`, backed by a custom allocator.
 ///

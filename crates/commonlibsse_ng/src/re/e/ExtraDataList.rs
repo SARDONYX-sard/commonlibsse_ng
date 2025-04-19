@@ -28,8 +28,11 @@ pub struct ExtraDataList {
     /// # Attention when inheriting
     /// Because it contains 1 byte of dummy size for zero-size classes,
     /// this size disappears when inheriting, so it would be dangerous to use it as it is for inheritance.
-    dummy: usize,
+    pad: usize,
 }
+const _: () = assert!(core::mem::size_of::<ExtraDataList>() == 0x8);
+
+unsafe impl std_fork::zeroable::Zeroable for ExtraDataList {}
 
 impl ExtraDataList {
     /// - calc cost: O(n)
@@ -215,6 +218,7 @@ pub struct BaseExtraList {
     data: Data,
     presence: PhantomMember<*mut PresenceBitfield, 0x8, 0x10>,
 }
+const _: () = assert!(core::mem::size_of::<BaseExtraList>() == 0x0);
 
 /// Wrapper type for iterator
 #[derive(Debug, Clone)]

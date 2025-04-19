@@ -2,9 +2,10 @@ use core::marker::PhantomData;
 use core::{alloc::Layout, fmt};
 use std::ffi::{CStr, CString};
 
+use std_fork::alloc::SelflessAllocator;
 use stdx::unique::Unique;
 
-use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
+use crate::re::MemoryManager::TESGlobalAlloc;
 
 // NOTE: The `SStaticStringT` is omitted because it is not used.
 

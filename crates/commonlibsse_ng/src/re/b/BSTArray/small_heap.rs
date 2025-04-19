@@ -11,9 +11,10 @@ use core::{
 };
 use std::alloc::handle_alloc_error;
 
+use std_fork::alloc::SelflessAllocator;
 use stdx::{ptr::const_non_null::ConstNonNull, unique::Unique};
 
-use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
+use crate::re::MemoryManager::TESGlobalAlloc;
 
 /// Use stack while within the specified size, and use heap if it is larger.
 ///

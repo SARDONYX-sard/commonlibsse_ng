@@ -95,7 +95,7 @@ impl TESObjectREFR {
         let inventory_changed = unsafe { &*inventory_changed };
 
         let mut inventory = InventoryItemMap::new();
-        for entry in unsafe { inventory_changed.entry_list.as_ref()?.iter() } {
+        for entry in unsafe { inventory_changed.entryList.as_ref()?.iter() } {
             if entry.is_null() {
                 continue;
             }

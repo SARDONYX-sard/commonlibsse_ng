@@ -5,7 +5,8 @@ use core::{
 };
 use std::alloc::handle_alloc_error;
 
-use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
+use crate::re::MemoryManager::TESGlobalAlloc;
+use std_fork::alloc::SelflessAllocator;
 
 /// Represents a base class for a dynamic array of type `T`.
 #[repr(C)]

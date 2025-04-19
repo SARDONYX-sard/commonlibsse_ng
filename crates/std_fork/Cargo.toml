@@ -1,0 +1,16 @@
+[package]
+name = "std_fork"
+edition.workspace = true
+authors.workspace = true
+categories.workspace = true
+description = "Code derived from std rust or conceived from std"
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version = "0.1.0"
+
+
+[dependencies]
+stdx = { path = "../stdx" }

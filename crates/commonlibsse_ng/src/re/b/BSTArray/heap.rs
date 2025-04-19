@@ -6,9 +6,9 @@ use core::{
 };
 use std::alloc::handle_alloc_error;
 
+use crate::re::MemoryManager::TESGlobalAlloc;
+use std_fork::alloc::SelflessAllocator;
 use stdx::{ptr::const_non_null::ConstNonNull, unique::Unique};
-
-use crate::re::MemoryManager::{TESGlobalAlloc, selfless_alloc::allocator::SelflessAllocator};
 
 /// A binary-compatible, growable array.
 ///
@@ -426,9 +426,7 @@ where
 
     /// Resizes the array to the specified length.
     ///
-    /// If the array is resized to a larger length, the new elements will be initialized
-    /// using the default constructor for `T`. If the array is resized to a smaller length,
-    /// elements at the end will be dropped.
+    /// If the list is shorter, it will be extended with cloning the value given as the argument.
     ///
     /// # Examples
     ///

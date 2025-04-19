@@ -116,9 +116,10 @@ pub struct QUEST_DATA {
 const _: () = assert!(core::mem::size_of::<QUEST_DATA>() == 0x8);
 
 #[commonlibsse_ng_derive_internal::to_bitflags]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(u8)]
 pub enum QuestStageFlag {
+    #[default]
     None = 0,
     StartUpStage = 1 << 1,
     ShutDownStage = 1 << 2,
@@ -126,7 +127,7 @@ pub enum QuestStageFlag {
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct QUEST_STAGE_DATA {
     pub index: u16,            // 0x000
     pub flags: QuestStageFlag, // 0x002
@@ -136,11 +137,14 @@ pub struct QUEST_STAGE_DATA {
 const _: () = assert!(core::mem::size_of::<QUEST_STAGE_DATA>() == 0x8);
 
 #[repr(C)]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TESQuestStage {
     pub data: QUEST_STAGE_DATA,
 }
 const _: () = assert!(core::mem::size_of::<TESQuestStage>() == 0x8);
+
+// Safety: All of these fields can be zero initialized.
+unsafe impl std_fork::zeroable::Zeroable for TESQuestStage {}
 
 #[commonlibsse_ng_derive_internal::to_bitflags]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

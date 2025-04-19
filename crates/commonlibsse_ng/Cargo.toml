@@ -31,6 +31,7 @@ typenum = { version = "1.18.0" }
 
 commonlibsse_ng_derive = { path = "../commonlibsse_ng_derive", optional = true }
 commonlibsse_ng_derive_internal = { path = "../commonlibsse_ng_derive_internal" }
+std_fork = { path = "../std_fork" }
 stdx = { path = "../stdx" }
 
 
@@ -65,6 +66,7 @@ pretty_assertions = "1.4.1"
 
 [features]
 # default = ["full", "test_on_local"] # To debug
+default = ["full", "test_on_ci"] # To debug
 
 # Enable tracing log support
 tracing = [

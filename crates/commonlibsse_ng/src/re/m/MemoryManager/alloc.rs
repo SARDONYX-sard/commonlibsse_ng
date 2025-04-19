@@ -1,4 +1,4 @@
-pub mod global;
+pub mod tes_global;
 pub mod scrap_alloc;
 
 #[cfg(not(feature = "test_on_ci"))]

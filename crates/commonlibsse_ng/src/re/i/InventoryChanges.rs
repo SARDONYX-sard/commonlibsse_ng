@@ -47,10 +47,10 @@ pub struct IItemChangeVisitorVtbl {
 }
 
 pub struct InventoryChanges {
-    pub entry_list: *mut BSSimpleList<*mut InventoryEntryData>,
+    pub entryList: *mut BSSimpleList<*mut InventoryEntryData>,
     pub owner: *mut TESObjectREFR,
-    pub total_weight: f32,
-    pub armor_weight: f32,
+    pub totalWeight: f32,
+    pub armorWeight: f32,
     pub changed: bool,
     pub unk19: u8,
     pub unk1a: u8,

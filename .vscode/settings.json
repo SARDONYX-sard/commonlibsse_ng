@@ -1,7 +1,7 @@
 {
   // "rust-analyzer.cargo.features": ["full"],
+  // "rust-analyzer.cargo.features": ["test_on_ci"],
   // "rust-analyzer.cargo.noDefaultFeatures": true,
   "rust-analyzer.check.command": "clippy",
   "rust-analyzer.imports.preferNoStd": true
-  // "rust-analyzer.check.features": ["full"]
 }

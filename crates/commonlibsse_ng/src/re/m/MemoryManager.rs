@@ -1,8 +1,7 @@
 pub mod SimpleArray;
 pub mod alloc;
-pub mod selfless_alloc;
 
-pub use self::alloc::global::TESGlobalAlloc;
+pub use self::alloc::tes_global::TESGlobalAlloc;
 
 use core::ffi::c_void;
 use core::ptr;
