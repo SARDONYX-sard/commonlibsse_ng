@@ -228,6 +228,7 @@ pub enum ModuleInitError {
 #[cfg(test)]
 mod tests {
     #[cfg(feature = "test_on_ci")]
+    #[cfg_attr(miri, ignore)]
     #[test]
     fn test_module_init() {
         use super::*;
