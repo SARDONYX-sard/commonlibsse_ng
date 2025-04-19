@@ -226,9 +226,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArrayBase, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArrayBase;
+    /// use stdx::alloc::Global;
     ///
-    /// let mut array = hkArrayBase::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = hkArrayBase::<i32, Global>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// assert!(array.contains(&1));
@@ -258,9 +259,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArrayBase, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArrayBase;
+    /// use stdx::alloc::Global;
     ///
-    /// let mut array = hkArrayBase::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = hkArrayBase::<i32, Global>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
@@ -308,9 +310,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use commonlibsse_ng::re::hkArray::{hkArrayBase, RustAllocator};
+    /// use commonlibsse_ng::re::hkArray::hkArrayBase;
+    /// use stdx::alloc::Global;
     ///
-    /// let mut array = hkArrayBase::<i32, RustAllocator>::with_capacity(10);
+    /// let mut array = hkArrayBase::<i32, Global>::with_capacity(10);
     /// array.push(1);
     /// array.push(2);
     /// array.push(3);
