@@ -233,6 +233,13 @@ where
     }
 
     /// Returns `true` if the list is empty.
+    ///
+    /// # Example
+    /// ```
+    /// # use commonlibsse_ng::re::BSTList::BSSimpleList;
+    /// let mut list = BSSimpleList::<i32>::new();
+    /// assert!(list.is_empty());
+    /// ```
     #[inline]
     pub const fn is_empty(&self) -> bool {
         self.list_head.next.is_none()
@@ -241,6 +248,17 @@ where
     /// Returns the number of elements in the list.
     ///
     /// Note that the computation cost is `O(n)` since it is a linked list.
+    ///
+    /// # Example
+    /// ```
+    /// # use commonlibsse_ng::re::BSTList::BSSimpleList;
+    /// let mut list = BSSimpleList::new();
+    /// list.push_front(1); // 2
+    /// list.push_front(2); // 1
+    /// list.push_front(3); // 0
+    ///
+    /// assert_eq!(list.len(), 3);
+    /// ```
     #[inline]
     pub fn len(&self) -> usize {
         if self.list_head.item.is_none() {
@@ -274,11 +292,72 @@ where
     }
 
     /// Removes the node after the given position.
+    ///
+    /// # Example
+    /// ```
+    /// use commonlibsse_ng::re::BSTList::{BSSimpleList, Node};
+    ///
+    /// let mut list = BSSimpleList::new();
+    /// let mut first = Node::new(1, None);
+    /// list.insert_after(&mut first, 2);
+    /// list.erase_after(&mut first);
+    /// ```
     #[inline]
     pub const fn erase_after(&mut self, pos: &mut Node<T>) {
         if let Some(mut node) = pos.next.take() {
             pos.next = unsafe { node.as_mut().next.take() };
         }
+    }
+
+    /// Returns a reference to the node at the given position.
+    ///
+    /// # Example
+    /// ```
+    /// # use commonlibsse_ng::re::BSTList::BSSimpleList;
+    /// let mut list = BSSimpleList::new();
+    /// list.push_front(1); // 3
+    /// list.push_front(2); // 2
+    /// list.push_front(3); // 1
+    /// list.push_front(4); // 0
+    ///
+    /// assert_eq!(list.get(1), Some(&3));
+    /// ```
+    #[inline]
+    pub fn get(&self, pos: usize) -> Option<&T> {
+        for (idx, value) in self.iter().enumerate() {
+            if idx == pos {
+                return Some(value);
+            }
+        }
+
+        None
+    }
+
+    /// Returns a mutable reference to the node at the given position.
+    ///
+    /// # Example
+    /// ```
+    /// # use commonlibsse_ng::re::BSTList::BSSimpleList;
+    /// let mut list = BSSimpleList::new();
+    /// list.push_front(1); // 3
+    /// list.push_front(2); // 2
+    /// list.push_front(3); // 1
+    /// list.push_front(4); // 0
+    ///
+    /// if let Some(value) = list.get_mut(2) {
+    ///    *value = 5;
+    /// }
+    /// assert_eq!(list.get(2), Some(&5));
+    /// ```
+    #[inline]
+    pub fn get_mut(&mut self, pos: usize) -> Option<&mut T> {
+        for (idx, value) in self.iter_mut().enumerate() {
+            if idx == pos {
+                return Some(value);
+            }
+        }
+
+        None
     }
 
     /// Clears the entire list.
@@ -533,6 +612,30 @@ where
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
         self.iter_mut()
+    }
+}
+
+impl<T> Extend<T> for &mut BSSimpleList<T>
+where
+    T: Zeroable,
+{
+    #[inline]
+    fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        for item in iter {
+            self.push_front(item);
+        }
+    }
+}
+
+impl<T> Extend<T> for BSSimpleList<T>
+where
+    T: Zeroable,
+{
+    #[inline]
+    fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        for item in iter {
+            self.push_front(item);
+        }
     }
 }
 
