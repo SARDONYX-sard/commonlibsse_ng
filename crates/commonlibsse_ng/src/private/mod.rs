@@ -3,4 +3,4 @@ pub use tracing;
 
 pub use bitflags;
 pub use once_cell::sync::OnceCell;
-pub use stdx::unique::Unique;
+pub use stdx::ptr::Unique;

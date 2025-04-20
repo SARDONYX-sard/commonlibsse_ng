@@ -8,7 +8,7 @@ use std::alloc::handle_alloc_error;
 
 use crate::re::MemoryManager::TESGlobalAlloc;
 use std_fork::alloc::SelflessAllocator;
-use stdx::{ptr::const_non_null::ConstNonNull, unique::Unique};
+use stdx::ptr::{ConstNonNull, Unique};
 
 /// A binary-compatible, growable array.
 ///

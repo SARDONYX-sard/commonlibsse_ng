@@ -1,5 +1,5 @@
 #![allow(clippy::missing_safety_doc)]
-use crate::unique::Unique;
+use crate::ptr::Unique;
 use core::cmp::Ordering;
 use core::mem::MaybeUninit;
 use core::num::NonZero;

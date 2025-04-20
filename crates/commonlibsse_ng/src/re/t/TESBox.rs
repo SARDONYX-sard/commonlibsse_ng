@@ -212,7 +212,7 @@ use crate::re::MemoryManager::TESGlobalAlloc as Global;
 use core::alloc::Layout;
 use stdx::{
     alloc::{AllocError, Allocator},
-    unique::Unique,
+    ptr::Unique,
 };
 
 // The declaration of the `Box` struct must be kept in sync with the

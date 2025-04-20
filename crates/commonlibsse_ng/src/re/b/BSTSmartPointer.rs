@@ -2,14 +2,13 @@
 //!
 //! A smart pointer with custom reference counting and auto-ptr management strategies.
 
-use stdx::unique::Unique;
-
 use crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait;
 use crate::re::TESBox::TESBox;
 use core::fmt::{self, Debug};
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut};
 use core::ptr::{self, NonNull};
+use stdx::ptr::Unique;
 
 /// Trait for managing smart pointer lifetimes.
 pub trait ManageBSTSmartPointer {

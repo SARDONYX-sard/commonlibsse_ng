@@ -3,7 +3,7 @@ use core::{alloc::Layout, fmt};
 use std::ffi::{CStr, CString};
 
 use std_fork::alloc::SelflessAllocator;
-use stdx::unique::Unique;
+use stdx::ptr::Unique;
 
 use crate::re::MemoryManager::TESGlobalAlloc;
 

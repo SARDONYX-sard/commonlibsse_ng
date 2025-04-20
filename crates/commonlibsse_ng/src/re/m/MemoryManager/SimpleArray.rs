@@ -8,8 +8,7 @@ use std::alloc::handle_alloc_error;
 
 use crate::re::MemoryManager::TESGlobalAlloc;
 use stdx::alloc::Allocator;
-use stdx::ptr::const_non_null::ConstNonNull;
-use stdx::unique::Unique;
+use stdx::ptr::{ConstNonNull, Unique};
 
 /// Array whose first pointer is only a pointer to the length.
 ///
