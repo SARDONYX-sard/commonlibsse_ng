@@ -1,17 +1,19 @@
 //! # BSTSmartPointer
 //!
 //! A smart pointer with custom reference counting and auto-ptr management strategies.
-//!
-//! # Memory Layout:
-//! - `_ptr`: Raw pointer to the managed object (0x0)
+
+use stdx::unique::Unique;
 
 use crate::re::BSIntrusiveRefCounted::BSIntrusiveRefCountedTrait;
-use core::fmt::Debug;
+use crate::re::TESBox::TESBox;
+use crate::re::f;
+use core::fmt::{self, Debug};
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut};
-use core::ptr;
+use core::ptr::{self, NonNull};
 
-pub trait BSTSmartPointerTrait {
+/// Trait for managing smart pointer lifetimes.
+pub trait ManageBSTSmartPointer {
     /// No-op for acquire.
     #[inline]
     fn acquire<T>(_ptr: *mut T)
@@ -20,16 +22,18 @@ pub trait BSTSmartPointerTrait {
     {
     }
 
-    /// Deallocates the managed object.
+    /// Releases the object held by the smart pointer.
     ///
     /// # Safety
+    ///
+    /// The pointer must be valid and allocated by `TESBox`.
     #[inline]
     unsafe fn release<T>(ptr: *mut T)
     where
         T: BSIntrusiveRefCountedTrait,
     {
         if !ptr.is_null() {
-            drop(unsafe { Box::from_raw(ptr) });
+            drop(unsafe { TESBox::from_raw(ptr) });
         }
     }
 }
@@ -38,8 +42,7 @@ pub trait BSTSmartPointerTrait {
 #[derive(Debug)]
 pub struct BSTSmartPointerIntrusiveRefCount;
 
-impl BSTSmartPointerTrait for BSTSmartPointerIntrusiveRefCount {
-    /// Increases the reference count of the managed object.
+impl ManageBSTSmartPointer for BSTSmartPointerIntrusiveRefCount {
     #[inline]
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn acquire<T>(ptr: *mut T)
@@ -51,14 +54,13 @@ impl BSTSmartPointerTrait for BSTSmartPointerIntrusiveRefCount {
         }
     }
 
-    /// Decreases the reference count and deallocates if necessary.
     #[inline]
     unsafe fn release<T>(ptr: *mut T)
     where
         T: BSIntrusiveRefCountedTrait,
     {
         if !ptr.is_null() && (unsafe { &*ptr }).dec_ref() == 0 {
-            drop(unsafe { Box::from_raw(ptr) });
+            drop(unsafe { TESBox::from_raw(ptr) });
         }
     }
 }
@@ -66,89 +68,135 @@ impl BSTSmartPointerTrait for BSTSmartPointerIntrusiveRefCount {
 /// Auto-pointer manager without reference counting.
 #[derive(Debug)]
 pub struct BSTSmartPointerAutoPtr;
+impl ManageBSTSmartPointer for BSTSmartPointerAutoPtr {}
 
-impl BSTSmartPointerTrait for BSTSmartPointerAutoPtr {}
+pub type BSTAutoPointer<T> = BSTSmartPointer<T, BSTSmartPointerAutoPtr>;
 
 /// Smart pointer with customizable reference management.
+///
+/// This smart pointer optionally manages reference counts depending on the `M` parameter.
+///
+/// # Panics
+///
+/// Dereferencing a null pointer via `Deref` or `DerefMut` will **panic**.
+/// Use [`as_ref`] or [`is_null`] to avoid this panic.
 #[repr(C)]
-#[derive(Debug)]
 pub struct BSTSmartPointer<T, M = BSTSmartPointerIntrusiveRefCount>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
-    ptr: *mut T,
+    /// C++ equivalent: `T*`
+    ptr: Option<Unique<T>>,
     _marker: PhantomData<M>,
 }
 
 impl<T, M> BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
-    /// Creates a new `BSTSmartPointer` from a raw pointer.
+    /// Creates a new smart pointer from a raw pointer.
+    /// # Safety
+    /// The pointer must be created from `TESBox`(`MemoryManager::allocate`).
     #[inline]
-    pub fn new(ptr: *mut T) -> Self {
+    pub unsafe fn new(ptr: *mut T) -> Self {
         M::acquire(ptr);
-        Self { ptr, _marker: PhantomData }
+        Self { ptr: Unique::new(ptr), _marker: PhantomData }
     }
 
-    /// Resets the smart pointer, releasing the current object.
+    /// Creates a new smart pointer from a raw pointer.
+    #[inline]
+    pub fn from_non_null(ptr: NonNull<T>) -> Self {
+        M::acquire(ptr.as_ptr());
+        Self { ptr: Some(Unique::from(ptr)), _marker: PhantomData }
+    }
+
+    /// Replaces the internal pointer with null and releases the old object.
+    ///
+    /// After calling this, [`is_null`] returns `true`.
     #[inline]
     pub fn reset(&mut self) {
         unsafe {
-            M::release(self.ptr);
-            self.ptr = ptr::null_mut();
+            M::release(self.as_ptr());
+            self.ptr = None; // <- ptr::null_mut()
         }
     }
 
-    /// Creates a new `BSTSmartPointer` by moving ownership.
+    /// Creates a smart pointer from a [`TESBox`], taking ownership.
     #[inline]
-    pub fn from_box(value: Box<T>) -> Self {
-        let ptr = Box::into_raw(value);
-        Self::new(ptr)
+    pub fn from_box(value: TESBox<T>) -> Self {
+        let ptr = TESBox::into_raw(value);
+        // Safety: The pointer is valid and managed by `TESBox`.
+        unsafe { Self::new(ptr) }
     }
 
-    /// Returns a reference to the managed object or `None` if null.
+    /// Returns an immutable reference to the managed object, or `None` if the pointer is null.
+    ///
+    /// Use this to safely access the internal object without risking a panic.
     #[inline]
     pub const fn as_ref(&self) -> Option<&T> {
-        unsafe { self.ptr.as_ref() }
+        match &self.ptr {
+            Some(p) => unsafe { Some(p.as_ref()) },
+            None => None,
+        }
     }
 
-    /// Returns a mutable reference to the managed object or `None` if null.
+    /// Returns a mutable reference to the managed object, or `None` if the pointer is null.
     #[inline]
     pub const fn as_mut(&mut self) -> Option<&mut T> {
-        unsafe { self.ptr.as_mut() }
+        match &mut self.ptr {
+            Some(p) => unsafe { Some(p.as_mut()) },
+            None => None,
+        }
     }
 
-    /// Gets the raw pointer.
+    /// Returns the raw pointer to the managed object.
     #[inline]
-    pub const fn get(&self) -> *mut T {
-        self.ptr
+    pub const fn as_ptr(&self) -> *mut T {
+        match self.ptr {
+            Some(p) => p.as_ptr(),
+            None => ptr::null_mut(),
+        }
     }
 
-    /// Is null ptr?
+    /// Returns true if the internal pointer is null.
     #[inline]
     pub const fn is_null(&self) -> bool {
-        self.ptr.is_null()
+        self.ptr.is_none()
+    }
+}
+
+impl<T, M> fmt::Debug for BSTSmartPointer<T, M>
+where
+    T: BSIntrusiveRefCountedTrait + fmt::Debug,
+    M: ManageBSTSmartPointer,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut s = f.debug_struct("BSTSmartPointer");
+        match self.as_ref() {
+            Some(value) => s.field("ptr", value),
+            None => s.field("ptr", &"null"),
+        };
+        s.finish()
     }
 }
 
 impl<T, M> Default for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
     #[inline]
     fn default() -> Self {
-        Self { ptr: ptr::null_mut(), _marker: PhantomData }
+        Self { ptr: None, _marker: PhantomData }
     }
 }
 
 impl<T, M> Drop for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
     #[inline]
     fn drop(&mut self) {
@@ -159,10 +207,15 @@ where
 impl<T, M> Deref for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
     type Target = T;
 
+    /// Dereferences the smart pointer to the managed object.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal pointer is null.
     #[inline]
     fn deref(&self) -> &Self::Target {
         self.as_ref().expect("Dereferencing null pointer")
@@ -172,8 +225,13 @@ where
 impl<T, M> DerefMut for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
+    /// Dereferences the smart pointer mutably.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the internal pointer is null.
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.as_mut().expect("Dereferencing null pointer")
@@ -183,11 +241,11 @@ where
 impl<T, M> Clone for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
     #[inline]
     fn clone(&self) -> Self {
-        M::acquire(self.ptr);
+        M::acquire(self.as_ptr());
         Self { ptr: self.ptr, _marker: PhantomData }
     }
 }
@@ -195,85 +253,57 @@ where
 impl<T, M> PartialEq for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
     #[inline]
     fn eq(&self, other: &Self) -> bool {
-        self.ptr == other.ptr
+        match (self.ptr, other.ptr) {
+            (Some(p1), Some(p2)) => p1.as_non_null_ptr() == p2.as_non_null_ptr(),
+            (None, None) => true,
+            _ => false,
+        }
     }
 }
 
 impl<T, M> Eq for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
 }
 
-pub type BSTAutoPointer<T> = BSTSmartPointer<T, BSTSmartPointerAutoPtr>;
-impl<T> BSTSmartPointer<T, BSTSmartPointerAutoPtr>
-where
-    T: BSIntrusiveRefCountedTrait,
-{
-    /// Creates an auto-pointer smart pointer.
-    #[inline]
-    pub fn auto_ptr(value: Box<T>) -> Self {
-        let ptr = Box::into_raw(value);
-        Self::new(ptr)
-    }
-}
-
-/// Helper function to create a `BSTSmartPointer`.
-#[inline]
-pub fn make_smart<T, M>(value: T) -> BSTSmartPointer<T, M>
-where
-    T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
-{
-    BSTSmartPointer::from_box(Box::new(value))
-}
-
-/// Equality operators for comparing smart pointers.
 impl<T, M> PartialEq<*mut T> for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
     #[inline]
     fn eq(&self, other: &*mut T) -> bool {
-        self.ptr == *other
+        self.as_ptr() == *other
     }
 }
 
 impl<T, M> PartialEq<Option<*mut T>> for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
     #[inline]
     fn eq(&self, other: &Option<*mut T>) -> bool {
-        Some(self.ptr) == *other
+        Some(self.as_ptr()) == *other
     }
 }
 
-impl<T, M> PartialEq<std::ptr::NonNull<T>> for BSTSmartPointer<T, M>
+impl<T, M> PartialEq<ptr::NonNull<T>> for BSTSmartPointer<T, M>
 where
     T: BSIntrusiveRefCountedTrait,
-    M: BSTSmartPointerTrait,
+    M: ManageBSTSmartPointer,
 {
     #[inline]
-    fn eq(&self, other: &std::ptr::NonNull<T>) -> bool {
-        self.ptr == other.as_ptr()
+    fn eq(&self, other: &ptr::NonNull<T>) -> bool {
+        self.as_ptr() == other.as_ptr()
     }
 }
-
-// /// Macro to define a smart pointer alias with intrusive ref-counting.
-// #[macro_export]
-// macro_rules! BSSmartPointer {
-//     ($name:ident) => {
-//         pub type $name##Ptr = BSTSmartPointer<$name, BSTSmartPointerIntrusiveRefCount>;
-//     };
-// }
 
 #[cfg(test)]
 mod tests {
@@ -289,41 +319,48 @@ mod tests {
 
     impl TestObject {
         const fn new(value: i32) -> Self {
-            Self { ref_count: AtomicU32::new(1), value }
+            Self { ref_count: AtomicU32::new(0), value }
         }
     }
 
     impl BSIntrusiveRefCountedTrait for TestObject {
         fn inc_ref(&self) -> u32 {
-            self.ref_count.fetch_add(1, Ordering::AcqRel)
+            self.ref_count.fetch_add(1, Ordering::AcqRel) + 1
         }
 
         fn dec_ref(&self) -> u32 {
-            self.ref_count.fetch_sub(1, Ordering::AcqRel)
+            self.ref_count.fetch_sub(1, Ordering::AcqRel) - 1
         }
     }
     // BSTSmartPointerTrait,
 
     #[test]
     fn test_smart_pointer() {
-        let obj = Box::new(TestObject::new(42));
-        let mut ptr = BSTSmartPointer::<TestObject>::from_box(obj);
-        assert_eq!(ptr.value, 42);
-        assert!(ptr.as_ref().is_some());
+        {
+            let obj = TESBox::new(TestObject::new(42));
+            let mut ptr = BSTSmartPointer::<TestObject>::from_box(obj);
+            assert_eq!(ptr.value, 42);
+            assert!(ptr.as_ref().is_some());
+            assert_eq!(ptr.as_ref().map(|p| p.ref_count.load(Ordering::Acquire)), Some(1));
 
-        // Clone and check ref count
-        let ptr2 = ptr.clone();
-        assert_eq!(ptr2.value, 42);
+            // Clone and check ref count
+            let mut ptr2 = ptr.clone();
+            assert_eq!(ptr2.value, 42);
+            assert_eq!(ptr.as_ref().map(|p| p.ref_count.load(Ordering::Acquire)), Some(2));
 
-        ptr.reset();
-        assert!(ptr.as_ref().is_none());
-        assert!(ptr2.as_ref().is_some());
+            ptr.reset();
+            assert_eq!(ptr2.as_ref().map(|p| p.ref_count.load(Ordering::Acquire)), Some(1));
+
+            assert!(ptr.as_ref().is_none());
+            assert!(ptr2.as_ref().is_some());
+            ptr2.reset();
+        }
     }
 
     #[test]
     fn test_auto_pointer() {
-        let obj = Box::new(TestObject::new(123));
-        let mut auto_ptr = BSTSmartPointer::<TestObject, BSTSmartPointerAutoPtr>::from_box(obj);
+        let obj = TESBox::new(TestObject::new(123));
+        let mut auto_ptr = BSTAutoPointer::from_box(obj);
         assert_eq!(auto_ptr.value, 123);
 
         auto_ptr.reset();
