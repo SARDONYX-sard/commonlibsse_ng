@@ -17,7 +17,7 @@ use crate::alloc::{AllocError, Allocator};
 /// if there is one, or the `std` crate’s default.
 ///
 /// Note: while this type is unstable, the functionality it provides can be
-/// accessed through the [free functions in `alloc`](self#functions).
+/// accessed through the [free functions in `alloc`](std::alloc::alloc)
 pub struct Global;
 
 impl Global {

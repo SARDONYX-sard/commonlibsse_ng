@@ -57,9 +57,9 @@ use core::{fmt, hash, mem, ptr};
 /// ```
 ///
 /// [covariant]: https://doc.rust-lang.org/reference/subtyping.html
-/// [`PhantomData`]: crate::marker::PhantomData
-/// [`UnsafeCell<T>`]: crate::cell::UnsafeCell
-/// [null pointer optimization]: crate::option#representation
+/// [`PhantomData`]: core::marker::PhantomData
+/// [`UnsafeCell<T>`]: core::cell::UnsafeCell
+/// [null pointer optimization]: core::option#representation
 #[repr(transparent)]
 pub struct ConstNonNull<T: ?Sized> {
     // Remember to use `.as_ptr()` instead of `.pointer`, as field projecting to
@@ -104,7 +104,7 @@ impl<T: Sized> ConstNonNull<T> {
     /// # Safety
     ///
     /// When calling this method, you have to ensure that
-    /// the pointer is [convertible to a reference](crate::ptr#pointer-to-reference-conversion).
+    /// the pointer is [convertible to a reference](core::ptr#pointer-to-reference-conversion).
     /// Note that because the created reference is to `MaybeUninit<T>`, the
     /// source pointer can point to uninitialized memory.
     #[inline]
@@ -195,7 +195,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     ///
     /// For more details, see the equivalent method on a raw pointer, [`pointer::addr`].
     ///
-    /// This is a [Strict Provenance][crate::ptr#strict-provenance] API.
+    /// This is a [Strict Provenance][core::ptr#strict-provenance] API.
     #[must_use]
     #[inline]
     pub fn addr(self) -> NonZero<usize> {
@@ -204,12 +204,12 @@ impl<T: ?Sized> ConstNonNull<T> {
         unsafe { NonZero::new_unchecked(self.as_ptr().addr()) }
     }
 
-    /// Creates a new pointer with the given address and the [provenance][crate::ptr#provenance] of
+    /// Creates a new pointer with the given address and the [provenance][core::ptr#provenance] of
     /// `self`.
     ///
     /// For more details, see the equivalent method on a raw pointer, [`pointer::with_addr`].
     ///
-    /// This is a [Strict Provenance][crate::ptr#strict-provenance] API.
+    /// This is a [Strict Provenance][core::ptr#strict-provenance] API.
     #[must_use]
     #[inline]
     pub fn with_addr(self, addr: NonZero<usize>) -> Self {
@@ -218,11 +218,11 @@ impl<T: ?Sized> ConstNonNull<T> {
     }
 
     /// Creates a new pointer by mapping `self`'s address to a new one, preserving the
-    /// [provenance][crate::ptr#provenance] of `self`.
+    /// [provenance][core::ptr#provenance] of `self`.
     ///
     /// For more details, see the equivalent method on a raw pointer, [`pointer::map_addr`].
     ///
-    /// This is a [Strict Provenance][crate::ptr#strict-provenance] API.
+    /// This is a [Strict Provenance][core::ptr#strict-provenance] API.
     #[must_use]
     #[inline]
     pub fn map_addr(self, f: impl FnOnce(NonZero<usize>) -> NonZero<usize>) -> Self {
@@ -268,7 +268,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     /// # Safety
     ///
     /// When calling this method, you have to ensure that
-    /// the pointer is [convertible to a reference](crate::ptr#pointer-to-reference-conversion).
+    /// the pointer is [convertible to a reference](core::ptr#pointer-to-reference-conversion).
     ///
     /// # Examples
     ///
@@ -282,7 +282,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     /// println!("{ref_x}");
     /// ```
     ///
-    /// [the module documentation]: crate::ptr#safety
+    /// [the module documentation]: core::ptr#safety
     #[must_use]
     #[inline(always)]
     pub const unsafe fn as_ref<'a>(&self) -> &'a T {
@@ -334,7 +334,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     /// This implies, for instance, that `vec.as_ptr().add(vec.len())` (for `vec: Vec<T>`) is always
     /// safe.
     ///
-    /// [allocated object]: crate::ptr#allocated-object
+    /// [allocated object]: core::ptr#allocated-object
     ///
     /// # Examples
     ///
@@ -384,7 +384,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     /// This implies, for instance, that `vec.as_ptr().add(vec.len())` (for `vec: Vec<T>`) is always
     /// safe.
     ///
-    /// [allocated object]: crate::ptr#allocated-object
+    /// [allocated object]: core::ptr#allocated-object
     ///
     /// # Examples
     ///
@@ -460,7 +460,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     /// This implies, for instance, that `vec.as_ptr().add(vec.len())` (for `vec: Vec<T>`) is always
     /// safe.
     ///
-    /// [allocated object]: crate::ptr#allocated-object
+    /// [allocated object]: core::ptr#allocated-object
     ///
     /// # Examples
     ///
@@ -554,7 +554,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     // FIXME: recommend `addr()` instead of `as usize` once that is stable.
     ///
     /// [`add`]: #method.add
-    /// [allocated object]: crate::ptr#allocated-object
+    /// [allocated object]: core::ptr#allocated-object
     ///
     /// # Panics
     ///
@@ -629,7 +629,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     ///
     /// See [`ptr::read`] for safety concerns and examples.
     ///
-    /// [`ptr::read`]: crate::ptr::read()
+    /// [`ptr::read`]: core::ptr::read()
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub const unsafe fn read(self) -> T
@@ -649,7 +649,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     ///
     /// See [`ptr::read_volatile`] for safety concerns and examples.
     ///
-    /// [`ptr::read_volatile`]: crate::ptr::read_volatile()
+    /// [`ptr::read_volatile`]: core::ptr::read_volatile()
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub unsafe fn read_volatile(self) -> T
@@ -667,7 +667,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     ///
     /// See [`ptr::read_unaligned`] for safety concerns and examples.
     ///
-    /// [`ptr::read_unaligned`]: crate::ptr::read_unaligned()
+    /// [`ptr::read_unaligned`]: core::ptr::read_unaligned()
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub const unsafe fn read_unaligned(self) -> T
@@ -685,7 +685,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     ///
     /// See [`ptr::copy`] for safety concerns and examples.
     ///
-    /// [`ptr::copy`]: crate::ptr::copy()
+    /// [`ptr::copy`]: core::ptr::copy()
     #[inline(always)]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub const unsafe fn copy_to(self, dest: NonNull<T>, count: usize)
@@ -703,7 +703,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     ///
     /// See [`ptr::copy_nonoverlapping`] for safety concerns and examples.
     ///
-    /// [`ptr::copy_nonoverlapping`]: crate::ptr::copy_nonoverlapping()
+    /// [`ptr::copy_nonoverlapping`]: core::ptr::copy_nonoverlapping()
     #[inline(always)]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
     pub const unsafe fn copy_to_nonoverlapping(self, dest: NonNull<T>, count: usize)
@@ -803,7 +803,7 @@ impl<T> ConstNonNull<[T]> {
     /// The `len` argument is the number of **elements**, not the number of bytes.
     ///
     /// This function is safe, but dereferencing the return value is unsafe.
-    /// See the documentation of [`slice::from_raw_parts`] for slice safety requirements.
+    /// See the documentation of [`slice::from_raw_parts`](core::slice::from_raw_parts) for slice safety requirements.
     ///
     /// # Examples
     ///
