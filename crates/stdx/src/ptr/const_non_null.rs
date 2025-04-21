@@ -193,7 +193,7 @@ impl<T: ?Sized> ConstNonNull<T> {
 
     /// Gets the "address" portion of the pointer.
     ///
-    /// For more details, see the equivalent method on a raw pointer, [`pointer::addr`].
+    /// For more details, see the equivalent method on a raw pointer, `pointer::addr`.
     ///
     /// This is a [Strict Provenance][core::ptr#strict-provenance] API.
     #[must_use]
@@ -207,7 +207,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     /// Creates a new pointer with the given address and the [provenance][core::ptr#provenance] of
     /// `self`.
     ///
-    /// For more details, see the equivalent method on a raw pointer, [`pointer::with_addr`].
+    /// For more details, see the equivalent method on a raw pointer, `pointer::with_addr`.
     ///
     /// This is a [Strict Provenance][core::ptr#strict-provenance] API.
     #[must_use]
@@ -220,7 +220,7 @@ impl<T: ?Sized> ConstNonNull<T> {
     /// Creates a new pointer by mapping `self`'s address to a new one, preserving the
     /// [provenance][core::ptr#provenance] of `self`.
     ///
-    /// For more details, see the equivalent method on a raw pointer, [`pointer::map_addr`].
+    /// For more details, see the equivalent method on a raw pointer, `pointer::map_addr`.
     ///
     /// This is a [Strict Provenance][core::ptr#strict-provenance] API.
     #[must_use]
