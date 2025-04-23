@@ -1,4 +1,4 @@
-use crate::re::GFxValue;
+use crate::re::GFxValue::GFxValue;
 
 #[derive(Debug)]
 #[repr(C)]

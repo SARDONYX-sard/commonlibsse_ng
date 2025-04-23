@@ -20,10 +20,6 @@ impl crate::re::GPtr::RefCounted for FxDelegate {
         todo!()
     }
 }
-#[derive(Debug)]
-pub struct GFxValue {
-    pub opaque: [u8; 24],
-}
 
 pub struct TesWaterForm;
 

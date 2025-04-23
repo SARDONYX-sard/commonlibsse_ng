@@ -1,8 +1,9 @@
 use core::ffi::c_void;
 
 use crate::re::BSString::BSString;
+use crate::re::GFxMovieView;
+use crate::re::GFxValue::GFxValue;
 use crate::re::GPtr::GPtr;
-use crate::re::{GFxMovieView, GFxValue};
 
 #[derive(Debug)]
 #[repr(C)]

@@ -1,6 +1,8 @@
 use crate::re::BSTArray::BSTArray;
+use crate::re::GFxMovieView;
+use crate::re::GFxValue::GFxValue;
+use crate::re::GPtr::GPtr;
 use crate::re::StandardItemData::StandardItemData;
-use crate::re::{GFxMovieView, GFxValue, GPtr::GPtr};
 
 #[repr(C)]
 #[derive(Debug)]

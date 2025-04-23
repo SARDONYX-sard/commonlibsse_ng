@@ -2,7 +2,7 @@ use core::ffi::c_void;
 
 use crate::re::BSTArray::BSTArray;
 use crate::re::BottomBar::BottomBar;
-use crate::re::GFxValue;
+use crate::re::GFxValue::GFxValue;
 use crate::re::IMenu::{IMenu, IMenuVtbl};
 use crate::re::ItemCard::ItemCard;
 use crate::re::ItemList::ItemList;
