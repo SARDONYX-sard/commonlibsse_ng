@@ -16,17 +16,17 @@ pub struct BGSStoryTeller {
     pad09: u8,                                            // 0x09
     pad0A: u16,                                           // 0x0A
     pad0C: u32,                                           // 0x0C
-    queuedStartQuests: BSTArray<*mut TESQuest>,           // 0x10
-    runningQuests: BSTArray<*mut TESQuest>,               // 0x28
-    queuedStopQuests: BSTArray<*mut TESQuest>,            // 0x40
-    infoClearQuests: BSTArray<*mut TESQuest>,             // 0x58
-    helloTopicQuests: BSTArray<*mut TESQuest>,            // 0x70
-    greetingTopicQuests: BSTArray<*mut TESQuest>,         // 0x88
-    startUpQuestsInitialized: bool,                       // 0xA0
+    pub queuedStartQuests: BSTArray<*mut TESQuest>,       // 0x10
+    pub runningQuests: BSTArray<*mut TESQuest>,           // 0x28
+    pub queuedStopQuests: BSTArray<*mut TESQuest>,        // 0x40
+    pub infoClearQuests: BSTArray<*mut TESQuest>,         // 0x58
+    pub helloTopicQuests: BSTArray<*mut TESQuest>,        // 0x70
+    pub greetingTopicQuests: BSTArray<*mut TESQuest>,     // 0x88
+    pub startUpQuestsInitialized: bool,                   // 0xA0
     padA1: u8,                                            // 0xA1
     padA2: u16,                                           // 0xA2
     padA4: u32,                                           // 0xA4
-    questStageWaitMap: BSTHashMap<u32, *mut BSTArray<(u32, u32)>>, // 0xA8
+    pub questStageWaitMap: BSTHashMap<u32, *mut BSTArray<(u32, u32)>>, // 0xA8
 }
 const _: () = assert!(core::mem::size_of::<BGSStoryTeller>() == 0xD8);
 
