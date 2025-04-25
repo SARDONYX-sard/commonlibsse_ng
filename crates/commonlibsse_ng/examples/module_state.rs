@@ -21,11 +21,13 @@ fn plugin_main() {
 fn skse_event_listener(message: &Message) {
     if let Some(msg_type) = message.msg_type.to_enum() {
         if msg_type == MessageType::PostLoadGame {
+            record_story_teller();
+
             record_ui();
 
-            record_game_date();
-            record_player_character();
-            record_game_ini();
+            // record_game_date();
+            // record_player_character();
+            // record_game_ini();
         }
     }
 }
@@ -94,8 +96,57 @@ fn record_ui() {
 
             tracing::trace!("ui_addr = {:p}", ui);
 
-            // tracing::trace!("ui.menuMap = {:#?}", ui.menuMap);
+            tracing::trace!("ui.menuMap = {:#?}", ui.menuMap);
             tracing::trace!("ui = {:#?}", ui);
+        }
+    };
+}
+
+#[allow(clippy::cognitive_complexity)]
+fn record_story_teller() {
+    use commonlibsse_ng::re::BGSStoryTeller::BGSStoryTeller;
+
+    if let Some(story_teller) = BGSStoryTeller::get_singleton() {
+        #[cfg(feature = "tracing")]
+        {
+            tracing::trace!("story_teller addr = {:p}", story_teller);
+            tracing::trace!("story_teller addr = {:#?}", story_teller);
+
+            for (index, quest_ptr) in story_teller.queuedStartQuests.iter().enumerate() {
+                if let Some(quest) = unsafe { quest_ptr.as_ref() } {
+                    tracing::trace!("queuedStartQuests[{index}] = {:#?}", quest);
+                }
+            }
+
+            for (index, quest_ptr) in story_teller.runningQuests.iter().enumerate() {
+                if let Some(quest) = unsafe { quest_ptr.as_ref() } {
+                    tracing::trace!("runningQuests[{index}] = {:#?}", quest);
+                }
+            }
+
+            for (index, quest_ptr) in story_teller.queuedStopQuests.iter().enumerate() {
+                if let Some(quest) = unsafe { quest_ptr.as_ref() } {
+                    tracing::trace!("queuedStopQuests[{index}] = {:#?}", quest);
+                }
+            }
+
+            for (index, quest_ptr) in story_teller.infoClearQuests.iter().enumerate() {
+                if let Some(quest) = unsafe { quest_ptr.as_ref() } {
+                    tracing::trace!("infoClearQuests[{index}] = {:#?}", quest);
+                }
+            }
+
+            for (index, quest_ptr) in story_teller.helloTopicQuests.iter().enumerate() {
+                if let Some(quest) = unsafe { quest_ptr.as_ref() } {
+                    tracing::trace!("helloTopicQuests[{index}] = {:#?}", quest);
+                }
+            }
+
+            for (index, quest_ptr) in story_teller.greetingTopicQuests.iter().enumerate() {
+                if let Some(quest) = unsafe { quest_ptr.as_ref() } {
+                    tracing::trace!("greetingTopicQuests[{index}] = {:#?}", quest);
+                }
+            }
         }
     };
 }
