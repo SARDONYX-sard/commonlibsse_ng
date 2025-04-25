@@ -96,7 +96,15 @@ fn record_ui() {
 
             tracing::trace!("ui_addr = {:p}", ui);
 
-            tracing::trace!("ui.menuMap = {:#?}", ui.menuMap);
+            match ui.menuMap.show_memory_layout() {
+                Ok(mem_layout) => {
+                    tracing::trace!("ui.menuMap = {mem_layout}");
+                }
+                Err(err) => {
+                    tracing::error!("Failed to show memory layout: {err}");
+                    tracing::trace!("ui.menuMap = {:#?}", ui.menuMap);
+                }
+            }
             tracing::trace!("ui = {:#?}", ui);
         }
     };
