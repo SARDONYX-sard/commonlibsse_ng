@@ -241,6 +241,13 @@ where
             return;
         }
 
+        #[allow(clippy::missing_transmute_annotations)]
+        self.set_entries(unsafe { core::mem::transmute(new_entries) }); // Assumption that alloc_zeroed is used. and does nothing.
+        self.capacity = new_capacity;
+        self.free = new_capacity;
+        self.good = 0;
+
+        // Move old entries to new entries
         if let Some(old_entries) = old_entries {
             unsafe {
                 for i in 0..old_capacity {
@@ -258,17 +265,9 @@ where
                     old_entries.as_ptr(),
                     old_capacity as usize,
                 ));
-                self.deallocate_entries(old_entries);
+                self.deallocate_entries(old_entries, old_capacity);
             }
         }
-
-        // NOTE: Move to new memory after deletion to prevent memory leakage due to change of layout
-
-        #[allow(clippy::missing_transmute_annotations)]
-        self.set_entries(unsafe { core::mem::transmute(new_entries) }); // Assumption that alloc_zeroed is used. and does nothing.
-        self.capacity = new_capacity;
-        self.free = new_capacity;
-        self.good = 0;
     }
 }
 
@@ -287,9 +286,10 @@ where
         Some(SentinelPtr::slice_from_raw_parts(ptr.cast(), count as usize))
     }
 
-    unsafe fn deallocate_entries(&mut self, ptr: SentinelPtr<EntryType<S::Pair>>) {
+    unsafe fn deallocate_entries(&mut self, ptr: SentinelPtr<EntryType<S::Pair>>, capacity: u32) {
+        let layout = Self::new_entries_layout(capacity);
         unsafe {
-            self.allocator.deallocate(ptr.as_non_null().cast(), self.current_entries_layout());
+            self.allocator.deallocate(ptr.as_non_null().cast(), layout);
         };
     }
 
@@ -347,11 +347,6 @@ where
 
     fn new_entries_layout(capacity: u32) -> Layout {
         Layout::array::<EntryType<S::Pair>>(capacity as usize).expect("[BSTHashMap] valid Layout")
-    }
-
-    fn current_entries_layout(&self) -> Layout {
-        Layout::array::<EntryType<S::Pair>>(self.capacity as usize)
-            .expect("[BSTHashMap] valid Layout")
     }
 }
 
