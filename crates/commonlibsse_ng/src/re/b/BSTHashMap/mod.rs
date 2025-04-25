@@ -294,7 +294,7 @@ where
 
         let Some(entries) = self.0.get_entry_start() else {
             writeln!(&mut w, "No entries allocated.")?;
-            return Ok(String::from_utf8(w).expect("Invalid UTF-8"));
+            return Ok(String::from_utf8_lossy(&w).to_string());
         };
 
         writeln!(&mut w, "Memory Layout Visualization:")?;
@@ -337,7 +337,7 @@ where
 
         writeln!(&mut w, "------------------------------------------")?;
 
-        Ok(String::from_utf8(w).expect("Invalid UTF-8"))
+        Ok(String::from_utf8_lossy(&w).to_string())
     }
 }
 
@@ -347,41 +347,23 @@ mod tests {
 
     #[test]
     fn test_hashmap() {
+        macro_rules! insert_and_expect {
+            ($map:expr, ($key:expr, $val:expr) => $should_insert:expr => $expected_val:expr) => {{
+                let (mut iter, inserted) = $map.insert($key, $val);
+                assert_eq!(inserted, $should_insert, "inserted mismatch for key {}", $key);
+
+                let actual = iter.next().map(|entry| entry.value_data);
+                let expected = Some(($key, $expected_val));
+                assert_eq!(actual, expected, "value mismatch for key {}", $key);
+            }};
+        }
+
         let mut map = BSTHashMap::new();
 
-        {
-            let (mut iter, is_inserted) = map.insert(0, c"Hey");
-            assert!(is_inserted);
-
-            let actual = iter.next().map(|entry| entry.value_data);
-            let expected = Some((0, c"Hey"));
-            assert_eq!(actual, expected);
-        }
-        {
-            let (mut iter, is_inserted) = map.insert(0, c"DuplicatedKey");
-            assert!(!is_inserted, "duplicate key, should not insert");
-
-            let actual = iter.next().map(|entry| entry.value_data);
-            let expected = Some((0, c"Hey"));
-            assert_eq!(actual, expected);
-        }
-
-        {
-            let (mut iter, is_inserted) = map.insert(1, c"Hello");
-            assert!(is_inserted);
-
-            let actual = iter.next().map(|entry| entry.value_data);
-            let expected = Some((1, c"Hello"));
-            assert_eq!(actual, expected);
-        }
-        {
-            let (mut iter, is_inserted) = map.insert(2, c"World");
-            assert!(is_inserted);
-
-            let actual = iter.next().map(|entry| entry.value_data);
-            let expected = Some((2, c"World"));
-            assert_eq!(actual, expected);
-        }
+        insert_and_expect!(map, (0, c"Hey") => true => c"Hey");
+        insert_and_expect!(map, (0, c"DuplicatedKey") => false => c"Hey");
+        insert_and_expect!(map, (1, c"Hello") => true => c"Hello");
+        insert_and_expect!(map, (2, c"World") => true => c"World");
 
         for (k, v) in map.iter() {
             dbg!(k, v);

@@ -348,6 +348,22 @@ where
     fn new_entries_layout(capacity: u32) -> Layout {
         Layout::array::<EntryType<S::Pair>>(capacity as usize).expect("[BSTHashMap] valid Layout")
     }
+
+    fn free_resources(&mut self) {
+        if self.capacity > 0 {
+            if let Some(entries) = self.get_entry_start() {
+                self.for_each_valid_entry_mut(|entry| {
+                    entry.destroy();
+                });
+                unsafe { self.deallocate_entries(entries, self.capacity) };
+                self.allocator.set_entries(ptr::null_mut());
+            };
+        }
+
+        self.capacity = 0;
+        self.free = 0;
+        self.good = 0;
+    }
 }
 
 impl<S, A> Drop for BSTScatterTable<S, A>
@@ -356,6 +372,6 @@ where
     A: Allocator,
 {
     fn drop(&mut self) {
-        self.clear();
+        self.free_resources();
     }
 }
