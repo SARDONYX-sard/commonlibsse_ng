@@ -1,10 +1,11 @@
-use core::marker::PhantomData;
 use core::mem;
 use core::ops::Mul;
 use core::ptr;
-use std::alloc::{Layout, alloc, dealloc};
+use core::{marker::PhantomData, ptr::NonNull};
+use std::alloc::{Layout, alloc_zeroed, dealloc};
 
 use generic_array::{ArrayLength, GenericArray};
+use stdx::alloc::{AllocError, non_null_empty_slice};
 use typenum::{U2, op};
 
 /// A trait representing a generic memory allocator.
@@ -17,13 +18,16 @@ pub trait Allocator {
     ///
     /// # Safety
     /// See [`GlobalAlloc::alloc`].
-    unsafe fn allocate_bytes(&mut self, bytes_size: usize) -> *mut u8;
+    ///
+    /// # Errors
+    /// Returns `AllocError` if the allocation fails.
+    unsafe fn allocate(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocError>;
 
     /// Deallocates a previously allocated block of memory.
     ///
     /// # Safety
     /// This function is unsafe if called with an invalid or null pointer.
-    unsafe fn deallocate_bytes(&mut self, ptr: *mut u8);
+    unsafe fn deallocate(&mut self, ptr: NonNull<u8>, layout: Layout);
 
     /// Returns the minimum size that can be allocated by this allocator.
     ///
@@ -75,22 +79,23 @@ impl Allocator for BSTScatterTableHeapAllocator {
     /// # Panics
     /// Panics under the following conditions.
     /// - If `bytes_size` is not a multiple of usize.
-    unsafe fn allocate_bytes(&mut self, bytes_size: usize) -> *mut u8 {
-        debug_assert!(bytes_size % mem::size_of::<usize>() == 0, "Bytes must be aligned");
+    unsafe fn allocate(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+        debug_assert!(layout.size() % mem::size_of::<usize>() == 0, "Bytes must be aligned");
 
-        let layout =
-            Layout::from_size_align(bytes_size, mem::align_of::<usize>()).expect("Invalid layout");
+        let ptr = unsafe { alloc_zeroed(layout) };
+        if ptr.is_null() {
+            return Err(AllocError);
+        }
 
-        unsafe { alloc(layout) }
+        self.entries = ptr;
+        Ok(match layout.size() {
+            0 => non_null_empty_slice(layout),
+            size => NonNull::slice_from_raw_parts(unsafe { NonNull::new_unchecked(ptr) }, size),
+        })
     }
 
-    unsafe fn deallocate_bytes(&mut self, ptr: *mut u8) {
-        if !ptr.is_null() {
-            let layout = Layout::from_size_align(mem::size_of::<usize>(), mem::align_of::<usize>())
-                .expect("Invalid layout");
-
-            unsafe { dealloc(ptr, layout) }
-        }
+    unsafe fn deallocate(&mut self, ptr: NonNull<u8>, layout: Layout) {
+        unsafe { dealloc(ptr.as_ptr(), layout) }
     }
 
     #[inline]
@@ -163,17 +168,32 @@ where
     }
 
     /// Allocates memory
+    ///
+    /// # Panics
+    /// Panics if the size is not a multiple of `N::USIZE`.
     #[inline]
-    unsafe fn allocate_bytes(&mut self, bytes: usize) -> *mut u8 {
-        assert!(bytes % N::USIZE == 0, "Bytes must be aligned to S");
+    unsafe fn allocate(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+        let size = layout.size();
+        assert!(size % N::USIZE == 0, "Bytes must be aligned to S");
 
-        if bytes <= self.buffer.len() { self.buffer.as_mut_ptr() } else { ptr::null_mut() }
+        let len = self.buffer.len();
+        let Some(ptr) = NonNull::new(self.buffer.as_mut_ptr()) else {
+            return Err(AllocError);
+        };
+        if size <= len {
+            return Ok(match size {
+                0 => non_null_empty_slice(layout),
+                size => NonNull::slice_from_raw_parts(ptr, size),
+            });
+        }
+
+        Err(AllocError)
     }
 
-    /// Deallocates memory
+    /// No-op deallocation
     #[inline]
-    unsafe fn deallocate_bytes(&mut self, ptr: *mut u8) {
-        assert!(ptr == self.buffer.as_mut_ptr(), "Invalid pointer");
+    unsafe fn deallocate(&mut self, ptr: NonNull<u8>, _: Layout) {
+        assert!(ptr.as_ptr() == self.buffer.as_mut_ptr(), "Invalid pointer");
     }
 
     #[inline]
