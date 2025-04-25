@@ -260,7 +260,11 @@ mod u8_bytes {
 
     impl fmt::Debug for BSFixedString {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(f, "{}", str::from_utf8(self.as_bytes_with_null()).unwrap_or("<Invalid UTF-8>"))
+            write!(
+                f,
+                "{:?}",
+                str::from_utf8(self.as_bytes_with_null()).unwrap_or("<Invalid UTF-8>")
+            )
         }
     }
 
@@ -351,7 +355,7 @@ mod u16_wide {
 
     impl fmt::Debug for BSFixedStringW {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            write!(f, "{}", self.to_string_lossy())
+            write!(f, "{:?}", self.to_string_lossy())
         }
     }
 }
