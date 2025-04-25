@@ -1,5 +1,7 @@
 //! # BSTHashMap
 //!
+//! C++: https://github.com/SARDONYX-forks/CommonLibVR/blob/feature/add-ng-release-ci/include/RE/B/BSTHashMap.h
+//!
 //! ## Expected Memory Layout (Simplified)
 //!
 //! This section explains the internal structure of `BSTHashMap`, focusing on how
@@ -304,6 +306,11 @@ where
 
         for i in 0..self.0.capacity {
             let entry = unsafe { entries.add(i as usize) };
+
+            if !Self::check_valid_ptr(entry) {
+                continue;
+            }
+
             let Some(entry_ref) = (unsafe { entry.as_non_sentinel_ref() }) else {
                 writeln!(&mut w, "[{:03}] EMPTY", i)?;
                 continue;
@@ -320,6 +327,10 @@ where
             // follow chain if exists
             let mut next = entry_ref.next;
             while let Some(next_ptr) = next {
+                if !Self::check_valid_ptr(next_ptr) {
+                    continue;
+                }
+
                 let Some(next_ref) = (unsafe { next_ptr.as_non_sentinel_ref() }) else {
                     break;
                 };
@@ -338,6 +349,20 @@ where
         writeln!(&mut w, "------------------------------------------")?;
 
         Ok(String::from_utf8_lossy(&w).to_string())
+    }
+
+    /// The reason is unknown, but sometimes `usize::MAX` is included in the game for some reason.
+    ///
+    /// This is a check to avoid a dereference crash in that case.
+    fn check_valid_ptr(entry: SentinelPtr<EntryType<(K, V)>>) -> bool {
+        let is_ok = entry.as_ptr().addr() != 0xFFFFFFFFFFFFFFFF;
+
+        #[cfg(feature = "tracing")]
+        if !is_ok {
+            tracing::error!("Couldn't access memory region: (ptr: {entry:?})");
+        }
+
+        is_ok
     }
 }
 
