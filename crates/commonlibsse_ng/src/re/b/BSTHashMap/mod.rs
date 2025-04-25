@@ -484,7 +484,13 @@ where
             }
         }
     }
+}
 
+impl<S, A> BSTScatterTable<S, A>
+where
+    S: KeyStrategy,
+    A: Allocator,
+{
     /// NOTE: count not bytes size
     #[allow(clippy::type_complexity)]
     unsafe fn allocate_entries(
@@ -560,6 +566,16 @@ where
     fn current_entries_layout(&self) -> Layout {
         Layout::array::<EntryType<S::Pair>>(self.capacity as usize)
             .expect("[BSTHashMap] valid Layout")
+    }
+}
+
+impl<S, A> Drop for BSTScatterTable<S, A>
+where
+    S: KeyStrategy,
+    A: Allocator,
+{
+    fn drop(&mut self) {
+        self.clear();
     }
 }
 
