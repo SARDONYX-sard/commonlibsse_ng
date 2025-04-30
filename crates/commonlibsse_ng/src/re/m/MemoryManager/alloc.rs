@@ -1,5 +1,7 @@
-pub mod tes_global;
+//! Memory allocation functions.
+//! This module provides functions for memory allocation, deallocation, and reallocation.
 pub mod scrap_alloc;
+pub mod tes_global;
 
 #[cfg(not(feature = "test_on_ci"))]
 mod rust_api;
