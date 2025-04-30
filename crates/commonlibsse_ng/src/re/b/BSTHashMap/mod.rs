@@ -257,8 +257,6 @@ where
     ///
     /// # Errors
     /// Failed to write string.
-    /// # Panics
-    /// Invalid utf8
     ///
     /// # Examples
     /// ```
