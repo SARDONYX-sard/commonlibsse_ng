@@ -1,8 +1,8 @@
-use core::mem;
-use core::ops::Mul;
-use core::ptr;
+use core::alloc::Layout;
 use core::{marker::PhantomData, ptr::NonNull};
-use std::alloc::{Layout, alloc_zeroed, dealloc};
+use core::{mem, ptr};
+
+use crate::re::MemoryManager::alloc::{alloc_zeroed, dealloc};
 
 use generic_array::{ArrayLength, GenericArray};
 use stdx::alloc::{AllocError, non_null_empty_slice};
@@ -11,17 +11,14 @@ use typenum::{U2, op};
 /// A trait representing a generic memory allocator.
 /// Provides methods for allocating and deallocating raw bytes.
 pub trait Allocator {
-    /// Allocates a block of memory of the specified size in bytes.
-    ///
-    /// # Notes
-    /// If the allocation fails, null is returned.
+    /// Allocates a block of memory of the specified size in bytes and initializes it to zero.
     ///
     /// # Safety
-    /// See [`GlobalAlloc::alloc`].
+    /// See [`std::alloc::GlobalAlloc::alloc`].
     ///
     /// # Errors
     /// Returns `AllocError` if the allocation fails.
-    unsafe fn allocate(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocError>;
+    unsafe fn allocate_zeroed(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocError>;
 
     /// Deallocates a previously allocated block of memory.
     ///
@@ -79,7 +76,7 @@ impl Allocator for BSTScatterTableHeapAllocator {
     /// # Panics
     /// Panics under the following conditions.
     /// - If `bytes_size` is not a multiple of usize.
-    unsafe fn allocate(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+    unsafe fn allocate_zeroed(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         debug_assert!(layout.size() % mem::size_of::<usize>() == 0, "Bytes must be aligned");
 
         let ptr = unsafe { alloc_zeroed(layout) };
@@ -115,7 +112,7 @@ impl Allocator for BSTScatterTableHeapAllocator {
 pub struct BSTStaticHashMapBaseAllocator<N, A>
 where
     N: ArrayLength,
-    U2: Mul<N>,
+    U2: core::ops::Mul<N>,
     A: ArrayLength,
     op!(U2 * N): ArrayLength,
 {
@@ -127,7 +124,7 @@ where
 impl<N, A> Default for BSTStaticHashMapBaseAllocator<N, A>
 where
     N: ArrayLength,
-    U2: Mul<N>,
+    U2: core::ops::Mul<N>,
     A: ArrayLength,
     op!(U2 * N): ArrayLength,
 {
@@ -140,7 +137,7 @@ where
 impl<N, A> BSTStaticHashMapBaseAllocator<N, A>
 where
     N: ArrayLength,
-    U2: Mul<N>,
+    U2: core::ops::Mul<N>,
     A: ArrayLength,
     op!(U2 * N): ArrayLength,
 {
@@ -158,7 +155,7 @@ impl<N, A> Allocator for BSTStaticHashMapBaseAllocator<N, A>
 where
     N: ArrayLength,
     A: ArrayLength,
-    U2: Mul<N>,
+    U2: core::ops::Mul<N>,
     op!(U2 * N): ArrayLength,
 {
     /// Returns the minimum size
@@ -172,7 +169,7 @@ where
     /// # Panics
     /// Panics if the size is not a multiple of `N::USIZE`.
     #[inline]
-    unsafe fn allocate(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
+    unsafe fn allocate_zeroed(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocError> {
         let size = layout.size();
         assert!(size % N::USIZE == 0, "Bytes must be aligned to S");
 

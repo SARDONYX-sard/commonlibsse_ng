@@ -282,7 +282,7 @@ where
         &mut self,
         count: u32,
     ) -> Option<SentinelPtr<[MaybeUninit<EntryType<S::Pair>>]>> {
-        let ptr = unsafe { self.allocator.allocate(Self::new_entries_layout(count)).ok() }?;
+        let ptr = unsafe { self.allocator.allocate_zeroed(Self::new_entries_layout(count)).ok() }?;
         Some(SentinelPtr::slice_from_raw_parts(ptr.cast(), count as usize))
     }
 
