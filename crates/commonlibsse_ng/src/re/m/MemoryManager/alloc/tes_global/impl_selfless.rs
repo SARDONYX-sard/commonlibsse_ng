@@ -18,7 +18,6 @@ use std_fork::alloc::SelflessAllocator;
 impl TESGlobalAlloc {
     #[inline]
     #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
-    #[allow(clippy::unused_self)]
     pub(crate) fn alloc_impl(layout: Layout, zeroed: bool) -> Result<NonNull<[u8]>, AllocError> {
         match layout.size() {
             0 => Ok(non_null_empty_slice(layout)),
