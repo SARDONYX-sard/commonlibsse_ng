@@ -288,7 +288,9 @@ where
     /// // [007] EMPTY (Non-occupied)
     /// // ------------------------------------------
     /// ```
-    #[allow(clippy::unwrap_in_result)]
+    #[deprecated(
+        note = "Using this function in a game will result in a SIGV. Cause currently unknown."
+    )]
     pub fn show_memory_layout(&self) -> std::io::Result<String> {
         use std::io::Write as _;
 
@@ -403,20 +405,9 @@ mod tests {
         map.insert(99, "extra");
         map.insert(13, "foo");
 
-        print!("{}", map.show_memory_layout().unwrap());
-
-        // Memory Layout Visualization:
-        // Capacity: 8
-        // Free slots: 4
-        // ------------------------------------------
-        // [000] 17 => "world"
-        // [001] 13 => "foo"
-        // [002] 42 => "hello" -> 17 => "world"
-        // [003] EMPTY (Non-occupied)
-        // [004] EMPTY (Non-occupied)
-        // [005] 99 => "extra" -> 13 => "foo"
-        // [006] EMPTY (Non-occupied)
-        // [007] EMPTY (Non-occupied)
-        // ------------------------------------------
+        #[allow(deprecated)]
+        {
+            print!("{}", map.show_memory_layout().unwrap());
+        }
     }
 }

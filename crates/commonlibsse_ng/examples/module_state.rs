@@ -95,17 +95,14 @@ fn record_ui() {
             tracing::trace!("player.is_accessible_struct() = {is_accessible_struct}");
 
             tracing::trace!("ui_addr = {:p}", ui);
-
-            match ui.menuMap.show_memory_layout() {
-                Ok(mem_layout) => {
-                    tracing::trace!("ui.menuMap = {mem_layout}");
-                }
-                Err(err) => {
-                    tracing::error!("Failed to show memory layout: {err}");
-                    tracing::trace!("ui.menuMap = {:#?}", ui.menuMap);
-                }
-            }
             tracing::trace!("ui = {:#?}", ui);
+
+            // NOTE: Using this function in a game will result in a SIGV. Cause currently unknown.
+            //
+            // match ui.menuMap.show_memory_layout() {
+            //     Ok(mem_layout) => tracing::trace!("ui.menuMap = {mem_layout}"),
+            //     Err(err) => tracing::error!("Failed to show memory layout: {err}"),
+            // }
         }
     };
 }
