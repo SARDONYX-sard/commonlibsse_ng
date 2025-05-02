@@ -7,6 +7,8 @@ pub mod IMessageBoxCallback;
 pub mod INIPrefSettingCollection;
 pub mod INISettingCollection;
 pub mod IUIMessageData;
+pub mod InputDevices;
+pub mod InputEvent;
 pub mod InteriorData;
 pub mod Inventory;
 pub mod InventoryChanges;

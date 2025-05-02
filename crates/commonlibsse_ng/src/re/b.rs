@@ -58,6 +58,7 @@ pub mod BSTSingleton;
 pub mod BSTSmartPointer;
 pub mod BSTextureSet;
 pub mod BSTimer;
+pub mod BSWin32GamepadDevice;
 pub mod BShkFloatController;
 pub mod BShkbAnimationGraph;
 pub mod BaseFormComponent;
