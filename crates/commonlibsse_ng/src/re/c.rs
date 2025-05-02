@@ -1,9 +1,11 @@
 pub mod CRC;
 pub mod Calendar;
+pub mod CharEvent;
 pub mod Character;
 pub mod CollisionLayer;
 pub mod Color;
 pub mod CompactingStore;
 pub mod ConsoleLog;
+pub mod ControlMap;
 pub mod Crime;
 pub mod CrosshairPickData;

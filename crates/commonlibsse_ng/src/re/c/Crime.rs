@@ -4,11 +4,10 @@ use crate::re::BSTArray::BSTArray;
 use crate::re::TESFaction;
 
 // Enum to represent different crime types
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[commonlibsse_ng_derive_internal::ffi_enum]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(u32)]
 pub enum CRIME_TYPE {
-    #[default]
-    None = u32::MAX,
     Steal = 0,
     Pickpocket = 1,
     Trespass = 2,
@@ -16,10 +15,6 @@ pub enum CRIME_TYPE {
     Murder = 4,
     Escape = 5,
     Unused = 6,
-}
-impl CRIME_TYPE {
-    /// Total
-    pub const TOTAL: usize = 7;
 }
 
 #[repr(C)]

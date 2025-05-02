@@ -28,3 +28,4 @@ pub mod TESWeightForm;
 pub mod TESWordOfPower;
 pub mod TESWorldSpace;
 pub mod TLSData;
+pub mod ThumbstickEvent;

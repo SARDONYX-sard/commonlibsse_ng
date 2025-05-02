@@ -2,7 +2,9 @@ use crate::re::BSTArray::BSTArray;
 use crate::re::GFxMovieView;
 use crate::re::GFxValue::{GFxValue, Value};
 use crate::re::GPtr::GPtr;
+use crate::re::PlayerCharacter::PlayerCharacter;
 use crate::re::StandardItemData::StandardItemData;
+use crate::re::TESObjectREFR::TESObjectREFR;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -53,4 +55,14 @@ impl ItemList {
             None
         }
     }
+
+    pub fn update(&self) {
+        if let Some(player_character) = unsafe { PlayerCharacter::get_singleton_mut() } {
+            // Safety: `PlayerCharacter` is inherited `TESObjectREFR`
+            self.update_impl((player_character as *mut PlayerCharacter).cast());
+        }
+    }
+
+    #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 50099, ae_id = 51031)]
+    pub fn update_impl(&self, owner: *mut TESObjectREFR) {}
 }

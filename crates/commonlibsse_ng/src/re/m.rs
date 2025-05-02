@@ -5,3 +5,4 @@ pub mod MenuModeChangeEvent;
 pub mod MenuOpenCloseEvent;
 pub mod MiddleHighProcessData;
 pub mod Misc;
+pub mod MouseMoveEvent;

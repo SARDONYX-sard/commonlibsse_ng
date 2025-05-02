@@ -103,6 +103,20 @@ impl PlayerCharacter {
         |deref_type: DerefType| unsafe { deref_type.as_ptr().map(|p| p.as_ref()) }
     }
 
+    /// Returns the singleton instance of `Self`.
+    ///
+    /// # Safety
+    /// When it is known whether this is mutable or not. (The author does not know if it is safe.)
+    #[commonlibsse_ng_derive_internal::relocate(
+        cast_as = "*mut NiPointer<PlayerCharacter>",
+        default = "None",
+        deref_once,
+        id(se = 517014, ae = 403521)
+    )]
+    pub unsafe fn get_singleton_mut() -> Option<&'static mut PlayerCharacter> {
+        |deref_type: DerefType| unsafe { deref_type.as_ptr().map(|mut p| p.as_mut()) }
+    }
+
     #[commonlibsse_ng_derive_internal::relocate(
         cast_as = "*mut bool",
         default = "false",

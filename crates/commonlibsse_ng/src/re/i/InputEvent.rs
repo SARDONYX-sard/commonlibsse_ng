@@ -4,10 +4,22 @@ use core::ptr::NonNull;
 use stdx::ptr::ConstNonNull;
 
 use crate::re::BSFixedString::BSFixedString;
+use crate::re::ButtonEvent::ButtonEvent;
+use crate::re::CharEvent::CharEvent;
+use crate::re::IDEvent::IDEvent;
 use crate::re::InputDevices::INPUT_DEVICE;
+use crate::re::MouseMoveEvent::MouseMoveEvent;
+use crate::re::ThumbstickEvent::ThumbstickEvent;
 use crate::re::offsets_rtti::RTTI_InputEvent;
 use crate::re::offsets_vtable::VTABLE_InputEvent;
 use crate::rel::id::VariantID;
+
+pub enum Event<'a> {
+    Button(&'a ButtonEvent),
+    MouseMove(&'a MouseMoveEvent),
+    Char(&'a CharEvent),
+    Thumbstick(&'a ThumbstickEvent),
+}
 
 #[commonlibsse_ng_derive_internal::to_bitflags]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -37,6 +49,36 @@ impl InputEvent {
 
     /// Address & offset of Virtual function table.
     pub const VTABLE: [VariantID; 1] = VTABLE_InputEvent;
+
+    pub const fn cast_to_event(&self) -> Option<Event> {
+        unsafe {
+            let this = self as *const Self;
+
+            Some(match self.eventType {
+                INPUT_EVENT_TYPE::Button => Event::Button(&*(this.cast())),
+                INPUT_EVENT_TYPE::MouseMove => Event::MouseMove(&*(this.cast())),
+                INPUT_EVENT_TYPE::Char => Event::Char(&*(this.cast())),
+                INPUT_EVENT_TYPE::Thumbstick => Event::Thumbstick(&*(this.cast())),
+                _ => return None,
+            })
+        }
+    }
+
+    pub fn as_id_event(&self) -> Option<&IDEvent> {
+        unsafe {
+            (self.vtable.as_ref()?.HasIDCode)(self)
+                .then(|| (self as *const Self).cast::<IDEvent>())
+                .and_then(|this| this.as_ref())
+        }
+    }
+
+    pub fn as_id_event_mut(&mut self) -> Option<&mut IDEvent> {
+        unsafe {
+            (self.vtable.as_ref()?.HasIDCode)(self)
+                .then(|| (self as *mut Self).cast::<IDEvent>())
+                .and_then(|this| this.as_mut())
+        }
+    }
 
     #[inline]
     pub const fn iter(&self) -> InputEventIterator {

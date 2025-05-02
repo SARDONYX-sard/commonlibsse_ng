@@ -2,7 +2,7 @@ use crate::re::BSCoreTypes::RefHandle;
 use crate::re::BSPointerHandle::{ActorHandle, ObjectRefHandle};
 use crate::re::BSTArray::BSTArray;
 use crate::re::BSTSmartPointer::BSTSmartPointer;
-use crate::re::Crime::CRIME_TYPE;
+use crate::re::Crime::CRIME_TYPE_CEnum;
 use crate::re::NiAVObject::NiAVObject;
 use crate::re::NiSmartPointer::NiPointer;
 use crate::re::PlayerCharacter::crime::TeleportPath;
@@ -11,7 +11,7 @@ use crate::re::TESBoundObject::TESBoundObject;
 use crate::re::TESForm::TESForm;
 use crate::re::{AlchemyItem, BSLight, BipedAnim, CombatGroup, NiNode, TESClass};
 
-const _: () = assert!(7 == CRIME_TYPE::TOTAL);
+const _: () = assert!(7 == CRIME_TYPE_CEnum::count());
 
 #[repr(C, packed(4))]
 pub struct INFO_RUNTIME_DATA {
@@ -70,55 +70,55 @@ const _: () = assert!(core::mem::size_of::<INFO_RUNTIME_DATA>() == 0x13C);
 
 #[repr(C, packed(4))]
 pub struct VR_INFO_RUNTIME_DATA {
-    pub sleepSeconds: u32,                                   // FE0
-    pub unkFE4: u32,                                         // FE4
-    pub largeBiped: BSTSmartPointer<BipedAnim>,              // FE8
-    pub firstPerson3D: NiPointer<NiNode>,                    // FF0
-    pub eyeHeight: f32,                                      // FF8
-    pub greetTimer: f32,                                     // FFC
-    pub encumberedTimer: f32,                                // 1000
-    pub powerAttackTimer: f32,                               // 1004
-    pub hoursToSleep: i32,                                   // 1008
-    pub amountStolenSold: i32,                               // 100C
-    pub valueStolen: u32,                                    // 1010
-    pub lastRiddenMount: ActorHandle,                        // 1014
-    pub lightTarget: ActorHandle,                            // 1018
-    pub sortActorDistanceTimer: f32,                         // 101C
-    pub playerMapMarker: ObjectRefHandle,                    // 1020
-    pub pad1024: u32,                                        // 1024
-    pub playerMarkerPath: *mut TeleportPath,                 // 1028
-    pub skillTrainingsThisLevel: u32,                        // 1030
-    pub unk1034: u32,                                        // 1034
-    pub defaultClass: *mut TESClass,                         // 1038
-    pub unk1040: u64,                                        // 1040
-    pub crimeCounts: [u32; CRIME_TYPE::TOTAL],               // 1048
-    pub unk964: u32,                                         // 1064
-    pub pendingPoison: *mut AlchemyItem,                     // 1068
-    pub lastPlayingTimeUpdate: i64,                          // 1070
-    pub totalPlayingTime: i64,                               // 1078
-    pub characterSeed: i32,                                  // 1080
-    pub unk984: u32,                                         // 1084
-    pub lastKnownGoodLocation: *mut TESForm,                 // 1088
-    pub unk990: u32,                                         // 1090
-    pub unk994: u32,                                         // 1094
-    pub firstPersonLight: NiPointer<BSLight>,                // 1098
-    pub thirdPersonLight: NiPointer<BSLight>,                // 10A0
-    pub dropAngleMod: f32,                                   // 10A8
-    pub lastDropAngleMod: f32,                               // 10AC
-    pub skills: *mut PlayerSkills,                           // 10B0
-    pub autoAimActor: ActorHandle,                           // 10B8
-    pub unk9BC: RefHandle,                                   // 10BC
-    pub unk9C0: u64,                                         // 10C0
-    pub targeted3D: NiPointer<NiAVObject>,                   // 10C8
-    pub combatGroup: *mut CombatGroup,                       // 10D0
-    pub actorsToDisplayOnTheHUDArray: BSTArray<ActorHandle>, // 10D8
-    pub advanceObject: *mut TESForm,                         // 10F0
-    pub lastOneHandItems: [*mut TESBoundObject; 2],          // 10F8
-    pub teammateCount: u32,                                  // 1108
-    pub combatTimer: f32,                                    // 110C
-    pub yieldTimer: f32,                                     // 1110
-    pub chaseTimer: f32,                                     // 1114
-    pub drawSheatheSafetyTimer: f32,                         // 1118
-    pub unk111C: u32,                                        // 111C
+    pub sleepSeconds: u32,                                   // 0xFE0
+    pub unkFE4: u32,                                         // 0xFE4
+    pub largeBiped: BSTSmartPointer<BipedAnim>,              // 0xFE8
+    pub firstPerson3D: NiPointer<NiNode>,                    // 0xFF0
+    pub eyeHeight: f32,                                      // 0xFF8
+    pub greetTimer: f32,                                     // 0xFFC
+    pub encumberedTimer: f32,                                // 0x1000
+    pub powerAttackTimer: f32,                               // 0x1004
+    pub hoursToSleep: i32,                                   // 0x1008
+    pub amountStolenSold: i32,                               // 0x100C
+    pub valueStolen: u32,                                    // 0x1010
+    pub lastRiddenMount: ActorHandle,                        // 0x1014
+    pub lightTarget: ActorHandle,                            // 0x1018
+    pub sortActorDistanceTimer: f32,                         // 0x101C
+    pub playerMapMarker: ObjectRefHandle,                    // 0x1020
+    pub pad1024: u32,                                        // 0x1024
+    pub playerMarkerPath: *mut TeleportPath,                 // 0x1028
+    pub skillTrainingsThisLevel: u32,                        // 0x1030
+    pub unk1034: u32,                                        // 0x1034
+    pub defaultClass: *mut TESClass,                         // 0x1038
+    pub unk1040: u64,                                        // 0x1040
+    pub crimeCounts: [u32; CRIME_TYPE_CEnum::count()],       // 0x1048
+    pub unk964: u32,                                         // 0x1064
+    pub pendingPoison: *mut AlchemyItem,                     // 0x1068
+    pub lastPlayingTimeUpdate: i64,                          // 0x1070
+    pub totalPlayingTime: i64,                               // 0x1078
+    pub characterSeed: i32,                                  // 0x1080
+    pub unk984: u32,                                         // 0x1084
+    pub lastKnownGoodLocation: *mut TESForm,                 // 0x1088
+    pub unk990: u32,                                         // 0x1090
+    pub unk994: u32,                                         // 0x1094
+    pub firstPersonLight: NiPointer<BSLight>,                // 0x1098
+    pub thirdPersonLight: NiPointer<BSLight>,                // 0x10A0
+    pub dropAngleMod: f32,                                   // 0x10A8
+    pub lastDropAngleMod: f32,                               // 0x10AC
+    pub skills: *mut PlayerSkills,                           // 0x10B0
+    pub autoAimActor: ActorHandle,                           // 0x10B8
+    pub unk9BC: RefHandle,                                   // 0x10BC
+    pub unk9C0: u64,                                         // 0x10C0
+    pub targeted3D: NiPointer<NiAVObject>,                   // 0x10C8
+    pub combatGroup: *mut CombatGroup,                       // 0x10D0
+    pub actorsToDisplayOnTheHUDArray: BSTArray<ActorHandle>, // 0x10D8
+    pub advanceObject: *mut TESForm,                         // 0x10F0
+    pub lastOneHandItems: [*mut TESBoundObject; 2],          // 0x10F8
+    pub teammateCount: u32,                                  // 0x1108
+    pub combatTimer: f32,                                    // 0x110C
+    pub yieldTimer: f32,                                     // 0x1110
+    pub chaseTimer: f32,                                     // 0x1114
+    pub drawSheatheSafetyTimer: f32,                         // 0x1118
+    pub unk111C: u32,                                        // 0x111C
 }
 const _: () = assert!(core::mem::size_of::<VR_INFO_RUNTIME_DATA>() == 0x140);

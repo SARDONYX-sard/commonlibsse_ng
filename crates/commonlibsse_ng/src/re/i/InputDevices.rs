@@ -47,3 +47,17 @@ impl INPUT_DEVICE {
         INPUT_DEVICE_VR_CEnum(self.0).to_enum()
     }
 }
+
+impl From<INPUT_DEVICE_SE> for INPUT_DEVICE {
+    #[inline]
+    fn from(value: INPUT_DEVICE_SE) -> Self {
+        Self(value as u32)
+    }
+}
+
+impl From<INPUT_DEVICE_VR> for INPUT_DEVICE {
+    #[inline]
+    fn from(value: INPUT_DEVICE_VR) -> Self {
+        Self(value as u32)
+    }
+}
