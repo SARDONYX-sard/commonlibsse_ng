@@ -1,6 +1,6 @@
 use crate::re::BSTArray::BSTArray;
 use crate::re::GFxMovieView;
-use crate::re::GFxValue::GFxValue;
+use crate::re::GFxValue::{GFxValue, Value};
 use crate::re::GPtr::GPtr;
 use crate::re::StandardItemData::StandardItemData;
 
@@ -35,3 +35,22 @@ pub struct ItemList {
     pub pad54: u32,
 }
 const _: () = assert!(core::mem::size_of::<ItemList>() == 0x58);
+
+impl ItemList {
+    pub fn get_selected_item(&self) -> Option<*mut Item> {
+        if self.unk50 {
+            return None;
+        }
+
+        let selected_index = self.root.get_member(c"selectedIndex")?;
+        let Value::Number(index) = selected_index.get_value()? else {
+            return None;
+        };
+
+        if (0.0..(self.items.len() as f64)).contains(&index) {
+            Some(self.items[index as usize])
+        } else {
+            None
+        }
+    }
+}
