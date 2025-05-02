@@ -119,6 +119,11 @@ impl<T: Sized> ConstNonNull<T> {
     pub const fn from_unique(unique: Unique<T>) -> Self {
         Self { pointer: unique.as_non_null_ptr() }
     }
+
+    /// Create a new `ConstNonNull` from a `NonNull<T>`.
+    pub const fn from_non_null(pointer: NonNull<T>) -> Self {
+        Self { pointer }
+    }
 }
 
 impl<T: ?Sized> ConstNonNull<T> {

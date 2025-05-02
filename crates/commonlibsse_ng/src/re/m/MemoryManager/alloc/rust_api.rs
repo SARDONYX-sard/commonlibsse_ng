@@ -71,7 +71,7 @@ pub unsafe fn realloc(ptr: *mut u8, old_layout: Layout, new_size: usize) -> *mut
 #[inline]
 pub unsafe fn dealloc(ptr: *mut u8, layout: Layout) {
     if let Some(heap) = unsafe { MemoryManager::GetSingleton().as_mut() } {
-        let aligned = layout.align() > 1;
+        let aligned = layout.align() != 0;
         unsafe { heap.Deallocate(ptr.cast::<c_void>(), aligned) };
     }
 }

@@ -1,4 +1,5 @@
 pub mod IAnimationGraphManagerHolder;
+pub mod IDEvent;
 pub mod IMemoryHeap;
 pub mod IMemoryStore;
 pub mod IMemoryStoreBase;

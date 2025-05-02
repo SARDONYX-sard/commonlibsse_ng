@@ -1,4 +1,5 @@
 use core::marker::PhantomData;
+use core::ptr::NonNull;
 
 use stdx::ptr::ConstNonNull;
 
@@ -23,10 +24,10 @@ pub enum INPUT_EVENT_TYPE {
 #[repr(C)]
 #[derive(Debug, PartialEq)]
 pub struct InputEvent {
-    pub vtable: *const InputEventVtbl, // 0x00
-    pub device: INPUT_DEVICE,          // 0x08
-    pub eventType: INPUT_EVENT_TYPE,   // 0x0C
-    pub next: *mut InputEvent,         // 0x10
+    pub vtable: *const InputEventVtbl,     // 0x00
+    pub device: INPUT_DEVICE,              // 0x08
+    pub eventType: INPUT_EVENT_TYPE,       // 0x0C
+    pub next: Option<NonNull<InputEvent>>, // 0x10
 }
 const _: () = assert!(core::mem::size_of::<InputEvent>() == 0x18);
 
@@ -65,7 +66,8 @@ impl<'a> Iterator for InputEventIterator<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         let current = self.current?;
         let current_ref = unsafe { current.as_ref() };
-        self.current = ConstNonNull::new(current_ref.next);
+        self.current = current_ref.next.map(ConstNonNull::from_non_null);
+
         Some(current_ref)
     }
 }

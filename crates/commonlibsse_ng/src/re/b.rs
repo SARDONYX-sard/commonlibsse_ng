@@ -63,6 +63,7 @@ pub mod BShkFloatController;
 pub mod BShkbAnimationGraph;
 pub mod BaseFormComponent;
 pub mod BottomBar;
+pub mod ButtonEvent;
 pub mod bhkAction;
 pub mod bhkMouseSpringAction;
 pub mod bhkRefObject;
