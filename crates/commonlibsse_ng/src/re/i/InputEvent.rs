@@ -8,12 +8,24 @@ use crate::re::offsets_rtti::RTTI_InputEvent;
 use crate::re::offsets_vtable::VTABLE_InputEvent;
 use crate::rel::id::VariantID;
 
+#[commonlibsse_ng_derive_internal::to_bitflags]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(u32)]
+pub enum INPUT_EVENT_TYPE {
+    Button = 0,
+    MouseMove,
+    Char,
+    Thumbstick,
+    DeviceConnect,
+    Kinect,
+}
+
 #[repr(C)]
 #[derive(Debug, PartialEq)]
 pub struct InputEvent {
     pub vtable: *const InputEventVtbl, // 0x00
     pub device: INPUT_DEVICE,          // 0x08
-    pub eventType: u32,                // 0x0C
+    pub eventType: INPUT_EVENT_TYPE,   // 0x0C
     pub next: *mut InputEvent,         // 0x10
 }
 const _: () = assert!(core::mem::size_of::<InputEvent>() == 0x18);
