@@ -47,12 +47,10 @@ pub enum MessageType {
     NewGame,
     /// Fired after all game data has loaded.
     DataLoaded,
-
-    /// Placeholder for the total number of message types.
-    Total,
 }
 
 /// Represents the different event dispatchers that SKSE provides.
+#[commonlibsse_ng_derive_internal::ffi_enum]
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Dispatcher {
@@ -66,9 +64,6 @@ pub enum Dispatcher {
     ActionEvent,
     /// Dispatcher for NiNode update events.
     NiNodeUpdateEvent,
-
-    /// Placeholder for the total number of dispatchers.
-    Total,
 }
 
 /// Represents a message sent through the SKSE messaging system.
