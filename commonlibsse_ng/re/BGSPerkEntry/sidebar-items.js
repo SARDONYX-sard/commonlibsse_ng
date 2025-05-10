@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PERK_ENTRY_TYPE"],"struct":["BGSPerkEntry","BGSPerkEntryVtbl","Header","PERK_ENTRY_TYPE_CEnum"]};

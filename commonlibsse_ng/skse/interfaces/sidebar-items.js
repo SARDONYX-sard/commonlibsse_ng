@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["StructCompatibility"],"fn":["new_cstr","to_fixed_str"],"mod":["load","messaging","object","papyrus","query","scaleform","serialization","task","trampoline"],"struct":["PluginDeclaration","PluginDeclarationInfo","PluginVersionData","RuntimeCompatibility","String252","String256","VersionNumber"]};

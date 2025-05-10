@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["InventoryMenu","InventoryMenuVtbl","RUNTIME_DATA"]};

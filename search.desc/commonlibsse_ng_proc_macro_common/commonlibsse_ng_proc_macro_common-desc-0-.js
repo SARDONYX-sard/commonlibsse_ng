@@ -1,0 +1,1 @@
+searchState.loadedDescShard("commonlibsse_ng_proc_macro_common", 0, "<code>commonlibsse_ng</code> macro to automatically generate commonly …\ngenerate bitflags from enum\ngenerate bitflags from enum\nHelper function to create function arguments based on …\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")

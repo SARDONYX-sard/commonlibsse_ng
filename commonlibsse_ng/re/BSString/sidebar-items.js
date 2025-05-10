@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BSStringError"],"struct":["BSString"]};

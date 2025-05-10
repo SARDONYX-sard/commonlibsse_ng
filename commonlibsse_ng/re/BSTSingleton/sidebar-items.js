@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BSTSDMTraits","BSTSingletonExplicit","BSTSingletonImplicit","BSTSingletonSDM","BSTSingletonSDMBase","BSTSingletonSDMOpStaticBuffer"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["PLAYER_TARGET_LOC","VR_PLAYER_TARGET_LOC"]};

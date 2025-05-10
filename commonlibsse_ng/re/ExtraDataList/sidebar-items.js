@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BaseExtraList","Data","ExtraDataList","PresenceBitfield"]};

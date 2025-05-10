@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["HeapStats","IMemoryHeap","IMemoryHeapVtbl","MEM_CONTEXT"]};

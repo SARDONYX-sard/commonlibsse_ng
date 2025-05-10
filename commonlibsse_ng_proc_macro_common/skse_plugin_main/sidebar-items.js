@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["gen_skse_plugin_main"]};

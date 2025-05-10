@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Data","MagicItem","MagicItemVtbl","PreloadableVisitor","PreloadableVisitorVtbl","SkillUsageData"]};

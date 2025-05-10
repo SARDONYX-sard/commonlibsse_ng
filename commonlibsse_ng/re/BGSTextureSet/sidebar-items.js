@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["RecordFlag"],"struct":["BGSTextureSet","Flag","RecordFlag_CEnum"]};

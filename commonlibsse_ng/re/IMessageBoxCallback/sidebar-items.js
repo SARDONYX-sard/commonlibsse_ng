@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Message"],"struct":["IMessageBoxCallback","IMessageBoxCallbackVtbl","Message_CEnum"]};

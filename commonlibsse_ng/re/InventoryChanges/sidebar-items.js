@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["VisitResult"],"struct":["IItemChangeVisitor","IItemChangeVisitorVtbl","InventoryChanges"]};

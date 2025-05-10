@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["UI_MENU_Unk09","UI_MESSAGE_RESULTS"],"struct":["IMenu","IMenuVtbl","UI_MENU_FLAGS","UI_MENU_Unk09_CEnum","UI_MESSAGE_RESULTS_CEnum"]};

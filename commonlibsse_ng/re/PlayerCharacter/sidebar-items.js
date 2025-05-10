@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EventType"],"mod":["crime","grab_data","player_target_loc","runtime_info","skill","vr_node_data"],"struct":["ByCharGenFlag","FriendshipFactionsStruct","GameStateData","PLAYER_ACTION","PlayerActionObject","PlayerCharacter","PlayerCharacterVtbl","PlayerFlags","PreTransformationData","QueuedWeapon","RaceData"]};

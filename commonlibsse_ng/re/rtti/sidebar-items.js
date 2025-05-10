@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Signature"],"fn":["rt_dynamic_cast","skyrim_cast"],"mod":["msvc"],"struct":["BaseClassDescriptor","ClassHierarchyDescriptor","CompleteObjectLocator","PMD","RVA"]};

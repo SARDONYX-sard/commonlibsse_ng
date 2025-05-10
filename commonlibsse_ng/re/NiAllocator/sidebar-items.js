@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["NiMemEventType"],"struct":["NiAllocator","NiAllocatorVtbl","NiMemEventType_CEnum"]};

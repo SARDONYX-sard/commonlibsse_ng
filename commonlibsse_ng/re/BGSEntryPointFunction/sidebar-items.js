@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ENTRY_POINT_FUNCTION","ENTRY_POINT_FUNCTION_TYPE"],"fn":["get_argument_count"],"struct":["ENTRY_POINT_FUNCTION_CEnum","ENTRY_POINT_FUNCTION_TYPE_CEnum","EntryPointFunction"]};

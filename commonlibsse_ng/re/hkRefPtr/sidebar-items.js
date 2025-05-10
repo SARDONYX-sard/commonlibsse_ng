@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["make_hkref"],"struct":["hkRefPtr"],"trait":["hkRefPtrCounted"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["NI_HALF_PI","NI_INFINITY","NI_PI","NI_TWO_PI"],"fn":["deg_to_rad","nearly_equal","ni_abs","ni_asin","ni_fast_atan2","normalize_angle","rad_to_deg"],"struct":["ComparisonOptions"]};

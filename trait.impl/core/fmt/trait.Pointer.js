@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["commonlibsse_ng",[["impl&lt;T: ?<a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/marker/trait.Sized.html\" title=\"trait core::marker::Sized\">Sized</a>, A: <a class=\"trait\" href=\"stdx/alloc/allocator/trait.Allocator.html\" title=\"trait stdx::alloc::allocator::Allocator\">Allocator</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/fmt/trait.Pointer.html\" title=\"trait core::fmt::Pointer\">Pointer</a> for <a class=\"struct\" href=\"commonlibsse_ng/re/TESBox/struct.TESBox.html\" title=\"struct commonlibsse_ng::re::TESBox::TESBox\">TESBox</a>&lt;T, A&gt;"]]],["stdx",[["impl&lt;T: ?<a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/marker/trait.Sized.html\" title=\"trait core::marker::Sized\">Sized</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/fmt/trait.Pointer.html\" title=\"trait core::fmt::Pointer\">Pointer</a> for <a class=\"struct\" href=\"stdx/ptr/struct.ConstNonNull.html\" title=\"struct stdx::ptr::ConstNonNull\">ConstNonNull</a>&lt;T&gt;"],["impl&lt;T: ?<a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/marker/trait.Sized.html\" title=\"trait core::marker::Sized\">Sized</a>&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/fmt/trait.Pointer.html\" title=\"trait core::fmt::Pointer\">Pointer</a> for <a class=\"struct\" href=\"stdx/ptr/struct.Unique.html\" title=\"struct stdx::ptr::Unique\">Unique</a>&lt;T&gt;"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[605,845]}

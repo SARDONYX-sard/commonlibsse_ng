@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ENTRY_POINT"],"fn":["get_entry_point","handle_entry_point"],"struct":["ENTRY_POINT_CEnum","EntryPoint","EntryPointParameter","EntryPointParameters"]};

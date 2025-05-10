@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BSSimpleList","IntoIter","Iter","IterMut","Node"]};

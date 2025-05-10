@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["QuestType"],"struct":["BGSQuestInstanceText","BGSQuestObjective","BGSStoryEvent","ChangeFlag","GlobalValueData","QUEST_DATA","QUEST_OBJECTIVE_FLAGS","QUEST_STAGE_DATA","QuestFlag","QuestStageFlag","QuestType_CEnum","RecordFlag","StringData","TESQuest","TESQuestStage","TESQuestTarget","TESQuestTargetFlag","TESQuestVtbl"]};

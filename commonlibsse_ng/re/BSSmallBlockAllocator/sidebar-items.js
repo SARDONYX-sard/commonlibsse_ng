@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BSSmallBlockAllocator","BSSmallBlockAllocatorVtbl","BlockPage","BlockPageInternal","FreeBlock","MegaBlockPage","Pool"]};

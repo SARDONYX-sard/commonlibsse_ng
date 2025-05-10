@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Skill"],"struct":["Data","PlayerSkills","SkillData","Skill_CEnum"]};

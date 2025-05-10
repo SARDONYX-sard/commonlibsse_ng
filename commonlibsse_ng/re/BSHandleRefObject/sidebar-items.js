@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["HANDLE_VALID","REF_COUNT_MASK"],"struct":["BSHandleRefObject","BSHandleRefObjectVtbl"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BGSEncounterZone","BGSEncounterZoneVtbl","ChangeFlags","ENCOUNTER_ZONE_DATA","ENCOUNTER_ZONE_GAME_DATA","Flags","RecordFlags"]};

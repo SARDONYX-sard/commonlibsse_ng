@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LogInitError","LogReloadError"],"fn":["change_level","init","init_with_log_dir","log_directory"]};

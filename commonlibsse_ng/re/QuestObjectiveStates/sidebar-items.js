@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["QUEST_OBJECTIVE_STATE"]};

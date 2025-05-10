@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate implements a structure that can be used as a generic array type."><title>generic_array - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="generic_array" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../static.files/storage-3a5871a4.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../generic_array/index.html">generic_<wbr>array</a><span class="version">1.2.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#feature-flags" title="Feature flags">Feature flags</a></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li><li><a href="#types" title="Type Aliases">Type Aliases</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>generic_array</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/generic_array/lib.rs.html#1-1045">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate implements a structure that can be used as a generic array type.</p>
+<p>**Requires minimum Rust version of 1.83.0</p>
+<p><a href="https://fizyk20.github.io/generic-array/generic_array/">Documentation on GH Pages</a>
+may be required to view certain types on foreign crates.</p>
+<p>Before Rust 1.51, arrays <code>[T; N]</code> were problematic in that they couldn’t be
+generic with respect to the length <code>N</code>, so this wouldn’t work:</p>
+
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">struct </span>Foo&lt;N&gt; {
+    data: [i32; N],
+}</code></pre></div>
+<p>Since 1.51, the below syntax is valid:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct </span>Foo&lt;<span class="kw">const </span>N: usize&gt; {
+    data: [i32; N],
+}</code></pre></div>
+<p>However, the const-generics we have as of writing this are still the minimum-viable product (<code>min_const_generics</code>), so many situations still result in errors, such as this example:</p>
+
+<div class="example-wrap compile_fail"><a href="#" class="tooltip" title="This example deliberately fails to compile">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">trait </span>Bar {
+    <span class="kw">const </span>LEN: usize;
+
+    <span class="comment">// Error: cannot perform const operation using `Self`
+    </span><span class="kw">fn </span>bar(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Foo&lt;{ <span class="self">Self</span>::LEN }&gt;;
+}</code></pre></div>
+<p><strong>generic-array</strong> defines a new trait <a href="trait.ArrayLength.html" title="trait generic_array::ArrayLength"><code>ArrayLength</code></a> and a struct <a href="struct.GenericArray.html" title="struct generic_array::GenericArray"><code>GenericArray&lt;T, N: ArrayLength&gt;</code></a>,
+which lets the above be implemented as:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>generic_array::{GenericArray, ArrayLength};
+
+<span class="kw">struct </span>Foo&lt;N: ArrayLength&gt; {
+    data: GenericArray&lt;i32, N&gt;
+}
+
+<span class="kw">trait </span>Bar {
+    <span class="kw">type </span>LEN: ArrayLength;
+    <span class="kw">fn </span>bar(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Foo&lt;<span class="self">Self</span>::LEN&gt;;
+}</code></pre></div>
+<p>The <a href="trait.ArrayLength.html" title="trait generic_array::ArrayLength"><code>ArrayLength</code></a> trait is implemented for
+<a href="../typenum/marker_traits/trait.Unsigned.html" title="trait typenum::marker_traits::Unsigned">unsigned integer types</a> from
+<a href="../typenum/index.html" title="mod typenum">typenum</a>. For example, <a href="struct.GenericArray.html" title="struct generic_array::GenericArray"><code>GenericArray&lt;T, U5&gt;</code></a> would work almost like <code>[T; 5]</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>generic_array::typenum::U5;
+
+<span class="kw">struct </span>Foo&lt;T, N: ArrayLength&gt; {
+    data: GenericArray&lt;T, N&gt;
+}
+
+<span class="kw">let </span>foo = Foo::&lt;i32, U5&gt; { data: GenericArray::default() };</code></pre></div>
+<p>The <code>arr!</code> macro is provided to allow easier creation of literal arrays, as shown below:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>array = <span class="macro">arr!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+<span class="comment">//  array: GenericArray&lt;i32, typenum::U3&gt;
+</span><span class="macro">assert_eq!</span>(array[<span class="number">2</span>], <span class="number">3</span>);</code></pre></div>
+<h3 id="feature-flags"><a class="doc-anchor" href="#feature-flags">§</a>Feature flags</h3><div class="example-wrap"><pre class="language-toml"><code>[dependencies.generic-array]
+features = [
+    &quot;serde&quot;,         # Serialize/Deserialize implementation
+    &quot;zeroize&quot;,       # Zeroize implementation for setting array elements to zero
+    &quot;const-default&quot;, # Compile-time const default value support via trait
+    &quot;alloc&quot;,         # Enables From/TryFrom implementations between GenericArray and Vec&lt;T&gt;/Box&lt;[T]&gt;
+    &quot;faster-hex&quot;     # Enables internal use of the `faster-hex` crate for faster hex encoding via SIMD
+]</code></pre></div></div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt><code>pub extern crate <a class="mod" href="../typenum/index.html" title="mod typenum">typenum</a>;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="functional/index.html" title="mod generic_array::functional">functional</a></dt><dd>Functional programming with generic sequences</dd><dt><a class="mod" href="sequence/index.html" title="mod generic_array::sequence">sequence</a></dt><dd>Useful traits for manipulating sequences of data stored in <code>GenericArray</code>s</dd></dl><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.arr.html" title="macro generic_array::arr">arr</a></dt><dd>Macro allowing for easy construction of Generic Arrays.</dd></dl><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.GenericArray.html" title="struct generic_array::GenericArray">Generic<wbr>Array</a></dt><dd>Struct representing a generic array - <code>GenericArray&lt;T, N&gt;</code> works like <code>[T; N]</code></dd><dt><a class="struct" href="struct.GenericArrayIter.html" title="struct generic_array::GenericArrayIter">Generic<wbr>Array<wbr>Iter</a></dt><dd>An iterator that moves out of a <a href="struct.GenericArray.html" title="struct generic_array::GenericArray"><code>GenericArray</code></a></dd><dt><a class="struct" href="struct.LengthError.html" title="struct generic_array::LengthError">Length<wbr>Error</a></dt><dd>Error for <a href="https://doc.rust-lang.org/1.86.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom"><code>TryFrom</code></a> and <a href="struct.GenericArray.html#method.try_from_iter" title="associated function generic_array::GenericArray::try_from_iter"><code>try_from_iter</code></a></dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.ArrayLength.html" title="trait generic_array::ArrayLength">Array<wbr>Length</a></dt><dd>Trait used to define the number of elements in a <a href="struct.GenericArray.html" title="struct generic_array::GenericArray"><code>GenericArray</code></a>.</dd><dt><a class="trait" href="trait.IntoArrayLength.html" title="trait generic_array::IntoArrayLength">Into<wbr>Array<wbr>Length</a></dt><dd>Implemented for types which can have an associated <a href="trait.ArrayLength.html" title="trait generic_array::ArrayLength"><code>ArrayLength</code></a>,
+such as <a href="../typenum/gen/generic_const_mappings/struct.Const.html" title="struct typenum::gen::generic_const_mappings::Const"><code>Const&lt;N&gt;</code></a> for use with const-generics.</dd></dl><h2 id="types" class="section-header">Type Aliases<a href="#types" class="anchor">§</a></h2><dl class="item-table"><dt><a class="type" href="type.ConstArrayLength.html" title="type generic_array::ConstArrayLength">Const<wbr>Array<wbr>Length</a></dt><dd>Associated <a href="trait.ArrayLength.html" title="trait generic_array::ArrayLength"><code>ArrayLength</code></a> for one <a href="../typenum/gen/generic_const_mappings/struct.Const.html" title="struct typenum::gen::generic_const_mappings::Const"><code>Const&lt;N&gt;</code></a></dd></dl></section></div></main></body></html>

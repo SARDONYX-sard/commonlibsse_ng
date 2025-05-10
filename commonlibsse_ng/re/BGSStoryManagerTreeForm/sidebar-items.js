@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BGSStoryManagerTreeForm","BGSStoryManagerTreeFormVtbl","BGSStoryManagerTreeVisitor","BGSStoryManagerTreeVisitorVtbl"]};

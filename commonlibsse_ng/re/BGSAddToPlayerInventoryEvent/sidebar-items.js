@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ACQUIRE_TYPE"],"struct":["ACQUIRE_TYPE_CEnum","BGSAddToPlayerInventoryEvent"]};

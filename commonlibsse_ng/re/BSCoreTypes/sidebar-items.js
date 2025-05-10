@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["FormID","RefHandle","VMHandle","VMStackID","VMTypeID"]};

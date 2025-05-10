@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["critical_data","data"],"struct":["RangedData","RecordFlag","TESObjectWEAP","Unk1B8","WEAPON_RUMBLE_PATTERN"]};

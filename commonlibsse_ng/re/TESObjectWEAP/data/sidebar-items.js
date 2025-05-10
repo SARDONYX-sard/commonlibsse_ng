@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AttackAnimation","Data","Flag","Flag2","WEAPON_HIT_BEHAVIOR","WEAPON_TYPE"]};

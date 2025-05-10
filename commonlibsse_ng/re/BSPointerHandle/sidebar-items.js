@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ActorHandle","BSPointerHandle","BSPointerHandleManagerInterface","BSUntypedPointerHandle","ObjectRefHandle","ProjectileHandle"]};

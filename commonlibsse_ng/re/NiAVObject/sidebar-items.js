@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["NiUpdateData_Flag"],"struct":["Flag","NiAVObject","NiAVObjectVtbl","NiUpdateData","PerformOpFunc","PerformOpFuncVtbl"]};

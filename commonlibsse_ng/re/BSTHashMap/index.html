@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="BSTHashMap"><title>commonlibsse_ng::re::BSTHashMap - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="commonlibsse_ng" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../../static.files/storage-3a5871a4.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../commonlibsse_ng/index.html">commonlibsse_<wbr>ng</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module BSTHash<wbr>Map</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#bsthashmap" title="BSTHashMap">BSTHashMap</a><ul><li><a href="#expected-memory-layout-simplified" title="Expected Memory Layout (Simplified)">Expected Memory Layout (Simplified)</a></li></ul></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#traits" title="Traits">Traits</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In commonlibsse_<wbr>ng::<wbr>re</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">commonlibsse_ng</a>::<wbr><a href="../index.html">re</a></div><h1>Module <span>BSTHashMap</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/commonlibsse_ng/re\b\BSTHashMap/mod.rs.html#1-421">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="bsthashmap"><a class="doc-anchor" href="#bsthashmap">§</a>BSTHashMap</h2>
+<p>C++: https://github.com/SARDONYX-forks/CommonLibVR/blob/feature/add-ng-release-ci/include/RE/B/BSTHashMap.h</p>
+<h3 id="expected-memory-layout-simplified"><a class="doc-anchor" href="#expected-memory-layout-simplified">§</a>Expected Memory Layout (Simplified)</h3>
+<p>This section explains the internal structure of <code>BSTHashMap</code>, focusing on how
+entries are stored and how chains are formed when collisions occur.</p>
+<hr />
+<h4 id="basic-structure-before-insertion"><a class="doc-anchor" href="#basic-structure-before-insertion">§</a>Basic Structure (Before Insertion)</h4>
+<p>Empty is represented by a byte slice of 0 bytes. This is because it is zero initialized at the same time as the memory allocation.
+However, it is impossible to determine whether it is already initialized or <code>false</code>.
+Therefore, when pushing, the pointer to the next entry is filled with a sentinel value(0xdeadbeef address).</p>
+<p>In this way, it is possible to distinguish between empty and occupied.
+In other words, by looking at next, it is possible to tell if data is contained.</p>
+<div class="example-wrap"><pre class="language-text"><code>// Entry&lt;T&gt; array
+// Accessed via get_entry_for(...)
+
+┌────────────┬────────────┬────────────┬────────────┐
+│ Entry[0]   │ Entry[1]   │ Entry[2]   │ ...        │  ← capacity N
+├────────────┼────────────┼────────────┼────────────┤
+│ empty      │ empty      │ empty      │ ...        │
+└────────────┴────────────┴────────────┴────────────┘</code></pre></div>
+<hr />
+<h4 id="basic-insertion-case-slot-is-empty"><a class="doc-anchor" href="#basic-insertion-case-slot-is-empty">§</a>Basic Insertion Case (Slot Is Empty)</h4><div class="example-wrap"><pre class="language-text"><code>// Emplace directly into Entry[i] corresponding to unwrap_key(a_value)!
+
+┌────────────┬────────────┬────────────┬────────────┐
+│ Entry[0]   │ Entry[1]   │ Entry[2]   │ ...        │
+├────────────┼────────────┼────────────┼────────────┤
+│ empty      │            │ value_data: a_value     │
+│            │            │ next: _sentinel         │
+└────────────┴────────────┴────────────┴────────────┘
+                                   ↑
+                    get_entry_for(key)</code></pre></div>
+<hr />
+<h4 id="collision-case-chaining-with-next-pointer"><a class="doc-anchor" href="#collision-case-chaining-with-next-pointer">§</a>Collision Case (Chaining with <code>next</code> Pointer)</h4><div class="example-wrap"><pre class="language-text"><code>// Entry[2] is occupied → emplace into a new free Entry (e.g., Entry[4])
+// Update Entry[2].next to point to Entry[4]
+
+┌────────────┬────────────┬────────────┬────────────┬────────────┐
+│ Entry[0]   │ Entry[1]   │ Entry[2]   │ Entry[3]   │ Entry[4]   │
+├────────────┼────────────┼────────────┼────────────┼────────────┤
+│ empty      │            │ value_data: A           │ unused     │ value_data: B
+│            │            │ next ___________________/            │ next: _sentinel
+└────────────┴────────────┴────────────┴────────────┴────────────┘
+                            ↑
+                               entry-&gt;next = &amp;Entry[4]</code></pre></div>
+<hr />
+<h4 id="eviction-case-entry-needs-relocation"><a class="doc-anchor" href="#eviction-case-entry-needs-relocation">§</a>Eviction Case (Entry Needs Relocation)</h4><div class="example-wrap"><pre class="language-text"><code>// A is in Entry[2] but belongs in Entry[0]
+// Move A to Entry[4] → Emplace B into Entry[2]
+
+┌────────────┬────────────┬────────────┬────────────┬────────────┐
+│ Entry[0]   │ Entry[1]   │ Entry[2]   │ Entry[3]   │ Entry[4]   │
+├────────────┼────────────┼────────────┼────────────┼────────────┤
+│            │            │ value_data: B           │ unused     │ value_data: A
+│            │            │ next: _sentinel         │            │ next: _sentinel
+│            │            │                         │            │
+│            │            │ ← emplace here          │ ← evicted  │
+└────────────┴────────────┴────────────┴────────────┴────────────┘</code></pre></div></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.BSTHashMap.html" title="struct commonlibsse_ng::re::BSTHashMap::BSTHashMap">BSTHash<wbr>Map</a></dt><dt><a class="struct" href="struct.BSTHashMapIter.html" title="struct commonlibsse_ng::re::BSTHashMap::BSTHashMapIter">BSTHash<wbr>MapIter</a></dt><dt><a class="struct" href="struct.BSTScatterKeyExtractor.html" title="struct commonlibsse_ng::re::BSTHashMap::BSTScatterKeyExtractor">BSTScatter<wbr>KeyExtractor</a></dt><dt><a class="struct" href="struct.BSTScatterTableHeapAllocator.html" title="struct commonlibsse_ng::re::BSTHashMap::BSTScatterTableHeapAllocator">BSTScatter<wbr>Table<wbr>Heap<wbr>Allocator</a></dt><dd>An allocator implementation for the BSTScatterTable.</dd><dt><a class="struct" href="struct.BSTStaticHashMapBaseAllocator.html" title="struct commonlibsse_ng::re::BSTHashMap::BSTStaticHashMapBaseAllocator">BSTStatic<wbr>Hash<wbr>MapBase<wbr>Allocator</a></dt><dd><code>BSTStaticHashMapBase::Allocator</code> equivalent in Rust using <code>GenericArray</code></dd><dt><a class="struct" href="struct.UnkKey.html" title="struct commonlibsse_ng::re::BSTHashMap::UnkKey">UnkKey</a></dt><dd>dummy type</dd><dt><a class="struct" href="struct.UnkValue.html" title="struct commonlibsse_ng::re::BSTHashMap::UnkValue">UnkValue</a></dt><dd>dummy value</dd></dl><h2 id="traits" class="section-header">Traits<a href="#traits" class="anchor">§</a></h2><dl class="item-table"><dt><a class="trait" href="trait.Allocator.html" title="trait commonlibsse_ng::re::BSTHashMap::Allocator">Allocator</a></dt><dd>A trait representing a generic memory allocator.
+Provides methods for allocating and deallocating raw bytes.</dd><dt><a class="trait" href="trait.KeyStrategy.html" title="trait commonlibsse_ng::re::BSTHashMap::KeyStrategy">KeyStrategy</a></dt></dl></section></div></main></body></html>

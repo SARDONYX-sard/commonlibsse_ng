@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["crc32_from_u32","generate_crc32"],"struct":["Crc32Hasher"]};

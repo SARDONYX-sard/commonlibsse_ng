@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\commonlibsse_ng\src\re\c\CRC.rs`."><title>CRC.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../..\../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../..\../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../..\../" data-static-root-path="../../..\../static.files/" data-current-crate="commonlibsse_ng" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../..\../static.files/storage-3a5871a4.js"></script><script defer src="../../..\../static.files/src-script-b8d3f215.js"></script><script defer src="../../..\../src-files.js"></script><script defer src="../../..\../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../..\../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../..\../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">commonlibsse_ng\re\c/</div>CRC.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">const </span>CRC32_TABLE: [u32; <span class="number">256</span>] = [
+<a href=#2 id=2 data-nosnippet>2</a>    <span class="number">0x00000000</span>, <span class="number">0x77073096</span>, <span class="number">0xEE0E612C</span>, <span class="number">0x990951BA</span>, <span class="number">0x076DC419</span>, <span class="number">0x706AF48F</span>, <span class="number">0xE963A535</span>, <span class="number">0x9E6495A3</span>,
+<a href=#3 id=3 data-nosnippet>3</a>    <span class="number">0x0EDB8832</span>, <span class="number">0x79DCB8A4</span>, <span class="number">0xE0D5E91E</span>, <span class="number">0x97D2D988</span>, <span class="number">0x09B64C2B</span>, <span class="number">0x7EB17CBD</span>, <span class="number">0xE7B82D07</span>, <span class="number">0x90BF1D91</span>,
+<a href=#4 id=4 data-nosnippet>4</a>    <span class="number">0x1DB71064</span>, <span class="number">0x6AB020F2</span>, <span class="number">0xF3B97148</span>, <span class="number">0x84BE41DE</span>, <span class="number">0x1ADAD47D</span>, <span class="number">0x6DDDE4EB</span>, <span class="number">0xF4D4B551</span>, <span class="number">0x83D385C7</span>,
+<a href=#5 id=5 data-nosnippet>5</a>    <span class="number">0x136C9856</span>, <span class="number">0x646BA8C0</span>, <span class="number">0xFD62F97A</span>, <span class="number">0x8A65C9EC</span>, <span class="number">0x14015C4F</span>, <span class="number">0x63066CD9</span>, <span class="number">0xFA0F3D63</span>, <span class="number">0x8D080DF5</span>,
+<a href=#6 id=6 data-nosnippet>6</a>    <span class="number">0x3B6E20C8</span>, <span class="number">0x4C69105E</span>, <span class="number">0xD56041E4</span>, <span class="number">0xA2677172</span>, <span class="number">0x3C03E4D1</span>, <span class="number">0x4B04D447</span>, <span class="number">0xD20D85FD</span>, <span class="number">0xA50AB56B</span>,
+<a href=#7 id=7 data-nosnippet>7</a>    <span class="number">0x35B5A8FA</span>, <span class="number">0x42B2986C</span>, <span class="number">0xDBBBC9D6</span>, <span class="number">0xACBCF940</span>, <span class="number">0x32D86CE3</span>, <span class="number">0x45DF5C75</span>, <span class="number">0xDCD60DCF</span>, <span class="number">0xABD13D59</span>,
+<a href=#8 id=8 data-nosnippet>8</a>    <span class="number">0x26D930AC</span>, <span class="number">0x51DE003A</span>, <span class="number">0xC8D75180</span>, <span class="number">0xBFD06116</span>, <span class="number">0x21B4F4B5</span>, <span class="number">0x56B3C423</span>, <span class="number">0xCFBA9599</span>, <span class="number">0xB8BDA50F</span>,
+<a href=#9 id=9 data-nosnippet>9</a>    <span class="number">0x2802B89E</span>, <span class="number">0x5F058808</span>, <span class="number">0xC60CD9B2</span>, <span class="number">0xB10BE924</span>, <span class="number">0x2F6F7C87</span>, <span class="number">0x58684C11</span>, <span class="number">0xC1611DAB</span>, <span class="number">0xB6662D3D</span>,
+<a href=#10 id=10 data-nosnippet>10</a>    <span class="number">0x76DC4190</span>, <span class="number">0x01DB7106</span>, <span class="number">0x98D220BC</span>, <span class="number">0xEFD5102A</span>, <span class="number">0x71B18589</span>, <span class="number">0x06B6B51F</span>, <span class="number">0x9FBFE4A5</span>, <span class="number">0xE8B8D433</span>,
+<a href=#11 id=11 data-nosnippet>11</a>    <span class="number">0x7807C9A2</span>, <span class="number">0x0F00F934</span>, <span class="number">0x9609A88E</span>, <span class="number">0xE10E9818</span>, <span class="number">0x7F6A0DBB</span>, <span class="number">0x086D3D2D</span>, <span class="number">0x91646C97</span>, <span class="number">0xE6635C01</span>,
+<a href=#12 id=12 data-nosnippet>12</a>    <span class="number">0x6B6B51F4</span>, <span class="number">0x1C6C6162</span>, <span class="number">0x856530D8</span>, <span class="number">0xF262004E</span>, <span class="number">0x6C0695ED</span>, <span class="number">0x1B01A57B</span>, <span class="number">0x8208F4C1</span>, <span class="number">0xF50FC457</span>,
+<a href=#13 id=13 data-nosnippet>13</a>    <span class="number">0x65B0D9C6</span>, <span class="number">0x12B7E950</span>, <span class="number">0x8BBEB8EA</span>, <span class="number">0xFCB9887C</span>, <span class="number">0x62DD1DDF</span>, <span class="number">0x15DA2D49</span>, <span class="number">0x8CD37CF3</span>, <span class="number">0xFBD44C65</span>,
+<a href=#14 id=14 data-nosnippet>14</a>    <span class="number">0x4DB26158</span>, <span class="number">0x3AB551CE</span>, <span class="number">0xA3BC0074</span>, <span class="number">0xD4BB30E2</span>, <span class="number">0x4ADFA541</span>, <span class="number">0x3DD895D7</span>, <span class="number">0xA4D1C46D</span>, <span class="number">0xD3D6F4FB</span>,
+<a href=#15 id=15 data-nosnippet>15</a>    <span class="number">0x4369E96A</span>, <span class="number">0x346ED9FC</span>, <span class="number">0xAD678846</span>, <span class="number">0xDA60B8D0</span>, <span class="number">0x44042D73</span>, <span class="number">0x33031DE5</span>, <span class="number">0xAA0A4C5F</span>, <span class="number">0xDD0D7CC9</span>,
+<a href=#16 id=16 data-nosnippet>16</a>    <span class="number">0x5005713C</span>, <span class="number">0x270241AA</span>, <span class="number">0xBE0B1010</span>, <span class="number">0xC90C2086</span>, <span class="number">0x5768B525</span>, <span class="number">0x206F85B3</span>, <span class="number">0xB966D409</span>, <span class="number">0xCE61E49F</span>,
+<a href=#17 id=17 data-nosnippet>17</a>    <span class="number">0x5EDEF90E</span>, <span class="number">0x29D9C998</span>, <span class="number">0xB0D09822</span>, <span class="number">0xC7D7A8B4</span>, <span class="number">0x59B33D17</span>, <span class="number">0x2EB40D81</span>, <span class="number">0xB7BD5C3B</span>, <span class="number">0xC0BA6CAD</span>,
+<a href=#18 id=18 data-nosnippet>18</a>    <span class="number">0xEDB88320</span>, <span class="number">0x9ABFB3B6</span>, <span class="number">0x03B6E20C</span>, <span class="number">0x74B1D29A</span>, <span class="number">0xEAD54739</span>, <span class="number">0x9DD277AF</span>, <span class="number">0x04DB2615</span>, <span class="number">0x73DC1683</span>,
+<a href=#19 id=19 data-nosnippet>19</a>    <span class="number">0xE3630B12</span>, <span class="number">0x94643B84</span>, <span class="number">0x0D6D6A3E</span>, <span class="number">0x7A6A5AA8</span>, <span class="number">0xE40ECF0B</span>, <span class="number">0x9309FF9D</span>, <span class="number">0x0A00AE27</span>, <span class="number">0x7D079EB1</span>,
+<a href=#20 id=20 data-nosnippet>20</a>    <span class="number">0xF00F9344</span>, <span class="number">0x8708A3D2</span>, <span class="number">0x1E01F268</span>, <span class="number">0x6906C2FE</span>, <span class="number">0xF762575D</span>, <span class="number">0x806567CB</span>, <span class="number">0x196C3671</span>, <span class="number">0x6E6B06E7</span>,
+<a href=#21 id=21 data-nosnippet>21</a>    <span class="number">0xFED41B76</span>, <span class="number">0x89D32BE0</span>, <span class="number">0x10DA7A5A</span>, <span class="number">0x67DD4ACC</span>, <span class="number">0xF9B9DF6F</span>, <span class="number">0x8EBEEFF9</span>, <span class="number">0x17B7BE43</span>, <span class="number">0x60B08ED5</span>,
+<a href=#22 id=22 data-nosnippet>22</a>    <span class="number">0xD6D6A3E8</span>, <span class="number">0xA1D1937E</span>, <span class="number">0x38D8C2C4</span>, <span class="number">0x4FDFF252</span>, <span class="number">0xD1BB67F1</span>, <span class="number">0xA6BC5767</span>, <span class="number">0x3FB506DD</span>, <span class="number">0x48B2364B</span>,
+<a href=#23 id=23 data-nosnippet>23</a>    <span class="number">0xD80D2BDA</span>, <span class="number">0xAF0A1B4C</span>, <span class="number">0x36034AF6</span>, <span class="number">0x41047A60</span>, <span class="number">0xDF60EFC3</span>, <span class="number">0xA867DF55</span>, <span class="number">0x316E8EEF</span>, <span class="number">0x4669BE79</span>,
+<a href=#24 id=24 data-nosnippet>24</a>    <span class="number">0xCB61B38C</span>, <span class="number">0xBC66831A</span>, <span class="number">0x256FD2A0</span>, <span class="number">0x5268E236</span>, <span class="number">0xCC0C7795</span>, <span class="number">0xBB0B4703</span>, <span class="number">0x220216B9</span>, <span class="number">0x5505262F</span>,
+<a href=#25 id=25 data-nosnippet>25</a>    <span class="number">0xC5BA3BBE</span>, <span class="number">0xB2BD0B28</span>, <span class="number">0x2BB45A92</span>, <span class="number">0x5CB36A04</span>, <span class="number">0xC2D7FFA7</span>, <span class="number">0xB5D0CF31</span>, <span class="number">0x2CD99E8B</span>, <span class="number">0x5BDEAE1D</span>,
+<a href=#26 id=26 data-nosnippet>26</a>    <span class="number">0x9B64C2B0</span>, <span class="number">0xEC63F226</span>, <span class="number">0x756AA39C</span>, <span class="number">0x026D930A</span>, <span class="number">0x9C0906A9</span>, <span class="number">0xEB0E363F</span>, <span class="number">0x72076785</span>, <span class="number">0x05005713</span>,
+<a href=#27 id=27 data-nosnippet>27</a>    <span class="number">0x95BF4A82</span>, <span class="number">0xE2B87A14</span>, <span class="number">0x7BB12BAE</span>, <span class="number">0x0CB61B38</span>, <span class="number">0x92D28E9B</span>, <span class="number">0xE5D5BE0D</span>, <span class="number">0x7CDCEFB7</span>, <span class="number">0x0BDBDF21</span>,
+<a href=#28 id=28 data-nosnippet>28</a>    <span class="number">0x86D3D2D4</span>, <span class="number">0xF1D4E242</span>, <span class="number">0x68DDB3F8</span>, <span class="number">0x1FDA836E</span>, <span class="number">0x81BE16CD</span>, <span class="number">0xF6B9265B</span>, <span class="number">0x6FB077E1</span>, <span class="number">0x18B74777</span>,
+<a href=#29 id=29 data-nosnippet>29</a>    <span class="number">0x88085AE6</span>, <span class="number">0xFF0F6A70</span>, <span class="number">0x66063BCA</span>, <span class="number">0x11010B5C</span>, <span class="number">0x8F659EFF</span>, <span class="number">0xF862AE69</span>, <span class="number">0x616BFFD3</span>, <span class="number">0x166CCF45</span>,
+<a href=#30 id=30 data-nosnippet>30</a>    <span class="number">0xA00AE278</span>, <span class="number">0xD70DD2EE</span>, <span class="number">0x4E048354</span>, <span class="number">0x3903B3C2</span>, <span class="number">0xA7672661</span>, <span class="number">0xD06016F7</span>, <span class="number">0x4969474D</span>, <span class="number">0x3E6E77DB</span>,
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="number">0xAED16A4A</span>, <span class="number">0xD9D65ADC</span>, <span class="number">0x40DF0B66</span>, <span class="number">0x37D83BF0</span>, <span class="number">0xA9BCAE53</span>, <span class="number">0xDEBB9EC5</span>, <span class="number">0x47B2CF7F</span>, <span class="number">0x30B5FFE9</span>,
+<a href=#32 id=32 data-nosnippet>32</a>    <span class="number">0xBDBDF21C</span>, <span class="number">0xCABAC28A</span>, <span class="number">0x53B39330</span>, <span class="number">0x24B4A3A6</span>, <span class="number">0xBAD03605</span>, <span class="number">0xCDD70693</span>, <span class="number">0x54DE5729</span>, <span class="number">0x23D967BF</span>,
+<a href=#33 id=33 data-nosnippet>33</a>    <span class="number">0xB3667A2E</span>, <span class="number">0xC4614AB8</span>, <span class="number">0x5D681B02</span>, <span class="number">0x2A6F2B94</span>, <span class="number">0xB40BBE37</span>, <span class="number">0xC30C8EA1</span>, <span class="number">0x5A05DF1B</span>, <span class="number">0x2D02EF8D</span>,
+<a href=#34 id=34 data-nosnippet>34</a>];
+<a href=#35 id=35 data-nosnippet>35</a>
+<a href=#36 id=36 data-nosnippet>36</a><span class="doccomment">/// Calculate CRC32 from bytes.
+<a href=#37 id=37 data-nosnippet>37</a></span><span class="attr">#[inline]
+<a href=#38 id=38 data-nosnippet>38</a></span><span class="kw">pub const fn </span>generate_crc32(data: <span class="kw-2">&amp;</span>[u8]) -&gt; u32 {
+<a href=#39 id=39 data-nosnippet>39</a>    <span class="kw">let </span><span class="kw-2">mut </span>hash = <span class="number">0</span>;
+<a href=#40 id=40 data-nosnippet>40</a>    <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+<a href=#41 id=41 data-nosnippet>41</a>
+<a href=#42 id=42 data-nosnippet>42</a>    <span class="kw">while </span>i &lt; data.len() {
+<a href=#43 id=43 data-nosnippet>43</a>        <span class="kw">let </span>index = (hash ^ (data[i] <span class="kw">as </span>u32)) &amp; <span class="number">0xFF</span>;
+<a href=#44 id=44 data-nosnippet>44</a>        hash = (hash &gt;&gt; <span class="number">8</span>) ^ CRC32_TABLE[index <span class="kw">as </span>usize];
+<a href=#45 id=45 data-nosnippet>45</a>        i += <span class="number">1</span>;
+<a href=#46 id=46 data-nosnippet>46</a>    }
+<a href=#47 id=47 data-nosnippet>47</a>    hash
+<a href=#48 id=48 data-nosnippet>48</a>}
+<a href=#49 id=49 data-nosnippet>49</a>
+<a href=#50 id=50 data-nosnippet>50</a><span class="doccomment">/// Calculate CRC32 from [`u32`].
+<a href=#51 id=51 data-nosnippet>51</a></span><span class="attr">#[inline]
+<a href=#52 id=52 data-nosnippet>52</a></span><span class="kw">pub const fn </span>crc32_from_u32(input: u32) -&gt; u32 {
+<a href=#53 id=53 data-nosnippet>53</a>    generate_crc32(<span class="kw-2">&amp;</span>input.to_le_bytes())
+<a href=#54 id=54 data-nosnippet>54</a>}
+<a href=#55 id=55 data-nosnippet>55</a>
+<a href=#56 id=56 data-nosnippet>56</a><span class="attr">#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+<a href=#57 id=57 data-nosnippet>57</a>#[repr(transparent)]
+<a href=#58 id=58 data-nosnippet>58</a></span><span class="kw">pub struct </span>Crc32Hasher {
+<a href=#59 id=59 data-nosnippet>59</a>    state: u32,
+<a href=#60 id=60 data-nosnippet>60</a>}
+<a href=#61 id=61 data-nosnippet>61</a>
+<a href=#62 id=62 data-nosnippet>62</a><span class="kw">impl </span>Crc32Hasher {
+<a href=#63 id=63 data-nosnippet>63</a>    <span class="attr">#[inline]
+<a href=#64 id=64 data-nosnippet>64</a>    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+<a href=#65 id=65 data-nosnippet>65</a>        <span class="self">Self </span>{ state: <span class="number">0 </span>}
+<a href=#66 id=66 data-nosnippet>66</a>    }
+<a href=#67 id=67 data-nosnippet>67</a>}
+<a href=#68 id=68 data-nosnippet>68</a>
+<a href=#69 id=69 data-nosnippet>69</a><span class="kw">impl </span>core::hash::Hasher <span class="kw">for </span>Crc32Hasher {
+<a href=#70 id=70 data-nosnippet>70</a>    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: <span class="kw-2">&amp;</span>[u8]) {
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="self">self</span>.state = generate_crc32(bytes);
+<a href=#72 id=72 data-nosnippet>72</a>    }
+<a href=#73 id=73 data-nosnippet>73</a>
+<a href=#74 id=74 data-nosnippet>74</a>    <span class="kw">fn </span>finish(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+<a href=#75 id=75 data-nosnippet>75</a>        <span class="self">self</span>.state <span class="kw">as </span>u64
+<a href=#76 id=76 data-nosnippet>76</a>    }
+<a href=#77 id=77 data-nosnippet>77</a>}
+<a href=#78 id=78 data-nosnippet>78</a>
+<a href=#79 id=79 data-nosnippet>79</a><span class="comment">// Unit tests
+<a href=#80 id=80 data-nosnippet>80</a></span><span class="attr">#[cfg(test)]
+<a href=#81 id=81 data-nosnippet>81</a></span><span class="kw">mod </span>tests {
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#83 id=83 data-nosnippet>83</a>
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="attr">#[test]
+<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="kw">fn </span>test_crc32_arithmetic() {
+<a href=#86 id=86 data-nosnippet>86</a>        <span class="kw">let </span>value: u32 = <span class="number">42</span>;
+<a href=#87 id=87 data-nosnippet>87</a>        <span class="macro">assert_eq!</span>(crc32_from_u32(value), <span class="number">3482275674</span>);
+<a href=#88 id=88 data-nosnippet>88</a>    }
+<a href=#89 id=89 data-nosnippet>89</a>
+<a href=#90 id=90 data-nosnippet>90</a>    <span class="attr">#[test]
+<a href=#91 id=91 data-nosnippet>91</a>    </span><span class="kw">fn </span>test_crc32_string() {
+<a href=#92 id=92 data-nosnippet>92</a>        <span class="kw">let </span>text = <span class="string">"meshes\\actors\\dragon\\animations"</span>;
+<a href=#93 id=93 data-nosnippet>93</a>        <span class="macro">assert_eq!</span>(generate_crc32(text.as_bytes()), <span class="number">3692944883</span>);
+<a href=#94 id=94 data-nosnippet>94</a>    }
+<a href=#95 id=95 data-nosnippet>95</a>
+<a href=#96 id=96 data-nosnippet>96</a>    <span class="attr">#[test]
+<a href=#97 id=97 data-nosnippet>97</a>    </span><span class="kw">fn </span>test_crc32_nullptr() {
+<a href=#98 id=98 data-nosnippet>98</a>        <span class="macro">assert_eq!</span>(generate_crc32(<span class="kw-2">&amp;</span>[]), <span class="number">0</span>);
+<a href=#99 id=99 data-nosnippet>99</a>    }
+<a href=#100 id=100 data-nosnippet>100</a>
+<a href=#101 id=101 data-nosnippet>101</a>    <span class="attr">#[test]
+<a href=#102 id=102 data-nosnippet>102</a>    </span><span class="kw">fn </span>test_hashmap() {
+<a href=#103 id=103 data-nosnippet>103</a>        <span class="kw">use </span>std::collections::HashMap;
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a>        <span class="kw">type </span>Crc32Hash = std::hash::BuildHasherDefault&lt;Crc32Hasher&gt;;
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a>        <span class="kw">let </span><span class="kw-2">mut </span>map: HashMap&lt;String, u32, Crc32Hash&gt; = HashMap::default();
+<a href=#108 id=108 data-nosnippet>108</a>
+<a href=#109 id=109 data-nosnippet>109</a>        map.insert(<span class="string">"foo"</span>.to_string(), <span class="number">1</span>);
+<a href=#110 id=110 data-nosnippet>110</a>        map.insert(<span class="string">"bar"</span>.to_string(), <span class="number">2</span>);
+<a href=#111 id=111 data-nosnippet>111</a>
+<a href=#112 id=112 data-nosnippet>112</a>        <span class="kw">for </span>(key, value) <span class="kw">in </span><span class="kw-2">&amp;</span>map {
+<a href=#113 id=113 data-nosnippet>113</a>            <span class="macro">println!</span>(<span class="string">"Key: {}, Value: {}"</span>, key, value);
+<a href=#114 id=114 data-nosnippet>114</a>        }
+<a href=#115 id=115 data-nosnippet>115</a>    }
+<a href=#116 id=116 data-nosnippet>116</a>}</code></pre></div></section></main></body></html>

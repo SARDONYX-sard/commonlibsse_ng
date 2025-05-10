@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Dispatcher","MessageType","MessagingError"],"struct":["Dispatcher_CEnum","Message","MessageType_CEnum","MessagingInterface"]};

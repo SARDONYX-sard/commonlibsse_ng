@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BGSEquipSlot","BGSEquipSlotVtbl","Flag","RecordFlag"]};

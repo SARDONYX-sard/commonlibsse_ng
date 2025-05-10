@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BOUND_DATA","NiNPShortPoint3","TESBoundObject","TESBoundObjectVtbl"]};

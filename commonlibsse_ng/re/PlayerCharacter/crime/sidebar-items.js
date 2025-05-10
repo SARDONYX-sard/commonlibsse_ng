@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["CrimeGoldStruct","CrimeValue","StolenItemValueStruct","TeleportPath","Unk00Data","Unk18Data"]};

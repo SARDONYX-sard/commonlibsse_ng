@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PC_GAMEPAD_TYPE"],"struct":["PC_GAMEPAD_TYPE_CEnum"]};

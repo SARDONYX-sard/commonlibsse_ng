@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AIPerkData","CommandedActorData","DeferredHideLimb","MiddleHighProcessData","ObjectEquipParams","QueuedItem","RESET_3D_FLAGS"]};

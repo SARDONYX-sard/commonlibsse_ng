@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["add_hook","disable_hook","enable_hook","get_trampoline","remove_hook"]};

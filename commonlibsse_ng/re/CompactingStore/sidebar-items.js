@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BlockHeader","FreeBlock","Store","StoreBlock","StoreVtbl"]};

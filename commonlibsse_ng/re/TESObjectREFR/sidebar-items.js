@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["LOADED_REF_DATA","OBJ_REFR","TESObjectREFR","TESObjectREFRVtbl"],"type":["InventoryCountMap","InventoryDropMap","InventoryItemMap"]};

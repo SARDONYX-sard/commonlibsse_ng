@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["UI_MESSAGE_TYPE"],"struct":["UIMessage","UI_MESSAGE_TYPE_CEnum"]};

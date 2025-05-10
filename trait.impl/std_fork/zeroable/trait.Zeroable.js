@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["commonlibsse_ng",[["impl <a class=\"trait\" href=\"std_fork/zeroable/trait.Zeroable.html\" title=\"trait std_fork::zeroable::Zeroable\">Zeroable</a> for <a class=\"struct\" href=\"commonlibsse_ng/re/BSPointerHandle/struct.ActorHandle.html\" title=\"struct commonlibsse_ng::re::BSPointerHandle::ActorHandle\">ActorHandle</a>"],["impl <a class=\"trait\" href=\"std_fork/zeroable/trait.Zeroable.html\" title=\"trait std_fork::zeroable::Zeroable\">Zeroable</a> for <a class=\"struct\" href=\"commonlibsse_ng/re/BSPointerHandle/struct.ObjectRefHandle.html\" title=\"struct commonlibsse_ng::re::BSPointerHandle::ObjectRefHandle\">ObjectRefHandle</a>"],["impl <a class=\"trait\" href=\"std_fork/zeroable/trait.Zeroable.html\" title=\"trait std_fork::zeroable::Zeroable\">Zeroable</a> for <a class=\"struct\" href=\"commonlibsse_ng/re/BSPointerHandle/struct.ProjectileHandle.html\" title=\"struct commonlibsse_ng::re::BSPointerHandle::ProjectileHandle\">ProjectileHandle</a>"],["impl <a class=\"trait\" href=\"std_fork/zeroable/trait.Zeroable.html\" title=\"trait std_fork::zeroable::Zeroable\">Zeroable</a> for <a class=\"struct\" href=\"commonlibsse_ng/re/ExtraDataList/struct.ExtraDataList.html\" title=\"struct commonlibsse_ng::re::ExtraDataList::ExtraDataList\">ExtraDataList</a>"],["impl <a class=\"trait\" href=\"std_fork/zeroable/trait.Zeroable.html\" title=\"trait std_fork::zeroable::Zeroable\">Zeroable</a> for <a class=\"struct\" href=\"commonlibsse_ng/re/TESQuest/struct.TESQuestStage.html\" title=\"struct commonlibsse_ng::re::TESQuest::TESQuestStage\">TESQuestStage</a>"]]],["std_fork",[]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1582,16]}

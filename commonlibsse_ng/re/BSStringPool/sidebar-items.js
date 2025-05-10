@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["U16","U8"],"fn":["release16","release8"],"struct":["BucketTable","Entry"],"trait":["StringFormat"],"union":["LengthOrRight"]};

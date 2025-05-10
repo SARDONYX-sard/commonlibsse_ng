@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["InputType"],"struct":["InputType_CEnum","ThumbstickEvent","ThumbstickEventVtbl"]};

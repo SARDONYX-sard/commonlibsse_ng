@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ACTOR_CRITICAL_STAGE","SlotTypes"],"struct":["ACTOR_CRITICAL_STAGE_CEnum","ACTOR_RUNTIME_DATA","Actor","ActorValueStorage","ActorVtbl","BOOL_BITS","BOOL_FLAGS","ChangeFlag","LocalMap","Modifiers","RecordFlag","SlotTypes_CEnum"]};

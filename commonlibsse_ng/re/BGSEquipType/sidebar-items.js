@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EQUIPPED_ITEM_TYPE"],"struct":["BGSEquipType","BGSEquipTypeVtbl","EQUIPPED_ITEM_TYPE_CEnum"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Key"],"struct":["BSWin32GamepadDevice","ButtonState","Key_CEnum"]};

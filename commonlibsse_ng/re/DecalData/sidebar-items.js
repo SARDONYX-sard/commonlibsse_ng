@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Flag"],"struct":["DECAL_DATA_DATA","DecalData"]};

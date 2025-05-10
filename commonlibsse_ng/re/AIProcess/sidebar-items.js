@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Hand","PROCESS_TYPE"],"struct":["AIProcess","BooleanValue","CachedValueData","CachedValues","Data0B8","EquippedObject","Flags","Hand_CEnum","LowProcessFlags","MiddleLowProcessData","ObjectsToAcquire","PROCESS_TYPE_CEnum"]};

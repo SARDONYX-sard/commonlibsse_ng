@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["IIterable","IIterable_Vtbl","IIterator","IIterator_Vtbl","IKeyValuePair","IKeyValuePair_Vtbl","IMap","IMapView","IMapView_Vtbl","IMap_Vtbl","IVector","IVectorView","IVectorView_Vtbl","IVector_Vtbl"],"trait":["IIterable_Impl","IIterator_Impl","IKeyValuePair_Impl","IMapView_Impl","IMap_Impl","IVectorView_Impl","IVector_Impl"]};

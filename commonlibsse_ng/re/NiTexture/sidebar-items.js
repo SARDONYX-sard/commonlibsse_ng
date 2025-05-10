@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AlphaFormat","MipFlag","PixelLayout"],"struct":["FormatPrefs","NiTexture","NiTextureVtbl","RendererData"]};

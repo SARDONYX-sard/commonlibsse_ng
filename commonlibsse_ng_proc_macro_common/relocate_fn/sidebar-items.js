@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["gen_relocate_fn"]};

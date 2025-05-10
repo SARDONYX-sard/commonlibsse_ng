@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BGSSoundCategoryFlag","RecordFlags"],"struct":["BGSSoundCategory","BGSSoundCategoryFlag_CEnum","RecordFlags_CEnum"]};

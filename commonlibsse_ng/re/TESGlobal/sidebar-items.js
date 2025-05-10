@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Type"],"struct":["TESGlobal","TESGlobalVtbl","Type_CEnum"]};

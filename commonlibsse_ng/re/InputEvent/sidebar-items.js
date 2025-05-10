@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Event"],"struct":["INPUT_EVENT_TYPE","InputEvent","InputEventIterator","InputEventVtbl"]};

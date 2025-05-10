@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ModuleHandleError","ModuleInitError","ModuleState","ModuleStateError","Runtime","SegmentName"],"fn":["get_skyrim_dir","get_skyrim_exe_path","is_vr"],"struct":["Module","ModuleHandle","Segment"]};

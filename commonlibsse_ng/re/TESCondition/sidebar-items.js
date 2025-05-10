@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ComparisonValue","OpCode"],"struct":["BGSPackageDataList","BGSStoryEvent","CONDITION_ITEM_DATA","ConditionCheckParams","ConditionItemObject","Flags","FunctionData","TESCondition","TESConditionItem"],"union":["GlobalOrFloat"]};

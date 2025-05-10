@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["MonthInGame","Week"],"struct":["Calendar","GameDateTime","GameDay","Hour","MonthIndex","Year"]};

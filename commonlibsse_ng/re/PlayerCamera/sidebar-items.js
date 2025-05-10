@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CameraStateSE","CameraStateVR"],"struct":["CameraState","CameraStateSE_CEnum","CameraStateVR_CEnum","PlayerCamera","PlayerCameraVtbl","RUNTIME_DATA","RUNTIME_DATA2","Unk120","VR_RUNTIME_DATA"]};

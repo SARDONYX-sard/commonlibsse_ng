@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["alloc","alloc_zeroed","dealloc","realloc"],"mod":["scrap_alloc","tes_global"]};

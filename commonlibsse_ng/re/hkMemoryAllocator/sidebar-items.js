@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["MemoryState"],"struct":["ExtendedInterface","ExtendedInterfaceVtbl","MemoryState_CEnum","MemoryStatistics","hkMemoryAllocator","hkMemoryAllocatorVtbl"],"type":["MemoryWalkCallback"]};

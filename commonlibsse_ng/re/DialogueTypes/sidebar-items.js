@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DIALOGUE_TYPE"],"struct":["DIALOGUE_TYPE_CEnum"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["BSTSmartPointer","BSTSmartPointerAutoPtr","BSTSmartPointerIntrusiveRefCount"],"trait":["ManageBSTSmartPointer"],"type":["BSTAutoPointer"]};

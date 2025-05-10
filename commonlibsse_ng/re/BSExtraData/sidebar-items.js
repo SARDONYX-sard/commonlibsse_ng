@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["downcast_as"],"struct":["BSExtraData","BSExtraDataIter","BSExtraDataIterMut","BSExtraDataVtbl"],"trait":["DerivedBSExtraData"]};

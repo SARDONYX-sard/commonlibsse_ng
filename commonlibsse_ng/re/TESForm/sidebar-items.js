@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["EditorIDMap","FormIDMap","InGameFormFlag","RecordFlag","TESFileContainer","TESForm","TESFormVtbl"],"trait":["DerivedTESForm"]};

@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\commonlibsse_ng\src\re\q\QuestEvent.rs`."><title>QuestEvent.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../..\../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../..\../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../..\../" data-static-root-path="../../..\../static.files/" data-current-crate="commonlibsse_ng" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../..\../static.files/storage-3a5871a4.js"></script><script defer src="../../..\../static.files/src-script-b8d3f215.js"></script><script defer src="../../..\../src-files.js"></script><script defer src="../../..\../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../..\../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../..\../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">commonlibsse_ng\re\q/</div>QuestEvent.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-2"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#[commonlibsse_ng_derive_internal::ffi_enum]
+<a href=#2 id=2 data-nosnippet>2</a>#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+<a href=#3 id=3 data-nosnippet>3</a>#[repr(u32)]
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="kw">pub enum </span>QuestEvent {
+<a href=#5 id=5 data-nosnippet>5</a>    <span class="prelude-val">None </span>= <span class="number">4294967295</span>,           <span class="comment">// NONE - u32::MAX
+<a href=#6 id=6 data-nosnippet>6</a>    </span>KillActor = <span class="number">0</span>,               <span class="comment">// KILL
+<a href=#7 id=7 data-nosnippet>7</a>    </span>AssaultActor = <span class="number">1</span>,            <span class="comment">// ASSU
+<a href=#8 id=8 data-nosnippet>8</a>    </span>ChangeLocation = <span class="number">2</span>,          <span class="comment">// CLOC
+<a href=#9 id=9 data-nosnippet>9</a>    </span>Script = <span class="number">3</span>,                  <span class="comment">// SCPT
+<a href=#10 id=10 data-nosnippet>10</a>    </span>ActorDialogue = <span class="number">4</span>,           <span class="comment">// ADIA
+<a href=#11 id=11 data-nosnippet>11</a>    </span>ActorHello = <span class="number">5</span>,              <span class="comment">// AHEL
+<a href=#12 id=12 data-nosnippet>12</a>    </span>ActivateActor = <span class="number">6</span>,           <span class="comment">// AFAV
+<a href=#13 id=13 data-nosnippet>13</a>    </span>PlayerAddItem = <span class="number">7</span>,           <span class="comment">// AIPL
+<a href=#14 id=14 data-nosnippet>14</a>    </span>PlayerRemoveItem = <span class="number">8</span>,        <span class="comment">// REMP
+<a href=#15 id=15 data-nosnippet>15</a>    </span>CraftItem = <span class="number">9</span>,               <span class="comment">// CRFT
+<a href=#16 id=16 data-nosnippet>16</a>    </span>PickLock = <span class="number">10</span>,               <span class="comment">// LOCK
+<a href=#17 id=17 data-nosnippet>17</a>    </span>Infection = <span class="number">11</span>,              <span class="comment">// INFC
+<a href=#18 id=18 data-nosnippet>18</a>    </span>Cure = <span class="number">12</span>,                   <span class="comment">// CURE
+<a href=#19 id=19 data-nosnippet>19</a>    </span>NewVoicePower = <span class="number">13</span>,          <span class="comment">// NVPE
+<a href=#20 id=20 data-nosnippet>20</a>    </span>DeadBody = <span class="number">14</span>,               <span class="comment">// DEAD
+<a href=#21 id=21 data-nosnippet>21</a>    </span>SkillIncrease = <span class="number">15</span>,          <span class="comment">// SKIL
+<a href=#22 id=22 data-nosnippet>22</a>    </span>IncreaseLevel = <span class="number">16</span>,          <span class="comment">// LEVL
+<a href=#23 id=23 data-nosnippet>23</a>    </span>ChangeRelationshipRank = <span class="number">17</span>, <span class="comment">// CHBR
+<a href=#24 id=24 data-nosnippet>24</a>    </span>IntimidateNPC = <span class="number">18</span>,          <span class="comment">// INTM
+<a href=#25 id=25 data-nosnippet>25</a>    </span>BribeNPC = <span class="number">19</span>,               <span class="comment">// BRIB
+<a href=#26 id=26 data-nosnippet>26</a>    </span>FlatterNPC = <span class="number">20</span>,             <span class="comment">// FLAT
+<a href=#27 id=27 data-nosnippet>27</a>    </span>PlayerGetsFavor = <span class="number">21</span>,        <span class="comment">// PRFV
+<a href=#28 id=28 data-nosnippet>28</a>    </span>PayFine = <span class="number">22</span>,                <span class="comment">// PFIN
+<a href=#29 id=29 data-nosnippet>29</a>    </span>Jail = <span class="number">23</span>,                   <span class="comment">// JAIL
+<a href=#30 id=30 data-nosnippet>30</a>    </span>ServedTime = <span class="number">24</span>,             <span class="comment">// STIJ
+<a href=#31 id=31 data-nosnippet>31</a>    </span>EscapeJail = <span class="number">25</span>,             <span class="comment">// ESIA
+<a href=#32 id=32 data-nosnippet>32</a>    </span>Trespass = <span class="number">26</span>,               <span class="comment">// TRES
+<a href=#33 id=33 data-nosnippet>33</a>    </span>CrimeGold = <span class="number">27</span>,              <span class="comment">// ADCR
+<a href=#34 id=34 data-nosnippet>34</a>    </span>Arrest = <span class="number">28</span>,                 <span class="comment">// ARRT
+<a href=#35 id=35 data-nosnippet>35</a>    </span>CastMagic = <span class="number">29</span>,              <span class="comment">// CAST
+<a href=#36 id=36 data-nosnippet>36</a></span>}</code></pre></div></section></main></body></html>

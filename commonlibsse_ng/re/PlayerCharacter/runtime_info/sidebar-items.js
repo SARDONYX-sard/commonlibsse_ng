@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["INFO_RUNTIME_DATA","VR_INFO_RUNTIME_DATA"]};

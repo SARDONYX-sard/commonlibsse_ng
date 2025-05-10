@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Relocates an address using Skyrim runtime-specific relocation IDs."><title>relocate in commonlibsse_ng_derive_internal - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="commonlibsse_ng_derive_internal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../static.files/storage-3a5871a4.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../commonlibsse_ng_derive_internal/index.html">commonlibsse_<wbr>ng_<wbr>derive_<wbr>internal</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">relocate</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#attributes" title="Attributes">Attributes</a></li><li><a href="#function-body" title="Function Body">Function Body</a></li><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#without-deref_once" title="Without deref_once">Without deref_once</a></li><li><a href="#with-deref_once-and-pointed-pointereg-getsingleton" title="With deref_once and pointed pointer(e.g. `GetSingleton`)">With deref_once and pointed pointer(e.g. <code>GetSingleton</code>)</a></li></ul></li><li><a href="#notes" title="Notes">Notes</a></li><li><a href="#see-also" title="See Also">See Also</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate commonlibsse_<wbr>ng_<wbr>derive_<wbr>internal</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">commonlibsse_ng_derive_internal</a></div><h1>Attribute Macro <span class="attr">relocate</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/commonlibsse_ng_derive_internal/lib.rs.html#83-93">Source</a> </span></div><pre class="rust item-decl"><code>#[relocate]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Relocates an address using Skyrim runtime-specific relocation IDs.</p>
+<p>The <code>#[relocate]</code> attribute macro enables dynamic resolution of a pointer using relocation
+IDs for Skyrim Special Edition (SE), Anniversary Edition (AE), and optionally VR. It injects code
+to resolve the address at runtime and execute user-provided logic through a closure, passing the
+resolved pointer as an argument.</p>
+<h2 id="attributes"><a class="doc-anchor" href="#attributes">§</a>Attributes</h2><div><table><thead><tr><th>Attribute</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>cast_as</code></td><td><code>&amp;str</code></td><td>Yes</td><td>The type to cast the resolved pointer to (e.g., <code>"*mut bool"</code>, <code>"*mut T"</code>).</td></tr>
+<tr><td><code>default</code></td><td><code>&amp;str</code></td><td>Yes</td><td>The fallback value returned if resolution fails (e.g., <code>"false"</code>, <code>None</code>).</td></tr>
+<tr><td><code>deref_once</code></td><td><code>bool</code></td><td>No</td><td>If specified, the casted pointer will be dereferenced once(by <code>read_unaligned</code>).</td></tr>
+<tr><td><code>id.se</code></td><td><code>u64</code></td><td>Yes</td><td>Relocation ID for Skyrim Special Edition.</td></tr>
+<tr><td><code>id.ae</code></td><td><code>u64</code></td><td>Yes</td><td>Relocation ID for Skyrim Anniversary Edition.</td></tr>
+<tr><td><code>id.vr</code></td><td><code>u64</code></td><td>No</td><td>Relocation ID for Skyrim VR. Defaults to <code>se</code> if omitted.</td></tr>
+</tbody></table>
+</div>
+<p>If <code>deref_once</code> is specified and the <code>cast_as</code> type is a multi-level pointer (e.g., <code>*mut *mut T</code>),
+the macro will automatically strip one level and define a helper type alias <code>DerefType</code>:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">type </span>DerefType = <span class="kw-2">*mut </span>T;</code></pre></div>
+<p>This type alias can then be used as the parameter type in the closure.</p>
+<h2 id="function-body"><a class="doc-anchor" href="#function-body">§</a>Function Body</h2>
+<p>The function body must be a single closure of the form:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>|as_type: AsType| { ... }</code></pre></div>
+<p>where <code>AsType</code> is either the raw casted pointer or the dereferenced value, depending on <code>deref_once</code>.</p>
+<p>If resolution fails, the <code>default</code> value will be returned instead (parsed as a Rust expression).</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2><h3 id="without-deref_once"><a class="doc-anchor" href="#without-deref_once">§</a>Without deref_once</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[commonlibsse_ng_derive_internal::relocate(
+    cast_as = <span class="string">"*mut EntryPoint"</span>,
+    default = <span class="string">"None"</span>,
+    id(se = <span class="number">675707</span>, ae = <span class="number">368994</span>)
+)]
+#[inline]
+</span><span class="kw">fn </span>entry_points(entry_point: ENTRY_POINT) -&gt; <span class="prelude-ty">Option</span>&lt;NonNull&lt;EntryPoint&gt;&gt; {
+    |as_type| <span class="kw">unsafe </span>{ NonNull::new(as_type.add(entry_point <span class="kw">as </span>usize)) }
+}</code></pre></div>
+<h3 id="with-deref_once-and-pointed-pointereg-getsingleton"><a class="doc-anchor" href="#with-deref_once-and-pointed-pointereg-getsingleton">§</a>With deref_once and pointed pointer(e.g. <code>GetSingleton</code>)</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[commonlibsse_ng_derive_internal::relocate(
+    cast_as = <span class="string">"*mut *mut INIPrefSettingCollection"</span>,
+    default = <span class="string">"None"</span>,
+    deref_once,
+    id(se = <span class="number">524557</span>, ae = <span class="number">411155</span>)
+)]
+</span><span class="kw">pub fn </span>get_singleton() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>INIPrefSettingCollection&gt; {
+    |deref_type: DerefType| <span class="kw">unsafe </span>{ deref_type.as_ref() }
+}</code></pre></div>
+<h2 id="notes"><a class="doc-anchor" href="#notes">§</a>Notes</h2>
+<ul>
+<li><code>cast_as</code> must be a valid Rust type (pointer types encouraged for safety).</li>
+<li><code>deref_once</code> is especially useful for singletons and global pointers.</li>
+<li>This pattern avoids boilerplate and enables declarative relocation definitions.</li>
+</ul>
+<h2 id="see-also"><a class="doc-anchor" href="#see-also">§</a>See Also</h2>
+<ul>
+<li><a href="relocate_fn"><code>#[relocate_fn]</code></a> — relocate and invoke a function with arguments instead of reading a pointer.</li>
+</ul>
+</div></details></section></div></main></body></html>

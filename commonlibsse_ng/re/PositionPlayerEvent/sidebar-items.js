@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EVENT_TYPE"],"struct":["EVENT_TYPE_CEnum","PositionPlayerEvent"]};

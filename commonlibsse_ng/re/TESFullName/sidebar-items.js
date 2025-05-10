@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["TESFullName","TESFullNameVtbl"],"trait":["TESFullNameVtblTrait"]};

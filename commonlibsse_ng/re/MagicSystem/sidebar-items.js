@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CannotCastReason","CastingSource","CastingType","Delivery","SoundID","WardState"],"fn":["GetCannotCastString","GetMagicCasterTargetUpdateInterval","GetMagicFailureSound","GetMagicItemDescription"],"struct":["CannotCastReason_CEnum","CastingSource_CEnum","CastingType_CEnum","Delivery_CEnum","SoundID_CEnum","SpellType"]};

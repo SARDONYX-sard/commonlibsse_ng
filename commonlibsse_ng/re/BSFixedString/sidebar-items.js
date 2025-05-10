@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["ctor16","ctor8"],"struct":["BSFixedStringInternal"],"type":["BSFixedString","BSFixedStringW"]};

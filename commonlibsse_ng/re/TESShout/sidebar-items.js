@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["VariationID"],"struct":["RecordFlag","TESShout","TESShoutVtbl","Variation","VariationID_CEnum"]};

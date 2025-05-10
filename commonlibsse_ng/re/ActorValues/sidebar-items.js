@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ACTOR_VALUE_MODIFIER","ActorValue"],"struct":["ACTOR_VALUE_MODIFIER_CEnum","ActorValue_CEnum","ActorValue_u8"]};

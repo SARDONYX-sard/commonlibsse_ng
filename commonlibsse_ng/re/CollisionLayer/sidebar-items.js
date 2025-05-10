@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["COL_LAYER"],"struct":["COL_LAYER_CEnum"]};

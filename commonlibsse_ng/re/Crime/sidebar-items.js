@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CRIME_TYPE"],"struct":["CRIME_TYPE_CEnum","Crime"]};

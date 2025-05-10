@@ -1,0 +1,363 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `crates\commonlibsse_ng\src\re\f\FormTypes.rs`."><title>FormTypes.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../..\../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../..\../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../..\../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../..\../" data-static-root-path="../../..\../static.files/" data-current-crate="commonlibsse_ng" data-themes="" data-resource-suffix="" data-rustdoc-version="1.86.0 (05f9846f8 2025-03-31)" data-channel="1.86.0" data-search-js="search-581efc7a.js" data-settings-js="settings-6dad6058.js" ><script src="../../..\../static.files/storage-3a5871a4.js"></script><script defer src="../../..\../static.files/src-script-b8d3f215.js"></script><script defer src="../../..\../src-files.js"></script><script defer src="../../..\../static.files/main-4d63596a.js"></script><noscript><link rel="stylesheet" href="../../..\../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../..\../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../..\../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">commonlibsse_ng\re\f/</div>FormTypes.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="attr">#[commonlibsse_ng_derive_internal::ffi_enum]
+<a href=#2 id=2 data-nosnippet>2</a>#[repr(u8)]
+<a href=#3 id=3 data-nosnippet>3</a>#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+<a href=#4 id=4 data-nosnippet>4</a></span><span class="kw">pub enum </span>FormType {
+<a href=#5 id=5 data-nosnippet>5</a>    <span class="prelude-val">None </span>= <span class="number">0</span>,                   <span class="comment">// 0x00 NONE TESForm
+<a href=#6 id=6 data-nosnippet>6</a>    </span>PluginInfo,                 <span class="comment">// 0x01 TES4
+<a href=#7 id=7 data-nosnippet>7</a>    </span>FormGroup,                  <span class="comment">// 0x02 GRUP
+<a href=#8 id=8 data-nosnippet>8</a>    </span>GameSetting,                <span class="comment">// 0x03 GMST
+<a href=#9 id=9 data-nosnippet>9</a>    </span>Keyword,                    <span class="comment">// 0x04 KYWD	BGSKeyword
+<a href=#10 id=10 data-nosnippet>10</a>    </span>LocationRefType,            <span class="comment">// 0x05 LCRT	BGSLocationRefType
+<a href=#11 id=11 data-nosnippet>11</a>    </span>Action,                     <span class="comment">// 0x06 AACT	BGSAction
+<a href=#12 id=12 data-nosnippet>12</a>    </span>TextureSet,                 <span class="comment">// 0x07 TXST	BGSTextureSet
+<a href=#13 id=13 data-nosnippet>13</a>    </span>MenuIcon,                   <span class="comment">// 0x08 MICN	BGSMenuIcon
+<a href=#14 id=14 data-nosnippet>14</a>    </span>Global,                     <span class="comment">// 0x09 GLOB	TESGlobal
+<a href=#15 id=15 data-nosnippet>15</a>    </span>Class,                      <span class="comment">// 0x0A CLAS	TESClass
+<a href=#16 id=16 data-nosnippet>16</a>    </span>Faction,                    <span class="comment">// 0x0B FACT	TESFaction
+<a href=#17 id=17 data-nosnippet>17</a>    </span>HeadPart,                   <span class="comment">// 0x0C HDPT	BGSHeadPart
+<a href=#18 id=18 data-nosnippet>18</a>    </span>Eyes,                       <span class="comment">// 0x0D EYES	TESEyes
+<a href=#19 id=19 data-nosnippet>19</a>    </span>Race,                       <span class="comment">// 0x0E RACE	TESRace
+<a href=#20 id=20 data-nosnippet>20</a>    </span>Sound,                      <span class="comment">// 0x0F SOUN	TESSound
+<a href=#21 id=21 data-nosnippet>21</a>    </span>AcousticSpace,              <span class="comment">// 0x10 ASPC	BGSAcousticSpace
+<a href=#22 id=22 data-nosnippet>22</a>    </span>Skill,                      <span class="comment">// 0x11 SKIL
+<a href=#23 id=23 data-nosnippet>23</a>    </span>MagicEffect,                <span class="comment">// 0x12 MGEF	EffectSetting
+<a href=#24 id=24 data-nosnippet>24</a>    </span>Script,                     <span class="comment">// 0x13 SCPT	Script
+<a href=#25 id=25 data-nosnippet>25</a>    </span>LandTexture,                <span class="comment">// 0x14 LTEX	TESLandTexture
+<a href=#26 id=26 data-nosnippet>26</a>    </span>Enchantment,                <span class="comment">// 0x15 ENCH	EnchantmentItem
+<a href=#27 id=27 data-nosnippet>27</a>    </span>Spell,                      <span class="comment">// 0x16 SPEL	SpellItem
+<a href=#28 id=28 data-nosnippet>28</a>    </span>Scroll,                     <span class="comment">// 0x17 SCRL	ScrollItem
+<a href=#29 id=29 data-nosnippet>29</a>    </span>Activator,                  <span class="comment">// 0x18 ACTI	TESObjectACTI
+<a href=#30 id=30 data-nosnippet>30</a>    </span>TalkingActivator,           <span class="comment">// 0x19 TACT	BGSTalkingActivator
+<a href=#31 id=31 data-nosnippet>31</a>    </span>Armor,                      <span class="comment">// 0x1A ARMO	TESObjectARMO
+<a href=#32 id=32 data-nosnippet>32</a>    </span>Book,                       <span class="comment">// 0x1B BOOK	TESObjectBOOK
+<a href=#33 id=33 data-nosnippet>33</a>    </span>Container,                  <span class="comment">// 0x1C CONT	TESObjectCONT
+<a href=#34 id=34 data-nosnippet>34</a>    </span>Door,                       <span class="comment">// 0x1D DOOR	TESObjectDOOR
+<a href=#35 id=35 data-nosnippet>35</a>    </span>Ingredient,                 <span class="comment">// 0x1E INGR	IngredientItem
+<a href=#36 id=36 data-nosnippet>36</a>    </span>Light,                      <span class="comment">// 0x1F LIGH	TESObjectLIGH
+<a href=#37 id=37 data-nosnippet>37</a>    </span>Misc,                       <span class="comment">// 0x20 MISC TESObjectMISC
+<a href=#38 id=38 data-nosnippet>38</a>    </span>Apparatus,                  <span class="comment">// 0x21 APPA	BGSApparatus
+<a href=#39 id=39 data-nosnippet>39</a>    </span>Static,                     <span class="comment">// 0x22 STAT	TESObjectSTAT
+<a href=#40 id=40 data-nosnippet>40</a>    </span>StaticCollection,           <span class="comment">// 0x23 SCOL BGSStaticCollection
+<a href=#41 id=41 data-nosnippet>41</a>    </span>MovableStatic,              <span class="comment">// 0x24 MSTT	BGSMovableStatic
+<a href=#42 id=42 data-nosnippet>42</a>    </span>Grass,                      <span class="comment">// 0x25 GRAS	TESGrass
+<a href=#43 id=43 data-nosnippet>43</a>    </span>Tree,                       <span class="comment">// 0x26 TREE	TESObjectTREE
+<a href=#44 id=44 data-nosnippet>44</a>    </span>Flora,                      <span class="comment">// 0x27 FLOR	TESFlora
+<a href=#45 id=45 data-nosnippet>45</a>    </span>Furniture,                  <span class="comment">// 0x28 FURN	TESFurniture
+<a href=#46 id=46 data-nosnippet>46</a>    </span>Weapon,                     <span class="comment">// 0x29 WEAP	TESObjectWEAP
+<a href=#47 id=47 data-nosnippet>47</a>    </span>Ammo,                       <span class="comment">// 0x2A AMMO	TESAmmo
+<a href=#48 id=48 data-nosnippet>48</a>    </span>NPC,                        <span class="comment">// 0x2B NPC_	TESNPC
+<a href=#49 id=49 data-nosnippet>49</a>    </span>LeveledNPC,                 <span class="comment">// 0x2C LVLN	TESLevCharacter
+<a href=#50 id=50 data-nosnippet>50</a>    </span>KeyMaster,                  <span class="comment">// 0x2D KEYM	TESKey
+<a href=#51 id=51 data-nosnippet>51</a>    </span>AlchemyItem,                <span class="comment">// 0x2E ALCH	AlchemyItem
+<a href=#52 id=52 data-nosnippet>52</a>    </span>IdleMarker,                 <span class="comment">// 0x2F IDLM	BGSIdleMarker
+<a href=#53 id=53 data-nosnippet>53</a>    </span>Note,                       <span class="comment">// 0x30 NOTE	BGSNote
+<a href=#54 id=54 data-nosnippet>54</a>    </span>ConstructibleObject,        <span class="comment">// 0x31 COBJ	BGSConstructibleObject
+<a href=#55 id=55 data-nosnippet>55</a>    </span>Projectile,                 <span class="comment">// 0x32 PROJ	BGSProjectile
+<a href=#56 id=56 data-nosnippet>56</a>    </span>Hazard,                     <span class="comment">// 0x33 HAZD	BGSHazard
+<a href=#57 id=57 data-nosnippet>57</a>    </span>SoulGem,                    <span class="comment">// 0x34 SLGM	TESSoulGem
+<a href=#58 id=58 data-nosnippet>58</a>    </span>LeveledItem,                <span class="comment">// 0x35 LVLI	TESLevItem
+<a href=#59 id=59 data-nosnippet>59</a>    </span>Weather,                    <span class="comment">// 0x36 WTHR	TESWeather
+<a href=#60 id=60 data-nosnippet>60</a>    </span>Climate,                    <span class="comment">// 0x37 CLMT	TESClimate
+<a href=#61 id=61 data-nosnippet>61</a>    </span>ShaderParticleGeometryData, <span class="comment">// 0x38 SPGD	BGSShaderParticleGeometryData
+<a href=#62 id=62 data-nosnippet>62</a>    </span>ReferenceEffect,            <span class="comment">// 0x39 RFCT	BGSReferenceEffect
+<a href=#63 id=63 data-nosnippet>63</a>    </span>Region,                     <span class="comment">// 0x3A REGN	TESRegion
+<a href=#64 id=64 data-nosnippet>64</a>    </span>Navigation,                 <span class="comment">// 0x3B NAVI	NavMeshInfoMap
+<a href=#65 id=65 data-nosnippet>65</a>    </span>Cell,                       <span class="comment">// 0x3C CELL	TESObjectCELL
+<a href=#66 id=66 data-nosnippet>66</a>    </span>Reference,                  <span class="comment">// 0x3D REFR	TESObjectREFR
+<a href=#67 id=67 data-nosnippet>67</a>    </span>ActorCharacter,             <span class="comment">// 0x3E ACHR	Actor / Character / PlayerCharacter
+<a href=#68 id=68 data-nosnippet>68</a>    </span>ProjectileMissile,          <span class="comment">// 0x3F PMIS	MissileProjectile
+<a href=#69 id=69 data-nosnippet>69</a>    </span>ProjectileArrow,            <span class="comment">// 0x40 PARW	ArrowProjectile
+<a href=#70 id=70 data-nosnippet>70</a>    </span>ProjectileGrenade,          <span class="comment">// 0x41 PGRE	GrenadeProjectile
+<a href=#71 id=71 data-nosnippet>71</a>    </span>ProjectileBeam,             <span class="comment">// 0x42 PBEA	BeamProjectile
+<a href=#72 id=72 data-nosnippet>72</a>    </span>ProjectileFlame,            <span class="comment">// 0x43 PFLA	FlameProjectile
+<a href=#73 id=73 data-nosnippet>73</a>    </span>ProjectileCone,             <span class="comment">// 0x44 PCON	ConeProjectile
+<a href=#74 id=74 data-nosnippet>74</a>    </span>ProjectileBarrier,          <span class="comment">// 0x45 PBAR	BarrierProjectile
+<a href=#75 id=75 data-nosnippet>75</a>    </span>PlacedHazard,               <span class="comment">// 0x46 PHZD	Hazard
+<a href=#76 id=76 data-nosnippet>76</a>    </span>WorldSpace,                 <span class="comment">// 0x47 WRLD	TESWorldSpace
+<a href=#77 id=77 data-nosnippet>77</a>    </span>Land,                       <span class="comment">// 0x48 LAND	TESObjectLAND
+<a href=#78 id=78 data-nosnippet>78</a>    </span>NavMesh,                    <span class="comment">// 0x49 NAVM	NavMesh
+<a href=#79 id=79 data-nosnippet>79</a>    </span>TLOD,                       <span class="comment">// 0x4A TLOD
+<a href=#80 id=80 data-nosnippet>80</a>    </span>Dialogue,                   <span class="comment">// 0x4B DIAL	TESTopic
+<a href=#81 id=81 data-nosnippet>81</a>    </span>Info,                       <span class="comment">// 0x4C INFO	TESTopicInfo
+<a href=#82 id=82 data-nosnippet>82</a>    </span>Quest,                      <span class="comment">// 0x4D QUST	TESQuest
+<a href=#83 id=83 data-nosnippet>83</a>    </span>Idle,                       <span class="comment">// 0x4E IDLE	TESIdleForm
+<a href=#84 id=84 data-nosnippet>84</a>    </span>Package,                    <span class="comment">// 0x4F PACK	TESPackage / DialoguePackage
+<a href=#85 id=85 data-nosnippet>85</a>    </span>CombatStyle,                <span class="comment">// 0x50 CSTY	TESCombatStyle
+<a href=#86 id=86 data-nosnippet>86</a>    </span>LoadScreen,                 <span class="comment">// 0x51 LSCR	TESLoadScreen
+<a href=#87 id=87 data-nosnippet>87</a>    </span>LeveledSpell,               <span class="comment">// 0x52 LVSP	TESLevSpell
+<a href=#88 id=88 data-nosnippet>88</a>    </span>AnimatedObject,             <span class="comment">// 0x53 ANIO	TESObjectANIO
+<a href=#89 id=89 data-nosnippet>89</a>    </span>Water,                      <span class="comment">// 0x54 WATR	TESWaterForm
+<a href=#90 id=90 data-nosnippet>90</a>    </span>EffectShader,               <span class="comment">// 0x55 EFSH	TESEffectShader
+<a href=#91 id=91 data-nosnippet>91</a>    </span>TOFT,                       <span class="comment">// 0x56 TOFT
+<a href=#92 id=92 data-nosnippet>92</a>    </span>Explosion,                  <span class="comment">// 0x57 EXPL	BGSExplosion
+<a href=#93 id=93 data-nosnippet>93</a>    </span>Debris,                     <span class="comment">// 0x58 DEBR	BGSDebris
+<a href=#94 id=94 data-nosnippet>94</a>    </span>ImageSpace,                 <span class="comment">// 0x59 IMGS	TESImageSpace
+<a href=#95 id=95 data-nosnippet>95</a>    </span>ImageAdapter,               <span class="comment">// 0x5A IMAD	TESImageSpaceModifier
+<a href=#96 id=96 data-nosnippet>96</a>    </span>FormList,                   <span class="comment">// 0x5B FLST	BGSListForm
+<a href=#97 id=97 data-nosnippet>97</a>    </span>Perk,                       <span class="comment">// 0x5C PERK	BGSPerk
+<a href=#98 id=98 data-nosnippet>98</a>    </span>BodyPartData,               <span class="comment">// 0x5D BPTD	BGSBodyPartData
+<a href=#99 id=99 data-nosnippet>99</a>    </span>AddonNode,                  <span class="comment">// 0x5E ADDN	BGSAddonNode
+<a href=#100 id=100 data-nosnippet>100</a>    </span>ActorValueInfo,             <span class="comment">// 0x5F AVIF	ActorValueInfo
+<a href=#101 id=101 data-nosnippet>101</a>    </span>CameraShot,                 <span class="comment">// 0x60 CAMS	BGSCameraShot
+<a href=#102 id=102 data-nosnippet>102</a>    </span>CameraPath,                 <span class="comment">// 0x61 CPTH	BGSCameraPath
+<a href=#103 id=103 data-nosnippet>103</a>    </span>VoiceType,                  <span class="comment">// 0x62 VTYP	BGSVoiceType
+<a href=#104 id=104 data-nosnippet>104</a>    </span>MaterialType,               <span class="comment">// 0x63 MATT	BGSMaterialType
+<a href=#105 id=105 data-nosnippet>105</a>    </span>Impact,                     <span class="comment">// 0x64 IPCT	BGSImpactData
+<a href=#106 id=106 data-nosnippet>106</a>    </span>ImpactDataSet,              <span class="comment">// 0x65 IPDS	BGSImpactDataSet
+<a href=#107 id=107 data-nosnippet>107</a>    </span>Armature,                   <span class="comment">// 0x66 ARMA	TESObjectARMA
+<a href=#108 id=108 data-nosnippet>108</a>    </span>EncounterZone,              <span class="comment">// 0x67 ECZN	BGSEncounterZone
+<a href=#109 id=109 data-nosnippet>109</a>    </span>Location,                   <span class="comment">// 0x68 LCTN	BGSLocation
+<a href=#110 id=110 data-nosnippet>110</a>    </span>Message,                    <span class="comment">// 0x69 MESG	BGSMessage
+<a href=#111 id=111 data-nosnippet>111</a>    </span>Ragdoll,                    <span class="comment">// 0x6A RGDL	BGSRagdoll
+<a href=#112 id=112 data-nosnippet>112</a>    </span>DefaultObject,              <span class="comment">// 0x6B DOBJ BGSDefaultObjectManager
+<a href=#113 id=113 data-nosnippet>113</a>    </span>LightingMaster,             <span class="comment">// 0x6C LGTM	BGSLightingTemplate
+<a href=#114 id=114 data-nosnippet>114</a>    </span>MusicType,                  <span class="comment">// 0x6D MUSC	BGSMusicType
+<a href=#115 id=115 data-nosnippet>115</a>    </span>Footstep,                   <span class="comment">// 0x6E FSTP	BGSFootstep
+<a href=#116 id=116 data-nosnippet>116</a>    </span>FootstepSet,                <span class="comment">// 0x6F FSTS	BGSFootstepSet
+<a href=#117 id=117 data-nosnippet>117</a>    </span>StoryManagerBranchNode,     <span class="comment">// 0x70 SMBN	BGSStoryManagerBranchNode
+<a href=#118 id=118 data-nosnippet>118</a>    </span>StoryManagerQuestNode,      <span class="comment">// 0x71 SMQN	BGSStoryManagerQuestNode
+<a href=#119 id=119 data-nosnippet>119</a>    </span>StoryManagerEventNode,      <span class="comment">// 0x72 SMEN	BGSStoryManagerEventNode
+<a href=#120 id=120 data-nosnippet>120</a>    </span>DialogueBranch,             <span class="comment">// 0x73 DLBR	BGSDialogueBranch
+<a href=#121 id=121 data-nosnippet>121</a>    </span>MusicTrack,                 <span class="comment">// 0x74 MUST	BGSMusicTrackFormWrapper
+<a href=#122 id=122 data-nosnippet>122</a>    </span>DialogueView,               <span class="comment">// 0x75 DLVW
+<a href=#123 id=123 data-nosnippet>123</a>    </span>WordOfPower,                <span class="comment">// 0x76 WOOP	TESWordOfPower
+<a href=#124 id=124 data-nosnippet>124</a>    </span>Shout,                      <span class="comment">// 0x77 SHOU	TESShout
+<a href=#125 id=125 data-nosnippet>125</a>    </span>EquipSlot,                  <span class="comment">// 0x78 EQUP	BGSEquipSlot
+<a href=#126 id=126 data-nosnippet>126</a>    </span>Relationship,               <span class="comment">// 0x79 RELA	BGSRelationship
+<a href=#127 id=127 data-nosnippet>127</a>    </span>Scene,                      <span class="comment">// 0x7A SCEN	BGSScene
+<a href=#128 id=128 data-nosnippet>128</a>    </span>AssociationType,            <span class="comment">// 0x7B ASTP	BGSAssociationType
+<a href=#129 id=129 data-nosnippet>129</a>    </span>Outfit,                     <span class="comment">// 0x7C OTFT	BGSOutfit
+<a href=#130 id=130 data-nosnippet>130</a>    </span>ArtObject,                  <span class="comment">// 0x7D ARTO	BGSArtObject
+<a href=#131 id=131 data-nosnippet>131</a>    </span>MaterialObject,             <span class="comment">// 0x7E MATO	BGSMaterialObject
+<a href=#132 id=132 data-nosnippet>132</a>    </span>MovementType,               <span class="comment">// 0x7F MOVT	BGSMovementType
+<a href=#133 id=133 data-nosnippet>133</a>    </span>SoundRecord,                <span class="comment">// 0x80 SNDR	BGSSoundDescriptorForm
+<a href=#134 id=134 data-nosnippet>134</a>    </span>DualCastData,               <span class="comment">// 0x81 DUAL	BGSDualCastData
+<a href=#135 id=135 data-nosnippet>135</a>    </span>SoundCategory,              <span class="comment">// 0x82 SNCT	BGSSoundCategory
+<a href=#136 id=136 data-nosnippet>136</a>    </span>SoundOutputModel,           <span class="comment">// 0x83 SOPM	BGSSoundOutput
+<a href=#137 id=137 data-nosnippet>137</a>    </span>CollisionLayer,             <span class="comment">// 0x84 COLL	BGSCollisionLayer
+<a href=#138 id=138 data-nosnippet>138</a>    </span>ColorForm,                  <span class="comment">// 0x85 CLFM	BGSColorForm
+<a href=#139 id=139 data-nosnippet>139</a>    </span>ReverbParam,                <span class="comment">// 0x86 REVB	BGSReverbParameters
+<a href=#140 id=140 data-nosnippet>140</a>    </span>LensFlare,                  <span class="comment">// 0x87 LENS BGSLensFlare
+<a href=#141 id=141 data-nosnippet>141</a>    </span>LensSprite,                 <span class="comment">// 0x88 LSPR
+<a href=#142 id=142 data-nosnippet>142</a>    </span>VolumetricLighting,         <span class="comment">// 0x89 VOLI BGSVolumetricLighting
+<a href=#143 id=143 data-nosnippet>143</a>
+<a href=#144 id=144 data-nosnippet>144</a>    </span>Max, <span class="comment">//	0x8A
+<a href=#145 id=145 data-nosnippet>145</a></span>}
+<a href=#146 id=146 data-nosnippet>146</a>
+<a href=#147 id=147 data-nosnippet>147</a><span class="kw">impl </span>FormType {
+<a href=#148 id=148 data-nosnippet>148</a>    <span class="kw">pub const fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+<a href=#149 id=149 data-nosnippet>149</a>        <span class="kw">match </span><span class="self">self </span>{
+<a href=#150 id=150 data-nosnippet>150</a>            <span class="self">Self</span>::PluginInfo =&gt; <span class="string">"TES4"</span>,
+<a href=#151 id=151 data-nosnippet>151</a>            <span class="self">Self</span>::FormGroup =&gt; <span class="string">"GRUP"</span>,
+<a href=#152 id=152 data-nosnippet>152</a>            <span class="self">Self</span>::GameSetting =&gt; <span class="string">"GMST"</span>,
+<a href=#153 id=153 data-nosnippet>153</a>            <span class="self">Self</span>::Keyword =&gt; <span class="string">"KYWD"</span>,
+<a href=#154 id=154 data-nosnippet>154</a>            <span class="self">Self</span>::LocationRefType =&gt; <span class="string">"LCRT"</span>,
+<a href=#155 id=155 data-nosnippet>155</a>            <span class="self">Self</span>::Action =&gt; <span class="string">"AACT"</span>,
+<a href=#156 id=156 data-nosnippet>156</a>            <span class="self">Self</span>::TextureSet =&gt; <span class="string">"TXST"</span>,
+<a href=#157 id=157 data-nosnippet>157</a>            <span class="self">Self</span>::MenuIcon =&gt; <span class="string">"MICN"</span>,
+<a href=#158 id=158 data-nosnippet>158</a>            <span class="self">Self</span>::Global =&gt; <span class="string">"GLOB"</span>,
+<a href=#159 id=159 data-nosnippet>159</a>            <span class="self">Self</span>::Class =&gt; <span class="string">"CLAS"</span>,
+<a href=#160 id=160 data-nosnippet>160</a>            <span class="self">Self</span>::Faction =&gt; <span class="string">"FACT"</span>,
+<a href=#161 id=161 data-nosnippet>161</a>            <span class="self">Self</span>::HeadPart =&gt; <span class="string">"HDPT"</span>,
+<a href=#162 id=162 data-nosnippet>162</a>            <span class="self">Self</span>::Eyes =&gt; <span class="string">"EYES"</span>,
+<a href=#163 id=163 data-nosnippet>163</a>            <span class="self">Self</span>::Race =&gt; <span class="string">"RACE"</span>,
+<a href=#164 id=164 data-nosnippet>164</a>            <span class="self">Self</span>::Sound =&gt; <span class="string">"SOUN"</span>,
+<a href=#165 id=165 data-nosnippet>165</a>            <span class="self">Self</span>::AcousticSpace =&gt; <span class="string">"ASPC"</span>,
+<a href=#166 id=166 data-nosnippet>166</a>            <span class="self">Self</span>::Skill =&gt; <span class="string">"SKIL"</span>,
+<a href=#167 id=167 data-nosnippet>167</a>            <span class="self">Self</span>::MagicEffect =&gt; <span class="string">"MGEF"</span>,
+<a href=#168 id=168 data-nosnippet>168</a>            <span class="self">Self</span>::Script =&gt; <span class="string">"SCPT"</span>,
+<a href=#169 id=169 data-nosnippet>169</a>            <span class="self">Self</span>::LandTexture =&gt; <span class="string">"LTEX"</span>,
+<a href=#170 id=170 data-nosnippet>170</a>            <span class="self">Self</span>::Enchantment =&gt; <span class="string">"ENCH"</span>,
+<a href=#171 id=171 data-nosnippet>171</a>            <span class="self">Self</span>::Spell =&gt; <span class="string">"SPEL"</span>,
+<a href=#172 id=172 data-nosnippet>172</a>            <span class="self">Self</span>::Scroll =&gt; <span class="string">"SCRL"</span>,
+<a href=#173 id=173 data-nosnippet>173</a>            <span class="self">Self</span>::Activator =&gt; <span class="string">"ACTI"</span>,
+<a href=#174 id=174 data-nosnippet>174</a>            <span class="self">Self</span>::TalkingActivator =&gt; <span class="string">"TACT"</span>,
+<a href=#175 id=175 data-nosnippet>175</a>            <span class="self">Self</span>::Armor =&gt; <span class="string">"ARMO"</span>,
+<a href=#176 id=176 data-nosnippet>176</a>            <span class="self">Self</span>::Book =&gt; <span class="string">"BOOK"</span>,
+<a href=#177 id=177 data-nosnippet>177</a>            <span class="self">Self</span>::Container =&gt; <span class="string">"CONT"</span>,
+<a href=#178 id=178 data-nosnippet>178</a>            <span class="self">Self</span>::Door =&gt; <span class="string">"DOOR"</span>,
+<a href=#179 id=179 data-nosnippet>179</a>            <span class="self">Self</span>::Ingredient =&gt; <span class="string">"INGR"</span>,
+<a href=#180 id=180 data-nosnippet>180</a>            <span class="self">Self</span>::Light =&gt; <span class="string">"LIGH"</span>,
+<a href=#181 id=181 data-nosnippet>181</a>            <span class="self">Self</span>::Misc =&gt; <span class="string">"MISC"</span>,
+<a href=#182 id=182 data-nosnippet>182</a>            <span class="self">Self</span>::Apparatus =&gt; <span class="string">"APPA"</span>,
+<a href=#183 id=183 data-nosnippet>183</a>            <span class="self">Self</span>::Static =&gt; <span class="string">"STAT"</span>,
+<a href=#184 id=184 data-nosnippet>184</a>            <span class="self">Self</span>::StaticCollection =&gt; <span class="string">"SCOL"</span>,
+<a href=#185 id=185 data-nosnippet>185</a>            <span class="self">Self</span>::MovableStatic =&gt; <span class="string">"MSTT"</span>,
+<a href=#186 id=186 data-nosnippet>186</a>            <span class="self">Self</span>::Grass =&gt; <span class="string">"GRAS"</span>,
+<a href=#187 id=187 data-nosnippet>187</a>            <span class="self">Self</span>::Tree =&gt; <span class="string">"TREE"</span>,
+<a href=#188 id=188 data-nosnippet>188</a>            <span class="self">Self</span>::Flora =&gt; <span class="string">"FLOR"</span>,
+<a href=#189 id=189 data-nosnippet>189</a>            <span class="self">Self</span>::Furniture =&gt; <span class="string">"FURN"</span>,
+<a href=#190 id=190 data-nosnippet>190</a>            <span class="self">Self</span>::Weapon =&gt; <span class="string">"WEAP"</span>,
+<a href=#191 id=191 data-nosnippet>191</a>            <span class="self">Self</span>::Ammo =&gt; <span class="string">"AMMO"</span>,
+<a href=#192 id=192 data-nosnippet>192</a>            <span class="self">Self</span>::NPC =&gt; <span class="string">"NPC_"</span>,
+<a href=#193 id=193 data-nosnippet>193</a>            <span class="self">Self</span>::LeveledNPC =&gt; <span class="string">"LVLN"</span>,
+<a href=#194 id=194 data-nosnippet>194</a>            <span class="self">Self</span>::KeyMaster =&gt; <span class="string">"KEYM"</span>,
+<a href=#195 id=195 data-nosnippet>195</a>            <span class="self">Self</span>::AlchemyItem =&gt; <span class="string">"ALCH"</span>,
+<a href=#196 id=196 data-nosnippet>196</a>            <span class="self">Self</span>::IdleMarker =&gt; <span class="string">"IDLM"</span>,
+<a href=#197 id=197 data-nosnippet>197</a>            <span class="self">Self</span>::Note =&gt; <span class="string">"NOTE"</span>,
+<a href=#198 id=198 data-nosnippet>198</a>            <span class="self">Self</span>::ConstructibleObject =&gt; <span class="string">"COBJ"</span>,
+<a href=#199 id=199 data-nosnippet>199</a>            <span class="self">Self</span>::Projectile =&gt; <span class="string">"PROJ"</span>,
+<a href=#200 id=200 data-nosnippet>200</a>            <span class="self">Self</span>::Hazard =&gt; <span class="string">"HAZD"</span>,
+<a href=#201 id=201 data-nosnippet>201</a>            <span class="self">Self</span>::SoulGem =&gt; <span class="string">"SLGM"</span>,
+<a href=#202 id=202 data-nosnippet>202</a>            <span class="self">Self</span>::LeveledItem =&gt; <span class="string">"LVLI"</span>,
+<a href=#203 id=203 data-nosnippet>203</a>            <span class="self">Self</span>::Weather =&gt; <span class="string">"WTHR"</span>,
+<a href=#204 id=204 data-nosnippet>204</a>            <span class="self">Self</span>::Climate =&gt; <span class="string">"CLMT"</span>,
+<a href=#205 id=205 data-nosnippet>205</a>            <span class="self">Self</span>::ShaderParticleGeometryData =&gt; <span class="string">"SPGD"</span>,
+<a href=#206 id=206 data-nosnippet>206</a>            <span class="self">Self</span>::ReferenceEffect =&gt; <span class="string">"RFCT"</span>,
+<a href=#207 id=207 data-nosnippet>207</a>            <span class="self">Self</span>::Region =&gt; <span class="string">"REGN"</span>,
+<a href=#208 id=208 data-nosnippet>208</a>            <span class="self">Self</span>::Navigation =&gt; <span class="string">"NAVI"</span>,
+<a href=#209 id=209 data-nosnippet>209</a>            <span class="self">Self</span>::Cell =&gt; <span class="string">"CELL"</span>,
+<a href=#210 id=210 data-nosnippet>210</a>            <span class="self">Self</span>::Reference =&gt; <span class="string">"REFR"</span>,
+<a href=#211 id=211 data-nosnippet>211</a>            <span class="self">Self</span>::ActorCharacter =&gt; <span class="string">"ACHR"</span>,
+<a href=#212 id=212 data-nosnippet>212</a>            <span class="self">Self</span>::ProjectileMissile =&gt; <span class="string">"PMIS"</span>,
+<a href=#213 id=213 data-nosnippet>213</a>            <span class="self">Self</span>::ProjectileArrow =&gt; <span class="string">"PARW"</span>,
+<a href=#214 id=214 data-nosnippet>214</a>            <span class="self">Self</span>::ProjectileGrenade =&gt; <span class="string">"PGRE"</span>,
+<a href=#215 id=215 data-nosnippet>215</a>            <span class="self">Self</span>::ProjectileBeam =&gt; <span class="string">"PBEA"</span>,
+<a href=#216 id=216 data-nosnippet>216</a>            <span class="self">Self</span>::ProjectileFlame =&gt; <span class="string">"PFLA"</span>,
+<a href=#217 id=217 data-nosnippet>217</a>            <span class="self">Self</span>::ProjectileCone =&gt; <span class="string">"PCON"</span>,
+<a href=#218 id=218 data-nosnippet>218</a>            <span class="self">Self</span>::ProjectileBarrier =&gt; <span class="string">"PBAR"</span>,
+<a href=#219 id=219 data-nosnippet>219</a>            <span class="self">Self</span>::PlacedHazard =&gt; <span class="string">"PHZD"</span>,
+<a href=#220 id=220 data-nosnippet>220</a>            <span class="self">Self</span>::WorldSpace =&gt; <span class="string">"WRLD"</span>,
+<a href=#221 id=221 data-nosnippet>221</a>            <span class="self">Self</span>::Land =&gt; <span class="string">"LAND"</span>,
+<a href=#222 id=222 data-nosnippet>222</a>            <span class="self">Self</span>::NavMesh =&gt; <span class="string">"NAVM"</span>,
+<a href=#223 id=223 data-nosnippet>223</a>            <span class="self">Self</span>::TLOD =&gt; <span class="string">"TLOD"</span>,
+<a href=#224 id=224 data-nosnippet>224</a>            <span class="self">Self</span>::Dialogue =&gt; <span class="string">"DIAL"</span>,
+<a href=#225 id=225 data-nosnippet>225</a>            <span class="self">Self</span>::Info =&gt; <span class="string">"INFO"</span>,
+<a href=#226 id=226 data-nosnippet>226</a>            <span class="self">Self</span>::Quest =&gt; <span class="string">"QUST"</span>,
+<a href=#227 id=227 data-nosnippet>227</a>            <span class="self">Self</span>::Idle =&gt; <span class="string">"IDLE"</span>,
+<a href=#228 id=228 data-nosnippet>228</a>            <span class="self">Self</span>::Package =&gt; <span class="string">"PACK"</span>,
+<a href=#229 id=229 data-nosnippet>229</a>            <span class="self">Self</span>::CombatStyle =&gt; <span class="string">"CSTY"</span>,
+<a href=#230 id=230 data-nosnippet>230</a>            <span class="self">Self</span>::LoadScreen =&gt; <span class="string">"LSCR"</span>,
+<a href=#231 id=231 data-nosnippet>231</a>            <span class="self">Self</span>::LeveledSpell =&gt; <span class="string">"LVSP"</span>,
+<a href=#232 id=232 data-nosnippet>232</a>            <span class="self">Self</span>::AnimatedObject =&gt; <span class="string">"ANIO"</span>,
+<a href=#233 id=233 data-nosnippet>233</a>            <span class="self">Self</span>::Water =&gt; <span class="string">"WATR"</span>,
+<a href=#234 id=234 data-nosnippet>234</a>            <span class="self">Self</span>::EffectShader =&gt; <span class="string">"EFSH"</span>,
+<a href=#235 id=235 data-nosnippet>235</a>            <span class="self">Self</span>::TOFT =&gt; <span class="string">"TOFT"</span>,
+<a href=#236 id=236 data-nosnippet>236</a>            <span class="self">Self</span>::Explosion =&gt; <span class="string">"EXPL"</span>,
+<a href=#237 id=237 data-nosnippet>237</a>            <span class="self">Self</span>::Debris =&gt; <span class="string">"DEBR"</span>,
+<a href=#238 id=238 data-nosnippet>238</a>            <span class="self">Self</span>::ImageSpace =&gt; <span class="string">"IMGS"</span>,
+<a href=#239 id=239 data-nosnippet>239</a>            <span class="self">Self</span>::ImageAdapter =&gt; <span class="string">"IMAD"</span>,
+<a href=#240 id=240 data-nosnippet>240</a>            <span class="self">Self</span>::FormList =&gt; <span class="string">"FLST"</span>,
+<a href=#241 id=241 data-nosnippet>241</a>            <span class="self">Self</span>::Perk =&gt; <span class="string">"PERK"</span>,
+<a href=#242 id=242 data-nosnippet>242</a>            <span class="self">Self</span>::BodyPartData =&gt; <span class="string">"BPTD"</span>,
+<a href=#243 id=243 data-nosnippet>243</a>            <span class="self">Self</span>::AddonNode =&gt; <span class="string">"ADDN"</span>,
+<a href=#244 id=244 data-nosnippet>244</a>            <span class="self">Self</span>::ActorValueInfo =&gt; <span class="string">"AVIF"</span>,
+<a href=#245 id=245 data-nosnippet>245</a>            <span class="self">Self</span>::CameraShot =&gt; <span class="string">"CAMS"</span>,
+<a href=#246 id=246 data-nosnippet>246</a>            <span class="self">Self</span>::CameraPath =&gt; <span class="string">"CPTH"</span>,
+<a href=#247 id=247 data-nosnippet>247</a>            <span class="self">Self</span>::VoiceType =&gt; <span class="string">"VTYP"</span>,
+<a href=#248 id=248 data-nosnippet>248</a>            <span class="self">Self</span>::MaterialType =&gt; <span class="string">"MATT"</span>,
+<a href=#249 id=249 data-nosnippet>249</a>            <span class="self">Self</span>::Impact =&gt; <span class="string">"IPCT"</span>,
+<a href=#250 id=250 data-nosnippet>250</a>            <span class="self">Self</span>::ImpactDataSet =&gt; <span class="string">"IPDS"</span>,
+<a href=#251 id=251 data-nosnippet>251</a>            <span class="self">Self</span>::Armature =&gt; <span class="string">"ARMA"</span>,
+<a href=#252 id=252 data-nosnippet>252</a>            <span class="self">Self</span>::EncounterZone =&gt; <span class="string">"ECZN"</span>,
+<a href=#253 id=253 data-nosnippet>253</a>            <span class="self">Self</span>::Location =&gt; <span class="string">"LCTN"</span>,
+<a href=#254 id=254 data-nosnippet>254</a>            <span class="self">Self</span>::Message =&gt; <span class="string">"MESG"</span>,
+<a href=#255 id=255 data-nosnippet>255</a>            <span class="self">Self</span>::Ragdoll =&gt; <span class="string">"RGDL"</span>,
+<a href=#256 id=256 data-nosnippet>256</a>            <span class="self">Self</span>::DefaultObject =&gt; <span class="string">"DOBJ"</span>,
+<a href=#257 id=257 data-nosnippet>257</a>            <span class="self">Self</span>::LightingMaster =&gt; <span class="string">"LGTM"</span>,
+<a href=#258 id=258 data-nosnippet>258</a>            <span class="self">Self</span>::MusicType =&gt; <span class="string">"MUSC"</span>,
+<a href=#259 id=259 data-nosnippet>259</a>            <span class="self">Self</span>::Footstep =&gt; <span class="string">"FSTP"</span>,
+<a href=#260 id=260 data-nosnippet>260</a>            <span class="self">Self</span>::FootstepSet =&gt; <span class="string">"FSTS"</span>,
+<a href=#261 id=261 data-nosnippet>261</a>            <span class="self">Self</span>::StoryManagerBranchNode =&gt; <span class="string">"SMBN"</span>,
+<a href=#262 id=262 data-nosnippet>262</a>            <span class="self">Self</span>::StoryManagerQuestNode =&gt; <span class="string">"SMQN"</span>,
+<a href=#263 id=263 data-nosnippet>263</a>            <span class="self">Self</span>::StoryManagerEventNode =&gt; <span class="string">"SMEN"</span>,
+<a href=#264 id=264 data-nosnippet>264</a>            <span class="self">Self</span>::DialogueBranch =&gt; <span class="string">"DLBR"</span>,
+<a href=#265 id=265 data-nosnippet>265</a>            <span class="self">Self</span>::MusicTrack =&gt; <span class="string">"MUST"</span>,
+<a href=#266 id=266 data-nosnippet>266</a>            <span class="self">Self</span>::DialogueView =&gt; <span class="string">"DLVW"</span>,
+<a href=#267 id=267 data-nosnippet>267</a>            <span class="self">Self</span>::WordOfPower =&gt; <span class="string">"WOOP"</span>,
+<a href=#268 id=268 data-nosnippet>268</a>            <span class="self">Self</span>::Shout =&gt; <span class="string">"SHOU"</span>,
+<a href=#269 id=269 data-nosnippet>269</a>            <span class="self">Self</span>::EquipSlot =&gt; <span class="string">"EQUP"</span>,
+<a href=#270 id=270 data-nosnippet>270</a>            <span class="self">Self</span>::Relationship =&gt; <span class="string">"RELA"</span>,
+<a href=#271 id=271 data-nosnippet>271</a>            <span class="self">Self</span>::Scene =&gt; <span class="string">"SCEN"</span>,
+<a href=#272 id=272 data-nosnippet>272</a>            <span class="self">Self</span>::AssociationType =&gt; <span class="string">"ASTP"</span>,
+<a href=#273 id=273 data-nosnippet>273</a>            <span class="self">Self</span>::Outfit =&gt; <span class="string">"OTFT"</span>,
+<a href=#274 id=274 data-nosnippet>274</a>            <span class="self">Self</span>::ArtObject =&gt; <span class="string">"ARTO"</span>,
+<a href=#275 id=275 data-nosnippet>275</a>            <span class="self">Self</span>::MaterialObject =&gt; <span class="string">"MATO"</span>,
+<a href=#276 id=276 data-nosnippet>276</a>            <span class="self">Self</span>::MovementType =&gt; <span class="string">"MOVT"</span>,
+<a href=#277 id=277 data-nosnippet>277</a>            <span class="self">Self</span>::SoundRecord =&gt; <span class="string">"SNDR"</span>,
+<a href=#278 id=278 data-nosnippet>278</a>            <span class="self">Self</span>::DualCastData =&gt; <span class="string">"DUAL"</span>,
+<a href=#279 id=279 data-nosnippet>279</a>            <span class="self">Self</span>::SoundCategory =&gt; <span class="string">"SNCT"</span>,
+<a href=#280 id=280 data-nosnippet>280</a>            <span class="self">Self</span>::SoundOutputModel =&gt; <span class="string">"SOPM"</span>,
+<a href=#281 id=281 data-nosnippet>281</a>            <span class="self">Self</span>::CollisionLayer =&gt; <span class="string">"COLL"</span>,
+<a href=#282 id=282 data-nosnippet>282</a>            <span class="self">Self</span>::ColorForm =&gt; <span class="string">"CLFM"</span>,
+<a href=#283 id=283 data-nosnippet>283</a>            <span class="self">Self</span>::ReverbParam =&gt; <span class="string">"REVB"</span>,
+<a href=#284 id=284 data-nosnippet>284</a>            <span class="self">Self</span>::LensFlare =&gt; <span class="string">"LENS"</span>,
+<a href=#285 id=285 data-nosnippet>285</a>            <span class="self">Self</span>::LensSprite =&gt; <span class="string">"LSPR"</span>,
+<a href=#286 id=286 data-nosnippet>286</a>            <span class="self">Self</span>::VolumetricLighting =&gt; <span class="string">"VOLI"</span>,
+<a href=#287 id=287 data-nosnippet>287</a>            <span class="kw">_ </span>=&gt; <span class="string">"NONE"</span>,
+<a href=#288 id=288 data-nosnippet>288</a>        }
+<a href=#289 id=289 data-nosnippet>289</a>    }
+<a href=#290 id=290 data-nosnippet>290</a>}
+<a href=#291 id=291 data-nosnippet>291</a>
+<a href=#292 id=292 data-nosnippet>292</a><span class="kw">impl </span>core::str::FromStr <span class="kw">for </span>FormType {
+<a href=#293 id=293 data-nosnippet>293</a>    <span class="kw">type </span><span class="prelude-val">Err </span>= String;
+<a href=#294 id=294 data-nosnippet>294</a>
+<a href=#295 id=295 data-nosnippet>295</a>    <span class="kw">fn </span>from_str(s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
+<a href=#296 id=296 data-nosnippet>296</a>        <span class="prelude-val">Ok</span>(<span class="kw">match </span>s {
+<a href=#297 id=297 data-nosnippet>297</a>            <span class="string">"TES4" </span>=&gt; <span class="self">Self</span>::PluginInfo,
+<a href=#298 id=298 data-nosnippet>298</a>            <span class="string">"GRUP" </span>=&gt; <span class="self">Self</span>::FormGroup,
+<a href=#299 id=299 data-nosnippet>299</a>            <span class="string">"GMST" </span>=&gt; <span class="self">Self</span>::GameSetting,
+<a href=#300 id=300 data-nosnippet>300</a>            <span class="string">"KYWD" </span>=&gt; <span class="self">Self</span>::Keyword,
+<a href=#301 id=301 data-nosnippet>301</a>            <span class="string">"LCRT" </span>=&gt; <span class="self">Self</span>::LocationRefType,
+<a href=#302 id=302 data-nosnippet>302</a>            <span class="string">"AACT" </span>=&gt; <span class="self">Self</span>::Action,
+<a href=#303 id=303 data-nosnippet>303</a>            <span class="string">"TXST" </span>=&gt; <span class="self">Self</span>::TextureSet,
+<a href=#304 id=304 data-nosnippet>304</a>            <span class="string">"MICN" </span>=&gt; <span class="self">Self</span>::MenuIcon,
+<a href=#305 id=305 data-nosnippet>305</a>            <span class="string">"GLOB" </span>=&gt; <span class="self">Self</span>::Global,
+<a href=#306 id=306 data-nosnippet>306</a>            <span class="string">"CLAS" </span>=&gt; <span class="self">Self</span>::Class,
+<a href=#307 id=307 data-nosnippet>307</a>            <span class="string">"FACT" </span>=&gt; <span class="self">Self</span>::Faction,
+<a href=#308 id=308 data-nosnippet>308</a>            <span class="string">"HDPT" </span>=&gt; <span class="self">Self</span>::HeadPart,
+<a href=#309 id=309 data-nosnippet>309</a>            <span class="string">"EYES" </span>=&gt; <span class="self">Self</span>::Eyes,
+<a href=#310 id=310 data-nosnippet>310</a>            <span class="string">"RACE" </span>=&gt; <span class="self">Self</span>::Race,
+<a href=#311 id=311 data-nosnippet>311</a>            <span class="string">"SOUN" </span>=&gt; <span class="self">Self</span>::Sound,
+<a href=#312 id=312 data-nosnippet>312</a>            <span class="string">"ASPC" </span>=&gt; <span class="self">Self</span>::AcousticSpace,
+<a href=#313 id=313 data-nosnippet>313</a>            <span class="string">"SKIL" </span>=&gt; <span class="self">Self</span>::Skill,
+<a href=#314 id=314 data-nosnippet>314</a>            <span class="string">"MGEF" </span>=&gt; <span class="self">Self</span>::MagicEffect,
+<a href=#315 id=315 data-nosnippet>315</a>            <span class="string">"SCPT" </span>=&gt; <span class="self">Self</span>::Script,
+<a href=#316 id=316 data-nosnippet>316</a>            <span class="string">"LTEX" </span>=&gt; <span class="self">Self</span>::LandTexture,
+<a href=#317 id=317 data-nosnippet>317</a>            <span class="string">"ENCH" </span>=&gt; <span class="self">Self</span>::Enchantment,
+<a href=#318 id=318 data-nosnippet>318</a>            <span class="string">"SPEL" </span>=&gt; <span class="self">Self</span>::Spell,
+<a href=#319 id=319 data-nosnippet>319</a>            <span class="string">"SCRL" </span>=&gt; <span class="self">Self</span>::Scroll,
+<a href=#320 id=320 data-nosnippet>320</a>            <span class="string">"ACTI" </span>=&gt; <span class="self">Self</span>::Activator,
+<a href=#321 id=321 data-nosnippet>321</a>            <span class="string">"TACT" </span>=&gt; <span class="self">Self</span>::TalkingActivator,
+<a href=#322 id=322 data-nosnippet>322</a>            <span class="string">"ARMO" </span>=&gt; <span class="self">Self</span>::Armor,
+<a href=#323 id=323 data-nosnippet>323</a>            <span class="string">"BOOK" </span>=&gt; <span class="self">Self</span>::Book,
+<a href=#324 id=324 data-nosnippet>324</a>            <span class="string">"CONT" </span>=&gt; <span class="self">Self</span>::Container,
+<a href=#325 id=325 data-nosnippet>325</a>            <span class="string">"DOOR" </span>=&gt; <span class="self">Self</span>::Door,
+<a href=#326 id=326 data-nosnippet>326</a>            <span class="string">"INGR" </span>=&gt; <span class="self">Self</span>::Ingredient,
+<a href=#327 id=327 data-nosnippet>327</a>            <span class="string">"LIGH" </span>=&gt; <span class="self">Self</span>::Light,
+<a href=#328 id=328 data-nosnippet>328</a>            <span class="string">"MISC" </span>=&gt; <span class="self">Self</span>::Misc,
+<a href=#329 id=329 data-nosnippet>329</a>            <span class="string">"APPA" </span>=&gt; <span class="self">Self</span>::Apparatus,
+<a href=#330 id=330 data-nosnippet>330</a>            <span class="string">"STAT" </span>=&gt; <span class="self">Self</span>::Static,
+<a href=#331 id=331 data-nosnippet>331</a>            <span class="string">"SCOL" </span>=&gt; <span class="self">Self</span>::StaticCollection,
+<a href=#332 id=332 data-nosnippet>332</a>            <span class="string">"MSTT" </span>=&gt; <span class="self">Self</span>::MovableStatic,
+<a href=#333 id=333 data-nosnippet>333</a>            <span class="string">"GRAS" </span>=&gt; <span class="self">Self</span>::Grass,
+<a href=#334 id=334 data-nosnippet>334</a>            <span class="string">"TREE" </span>=&gt; <span class="self">Self</span>::Tree,
+<a href=#335 id=335 data-nosnippet>335</a>            <span class="string">"FLOR" </span>=&gt; <span class="self">Self</span>::Flora,
+<a href=#336 id=336 data-nosnippet>336</a>            <span class="string">"FURN" </span>=&gt; <span class="self">Self</span>::Furniture,
+<a href=#337 id=337 data-nosnippet>337</a>            <span class="string">"WEAP" </span>=&gt; <span class="self">Self</span>::Weapon,
+<a href=#338 id=338 data-nosnippet>338</a>            <span class="string">"AMMO" </span>=&gt; <span class="self">Self</span>::Ammo,
+<a href=#339 id=339 data-nosnippet>339</a>            <span class="string">"NPC_" </span>=&gt; <span class="self">Self</span>::NPC,
+<a href=#340 id=340 data-nosnippet>340</a>            <span class="string">"LVLN" </span>=&gt; <span class="self">Self</span>::LeveledNPC,
+<a href=#341 id=341 data-nosnippet>341</a>            <span class="string">"KEYM" </span>=&gt; <span class="self">Self</span>::KeyMaster,
+<a href=#342 id=342 data-nosnippet>342</a>            <span class="string">"ALCH" </span>=&gt; <span class="self">Self</span>::AlchemyItem,
+<a href=#343 id=343 data-nosnippet>343</a>            <span class="string">"IDLM" </span>=&gt; <span class="self">Self</span>::IdleMarker,
+<a href=#344 id=344 data-nosnippet>344</a>            <span class="string">"NOTE" </span>=&gt; <span class="self">Self</span>::Note,
+<a href=#345 id=345 data-nosnippet>345</a>            <span class="string">"COBJ" </span>=&gt; <span class="self">Self</span>::ConstructibleObject,
+<a href=#346 id=346 data-nosnippet>346</a>            <span class="string">"PROJ" </span>=&gt; <span class="self">Self</span>::Projectile,
+<a href=#347 id=347 data-nosnippet>347</a>            <span class="string">"HAZD" </span>=&gt; <span class="self">Self</span>::Hazard,
+<a href=#348 id=348 data-nosnippet>348</a>            <span class="string">"SLGM" </span>=&gt; <span class="self">Self</span>::SoulGem,
+<a href=#349 id=349 data-nosnippet>349</a>            <span class="string">"LVLI" </span>=&gt; <span class="self">Self</span>::LeveledItem,
+<a href=#350 id=350 data-nosnippet>350</a>            <span class="string">"WTHR" </span>=&gt; <span class="self">Self</span>::Weather,
+<a href=#351 id=351 data-nosnippet>351</a>            <span class="string">"CLMT" </span>=&gt; <span class="self">Self</span>::Climate,
+<a href=#352 id=352 data-nosnippet>352</a>            <span class="string">"SPGD" </span>=&gt; <span class="self">Self</span>::ShaderParticleGeometryData,
+<a href=#353 id=353 data-nosnippet>353</a>            <span class="string">"RFCT" </span>=&gt; <span class="self">Self</span>::ReferenceEffect,
+<a href=#354 id=354 data-nosnippet>354</a>            <span class="string">"REGN" </span>=&gt; <span class="self">Self</span>::Region,
+<a href=#355 id=355 data-nosnippet>355</a>            <span class="string">"NAVI" </span>=&gt; <span class="self">Self</span>::Navigation,
+<a href=#356 id=356 data-nosnippet>356</a>            <span class="string">"CELL" </span>=&gt; <span class="self">Self</span>::Cell,
+<a href=#357 id=357 data-nosnippet>357</a>            <span class="string">"REFR" </span>=&gt; <span class="self">Self</span>::Reference,
+<a href=#358 id=358 data-nosnippet>358</a>            <span class="string">"ACHR" </span>=&gt; <span class="self">Self</span>::ActorCharacter,
+<a href=#359 id=359 data-nosnippet>359</a>            <span class="string">"NONE" </span>=&gt; <span class="self">Self</span>::None,
+<a href=#360 id=360 data-nosnippet>360</a>            invalid =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"Invalid FormType: {invalid}"</span>)),
+<a href=#361 id=361 data-nosnippet>361</a>        })
+<a href=#362 id=362 data-nosnippet>362</a>    }
+<a href=#363 id=363 data-nosnippet>363</a>}</code></pre></div></section></main></body></html>
