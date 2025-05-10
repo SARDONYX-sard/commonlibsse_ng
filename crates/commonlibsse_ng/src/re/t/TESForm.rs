@@ -49,43 +49,69 @@ pub struct TESForm {
 }
 const_assert_eq!(core::mem::size_of::<TESForm>(), 0x20);
 
-pub struct FormMapLockPtr<K>
+struct RawFormMapLock<K>
 where
     K: core::hash::Hash + Eq,
 {
-    pub map_ptr: NonNull<*mut BSTHashMap<K, Option<NonNull<TESForm>>>>,
-    pub lock_ptr: NonNull<BSReadWriteLock>,
+    map_ptr: NonNull<*mut BSTHashMap<K, Option<NonNull<TESForm>>>>,
+    lock_ptr: NonNull<BSReadWriteLock>,
 }
-unsafe impl<K> Send for FormMapLockPtr<K> where K: core::hash::Hash + Eq {}
-unsafe impl<K> Sync for FormMapLockPtr<K> where K: core::hash::Hash + Eq {}
+
+impl<K> RawFormMapLock<K>
+where
+    K: core::hash::Hash + Eq,
+{
+    #[inline]
+    pub fn get(&self, key: &K) -> Option<NonNull<TESForm>> {
+        let _guard = unsafe { self.lock_ptr.as_ref().read() };
+
+        let map = unsafe { self.map_ptr.as_ref().as_ref()? };
+        match map.get(key) {
+            Some(form) => *form,
+            None => None,
+        }
+    }
+
+    #[inline]
+    pub fn get_mut(&mut self, key: &K) -> Option<NonNull<TESForm>> {
+        let _guard = unsafe { self.lock_ptr.as_mut().write() };
+
+        let map = unsafe { self.map_ptr.as_mut().as_mut()? };
+        match map.get_mut(key) {
+            Some(form) => *form,
+            None => None,
+        }
+    }
+}
+
+unsafe impl<K> Send for RawFormMapLock<K> where K: core::hash::Hash + Eq {}
+unsafe impl<K> Sync for RawFormMapLock<K> where K: core::hash::Hash + Eq {}
 
 /// Pointer of `BSTHashMap<FormID, *mut TESForm>` & Pointer of `BSReadWriteLock`
-pub struct IDAllFormsMapPtr(FormMapLockPtr<FormID>);
-impl IDAllFormsMapPtr {
+pub struct FormIDMap(RawFormMapLock<FormID>);
+impl FormIDMap {
     #[inline]
     pub fn get(&self, form_id: FormID) -> Option<NonNull<TESForm>> {
-        let _guard = unsafe { self.0.lock_ptr.as_ref().read() };
-        let map = unsafe { self.0.map_ptr.as_ref().as_ref()? };
+        self.0.get(&form_id)
+    }
 
-        if let Some(form) = map.get(&form_id) {
-            return *form;
-        }
-        None
+    #[inline]
+    pub fn get_mut(&mut self, form_id: FormID) -> Option<NonNull<TESForm>> {
+        self.0.get_mut(&form_id)
     }
 }
 
 /// Pointer of `BSTHashMap<BSFixedString, *mut TESForm>` & Pointer of `BSReadWriteLock`
-pub struct StringAllFormsMapPtr(FormMapLockPtr<BSFixedString>);
-impl StringAllFormsMapPtr {
+pub struct EditorIDMap(RawFormMapLock<BSFixedString>);
+impl EditorIDMap {
     #[inline]
     pub fn get(&self, editor_id: &CStr) -> Option<NonNull<TESForm>> {
-        let _guard = unsafe { self.0.lock_ptr.as_ref().read() };
-        let map = unsafe { self.0.map_ptr.as_ref().as_ref()? };
+        self.0.get(&editor_id.into())
+    }
 
-        if let Some(form) = map.get(&editor_id.into()) {
-            return *form;
-        }
-        None
+    #[inline]
+    pub fn get_mut(&mut self, editor_id: &CStr) -> Option<NonNull<TESForm>> {
+        self.0.get_mut(&editor_id.into())
     }
 }
 
@@ -108,23 +134,22 @@ impl TESForm {
     #[commonlibsse_ng_derive_internal::relocate_fn(se_id = 14509, ae_id = 14667)]
     pub unsafe fn add_compile_index(id: FormID, file: TESFile) {}
 
-    pub fn get_all_forms() -> &'static Result<IDAllFormsMapPtr, DataBaseError> {
-        static PTR_LOCK: LazyLock<Result<IDAllFormsMapPtr, DataBaseError>> = LazyLock::new(|| {
+    pub fn get_all_forms() -> &'static Result<FormIDMap, DataBaseError> {
+        static PTR_LOCK: LazyLock<Result<FormIDMap, DataBaseError>> = LazyLock::new(|| {
             let map_ptr = RelocationID::from_se_ae_id(514351, 400507).address()?.cast();
             let lock_ptr = RelocationID::from_se_ae_id(514360, 400517).address()?.cast();
-            Ok(IDAllFormsMapPtr(FormMapLockPtr { map_ptr, lock_ptr }))
+            Ok(FormIDMap(RawFormMapLock { map_ptr, lock_ptr }))
         });
         &PTR_LOCK
     }
 
-    pub fn get_all_forms_by_editor_id() -> &'static Result<StringAllFormsMapPtr, DataBaseError> {
-        static PTR_LOCK: LazyLock<Result<StringAllFormsMapPtr, DataBaseError>> =
-            LazyLock::new(|| {
-                Ok(StringAllFormsMapPtr(FormMapLockPtr {
-                    map_ptr: RelocationID::from_se_ae_id(514352, 400509).address()?.cast(),
-                    lock_ptr: RelocationID::from_se_ae_id(514361, 400518).address()?.cast(),
-                }))
-            });
+    pub fn get_all_forms_by_editor_id() -> &'static Result<EditorIDMap, DataBaseError> {
+        static PTR_LOCK: LazyLock<Result<EditorIDMap, DataBaseError>> = LazyLock::new(|| {
+            Ok(EditorIDMap(RawFormMapLock {
+                map_ptr: RelocationID::from_se_ae_id(514352, 400509).address()?.cast(),
+                lock_ptr: RelocationID::from_se_ae_id(514361, 400518).address()?.cast(),
+            }))
+        });
         &PTR_LOCK
     }
 

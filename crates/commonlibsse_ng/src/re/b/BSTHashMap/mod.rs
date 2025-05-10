@@ -159,6 +159,16 @@ where
         Some(&pair.1)
     }
 
+    pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
+        let mut binding = self.0.get_entry_start();
+        let value = binding.iter_mut().find(|value| unsafe {
+            value.as_non_sentinel_ref().is_some_and(|entry| entry.value_data.0 == *key)
+        })?;
+
+        let pair = unsafe { &mut value.as_non_sentinel_mut()?.value_data };
+        Some(&mut pair.1)
+    }
+
     // TODO: Return prev Option<(K, V)>
     pub fn insert(&mut self, key: K, value: V) -> (Iter<(K, V)>, bool) {
         let (pair, res) = self.0.insert((key, value));
