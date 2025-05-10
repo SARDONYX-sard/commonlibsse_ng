@@ -33,25 +33,27 @@ pub struct LoadInterface(SKSEInterface);
 /// This can only be implemented by interfaces defined in SKSE.
 pub unsafe trait QueryTarget: private::Sealed {
     /// Cast to function table(struct)
-    fn cast(ptr: *mut c_void) -> &'static Self;
-    /// Get this query id
-    fn id() -> u32;
+    ///
+    /// # Panics(Dev)
+    /// ptr is null.
+    #[inline]
+    fn cast(ptr: *mut c_void) -> &'static Self
+    where
+        Self: Sized,
+    {
+        debug_assert!(!ptr.is_null(), "SKSE interface query returned null");
+        unsafe { &*(ptr as *const Self) }
+    }
+
+    /// Query ID
+    const ID: u32;
 }
 
 macro_rules! impl_query_target {
     ($($t:ty => $id:expr),*) => {
         $(
             unsafe impl QueryTarget for $t {
-                #[inline]
-                fn cast(ptr: *mut c_void) -> &'static Self {
-                    assert!(!ptr.is_null(), "SKSE interface query returned null");
-                    unsafe { &*(ptr as *const Self) }
-                }
-
-                #[inline]
-                fn id() -> u32 {
-                    $id
-                }
+                const ID: u32 = $id;
             }
         )*
     };
@@ -105,8 +107,7 @@ impl LoadInterface {
     /// Get a reference to the global variables for each interface.
     #[inline]
     pub fn query_interface<T: QueryTarget>(&self) -> &'static T {
-        let fn_table = unsafe { (self.0.QueryInterface)(T::id()) };
-        debug_assert!(!fn_table.is_null(), "SKSE interface query returned null");
+        let fn_table = unsafe { (self.0.QueryInterface)(T::ID) };
         T::cast(fn_table)
     }
 }
